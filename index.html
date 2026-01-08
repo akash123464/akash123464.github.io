@@ -42,11 +42,44 @@
       text-align: center;
       padding: 15px;
       margin-top: 30px;
-    }
+    }.banner {
+  height: 80vh;
+  background-image: url("banner.jpg");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+}
+
+.banner-text {
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 25px;
+  border-radius: 10px;
+  max-width: 500px;
+}
+
+.banner-btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 12px 25px;
+  background: orange;
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 5px;
+}
   </style>
 </head>
 <body>
-
+<div class="banner">
+  <div class="banner-text">
+    <h1>Home Services at Your Doorstep</h1>
+    <p>Trusted workers • Fast service • Affordable prices</p>
+    <a href="#" class="banner-btn">Book a Service</a>
+  </div>
+</div>
 <header>
   <h1>Home Help Service</h1>
   <p>We send trusted workers to help you at home</p>
