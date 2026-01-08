@@ -74,6 +74,35 @@
   height: 40px;
   background: #f4f6f8;
 }
+   .problem-form input,
+.problem-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.problem-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.problem-form button {
+  margin-top: 15px;
+  padding: 12px 25px;
+  background: #2c7be5;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.problem-form button:hover {
+  background: #1a5fd0;
+}
   </style>
 </head>
 <body>
@@ -109,8 +138,27 @@
   <div class="card">
    <h2>Contact Us</h2>
    <p>Call or WhatsApp us to book a service.</p>
-   <a class="btn" href="tel+919522586183">CallNow<a>
+  <a class="btn" href="tel:+919522586183">CallNow<a>
   </div>
+  <div class="card">
+  <h2>Tell Us Your Problem</h2>
+  <p>Please explain your issue clearly. Our team will contact you soon.</p>
+
+  <form
+    class="problem-form"
+    action="mailto:akashbhadouriya123456@gmail.com"
+    method="post"
+    enctype="text/plain"
+  >
+    <input type="text" name="Name" placeholder="Your Name" required>
+
+    <input type="tel" name="Phone" placeholder="Your Phone Number" required>
+
+    <textarea name="Problem" placeholder="Describe your problem" required></textarea>
+
+    <button type="submit">Submit Problem</button>
+  </form>
+</div>
  </section>
 
 <footer>
