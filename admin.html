@@ -40,6 +40,69 @@
   <div id="problemsContainer" class="card">
     <p>Loading problems...</p>
   </div>
+<script type="module">
+  // Firebase core
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 
+  // Firestore
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    query,
+    orderBy
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDvku-LXDpxjm_8mwsUJr5nUthwsA3MSf8",
+    authDomain: "home-help-service.firebaseapp.com",
+    projectId: "home-help-service",
+    storageBucket: "home-help-service.firebasestorage.app",
+    messagingSenderId: "160722457510",
+    appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567"
+  };
+
+  // Init Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const container = document.getElementById("problemsContainer");
+
+  async function loadProblems() {
+    container.innerHTML = "<p>Loading problems...</p>";
+
+    const q = query(
+      collection(db, "problems"),
+      orderBy("createdAt", "desc")
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      container.innerHTML = "<p>No problems submitted yet.</p>";
+      return;
+    }
+
+    container.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+
+      const div = document.createElement("div");
+      div.className = "problem";
+      div.innerHTML = `
+        <strong>Name:</strong> ${data.name}<br>
+        <strong>Email:</strong> ${data.email}<br>
+        <strong>Problem:</strong><br>
+        <p>${data.problem}</p>
+        <small>${data.createdAt?.toDate().toLocaleString() || ""}</small>
+      `;
+
+      container.appendChild(div);
+    });
+  }
+
+  loadProblems();
+</script>
 </body>
 </html>
