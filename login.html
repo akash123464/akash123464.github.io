@@ -14,43 +14,33 @@
 
 <p>Don’t have an account? <a href="signup.html">Sign up</a></p>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth,
-  signInWithEmailAndPassword,
-  setPersistence,
-  browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyACLOluptVjTBrtZw3RgEH4nM7_IboD-js",
-    authDomain: "wishwork-c7e63.firebaseapp.com",
-    projectId: "wishwork-c7e63",
-    storageBucket: "wishwork-c7e63.firebasestorage.app",
-    messagingSenderId: "1013587518686",
-    appId: "1:1013587518686:web:137bca9afe1d11f31e0e4f"
-  };
+ <script type="module">
+  import { auth } from "./firebase.js";
+  import {
+    signInWithEmailAndPassword,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  
-  setPersistence(auth, browserLocalPersistence);
-
- const loginBtn=document.getElementById("loginBtn");
-
-loginBtn.addEventListener("click", () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      // SUCCESS → go to homepage
+  // If already logged in → go to homepage
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
       window.location.href = "index.html";
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
-});
-</script>
+    }
+  });
 
+  const loginBtn = document.getElementById("loginBtn");
+
+  loginBtn.addEventListener("click", () => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        window.location.href = "index.html";
+      })
+      .catch((error) => alert(error.message));
+  });
+</script>
 </body>
 </html>
