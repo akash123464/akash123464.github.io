@@ -44,7 +44,7 @@ loginBtn.addEventListener("click", () => {
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
       // SUCCESS → go to homepage
-      window.location.href = "dashboard.html";
+      window.location.href = "index.html";
     })
     .catch((error) => {
       alert(error.message);
