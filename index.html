@@ -137,7 +137,12 @@
     <p>Trustworthy workers, affordable prices, and fast service at your doorstep.</p>
   </div>
 
-  
+<div class="card" style="text-align:center;">
+  <button id="showProblemSection" class="btn">
+    📝 Tell me about your problem
+  </button>
+</div>
+  <div id="problemSections" style="display:none;">
 <div class="card">
   <h2>Submit Your Problem (Directly on Website)</h2>
 
@@ -187,6 +192,17 @@
     directForm.style.display = "none"; // hide form
     successBox.style.display = "block"; // show success message
   });
+</script>
+<script>
+  const showBtn = document.getElementById("showProblemSection");
+  const problemSections = document.getElementById("problemSections");
+
+  if (showBtn && problemSections) {
+    showBtn.addEventListener("click", function () {
+      problemSections.style.display = "block";
+      showBtn.style.display = "none";
+    });
+  }
 </script>
 
 </body>
