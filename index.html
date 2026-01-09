@@ -204,6 +204,38 @@
     });
   }
 </script>
+<script type="module">
+  // Firebase core
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 
+  // Firestore (THIS IS REQUIRED)
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUthwsA3MSf8",
+    authDomain: "home-help-service.firebaseapp.com",
+    projectId: "home-help-service",
+    storageBucket: "home-help-service.firebasestorage.app",
+    messagingSenderId: "160722457510",
+    appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+  // Initialize Firestore
+  const db = getFirestore(app);
+
+  // Expose for form script
+  window.db = db;
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.serverTimestamp = serverTimestamp;
+</script>
 </body>
 </html>
