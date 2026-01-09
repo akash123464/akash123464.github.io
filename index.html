@@ -184,6 +184,7 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  setPersistence(auth, browserLocalPersistence);
 
   onAuthStateChanged(auth, (user) => {
     if (!user) {
