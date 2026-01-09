@@ -10,7 +10,7 @@
 <input type="email" id="email" placeholder="Email"><br><br>
 <input type="password" id="password" placeholder="Password"><br><br>
 
-<button onclick="login()">Login</button>
+<button id="loginBtn">Login</button>
 
 <p>Don’t have an account? <a href="signup.html">Sign up</a></p>
 
@@ -30,16 +30,21 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  window.login = function () {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+ const loginBtn = document.getElementById("loginBtn");
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        window.location.href = "index.html";
-      })
-      .catch(error => alert(error.message));
-  };
+loginBtn.addEventListener("click", () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      // SUCCESS → go to homepage
+      window.location.href = "index.html";
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+});
 </script>
 
 </body>
