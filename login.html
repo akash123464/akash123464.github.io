@@ -16,7 +16,10 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getAuth,
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyACLOluptVjTBrtZw3RgEH4nM7_IboD-js",
@@ -29,8 +32,10 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  
+  setPersistence(auth, browserLocalPersistence);
 
- const loginBtn = document.getElementById("loginBtn");
+ const loginBtn=document.getElementById("loginBtn");
 
 loginBtn.addEventListener("click", () => {
   const email = document.getElementById("email").value;
@@ -39,7 +44,7 @@ loginBtn.addEventListener("click", () => {
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
       // SUCCESS → go to homepage
-      window.location.href = "index.html";
+      window.location.href = "dashboard.html";
     })
     .catch((error) => {
       alert(error.message);
