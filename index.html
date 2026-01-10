@@ -195,7 +195,15 @@
 <button id="closeBtn" class="close-btn" onclick="closeProblems()" style="display:none;">
   ❌ Close
 </button>
+</div>
+<div class="card worker-section" style="text-align:center;">
+  <button id="openWorkerBtn" class="action-btn" onclick="openWorker()">
+    🛠️ Join as a Worker
+  </button>
 
+  <button id="closeWorkerBtn" class="close-btn" onclick="closeWorker()" style="display:none;">
+    ❌ Close
+  </button>
 </div>
    <div class="direct-problem-box" id="problemWrapper">
   <h2>Submit Your Problem (Directly on Website)</h2>
@@ -232,7 +240,24 @@
 </div>
 </div>
  </section>
+<div class="card worker-section" style="text-align:center;">
+  <h2>🛠️ Register as a Worker</h2>
+  <p>Skilled professionals can join and get work opportunities</p>
 
+  <button id="openWorkerBtn" class="action-btn" onclick="openWorker()">
+    Join as a Worker
+  </button>
+
+  <button id="closeWorkerBtn" class="close-btn"
+    onclick="closeWorker()" style="display:none;">
+    ❌ Close
+  </button>
+</div>
+
+<div class="direct-problem-box" id="workerWrapper" style="display:none;">
+  <h2>🛠️ Worker Registration</h2>
+  <p>Fill your details to register as a worker</p>
+</div>
 <footer>
   <p>© 2026 Home Help Service</p>
 </footer>
@@ -302,6 +327,19 @@ form.addEventListener("submit", async (e) => {
     document.getElementById("problemWrapper").style.display = "none";
     document.getElementById("openBtn").style.display = "inline-block";
     document.getElementById("closeBtn").style.display = "none";
+  }
+</script>
+<script>
+  function openWorker() {
+    document.getElementById("workerWrapper").style.display = "block";
+    document.getElementById("openWorkerBtn").style.display = "none";
+    document.getElementById("closeWorkerBtn").style.display = "inline-block";
+  }
+
+  function closeWorker() {
+    document.getElementById("workerWrapper").style.display = "none";
+    document.getElementById("openWorkerBtn").style.display = "inline-block";
+    document.getElementById("closeWorkerBtn").style.display = "none";
   }
 </script>
 </body>
