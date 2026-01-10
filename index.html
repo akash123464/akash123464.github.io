@@ -324,7 +324,35 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
+const workerForm = document.getElementById("workerForm");
+const workerSuccessMessage = document.getElementById("workerSuccessMessage");
 
+workerForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const workerData = {
+    name: document.getElementById("workerName").value,
+    phone: document.getElementById("workerPhone").value,
+    city: document.getElementById("workerCity").value,
+    area: document.getElementById("workerArea").value,
+    skill: document.getElementById("workerSkill").value,
+    experience: document.getElementById("workerExperience").value,
+    details: document.getElementById("workerDetails").value,
+    createdAt: serverTimestamp()
+  };
+
+  try {
+    await addDoc(collection(db, "workerRegistrations"), workerData);
+
+    workerForm.style.display = "none";
+    workerSuccessMessage.style.display = "block";
+    workerForm.reset();
+
+  } catch (error) {
+    alert("Something went wrong. Please try again.");
+    console.error(error);
+  }
+});
 </script>
 <script>
   function openProblems() {
