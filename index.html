@@ -241,8 +241,28 @@
 </div>
  </section>
 <div class="direct-problem-box" id="workerWrapper" style="display:none;">
-  <h2>🛠️ Worker Registration</h2>
-  <p>Fill your details to register as a worker</p>
+<h2>🛠️ Worker Registration</h2>
+<p>Fill your details to register as a worker</p>
+
+<form id="workerForm" class="problem-form">
+
+  <input type="text" id="workerName" placeholder="Full Name" required>
+
+  <input type="tel" id="workerPhone" placeholder="Mobile Number" required>
+
+  <input type="text" id="workerCity" placeholder="City" required>
+
+  <input type="text" id="workerArea" placeholder="Area / Locality" required>
+
+  <input type="text" id="workerSkill" placeholder="Skill (Plumber, Electrician etc.)" required>
+
+  <input type="number" id="workerExperience" placeholder="Years of Experience" required>
+
+  <textarea id="workerDetails" placeholder="Additional details (optional)"></textarea>
+
+  <button type="submit">Register as Worker</button>
+
+</form>
 </div>
 <footer>
   <p>© 2026 Home Help Service</p>
