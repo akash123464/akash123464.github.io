@@ -116,17 +116,9 @@
 .problem-form button:hover {
   background: #1a5fd0;
 }
-  .problem-box {
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-height 0.5s ease, opacity 0.4s ease;
-  margin-top: 12px;
-}
-
-.problem-box.active {
-  max-height: 300px;
-  opacity: 1;
+  
+  #problemWrapper {
+  display: none;
 }
   </style>
 
@@ -180,17 +172,16 @@
 </div>
 
 <div class="card pink-section" style="text-align:center;">
-  <button id="openBtn" class="action-btn" onclick="openProblem()">
-    📝 Tell me about your problem
-  </button>
-<div id="problemSection" class="problem-box">
-<textarea placeholder="Describe your problem..." rows="4"></textarea>
-<button class="close-btn" onclick="closeProblem()">
-    ❌ Close
-  </button>
-</div>
+  <button id="openBtn" class="action-btn" onclick="openProblems()">
+  📝 Tell me about your problem
+</button>
+
+<button id="closeBtn" class="close-btn" onclick="closeProblems()" style="display:none;">
+  ❌ Close
+</button>
 
 </div>
+   <div id="problemWrapper">
   <h2>Submit Your Problem (Directly on Website)</h2>
   <p>We gonna connect🔗 you to the expert who will solve your problem for you</p>
 
@@ -231,18 +222,6 @@
   <p>© 2026 Home Help Service</p>
 </footer>
 
-
-<script>
-  const showBtn = document.getElementById("showProblemSection");
-  const problemSections = document.getElementById("problemSections");
-
-  if (showBtn && problemSections) {
-    showBtn.addEventListener("click", function () {
-      problemSections.style.display = "block";
-      showBtn.style.display = "none";
-    });
-  }
-</script>
 <script type="module">
   // Firebase core
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
@@ -298,14 +277,16 @@ form.addEventListener("submit", async (e) => {
 
 </script>
 <script>
-  function openProblem() {
-    document.getElementById("problemSection").classList.add("active");
+  function openProblems() {
+    document.getElementById("problemWrapper").style.display = "block";
     document.getElementById("openBtn").style.display = "none";
+    document.getElementById("closeBtn").style.display = "inline-block";
   }
 
-  function closeProblem() {
-    document.getElementById("problemSection").classList.remove("active");
+  function closeProblems() {
+    document.getElementById("problemWrapper").style.display = "none";
     document.getElementById("openBtn").style.display = "inline-block";
+    document.getElementById("closeBtn").style.display = "none";
   }
 </script>
 </body>
