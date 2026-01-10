@@ -146,12 +146,13 @@
 <div class="card">
   <h2>Submit Your Problem (Directly on Website)</h2>
 
-  <form id="problemFormDirect" class="problem-form">
-    <input type="text" id="d_name" placeholder="Your Name" required>
-    <input type="email" id="d_email" placeholder="Your Email" required>
-    <textarea id="d_problem" placeholder="Describe your problem" required></textarea>
+  <form id="problemFormDirect" class="problem-form" onsubmit="event.preventDefault();">
+     <input type="text" id="name" placeholder="Your Name" required>
+<input type="email" id="email" placeholder="Your Email" required>
+<textarea id="problem" placeholder="Describe your problem" required></textarea>
+    
 
-    <button type="submit">Submit</button>
+     <button type="submit">Submit</button>
   </form>
 
   <div id="successMessageDirect" style="display:none;">
@@ -182,17 +183,7 @@
   <p>© 2026 Home Help Service</p>
 </footer>
 
-<script>
-  const directForm = document.getElementById("problemFormDirect");
-  const successBox = document.getElementById("successMessageDirect");
 
-  directForm.addEventListener("submit", function (e) {
-    e.preventDefault(); // stop page reload
-
-    directForm.style.display = "none"; // hide form
-    successBox.style.display = "block"; // show success message
-  });
-</script>
 <script>
   const showBtn = document.getElementById("showProblemSection");
   const problemSections = document.getElementById("problemSections");
@@ -230,12 +221,33 @@
 
   // Initialize Firestore
   const db = getFirestore(app);
+const form = document.getElementById("problemFormDirect");
+const successBox = document.getElementById("successMessageDirect");
 
-  // Expose for form script
-  window.db = db;
-  window.collection = collection;
-  window.addDoc = addDoc;
-  window.serverTimestamp = serverTimestamp;
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const problem = document.getElementById("problem").value;
+
+  try {
+    await addDoc(collection(db, "submissions"), {
+      name: name,
+      email: email,
+      problem: problem,
+      time: serverTimestamp()
+    });
+
+    form.reset();
+    form.style.display = "none";
+    successBox.style.display = "block";
+  } catch (error) {
+    alert("Error: " + error.message);
+  }
+});
+
+
 </script>
 </body>
 </html>
