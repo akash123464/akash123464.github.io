@@ -71,10 +71,7 @@
   async function loadProblems() {
     container.innerHTML = "<p>Loading problems...</p>";
 
-    const q = query(
-      collection(db, "problems"),
-      orderBy("createdAt", "desc")
-    );
+    const q = query(collection(db, "problems"));
 
     const snapshot = await getDocs(q);
 
