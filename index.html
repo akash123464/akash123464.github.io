@@ -116,6 +116,18 @@
 .problem-form button:hover {
   background: #1a5fd0;
 }
+  .problem-box {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.5s ease, opacity 0.4s ease;
+  margin-top: 12px;
+}
+
+.problem-box.active {
+  max-height: 300px;
+  opacity: 1;
+}
   </style>
 
 </head>
@@ -168,12 +180,17 @@
 </div>
 
 <div class="card pink-section" style="text-align:center;">
-  <button id="showProblemSection" class="btn">
+  <button id="openBtn" class="action-btn" onclick="openProblem()">
     📝 Tell me about your problem
   </button>
+<div id="problemSection" class="problem-box">
+<textarea placeholder="Describe your problem..." rows="4"></textarea>
+<button class="close-btn" onclick="closeProblem()">
+    ❌ Close
+  </button>
 </div>
-  <div id="problemSections" style="display:none;">
-<div class="card">
+
+</div>
   <h2>Submit Your Problem (Directly on Website)</h2>
   <p>We gonna connect🔗 you to the expert who will solve your problem for you</p>
 
@@ -279,6 +296,17 @@ form.addEventListener("submit", async (e) => {
 });
 
 
+</script>
+<script>
+  function openProblem() {
+    document.getElementById("problemSection").classList.add("active");
+    document.getElementById("openBtn").style.display = "none";
+  }
+
+  function closeProblem() {
+    document.getElementById("problemSection").classList.remove("active");
+    document.getElementById("openBtn").style.display = "inline-block";
+  }
 </script>
 </body>
 </html>
