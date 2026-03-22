@@ -6,6 +6,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
  <style>
+ .top-nav {
+  display: flex;
+  overflow-x: auto;
+  background: #111;
+  padding: 10px;
+  gap: 10px;
+}
+
+.nav-item {
+  color: #ccc;
+  padding: 10px 15px;
+  background: #222;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.nav-item.active {
+  background: #F4A261;
+  color: black;
+  font-weight: bold;
+}
   #openBtn {
   font-size: 20px;
   padding: 18px 28px;
@@ -140,6 +163,13 @@
 
 </head>
 <body>
+<div class="top-nav">
+  <div class="nav-item active" onclick="showSection('instagram')">Instagram</div>
+  <div class="nav-item" onclick="showSection('youtube')">YouTube</div>
+  <div class="nav-item" onclick="showSection('oil')">Oil</div>
+  <div class="nav-item" onclick="showSection('exam')">Exam</div>
+  <div class="nav-item" onclick="showSection('random')">Random</div>
+</div>
   <div class="banner-text"style="margin: 20px auto; text-align: center;">
     <h1>Home Services at Your🚪Doorstep</h1>
     <p>Trusted workers👷• Fast service🪛• Affordable prices🐼</p>
@@ -378,6 +408,24 @@ workerForm.addEventListener("submit", async (e) => {
     document.getElementById("openWorkerBtn").style.display = "inline-block";
     document.getElementById("closeWorkerBtn").style.display = "none";
   }
+</script>
+<script>
+function showSection(sectionId) {
+
+  // hide all sections
+  const sections = document.querySelectorAll('.section-content');
+  sections.forEach(sec => sec.style.display = 'none');
+
+  // show selected section
+  document.getElementById(sectionId).style.display = 'block';
+
+  // remove active from all buttons
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item => item.classList.remove('active'));
+
+  // add active to clicked
+  event.target.classList.add('active');
+}
 </script>
 </body>
 </html>
