@@ -159,11 +159,95 @@
   margin-bottom: 25px;
   box-shadow: 0 6px 15px rgba(0,0,0,0.15);
 }
+/* BET CARD */
+.bet-card {
+  background: #1e1e1e;
+  color: white;
+  padding: 20px;
+  margin: 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: 0.2s;
+}
+
+.bet-card:hover {
+  transform: scale(1.03);
+}
+
+/* BET DETAIL SCREEN */
+#betDetail {
+  text-align: center;
+  padding: 20px;
+  color: white;
+}
+
+/* BUTTONS */
+.bet-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.yes-btn {
+  background: #00c853;
+  color: white;
+  padding: 15px 25px;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.no-btn {
+  background: #d50000;
+  color: white;
+  padding: 15px 25px;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.back-btn {
+  margin-top: 25px;
+  background: #333;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
   </style>
 
 </head>
 <body>
 <div class="top-nav">
+ <div id="instagram" class="section-content">
+
+  <div class="bet-card" onclick="openBet()">
+    <h3>Will Karan Aujla post more than 5 stories on Instagram?</h3>
+  </div>
+
+  <div id="betDetail" style="display:none;">
+    <h2>Will Karan Aujla post more than 5 stories on Instagram?</h2>
+
+    <div class="bet-buttons">
+      <button class="yes-btn">YES</button>
+      <button class="no-btn">NO</button>
+    </div>
+
+    <button class="back-btn" onclick="closeBet()">⬅ Back</button>
+  </div>
+
+</div>
+
+<div id="youtube" class="section-content" style="display:none;">YouTube bets here</div>
+<div id="oil" class="section-content" style="display:none;">Oil bets here</div>
+<div id="exam" class="section-content" style="display:none;">Exam bets here</div>
+<div id="random" class="section-content" style="display:none;">Random bets here</div>
   <div class="nav-item active" onclick="showSection('instagram')">Instagram</div>
   <div class="nav-item" onclick="showSection('youtube')">YouTube</div>
   <div class="nav-item" onclick="showSection('oil')">Oil</div>
@@ -425,6 +509,17 @@ function showSection(sectionId) {
 
   // add active to clicked
   event.target.classList.add('active');
+}
+</script>
+<script>
+function openBet() {
+  document.querySelector('.bet-card').style.display = 'none';
+  document.getElementById('betDetail').style.display = 'block';
+}
+
+function closeBet() {
+  document.querySelector('.bet-card').style.display = 'block';
+  document.getElementById('betDetail').style.display = 'none';
 }
 </script>
 </body>
