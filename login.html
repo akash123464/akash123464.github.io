@@ -17,11 +17,11 @@
 <button onclick="signup()">Signup</button>
 
 <script type="module">
-// 1. Import Firebase from the CDN
+// 1. Import Firebase 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// 2. Your CORRECTED Firebase configuration
+// 2. Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
   authDomain: "home-help-service.firebaseapp.com",
@@ -33,43 +33,52 @@ const firebaseConfig = {
   measurementId: "G-7PPBZJ6ZWS"
 };
 
-// 3. Initialize Firebase and Auth
+// 3. Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 // 4. LOGIN FUNCTION
 window.login = function () {
-  const email = document.getElementById("email").value;
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+
+  if (!email || !password) {
+    alert("Please enter both email and password.");
+    return;
+  }
 
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
-      alert("Login successful");
-  localStorage.setItem("userLoggedIn", "true"); 
-      
+      alert("Login successful!");
+      // This tells the browser you are logged in
+      localStorage.setItem("userLoggedIn", "true"); 
+      // This sends you to your Live Bets page
       window.location.href = "index.html"; 
     })
     .catch((error) => {
       alert("Login failed: " + error.message);
     });
-      window.location.href = "index.html";
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
 };
 
 // 5. SIGNUP FUNCTION
 window.signup = function () {
-  const email = document.getElementById("email").value;
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+
+  if (!email || !password) {
+    alert("Please enter both email and password.");
+    return;
+  }
 
   createUserWithEmailAndPassword(auth, email, password)
     .then(() => {
-      alert("Account created!");
+      alert("Account created successfully!");
+      // Automatically log them in after signing up
+      localStorage.setItem("userLoggedIn", "true");
+      window.location.href = "index.html";
     })
     .catch((error) => {
-      alert(error.message);
+      alert("Signup failed: " + error.message);
     });
 };
 </script>
