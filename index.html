@@ -15,10 +15,42 @@ body {
 
 /* HEADER */
 .header {
-    padding: 15px;
+    padding: 15px 20px;
     font-size: 22px;
     font-weight: bold;
+    display: flex;
+    justify-content: space-between; /* This pushes the brand name to the right */
+    align-items: center; /* Keeps both texts perfectly centered vertically */
 }
+ 
+/* STYLISH BRAND NAME */
+.brand-name {
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 900;
+    letter-spacing: 1px;
+    
+    /* Animated Gradient Effect */
+    background: linear-gradient(to right, #38bdf8, #c084fc, #38bdf8);
+    background-size: 200% auto;
+    color: #fff;
+    background-clip: text;
+    text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    /* Glowing shadow */
+    filter: drop-shadow(0px 0px 8px rgba(56, 189, 248, 0.6));
+    animation: shineText 3s linear infinite;
+}
+
+/* Animation for the shine effect */
+@keyframes shineText {
+    to {
+        background-position: 200% center;
+    }
+}
+
 
 /* CATEGORY BAR */
 .categories {
@@ -131,7 +163,11 @@ body {
 
 <body>
 
-<div class="header">🔴Live Bets💵💰</div>
+<div class="header">
+    <div class="title">🔴Live Bets💵💰</div>
+    <div class="brand-name">wishwork.online</div>
+</div>
+
 
 <!-- CATEGORIES -->
 <div class="categories">
