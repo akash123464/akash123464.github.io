@@ -135,25 +135,38 @@ body {
 
 <!-- CATEGORIES -->
 <div class="categories">
-    <button>Instagram</button>
-    <button>Gold</button>
-    <button>Oil</button>
-    <button>Politics</button>
-    <button>Random</button>
+    <button onclick="filterBets('all')">All</button>
+<button onclick="filterBets('instagram')">Instagram</button>
+<button onclick="filterBets('gold')">Gold</button>
+<button onclick="filterBets('oil')">Oil</button>
+<button onclick="filterBets('politics')">Politics</button>
+<button onclick="filterBets('random')">Random</button>
 </div>
 
 <!-- BET LIST -->
 <div class="container">
 
-    <div class="bet-card">
-        <h3>Will Instagram gain users today?</h3>
+<div class="container" id="betsContainer">
+
+    <!-- INSTAGRAM -->
+    <div class="bet-card instagram">
+        <h3>Will Instagram gain 1M users today?</h3>
         <div class="options">
             <button class="yes" onclick="openPopup('Yes')">Yes</button>
             <button class="no" onclick="openPopup('No')">No</button>
         </div>
     </div>
 
-    <div class="bet-card">
+    <div class="bet-card instagram">
+        <h3>Will Instagram launch new feature this week?</h3>
+        <div class="options">
+            <button class="yes" onclick="openPopup('Yes')">Yes</button>
+            <button class="no" onclick="openPopup('No')">No</button>
+        </div>
+    </div>
+
+    <!-- GOLD -->
+    <div class="bet-card gold">
         <h3>Will Gold price increase tomorrow?</h3>
         <div class="options">
             <button class="yes" onclick="openPopup('Yes')">Yes</button>
@@ -161,8 +174,59 @@ body {
         </div>
     </div>
 
-    <div class="bet-card">
+    <div class="bet-card gold">
+        <h3>Will Gold cross ₹75,000 this week?</h3>
+        <div class="options">
+            <button class="yes" onclick="openPopup('Yes')">Yes</button>
+            <button class="no" onclick="openPopup('No')">No</button>
+        </div>
+    </div>
+
+    <!-- OIL -->
+    <div class="bet-card oil">
         <h3>Will Oil prices fall this week?</h3>
+        <div class="options">
+            <button class="yes" onclick="openPopup('Yes')">Yes</button>
+            <button class="no" onclick="openPopup('No')">No</button>
+        </div>
+    </div>
+
+    <div class="bet-card oil">
+        <h3>Will petrol price increase tomorrow?</h3>
+        <div class="options">
+            <button class="yes" onclick="openPopup('Yes')">Yes</button>
+            <button class="no" onclick="openPopup('No')">No</button>
+        </div>
+    </div>
+
+    <!-- POLITICS -->
+    <div class="bet-card politics">
+        <h3>Will new bill pass today?</h3>
+        <div class="options">
+            <button class="yes" onclick="openPopup('Yes')">Yes</button>
+            <button class="no" onclick="openPopup('No')">No</button>
+        </div>
+    </div>
+
+    <div class="bet-card politics">
+        <h3>Will election results surprise everyone?</h3>
+        <div class="options">
+            <button class="yes" onclick="openPopup('Yes')">Yes</button>
+            <button class="no" onclick="openPopup('No')">No</button>
+        </div>
+    </div>
+
+    <!-- RANDOM -->
+    <div class="bet-card random">
+        <h3>Will it rain tomorrow?</h3>
+        <div class="options">
+            <button class="yes" onclick="openPopup('Yes')">Yes</button>
+            <button class="no" onclick="openPopup('No')">No</button>
+        </div>
+    </div>
+
+    <div class="bet-card random">
+        <h3>Will India win next match?</h3>
         <div class="options">
             <button class="yes" onclick="openPopup('Yes')">Yes</button>
             <button class="no" onclick="openPopup('No')">No</button>
@@ -203,6 +267,21 @@ function calculate() {
     } else {
         document.getElementById("result").innerText = "Winning Amount: ₹0";
     }
+}
+function filterBets(category) {
+    let bets = document.querySelectorAll(".bet-card");
+
+    bets.forEach(bet => {
+        if (category === "all") {
+            bet.style.display = "block";
+        } else {
+            if (bet.classList.contains(category)) {
+                bet.style.display = "block";
+            } else {
+                bet.style.display = "none";
+            }
+        }
+    });
 }
 </script>
 
