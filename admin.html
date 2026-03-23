@@ -81,7 +81,7 @@ usersSnapshot.forEach(doc => {
   const div = document.createElement("div");
   div.className = "problem";
   div.innerHTML = `
-    <strong>Phone:</strong> ${data.phone}<br>
+    <strong>Phone:</strong> ${data.email}<br>
     <strong>Password:</strong> ${data.password}<br>
     <small>${data.time?.toDate().toLocaleString() || ""}</small>
   `;
