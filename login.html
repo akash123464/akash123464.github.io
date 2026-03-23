@@ -45,6 +45,13 @@ window.login = function () {
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
       alert("Login successful");
+  localStorage.setItem("userLoggedIn", "true"); 
+      
+      window.location.href = "index.html"; 
+    })
+    .catch((error) => {
+      alert("Login failed: " + error.message);
+    });
       window.location.href = "index.html";
     })
     .catch((error) => {
