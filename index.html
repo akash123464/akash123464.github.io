@@ -49,7 +49,58 @@ body {
     to {
         background-position: 200% center;
     }
+/* GEN Z LIVE BADGE & TITLE */
+.title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
+.live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(239, 68, 68, 0.15); /* Translucent neon red */
+    color: #ff4b4b; /* Bright neon red */
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.3); /* Neon glow */
+}
+
+/* The glowing pulsing dot */
+.live-badge .dot {
+    width: 8px;
+    height: 8px;
+    background-color: #ff4b4b;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #ff4b4b;
+    animation: pulseDot 0.8s infinite alternate;
+}
+
+.bets-text {
+    font-size: 22px;
+    font-weight: 900;
+    color: #f8fafc;
+    letter-spacing: 0.5px;
+}
+
+/* Animation to make the dot heartbeat */
+@keyframes pulseDot {
+    0% { 
+        opacity: 0.4; 
+        transform: scale(0.8); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: scale(1.3); 
+    }
+}
+
 
 
 /* CATEGORY BAR */
@@ -164,7 +215,11 @@ body {
 <body>
 
 <div class="header">
-    <div class="title">🔴Live Bets💵💰</div>
+    <div class="title">
+    <div class="live-badge"><span class="dot"></span>LIVE</div>
+    <div class="bets-text">BETS 💵💰</div>
+</div>
+
     <div class="brand-name">wishwork.online</div>
 </div>
 
