@@ -243,7 +243,18 @@ body {
 
     <div class="result" id="result">Winning Amount: ₹0</div>
 
-    <button class="place-btn">Place Bet</button>
+    <button class="place-btn" onclick="showQR()">Place Bet</button>
+
+<div id="qrSection" style="display:none; text-align:center; margin-top:15px;">
+    
+    <img src="qr.png" style="width:200px; border-radius:10px;">
+
+    <button onclick="closeQR()" 
+        style="margin-top:10px; padding:10px; width:100%; border:none; border-radius:10px; background:#22c55e; color:white; font-weight:bold;">
+        Payment Done
+    </button>
+
+</div>
 
     <div class="close-btn" onclick="closePopup()">Cancel</div>
 </div>
@@ -282,6 +293,14 @@ function filterBets(category) {
             }
         }
     });
+}
+function showQR() {
+    document.getElementById("qrSection").style.display = "block";
+}
+
+function closeQR() {
+    document.getElementById("qrSection").style.display = "none";
+    document.getElementById("popup").classList.remove("active");
 }
 </script>
 
