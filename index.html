@@ -260,6 +260,9 @@ body {
 </div>
 
 <script>
+if (!localStorage.getItem("userLoggedIn")) {
+  window.location.href = "login.html";
+}
 function openPopup(type) {
     document.getElementById("popup").classList.add("active");
     document.getElementById("betTitle").innerText = "Bet on " + type;
