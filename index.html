@@ -137,7 +137,7 @@
 </div>
 
 <div class="protocol-selector" id="catSelector">
-    <div class="category-chip active" id="initCat" data-color="#00f2ff" onclick="filterBets('INSTAGRAM', this)"><i class="fa-brands fa-instagram"></i> INSTAGRAM</div>
+    <div class="category-chip" data-color="#E1306C" onclick="filterBets('INSTAGRAM', this)"><i class="fa-brands fa-instagram"></i> INSTAGRAM</div>
     <div class="category-chip" data-color="#FFD700" onclick="filterBets('OIL', this)"><i class="fa-solid fa-droplet"></i> OIL</div>
     <div class="category-chip" data-color="#FF4500" onclick="filterBets('POLITICS', this)"><i class="fa-solid fa-landmark"></i> POLITICS</div>
     <div class="category-chip" data-color="#FF0000" onclick="filterBets('YOUTUBE', this)"><i class="fa-brands fa-youtube"></i> YOUTUBE</div>
@@ -174,7 +174,8 @@
 
     if(!uEmail) window.location.href = "login.html";
 
-    const allBets = {
+    // GLOBAL DATA ATTACHED TO WINDOW FOR SAFETY
+    window.allBets = {
         INSTAGRAM: [
             {q: "Karan Aujla story in next 30m?", id: "INSTA-1"}, 
             {q: "Post likes reach 1M in 1hr?", id: "INSTA-2"},
@@ -228,6 +229,7 @@
     window.toggleLedger = () => document.getElementById('ledgerOverlay').classList.toggle('active');
 
     window.filterBets = (cat, el) => {
+        if(!el) return;
         const themeColor = el.getAttribute('data-color');
         document.documentElement.style.setProperty('--active-theme', themeColor);
         
@@ -242,7 +244,8 @@
         el.classList.add('active');
         const grid = document.getElementById('betGrid');
         grid.innerHTML = "";
-        allBets[cat].forEach(n => {
+        
+        window.allBets[cat].forEach(n => {
             grid.innerHTML += `<div class="bet-card">
                 <div style="font-size:9px; color:var(--active-theme); font-weight:900; letter-spacing: 1px;">${cat} PROTOCOL</div>
                 <div style="margin:12px 0; font-weight:600; font-size:15px;">${n.q}</div>
@@ -254,12 +257,54 @@
         });
     };
 
-    // Wait for DOM to ensure everything is loaded before first call
-    document.addEventListener('DOMContentLoaded', () => {
-        const init = document.getElementById('initCat');
-        if(init) filterBets('INSTAGRAM', init);
+    // ATTACH CORE FUNCTIONS TO WINDOW SO HTML BUTTONS CAN SEE THEM
+    window.openPopup = (t) => {
+        document.getElementById('modalTitle').innerText = t;
+        document.getElementById('inputPhase').style.display = "block";
+        document.getElementById('qrPhase').style.display = "none";
+        const btn = document.getElementById('primaryActionBtn');
+        btn.innerText = t === 'DEPOSIT' ? "GENERATE QR" : (t === 'WITHDRAW' ? "CONFIRM WITHDRAWAL" : "PLACE BET");
+        document.getElementById('masterPopup').classList.add('active');
+    };
+
+    window.closePopup = () => document.getElementById('masterPopup').classList.remove('active');
+
+    window.handleAction = async () => {
+        const amtInput = document.getElementById("userAmt").value;
+        const amt = parseInt(amtInput);
+        const bal = parseInt(document.getElementById("displayBalance").innerText);
+        const title = document.getElementById("modalTitle").innerText;
+        if(!amt || amt <= 0) return alert("Enter valid amount!");
+        if(title === "DEPOSIT") {
+            document.getElementById("inputPhase").style.display = "none";
+            document.getElementById("qrPhase").style.display = "flex";
+            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "PENDING" });
+            setTimeout(() => { closePopup(); }, 3000);
+        } else {
+            if(amt > bal) return alert("Insufficient Liquid Credits!");
+            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
+            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
+            closePopup();
+        }
+    };
+
+    window.updatePayout = () => {
+        const v = document.getElementById("userAmt").value;
+        if(v > 0 && document.getElementById("modalTitle").innerText.includes("BET")) {
+            document.getElementById("payoutBox").style.display = "block";
+            document.getElementById("payoutAmt").innerText = (v * 1.9).toFixed(0);
+        } else document.getElementById("payoutBox").style.display = "none";
+    };
+
+    window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
+    
+    // STARTUP SEQUENCE
+    window.addEventListener('load', () => {
+        const firstChip = document.querySelector('.category-chip');
+        if(firstChip) window.filterBets('INSTAGRAM', firstChip);
     });
 
+    // FIREBASE LISTENERS
     onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
     
     let seenWins = JSON.parse(sessionStorage.getItem('seenWins') || '[]');
@@ -297,30 +342,21 @@
         document.getElementById('winVal').innerText = val.replace('₹', '');
         const notif = document.getElementById('winNotif');
         notif.style.top = "20px";
-        cashExplosion();
+        window.cashExplosion();
         setTimeout(() => { notif.style.top = "-120px"; }, 6000);
     }
 
-    window.openPopup = (t) => {
-        document.getElementById('modalTitle').innerText = t;
-        document.getElementById('inputPhase').style.display = "block";
-        document.getElementById('qrPhase').style.display = "none";
-        const btn = document.getElementById('primaryActionBtn');
-        btn.innerText = t === 'DEPOSIT' ? "GENERATE QR" : (t === 'WITHDRAW' ? "CONFIRM WITHDRAWAL" : "PLACE BET");
-        document.getElementById('masterPopup').classList.add('active');
+    window.logoTrigger = () => { window.cashExplosion(); };
+    window.cashExplosion = () => {
+        const zone = document.getElementById('rain-zone');
+        for(let i=0; i<30; i++) {
+            const p = document.createElement('div'); p.innerText = '💎';
+            p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px';
+            p.style.fontSize = '24px'; p.style.zIndex = '10000';
+            p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000, easing: 'linear' });
+            zone.appendChild(p); setTimeout(() => p.remove(), 4000);
+        }
     };
-
-    window.handleAction = async () => {
-        const amtInput = document.getElementById("userAmt").value;
-        const amt = parseInt(amtInput);
-        const bal = parseInt(document.getElementById("displayBalance").innerText);
-        const title = document.getElementById("modalTitle").innerText;
-        if(!amt || amt <= 0) return alert("Enter valid amount!");
-        if(title === "DEPOSIT") {
-            document.getElementById("inputPhase").style.display = "none";
-            document.getElementById("qrPhase").style.display = "flex";
-            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "PENDING" });
-            setTimeout(() => { closePopup(); }, 3000);
-        } else {
-            if(amt > bal) return alert("Insufficient Liquid Credits!");
-            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${am
+</script>
+</body>
+</html>
