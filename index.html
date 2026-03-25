@@ -28,6 +28,17 @@
         .orb-3 { background: var(--neon-pink); top: 30%; left: 30%; }
         @keyframes float-orb { from { transform: translate(0, 0); } to { transform: translate(100px, 80px); } }
 
+        /* WIN POPUP STYLES */
+        #winNotif { 
+            position: fixed; top: -120px; left: 50%; transform: translateX(-50%); 
+            background: rgba(56, 239, 125, 0.15); backdrop-filter: blur(20px); 
+            border: 2px solid var(--neon-green); color: #fff; 
+            padding: 20px 45px; border-radius: 50px; font-weight: 900; 
+            z-index: 9999; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 30px rgba(56, 239, 125, 0.4);
+            display: flex; align-items: center; gap: 15px; font-family: 'Orbitron';
+        }
+
         .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(30px); background: rgba(0, 0, 0, 0.6); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
         .brand-logo { 
             font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; 
@@ -40,7 +51,6 @@
         .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; }
         .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
         
-        /* NEW TRANSACTIONS BUTTON */
         .ledger-trigger { 
             position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); 
             border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; 
@@ -52,22 +62,25 @@
         .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
 
         /* TRANSACTIONS OVERLAY */
-        .ledger-overlay { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: rgba(2, 2, 5, 0.98); backdrop-filter: blur(50px); z-index: 7000; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); padding: 30px 20px; }
+        .ledger-overlay { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: rgba(2, 2, 5, 0.9); backdrop-filter: blur(60px); z-index: 7000; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); padding: 30px 20px; }
         .ledger-overlay.active { right: 0; }
         .ledger-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; }
-        .ledger-scroll { height: calc(100% - 120px); overflow-y: auto; }
+        .ledger-scroll { height: calc(100% - 120px); overflow-y: auto; padding-right: 5px; }
         
         .transaction-node { 
-            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); 
-            border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; 
-            justify-content: space-between; align-items: center; border-left: 4px solid var(--neon-blue);
+            background: rgba(255, 255, 255, 0.04); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 22px; padding: 20px; margin-bottom: 15px; display: flex; 
+            justify-content: space-between; align-items: center; 
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
-        .status-pill { padding: 5px 12px; border-radius: 10px; font-size: 10px; font-weight: 900; }
-        .status-PENDING { color: var(--neon-gold); border: 1px solid var(--neon-gold); }
-        .status-WIN { color: var(--neon-green); border: 1px solid var(--neon-green); }
-        .status-LOST { color: var(--neon-pink); border: 1px solid var(--neon-pink); }
+        
+        .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        .status-PENDING { color: var(--neon-gold); background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); }
+        .status-WIN { color: var(--neon-green); background: rgba(56, 239, 125, 0.1); border: 1px solid rgba(56, 239, 125, 0.3); }
+        .status-LOST { color: var(--neon-pink); background: rgba(255, 0, 122, 0.1); border: 1px solid rgba(255, 0, 122, 0.3); }
 
-        /* CATEGORIES */
         .protocol-selector { display: flex; overflow-x: auto; gap: 12px; padding: 15px 20px; scrollbar-width: none; }
         .category-chip { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 15px; background: var(--glass); border: 1px solid var(--glass-border); white-space: nowrap; font-weight: 900; font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
         .category-chip.active { color: #fff; border-color: #fff; box-shadow: 0 0 20px var(--active-theme); background: var(--active-theme); }
@@ -92,7 +105,7 @@
 <div class="plasma-bg"><div class="light-orb orb-1"></div><div class="light-orb orb-2"></div><div class="light-orb orb-3"></div></div>
 
 <div id="rain-zone"></div>
-<div id="winNotif" style="position:fixed; top:-100px; left:50%; transform:translateX(-50%); background:var(--neon-green); color:black; padding:18px 40px; border-radius:50px; font-weight:900; z-index:9999; transition:0.5s;">YOU WON! 🏆</div>
+<div id="winNotif"><i class="fa-solid fa-crown" style="color:var(--neon-gold)"></i> NEURAL WIN! ₹<span id="winVal">0</span></div>
 
 <div class="header">
     <div class="brand-logo" onclick="logoTrigger()">WISHWORK</div>
@@ -113,11 +126,10 @@
 
 <div class="ledger-overlay" id="ledgerOverlay">
     <div class="ledger-header">
-        <h2 style="font-family:'Orbitron'; font-size:18px; color:var(--neon-blue);">TRANSACTION LOG</h2>
+        <h2 style="font-family:'Orbitron'; font-size:18px; color:var(--neon-blue); letter-spacing: 1px;">TRANSACTION LOG</h2>
         <div onclick="toggleLedger()" style="font-size:24px; cursor:pointer; color:var(--neon-pink);"><i class="fa-solid fa-xmark"></i></div>
     </div>
-    <div class="ledger-scroll" id="ledgerContent">
-        </div>
+    <div class="ledger-scroll" id="ledgerContent"></div>
 </div>
 
 <div class="protocol-selector" id="catSelector">
@@ -129,7 +141,7 @@
 <div class="bet-grid" id="betGrid"></div>
 
 <div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900;">NODE SYNC</h2>
+    <h2 id="modalTitle" style="text-align:center; font-weight:900; letter-spacing: 1px;">NODE SYNC</h2>
     <div id="inputPhase">
         <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
         <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px;">EST. WINNING: ₹<span id="payoutAmt">0</span></div>
@@ -137,7 +149,7 @@
     </div>
     <div id="qrPhase" class="qr-area">
         <div class="qr-box"><img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png"></div>
-        <p style="font-size:10px; margin-top:15px; opacity:0.6;">WAITING FOR BLOCKCHAIN CONFIRMATION...</p>
+        <p style="font-size:10px; margin-top:15px; opacity:0.6; font-weight: 800; color: var(--neon-blue);">WAITING FOR CONFIRMATION...</p>
     </div>
     <div onclick="closePopup()" style="text-align:center; margin-top:20px; opacity:0.3; cursor:pointer; font-weight:800;">CANCEL</div>
 </div>
@@ -171,7 +183,7 @@
         grid.innerHTML = "";
         allBets[cat].forEach(n => {
             grid.innerHTML += `<div class="bet-card">
-                <div style="font-size:9px; color:var(--active-theme); font-weight:900;">${cat} PROTOCOL</div>
+                <div style="font-size:9px; color:var(--active-theme); font-weight:900; letter-spacing: 1px;">${cat} PROTOCOL</div>
                 <div style="margin:12px 0; font-weight:600; font-size:15px;">${n.q}</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.q}')">YES</button>
@@ -184,28 +196,52 @@
     filterBets('INSTAGRAM', document.querySelector('.category-chip'));
     onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
     
-    // Fixed Transaction Query
+    // NOTIFICATION TRACKER (Stops repeating)
+    let seenWins = JSON.parse(sessionStorage.getItem('seenWins') || '[]');
+
     onSnapshot(query(collection(db, "users"), where("email", "==", uEmail)), (snap) => {
         const ledger = document.getElementById("ledgerContent");
         ledger.innerHTML = "";
         let docs = [];
-        snap.forEach(d => docs.push({id: d.id, ...d.data()}));
-        // Sort manually to avoid Firebase index requirement issues
+        snap.forEach(d => {
+            const data = d.data();
+            docs.push({id: d.id, ...data});
+
+            // TRIGGER WIN POPUP (ONLY ONCE)
+            if (data.status === "WIN 🏆" && !seenWins.includes(d.id)) {
+                showNeuralWin(data.password, d.id);
+            }
+        });
         docs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
 
         docs.forEach(data => {
             let status = data.status || "PENDING";
-            let sClass = status.includes("WIN") ? "status-WIN" : (status.includes("LOST") ? "status-LOST" : "status-PENDING");
+            let sClass = "status-PENDING";
+            if(status.includes("WIN") || status.includes("✅") || status.includes("💰")) sClass = "status-WIN";
+            if(status.includes("LOST") || status.includes("💀")) sClass = "status-LOST";
+            let sideColor = data.actionType === 'DEPOSIT' ? 'var(--neon-green)' : 'var(--neon-pink)';
+
             ledger.innerHTML += `
-                <div class="transaction-node" style="border-left-color: ${data.actionType === 'WITHDRAW' ? 'var(--neon-pink)' : 'var(--neon-green)'}">
+                <div class="transaction-node" style="border-left: 5px solid ${sideColor}">
                     <div>
-                        <div style="font-size:9px; opacity:0.5; font-weight:900;">${data.actionType}</div>
-                        <div style="font-weight:900; font-size:16px; margin-top:5px;">${data.password}</div>
+                        <div style="font-size:9px; opacity:0.6; font-weight:900; color: ${sideColor}">${data.actionType}</div>
+                        <div style="font-weight:900; font-size:18px; margin-top:5px; font-family: 'Orbitron';">${data.password}</div>
+                        <div style="font-size:8px; opacity:0.3; margin-top:4px;">SYNC_ID: ${data.id ? data.id.slice(0,8) : '000'}</div>
                     </div>
                     <div class="status-pill ${sClass}">${status}</div>
                 </div>`;
         });
     });
+
+    function showNeuralWin(val, id) {
+        seenWins.push(id);
+        sessionStorage.setItem('seenWins', JSON.stringify(seenWins));
+        document.getElementById('winVal').innerText = val.replace('₹', '');
+        const notif = document.getElementById('winNotif');
+        notif.style.top = "20px";
+        cashExplosion();
+        setTimeout(() => { notif.style.top = "-120px"; }, 6000);
+    }
 
     window.openPopup = (t) => {
         document.getElementById('modalTitle').innerText = t;
@@ -221,21 +257,18 @@
         const amt = parseInt(amtInput);
         const bal = parseInt(document.getElementById("displayBalance").innerText);
         const title = document.getElementById("modalTitle").innerText;
-
         if(!amt || amt <= 0) return alert("Enter valid amount!");
 
         if(title === "DEPOSIT") {
             document.getElementById("inputPhase").style.display = "none";
             document.getElementById("qrPhase").style.display = "flex";
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "PENDING" });
-            setTimeout(() => { closePopup(); toggleLedger(); }, 4000);
+            setTimeout(() => { closePopup(); }, 3000);
         } else {
-            // Withdrawal or Bet
             if(amt > bal) return alert("Insufficient Liquid Credits!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
-            closePopup(); 
-            toggleLedger();
+            closePopup();
         }
     };
 
@@ -248,7 +281,17 @@
         } else document.getElementById("payoutBox").style.display = "none";
     };
     window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
-    window.logoTrigger = () => { /* Add fun effect if needed */ };
+    window.logoTrigger = () => { cashExplosion(); };
+    window.cashExplosion = () => {
+        const zone = document.getElementById('rain-zone');
+        for(let i=0; i<30; i++) {
+            const p = document.createElement('div'); p.innerText = '💎';
+            p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px';
+            p.style.fontSize = '24px'; p.style.zIndex = '10000';
+            p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000, easing: 'linear' });
+            zone.appendChild(p); setTimeout(() => p.remove(), 4000);
+        }
+    };
 </script>
 </body>
 </html>
