@@ -24,7 +24,6 @@
             position: relative;
         }
 
-        /* DYNAMIC PLASMA BG */
         .plasma-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
         .light-orb { position: absolute; width: 450px; height: 450px; border-radius: 50%; filter: blur(130px); opacity: 0.45; animation: float-orb 12s infinite alternate ease-in-out; transition: background 1.5s ease; }
         .orb-1 { background: var(--orb-color-1); top: -10%; left: -10%; }
@@ -87,7 +86,7 @@
         .category-chip { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 15px; background: var(--glass); border: 1px solid var(--glass-border); white-space: nowrap; font-weight: 900; font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
         .category-chip.active { color: #fff; border-color: #fff; box-shadow: 0 0 20px var(--active-theme); background: var(--active-theme); }
 
-        .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
+        .bet-grid { display: grid; gap: 15px; padding: 0 20px; min-height: 100px;}
         .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 30px; padding: 22px; border-left: 4px solid var(--active-theme); }
 
         .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--active-theme); }
@@ -99,7 +98,6 @@
         .qr-box img { width: 100%; height: 100%; }
 
         .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; }
-        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
     </style>
 </head>
 <body>
@@ -139,7 +137,7 @@
 </div>
 
 <div class="protocol-selector" id="catSelector">
-    <div class="category-chip active" data-color="#E1306C" onclick="filterBets('INSTAGRAM', this)"><i class="fa-brands fa-instagram"></i> INSTAGRAM</div>
+    <div class="category-chip active" id="initCat" data-color="#00f2ff" onclick="filterBets('INSTAGRAM', this)"><i class="fa-brands fa-instagram"></i> INSTAGRAM</div>
     <div class="category-chip" data-color="#FFD700" onclick="filterBets('OIL', this)"><i class="fa-solid fa-droplet"></i> OIL</div>
     <div class="category-chip" data-color="#FF4500" onclick="filterBets('POLITICS', this)"><i class="fa-solid fa-landmark"></i> POLITICS</div>
     <div class="category-chip" data-color="#FF0000" onclick="filterBets('YOUTUBE', this)"><i class="fa-brands fa-youtube"></i> YOUTUBE</div>
@@ -233,10 +231,12 @@
         const themeColor = el.getAttribute('data-color');
         document.documentElement.style.setProperty('--active-theme', themeColor);
         
-        // ORB SYNC LOGIC
-        document.getElementById('orb1').style.background = themeColor;
-        document.getElementById('orb2').style.background = "var(--neon-purple)";
-        document.getElementById('orb3').style.background = themeColor;
+        const o1 = document.getElementById('orb1');
+        const o2 = document.getElementById('orb2');
+        const o3 = document.getElementById('orb3');
+        if(o1) o1.style.background = themeColor;
+        if(o2) o2.style.background = "var(--neon-purple)";
+        if(o3) o3.style.background = themeColor;
         
         document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
@@ -254,7 +254,12 @@
         });
     };
 
-    filterBets('INSTAGRAM', document.querySelector('.category-chip'));
+    // Wait for DOM to ensure everything is loaded before first call
+    document.addEventListener('DOMContentLoaded', () => {
+        const init = document.getElementById('initCat');
+        if(init) filterBets('INSTAGRAM', init);
+    });
+
     onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
     
     let seenWins = JSON.parse(sessionStorage.getItem('seenWins') || '[]');
@@ -266,25 +271,20 @@
         snap.forEach(d => {
             const data = d.data();
             docs.push({id: d.id, ...data});
-            if (data.status === "WIN 🏆" && !seenWins.includes(d.id)) {
-                showNeuralWin(data.password, d.id);
-            }
+            if (data.status === "WIN 🏆" && !seenWins.includes(d.id)) { showNeuralWin(data.password, d.id); }
         });
         docs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
-
         docs.forEach(data => {
             let status = data.status || "PENDING";
             let sClass = "status-PENDING";
             if(status.includes("WIN") || status.includes("✅") || status.includes("💰")) sClass = "status-WIN";
             if(status.includes("LOST") || status.includes("💀")) sClass = "status-LOST";
             let sideColor = data.actionType === 'DEPOSIT' ? 'var(--neon-green)' : 'var(--neon-pink)';
-
             ledger.innerHTML += `
                 <div class="transaction-node" style="border-left: 5px solid ${sideColor}">
                     <div>
                         <div style="font-size:9px; opacity:0.6; font-weight:900; color: ${sideColor}">${data.actionType}</div>
                         <div style="font-weight:900; font-size:18px; margin-top:5px; font-family: 'Orbitron';">${data.password}</div>
-                        <div style="font-size:8px; opacity:0.3; margin-top:4px;">SYNC_ID: ${data.id ? data.id.slice(0,8) : '000'}</div>
                     </div>
                     <div class="status-pill ${sClass}">${status}</div>
                 </div>`;
@@ -316,11 +316,11 @@
         const bal = parseInt(document.getElementById("displayBalance").innerText);
         const title = document.getElementById("modalTitle").innerText;
         if(!amt || amt <= 0) return alert("Enter valid amount!");
-
         if(title === "DEPOSIT") {
             document.getElementById("inputPhase").style.display = "none";
             document.getElementById("qrPhase").style.display = "flex";
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "PENDING" });
             setTimeout(() => { closePopup(); }, 3000);
         } else {
-            if(amt > bal) return
+            if(amt > bal) return alert("Insufficient Liquid Credits!");
+            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${am
