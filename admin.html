@@ -7,30 +7,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; font-family: 'Outfit', sans-serif; background: #030712; color: white; padding: 20px; }
-        .header { text-align: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
-        h1 { font-weight: 900; letter-spacing: 1px; color: #38bdf8; }
-        .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .stat-card { background: rgba(30, 41, 59, 0.5); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-card h2 { margin: 0; font-size: 28px; color: #22c55e; }
-        .stat-card p { margin: 5px 0 0; color: #94a3b8; font-size: 12px; text-transform: uppercase; }
+        .header { text-align: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        h1 { font-weight: 900; color: #38bdf8; margin: 0; }
+        
+        /* SEARCH BAR */
+        .search-container { margin-bottom: 20px; }
+        #adminSearch {
+            width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #334155;
+            background: rgba(30, 41, 59, 0.5); color: white; font-size: 14px; outline: none;
+        }
+        #adminSearch:focus { border-color: #38bdf8; }
+
+        .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: rgba(30, 41, 59, 0.5); padding: 15px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-card h2 { margin: 0; font-size: 24px; color: #22c55e; }
+        .stat-card p { margin: 5px 0 0; color: #94a3b8; font-size: 10px; text-transform: uppercase; }
+
         .table-wrapper { background: rgba(30, 41, 59, 0.3); border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { background: rgba(255,255,255,0.05); text-align: left; padding: 15px; color: #94a3b8; font-size: 10px; text-transform: uppercase; }
-        td { padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #e2e8f0; }
-        .email-cell { font-weight: 600; cursor: pointer; color: #38bdf8; }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
-        .action-btns { display: flex; gap: 5px; }
-        .win-btn { background: #22c55e; color: white; border: none; padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 800; }
-        .loss-btn { background: #ef4444; color: white; border: none; padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 800; }
-        .del-btn { background: none; color: #64748b; border: 1px solid #334155; padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 10px; }
-        .loading { text-align: center; padding: 50px; color: #64748b; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { background: rgba(255,255,255,0.05); text-align: left; padding: 12px; color: #94a3b8; text-transform: uppercase; font-size: 10px; }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #e2e8f0; vertical-align: middle; }
+        
+        .email-cell { font-weight: 600; color: #38bdf8; cursor: pointer; }
+        .win-btn { background: #22c55e; color: white; border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 800; margin-right: 5px; }
+        .loss-btn { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 800; }
+        .del-btn { background: none; color: #64748b; border: 1px solid #334155; padding: 6px; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <h1>🛠 Admin Control</h1>
-    <p style="color: #64748b;">Tap Email for Money | Win = Auto Pay (2x)</p>
+    <p style="color: #64748b; font-size: 12px;">Tap Email to add Money | Win = Auto Pay (2x)</p>
+</div>
+
+<div class="search-container">
+    <input type="text" id="adminSearch" placeholder="🔍 Search user email..." onkeyup="filterTable()">
 </div>
 
 <div class="stats-container">
@@ -43,15 +55,14 @@
         <thead>
             <tr>
                 <th>User</th>
-                <th>Amt/Info</th>
+                <th>Amt/Pass</th>
                 <th>Type</th>
                 <th>Result</th>
-                <th>Action</th>
+                <th>Del</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
-    <div id="loader" class="loading">Syncing...</div>
 </div>
 
 <script type="module">
@@ -74,40 +85,44 @@
         const newBal = prompt(`Set wallet for ${email}:`, "1000");
         if (newBal) {
             await setDoc(doc(db, "wallets", email), { balance: parseInt(newBal) }, { merge: true });
-            alert("Balance Set! 💸");
+            alert("Money Added! 💸");
         }
     };
 
     window.setResult = async (docId, result, email, betAmount) => {
         try {
-            // 1. Update the bet status
             await updateDoc(doc(db, "users", docId), { status: result });
-
-            // 2. If it's a WIN, auto-credit 2x amount
             if (result.includes("WIN")) {
                 const walletRef = doc(db, "wallets", email);
                 const walletSnap = await getDoc(walletRef);
-                const winAmt = parseInt(betAmount.replace('₹', '')) * 2;
+                const amtString = betAmount.replace(/[^\d]/g, ''); // Extract numbers only
+                const winAmt = parseInt(amtString) * 2;
                 
                 if (walletSnap.exists()) {
                     const currentBal = walletSnap.data().balance;
                     await updateDoc(walletRef, { balance: currentBal + winAmt });
-                    alert(`Bet Won! ₹${winAmt} added to user wallet. 🏆`);
+                    alert(`WINNER! Added ₹${winAmt} 🏆`);
                 }
-            } else {
-                alert("Marked as LOSS! 💀");
-            }
+            } else { alert("Marked Loss 💀"); }
         } catch (e) { console.error(e); }
     };
 
     window.deleteLog = async (docId) => {
-        if (confirm("Delete permanently?")) await deleteDoc(doc(db, "users", docId));
+        if (confirm("Delete this log?")) await deleteDoc(doc(db, "users", docId));
+    };
+
+    window.filterTable = () => {
+        const input = document.getElementById("adminSearch").value.toLowerCase();
+        const rows = document.getElementById("tableBody").getElementsByTagName("tr");
+        for (let row of rows) {
+            const emailText = row.getElementsByTagName("td")[0].textContent.toLowerCase();
+            row.style.display = emailText.includes(input) ? "" : "none";
+        }
     };
 
     const q = query(collection(db, "users"), orderBy("time", "desc"));
     onSnapshot(q, (snapshot) => {
         const tableBody = document.getElementById("tableBody");
-        document.getElementById("loader").style.display = "none";
         let html = "";
         let uniqueUsers = new Set();
 
@@ -115,20 +130,22 @@
             const data = userDoc.data();
             const id = userDoc.id;
             uniqueUsers.add(data.email);
-            const isBet = data.actionType.includes("Bet") && !data.status.includes("WIN") && !data.status.includes("LOST");
+            
+            const currentStatus = data.status || "PENDING";
+            const isBet = data.actionType.includes("Bet") && currentStatus === "PENDING";
 
             html += `
                 <tr>
                     <td class="email-cell" onclick="updateBalance('${data.email}')">${data.email.split('@')[0]}</td>
                     <td style="color:#94a3b8;">${data.password}</td>
-                    <td><span class="badge" style="color:#38bdf8;">${data.actionType.split(':')[0]}</span></td>
+                    <td>${data.actionType.split(':')[0]}</td>
                     <td>
                         ${isBet ? `
                             <div class="action-btns">
                                 <button class="win-btn" onclick="setResult('${id}', 'WIN 🏆', '${data.email}', '${data.password}')">W</button>
                                 <button class="loss-btn" onclick="setResult('${id}', 'LOST 💀', '${data.email}', '${data.password}')">L</button>
                             </div>
-                        ` : `<span style="font-size:10px; font-weight:bold;">${data.status || '--'}</span>`}
+                        ` : `<span style="font-weight:bold; font-size:9px;">${currentStatus}</span>`}
                     </td>
                     <td><button class="del-btn" onclick="deleteLog('${id}')">🗑</button></td>
                 </tr>`;
