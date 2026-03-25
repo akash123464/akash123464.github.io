@@ -23,10 +23,7 @@
             margin: 0;
             font-family: 'Outfit', sans-serif;
             background: #020205;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
             background-attachment: fixed;
             color: #fff;
             overflow-x: hidden;
@@ -54,9 +51,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: flow 4s linear infinite;
-            transform: skewX(-15deg) rotate(-2deg);
-            cursor: pointer;
-            filter: drop-shadow(0 0 12px rgba(0,242,255,0.6));
+            transform: skewX(-15deg);
         }
 
         @keyframes flow { to { background-position: 300% center; } }
@@ -71,45 +66,40 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
 
-        .balance-amount {
-            font-size: 38px;
-            font-weight: 900;
-            color: var(--neon-green);
-            text-shadow: 0 0 15px rgba(56, 239, 125, 0.4);
-        }
+        .balance-amount { font-size: 38px; font-weight: 900; color: var(--neon-green); }
 
         .deposit-btn {
             background: linear-gradient(135deg, var(--neon-purple), #4158D0);
             color: #fff; border: none; padding: 12px 24px; border-radius: 15px;
-            font-weight: 800; cursor: pointer; text-transform: uppercase;
+            font-weight: 800; cursor: pointer;
         }
+
+        .section-title { padding: 0 25px; font-weight: 900; font-size: 14px; color: var(--neon-blue); letter-spacing: 2px; text-transform: uppercase; }
 
         .bet-grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 20px; }
         
         .bet-card {
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             border-radius: 30px;
             padding: 20px;
-            transition: 0.3s;
         }
 
-        .node-tag { font-size: 10px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; }
-        .question { font-size: 18px; font-weight: 600; margin: 15px 0; }
-
-        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .opt-btn {
-            padding: 14px; border-radius: 15px; border: none; font-weight: 900;
-            text-transform: uppercase; cursor: pointer;
+        .history-card {
+            background: rgba(255, 255, 255, 0.02);
+            margin: 10px 20px;
+            padding: 15px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #444;
         }
-        .yes-btn { background: #22c55e; color: #fff; }
-        .no-btn { background: #ef4444; color: #fff; }
+        .history-card.win { border-left-color: var(--neon-green); }
+        .history-card.loss { border-left-color: #ef4444; }
 
-        /* MODAL SYSTEM */
         .popup {
             position: fixed; bottom: -110%; left: 0; width: 100%;
             background: #050508; padding: 40px 30px; border-radius: 40px 40px 0 0;
@@ -121,85 +111,63 @@
         .input-nexus {
             width: 100%; background: rgba(255,255,255,0.05); border: 2px solid var(--glass-border);
             padding: 20px; border-radius: 20px; color: #fff; font-size: 28px;
-            text-align: center; font-weight: 900; margin: 10px 0;
+            text-align: center; font-weight: 900;
         }
 
-        .win-preview {
-            color: var(--neon-green); text-align: center; font-weight: 800;
-            margin-bottom: 20px; font-size: 14px; display: none;
-        }
+        .qr-area { display: none; flex-direction: column; align-items: center; }
+        .qr-box { background: #fff; padding: 10px; border-radius: 15px; width: 220px; height: 220px; margin-bottom: 15px; }
+        .qr-box img { width: 100%; height: 100%; object-fit: contain; }
 
-        /* QR SECTION */
-        .qr-area { display: none; flex-direction: column; align-items: center; text-align: center; }
-        .qr-box { 
-            background: #fff; padding: 10px; border-radius: 15px; 
-            width: 200px; height: 200px; margin-bottom: 15px;
-            border: 4px solid var(--neon-blue);
-        }
-        .qr-box img { width: 100%; height: 100%; }
-
-        .timer-container { width: 100%; height: 6px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .timer-bar { width: 100%; height: 100%; background: var(--neon-pink); transition: width 1s linear; }
-
-        .validation-msg { display: none; text-align: center; color: var(--neon-blue); font-weight: 800; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-
-        .tele-fab {
-            position: fixed; bottom: 30px; right: 25px;
-            width: 60px; height: 60px; background: #0088cc;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); z-index: 5000;
-        }
+        .timer-bar { width: 100%; height: 6px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .timer-progress { width: 100%; height: 100%; background: var(--neon-pink); transition: 1s linear; }
     </style>
 </head>
 <body>
 
-<div id="rain-zone"></div>
-
 <div class="header">
-    <div class="brand-logo" onclick="cashExplosion()">WISHWORK.ONLINE</div>
+    <div class="brand-logo">WISHWORK.ONLINE</div>
     <div onclick="logout()" style="color: #ef4444; font-weight: 900; font-size: 12px; cursor:pointer;">TERMINATE</div>
 </div>
 
 <div class="balance-card">
     <div>
-        <div style="font-size:10px; color:rgba(255,255,255,0.5); font-weight:800; letter-spacing:2px;">LIQUID CREDITS</div>
+        <div style="font-size:10px; opacity:0.6; font-weight:800;">LIQUID CREDITS</div>
         <div class="balance-amount">₹<span id="displayBalance">0</span></div>
     </div>
     <button class="deposit-btn" onclick="openPopup('DEPOSIT')">Deposit</button>
 </div>
 
+<div class="section-title">Active Nodes</div>
 <div class="bet-grid" id="betGrid"></div>
 
+<div class="section-title">Neural History</div>
+<div id="historyList"></div>
+
 <div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900; letter-spacing:2px;">NODE SYNC</h2>
+    <h2 id="modalTitle" style="text-align:center; font-weight:900; margin-bottom:20px;">NODE SYNC</h2>
     
     <div id="inputPhase">
-        <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="calcWin()">
-        <div id="winPreview" class="win-preview">NEURAL PAYOUT: ₹0.00</div>
-        <button class="opt-btn" id="actionBtn" style="width:100%; background: #fff; color: #000;" onclick="executeStep()">INITIATE LINK</button>
+        <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="showWin()">
+        <div id="winDisplay" style="text-align:center; color:var(--neon-green); font-weight:800; margin:15px 0; display:none;">EST. PAYOUT: ₹<span id="payoutAmt">0</span></div>
+        <button class="deposit-btn" style="width:100%; padding:18px; margin-top:10px;" onclick="startAction()">INITIALIZE</button>
     </div>
 
     <div id="qrPhase" class="qr-area">
         <div class="qr-box">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=WISHWORK_PAYMENT" alt="QR Code">
+            <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/qr.png" alt="Payment QR">
         </div>
-        <div style="font-weight: 900; color: var(--neon-pink);">SYNC WINDOW: <span id="timerVal">60</span>s</div>
-        <div class="timer-container"><div id="timerBar" class="timer-bar"></div></div>
+        <div style="font-weight:900;">SYNCING... <span id="timer">60</span>s</div>
+        <div class="timer-bar"><div id="progress" class="timer-progress"></div></div>
     </div>
 
-    <div id="statusPhase" class="validation-msg">AUTHORITY WILL VALIDATE YOUR TRANSACTION</div>
+    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:800;">VALIDATING WITH AUTHORITY...</div>
 
-    <div id="cancelLink" onclick="closePopup()" style="text-align:center; margin-top:25px; color:rgba(255,255,255,0.3); cursor:pointer; font-weight:800;">CANCEL LINK</div>
+    <div onclick="closePopup()" style="text-align:center; margin-top:25px; opacity:0.3; cursor:pointer;">CANCEL LINK</div>
 </div>
-
-<a href="https://t.me/WISHWORKONLINE" class="tele-fab" target="_blank">
-    <i class="fa-brands fa-telegram" style="color: white; font-size: 24px;"></i>
-</a>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
     const app = initializeApp(firebaseConfig);
@@ -208,138 +176,109 @@
 
     if(!uEmail) window.location.href = "login.html";
 
-    let countdownInterval;
+    let timerInt;
 
-    // Data Sync
+    // 1. Sync Balance
     onSnapshot(doc(db, "wallets", uEmail), (s) => {
         if (s.exists()) document.getElementById("displayBalance").innerText = s.data().balance;
     });
 
-    const questions = [
-        { cat: "INSTA-NEXUS", q: "Will Karan Aujla post a story in 60 mins?" },
-        { cat: "CRYPTO-PULSE", q: "Will Bitcoin hit $70k in the next hour?" },
-        { cat: "NIFTY-50", q: "Will Nifty open in Green tomorrow?" },
-        { cat: "SPORTS-NEURAL", q: "Will India win the toss tonight?" }
-    ];
-
-    const grid = document.getElementById('betGrid');
-    questions.forEach((item, index) => {
-        grid.innerHTML += `
-            <div class="bet-card">
-                <div class="node-tag">${item.cat}</div>
-                <div class="question">${item.q}</div>
-                <div class="options">
-                    <button class="opt-btn yes-btn" onclick="openPopup('BET: YES - ${index}')">YES (2x)</button>
-                    <button class="opt-btn no-btn" onclick="openPopup('BET: NO - ${index}')">NO (2x)</button>
+    // 2. Sync History
+    onSnapshot(query(collection(db, "users"), where("email", "==", uEmail), orderBy("time", "desc")), (snap) => {
+        const list = document.getElementById("historyList");
+        list.innerHTML = "";
+        snap.forEach(d => {
+            const data = d.data();
+            let statusClass = data.status === "WIN 🏆" ? "win" : (data.status === "LOST 💀" ? "loss" : "");
+            list.innerHTML += `
+                <div class="history-card ${statusClass}">
+                    <div>
+                        <div style="font-size:10px; opacity:0.5;">${data.actionType}</div>
+                        <div style="font-weight:800;">${data.password}</div>
+                    </div>
+                    <div style="font-weight:900; font-size:11px;">${data.status || 'PENDING'}</div>
                 </div>
-            </div>
-        `;
+            `;
+        });
     });
 
-    window.calcWin = () => {
-        const amt = document.getElementById("userAmt").value;
-        const preview = document.getElementById("winPreview");
+    // 3. Grid Generation
+    const questions = [
+        { cat: "INSTA-NEXUS", q: "Will Karan Aujla post a story tonight?" },
+        { cat: "CRYPTO-PULSE", q: "Will Bitcoin stay above $65k today?" }
+    ];
+    questions.forEach((item, i) => {
+        document.getElementById('betGrid').innerHTML += `
+            <div class="bet-card">
+                <div style="font-size:10px; color:var(--neon-blue); font-weight:900;">${item.cat}</div>
+                <div class="question">${item.q}</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <button class="deposit-btn" style="background:#22c55e" onclick="openPopup('BET: YES - ${item.cat}')">YES</button>
+                    <button class="deposit-btn" style="background:#ef4444" onclick="openPopup('BET: NO - ${item.cat}')">NO</button>
+                </div>
+            </div>`;
+    });
+
+    window.showWin = () => {
+        const val = document.getElementById("userAmt").value;
         const title = document.getElementById("modalTitle").innerText;
-        
-        if(amt > 0 && !title.includes("DEPOSIT")) {
-            preview.style.display = "block";
-            preview.innerText = `NEURAL PAYOUT: ₹${(amt * 2).toFixed(2)}`;
+        if(val > 0 && title.includes("BET")) {
+            document.getElementById("winDisplay").style.display = "block";
+            document.getElementById("payoutAmt").innerText = (val * 2);
         } else {
-            preview.style.display = "none";
+            document.getElementById("winDisplay").style.display = "none";
         }
-    };
+    }
 
     window.openPopup = (t) => {
         document.getElementById('modalTitle').innerText = t;
         document.getElementById('inputPhase').style.display = "block";
         document.getElementById('qrPhase').style.display = "none";
         document.getElementById('statusPhase').style.display = "none";
-        document.getElementById('cancelLink').style.display = "block";
-        document.getElementById('userAmt').value = "";
-        document.getElementById('winPreview').style.display = "none";
-        
-        if(t === "DEPOSIT") {
-            document.getElementById('actionBtn').innerText = "GENERATE PROTOCOL QR";
-        } else {
-            document.getElementById('actionBtn').innerText = "PLACE TRANSACTION";
-        }
-        
         document.getElementById('masterPopup').classList.add('active');
     };
 
-    window.executeStep = async () => {
+    window.startAction = async () => {
         const amt = document.getElementById("userAmt").value;
-        const title = document.getElementById("modalTitle").innerText;
         const bal = parseInt(document.getElementById("displayBalance").innerText);
+        const title = document.getElementById("modalTitle").innerText;
 
-        if(!amt || amt <= 0) return alert("Invalid Credit Amount!");
-        
+        if(!amt || amt <= 0) return alert("Enter Amount");
+
         if(title === "DEPOSIT") {
-            // Start QR Flow
-            document.getElementById('inputPhase').style.display = "none";
-            document.getElementById('qrPhase').style.display = "flex";
-            startTimer();
+            document.getElementById("inputPhase").style.display = "none";
+            document.getElementById("qrPhase").style.display = "flex";
+            let left = 60;
+            timerInt = setInterval(() => {
+                left--;
+                document.getElementById("timer").innerText = left;
+                document.getElementById("progress").style.width = (left/60)*100 + "%";
+                if(left <= 0) {
+                    clearInterval(timerInt);
+                    finishDeposit(amt);
+                }
+            }, 1000);
         } else {
-            // Bet Logic
-            if(amt > bal) return alert("Insufficient Liquid Credits!");
-            
+            if(amt > bal) return alert("Low Balance");
             await addDoc(collection(db, "users"), {
-                email: uEmail,
-                password: `₹${amt}`,
-                actionType: title,
-                time: serverTimestamp(),
-                status: "PENDING"
+                email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING"
             });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - parseInt(amt) });
-            
-            alert("Node Sync Successful. Awaiting Results.");
             closePopup();
         }
     };
 
-    function startTimer() {
-        let timeleft = 60;
-        const bar = document.getElementById('timerBar');
-        const txt = document.getElementById('timerVal');
-        
-        clearInterval(countdownInterval);
-        countdownInterval = setInterval(() => {
-            timeleft--;
-            txt.innerText = timeleft;
-            bar.style.width = (timeleft / 60) * 100 + "%";
-            
-            if(timeleft <= 0) {
-                clearInterval(countdownInterval);
-                finishDeposit();
-            }
-        }, 1000);
-    }
-
-    async function finishDeposit() {
-        const amt = document.getElementById("userAmt").value;
-        // Log to Firebase for Admin
+    async function finishDeposit(amt) {
         await addDoc(collection(db, "users"), {
-            email: uEmail,
-            password: `₹${amt}`,
-            actionType: "DEPOSIT_REQUEST",
-            time: serverTimestamp(),
-            status: "PENDING"
+            email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT_REQUEST", time: serverTimestamp(), status: "PENDING"
         });
-
-        document.getElementById('qrPhase').style.display = "none";
-        document.getElementById('cancelLink').style.display = "none";
-        document.getElementById('statusPhase').style.display = "block";
-        
-        setTimeout(() => closePopup(), 4000);
+        document.getElementById("qrPhase").style.display = "none";
+        document.getElementById("statusPhase").style.display = "block";
+        setTimeout(() => closePopup(), 3000);
     }
 
-    window.closePopup = () => {
-        clearInterval(countdownInterval);
-        document.getElementById('masterPopup').classList.remove('active');
-    };
-
+    window.closePopup = () => { clearInterval(timerInt); document.getElementById('masterPopup').classList.remove('active'); };
     window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
-
 </script>
 </body>
 </html>
