@@ -7,71 +7,115 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --neon-pink: #ff007a; --neon-blue: #00f2ff; --neon-purple: #7000ff; --neon-green: #38ef7d; --glass: rgba(255, 255, 255, 0.08); --glass-border: rgba(255, 255, 255, 0.15); }
+        :root { 
+            --neon-pink: #ff007a; --neon-blue: #00f2ff; --neon-purple: #7000ff; --neon-green: #38ef7d; 
+            --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); 
+        }
+        
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; font-family: 'Outfit', sans-serif; background: #020205; background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(262,50%,20%,1) 0, transparent 50%); color: #fff; min-height: 100vh; padding-bottom: 100px; overflow-x: hidden; }
         
-        .win-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--neon-green); color: black; padding: 15px 30px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 30px var(--neon-green); text-transform: uppercase; letter-spacing: 1px; }
-        .win-notif.active { top: 30px; }
-        .cash-particle { position: fixed; pointer-events: none; z-index: 10000; font-size: 24px; animation: fall 3s linear forwards; }
-        @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        body { 
+            margin: 0; font-family: 'Outfit', sans-serif; background: #020205; 
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(339,49%,30%,1) 0, transparent 50%);
+            color: #fff; min-height: 100vh; padding-bottom: 120px; overflow-x: hidden;
+        }
 
-        /* SUPPORT HUB */
-        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: linear-gradient(135deg, #0088cc, var(--neon-blue)); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.5); cursor: pointer; border: 2px solid rgba(255,255,255,0.2); animation: pulse-blue 2s infinite; }
-        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
-        .support-card { position: fixed; bottom: -100%; right: 25px; width: 280px; background: rgba(5, 5, 8, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--neon-blue); border-radius: 25px; padding: 20px; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 4999; text-align: center; box-shadow: 0 15px 50px rgba(0,0,0,0.8); }
-        .support-card.active { bottom: 100px; }
-        .tele-qr { width: 100%; border-radius: 15px; margin: 15px 0; border: 2px solid var(--neon-blue); }
+        /* 🚀 NEON PRISM LOGO */
+        .header { 
+            padding: 20px; display: flex; justify-content: space-between; align-items: center; 
+            backdrop-filter: blur(30px); background: rgba(0, 0, 0, 0.6); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); 
+        }
+        .brand-logo { 
+            font-family: 'Syncopate', sans-serif; font-size: 22px; font-weight: 700; 
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink), var(--neon-purple), var(--neon-blue));
+            background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: flow 4s linear infinite; transform: skewX(-15deg); cursor: pointer;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.5));
+        }
+        @keyframes flow { to { background-position: 300% center; } }
 
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); background: rgba(0, 0, 0, 0.5); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
-        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: 18px; font-weight: 700; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; transform: skewX(-10deg); cursor: pointer; }
+        /* 💎 NEURAL BALANCE CARD */
+        .balance-card { 
+            background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); 
+            border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden;
+        }
+        .balance-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, var(--neon-blue), transparent 30%); animation: rotate 4s linear infinite; opacity: 0.1; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
         
-        .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; margin: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .balance-amount { font-size: 32px; font-weight: 900; color: var(--neon-green); }
-        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-        .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-main { 
+            background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; 
+            padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-main:active { transform: scale(0.95); }
         .btn-withdraw { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); }
 
-        .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; text-transform: uppercase; }
+        /* ⚡ NODES & HISTORY */
+        .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 3px; text-transform: uppercase; }
         .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
-        .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; }
-        
-        .history-card { background: rgba(255, 255, 255, 0.02); margin: 8px 20px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; border-left: 4px solid #333; }
+        .bet-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px; transition: 0.4s; }
+        .bet-card:hover { background: rgba(255,255,255,0.05); border-color: var(--neon-blue); }
+
+        .history-card { background: rgba(255, 255, 255, 0.02); margin: 10px 20px; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; border-left: 5px solid #333; align-items: center; }
         .history-card.WIN { border-left-color: var(--neon-green); background: rgba(56, 239, 125, 0.05); }
-        .history-card.LOST { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
-        .history-card.WITHDRAW { border-left-color: var(--neon-pink); }
+        .history-card.LOST { border-left-color: var(--neon-pink); background: rgba(255, 0, 122, 0.05); }
 
-        .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 30px; border-radius: 35px 35px 0 0; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 3px solid var(--neon-pink); }
+        /* 🌑 MASTER POPUP & QR */
+        .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--neon-pink); }
         .popup.active { bottom: 0; }
-        .input-nexus { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; border-radius: 15px; color: #fff; font-size: 24px; text-align: center; font-weight: 900; margin-bottom: 15px; }
+        .input-nexus { width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--glass-border); padding: 20px; border-radius: 20px; color: #fff; font-size: 32px; text-align: center; font-weight: 900; margin-bottom: 20px; }
 
-        .qr-area { display: none; flex-direction: column; align-items: center; text-align: center; }
-        .qr-box { background: #fff; padding: 10px; border-radius: 15px; width: 200px; height: 200px; margin-bottom: 10px; border: 3px solid var(--neon-blue); }
-        .qr-box img { width: 100%; height: 100%; }
-        .timer-bar { width: 100%; height: 5px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .timer-fill { width: 100%; height: 100%; background: var(--neon-pink); transition: 1s linear; }
+        .qr-area { display: none; flex-direction: column; align-items: center; }
+        .qr-box { 
+            background: #fff; padding: 15px; border-radius: 25px; width: 220px; height: 220px; 
+            margin-bottom: 20px; border: 5px solid var(--neon-blue); box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+            animation: scan 2s infinite alternate;
+        }
+        @keyframes scan { from { filter: brightness(1); } to { filter: brightness(1.2) drop-shadow(0 0 10px var(--neon-blue)); } }
+        .qr-box img { width: 100%; height: 100%; border-radius: 10px; }
+
+        /* 🔋 FUTURISTIC TIMER */
+        .timer-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 20px 0; overflow: hidden; position: relative; }
+        #timerFill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); transition: 1s linear; }
+
+        /* 🛰️ SUPPORT HUB */
+        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); animation: float 3s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .support-card { position: fixed; bottom: -100%; right: 25px; width: 300px; background: rgba(5,5,8,0.98); backdrop-filter: blur(25px); border: 2px solid var(--neon-blue); border-radius: 30px; padding: 25px; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 4999; text-align: center; }
+        .support-card.active { bottom: 110px; }
+
+        /* 🏆 WIN ALERT */
+        .win-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--neon-green); color: black; padding: 18px 40px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 40px var(--neon-green); text-transform: uppercase; }
+        .win-notif.active { top: 30px; }
+        .cash-particle { position: fixed; pointer-events: none; z-index: 10000; font-size: 30px; animation: fall 3s linear forwards; }
+        @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
     </style>
 </head>
 <body>
 
 <div id="rain-zone"></div>
-<div id="winNotif" class="win-notif">NODE SYNC SUCCESS: YOU WON! 🏆</div>
+<div id="winNotif" class="win-notif">NEURAL GAIN DETECTED: +₹ WINNER 🏆</div>
 
 <div class="support-fab" onclick="toggleSupport()"><i class="fa-brands fa-telegram" style="font-size: 30px; color: white;"></i></div>
 <div class="support-card" id="supportCard">
-    <div style="font-weight: 900; color: var(--neon-blue); font-size: 14px;">NEURAL SUPPORT</div>
-    <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/Screenshot_20260325-161845.png" class="tele-qr">
-    <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none;">OPEN TELEGRAM</a>
+    <div style="font-weight: 900; color: var(--neon-blue); font-size: 16px; letter-spacing: 2px;">SUPPORT HUB</div>
+    <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/Screenshot_20260325-161845.png" style="width:100%; border-radius:15px; margin:20px 0; border:2px solid var(--neon-blue);">
+    <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none;">CONNECT TELEGRAM</a>
 </div>
 
 <div class="header">
-    <div class="brand-logo" onclick="cashExplosion()">WISHWORK.ONLINE</div>
-    <div onclick="logout()" style="color: #ef4444; font-weight: 900; font-size: 11px; cursor:pointer;">TERMINATE</div>
+    <div class="brand-logo" onclick="logoTrigger()">WISHWORK.ONLINE</div>
+    <div onclick="logout()" style="color: var(--neon-pink); font-weight: 900; font-size: 11px; cursor:pointer; letter-spacing:1px;">TERMINATE</div>
 </div>
 
 <div class="balance-card">
     <div>
-        <div style="font-size:9px; opacity:0.5; font-weight:900;">LIQUID CREDITS</div>
+        <div style="font-size:10px; opacity:0.5; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
         <div class="balance-amount">₹<span id="displayBalance">0</span></div>
     </div>
     <div class="action-btns">
@@ -80,26 +124,28 @@
     </div>
 </div>
 
-<div class="section-label">LIVE NODES</div>
+<div class="section-label">LIVE PROTOCOLS</div>
 <div class="bet-grid" id="betGrid"></div>
 
-<div class="section-label" style="margin-top:25px;">NEURAL HISTORY</div>
+<div class="section-label" style="margin-top:30px;">NEURAL HISTORY</div>
 <div id="historyList"></div>
 
 <div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900; margin-bottom:20px;">NODE SYNC</h2>
+    <h2 id="modalTitle" style="text-align:center; font-weight:900; letter-spacing:2px;">NODE SYNC</h2>
     <div id="inputPhase">
         <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
-        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:15px;">NEURAL GAIN: ₹<span id="payoutAmt">0</span></div>
-        <button class="btn-main" style="width:100%; padding:18px;" onclick="handleAction()">INITIALIZE LINK</button>
+        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px;">EST. PAYOUT: ₹<span id="payoutAmt">0</span></div>
+        <button class="btn-main" style="width:100%; padding:20px;" onclick="handleAction()">INITIALIZE LINK</button>
     </div>
     <div id="qrPhase" class="qr-area">
-        <div class="qr-box"><img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/qr.png"></div>
-        <div style="font-weight:900;">WINDOW CLOSES: <span id="timer">60</span>s</div>
-        <div class="timer-bar"><div id="timerFill" class="timer-fill"></div></div>
+        <div class="qr-box">
+            <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/qr.png" alt="QR Payment">
+        </div>
+        <div style="font-weight:900; color:var(--neon-pink);">SYNCING WINDOW: <span id="timer">60</span>s</div>
+        <div class="timer-wrap"><div id="timerFill"></div></div>
     </div>
-    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900;">VALIDATING...</div>
-    <div onclick="closePopup()" style="text-align:center; margin-top:25px; opacity:0.3; cursor:pointer; font-size:11px;">CANCEL CONNECTION</div>
+    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900; letter-spacing:1px;">VALIDATING TRANSACTION...</div>
+    <div onclick="closePopup()" style="text-align:center; margin-top:30px; opacity:0.3; cursor:pointer; font-size:12px; font-weight:800;">CLOSE CONNECTION</div>
 </div>
 
 <script type="module">
@@ -127,26 +173,34 @@
             let status = data.status || "PENDING";
             if (status === "WIN 🏆" && !winTracker[id]) { triggerNeuralWin(); winTracker[id] = true; }
             list.innerHTML += `<div class="history-card ${status.split(' ')[0]}">
-                <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800;">${data.password}</div></div>
-                <div style="font-weight:900; font-size:11px;">${status}</div>
+                <div><div style="font-size:9px; opacity:0.5; font-weight:900;">${data.actionType}</div><div style="font-weight:800; font-size:16px;">${data.password}</div></div>
+                <div style="font-weight:900; font-size:12px;">${status}</div>
             </div>`;
         });
     });
+
+    window.logoTrigger = () => {
+        cashExplosion();
+        if(navigator.vibrate) navigator.vibrate(200);
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
+        audio.play();
+    };
 
     function triggerNeuralWin() {
         document.getElementById("winNotif").classList.add("active");
         cashExplosion();
         const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
-        audio.play().catch(e => console.log("Sound muted"));
-        setTimeout(() => document.getElementById("winNotif").classList.remove("active"), 5000);
+        audio.play();
+        setTimeout(() => document.getElementById("winNotif").classList.remove("active"), 6000);
     }
 
     window.cashExplosion = () => {
         const zone = document.getElementById('rain-zone');
-        for(let i=0; i<40; i++) {
+        const emojis = ['💸', '💰', '💎', '🔥', '💵'];
+        for(let i=0; i<50; i++) {
             const p = document.createElement('div');
             p.className = 'cash-particle';
-            p.innerText = ['💸', '💰', '💎'][Math.floor(Math.random()*3)];
+            p.innerText = emojis[Math.floor(Math.random()*emojis.length)];
             p.style.left = Math.random() * 100 + 'vw';
             p.style.animationDelay = (Math.random() * 2) + 's';
             zone.appendChild(p);
@@ -156,12 +210,12 @@
 
     window.toggleSupport = () => document.getElementById("supportCard").classList.toggle("active");
 
-    const nodes = [{c:"INSTA", q:"Karan Aujla story by 11PM?"}, {c:"CRYPTO", q:"BTC holds $69k for 1hr?"}];
+    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story within 45 mins?"}, {c:"CRYPTO-PULSE", q:"BTC price holds $68,500?"}];
     nodes.forEach(n => {
         document.getElementById('betGrid').innerHTML += `<div class="bet-card">
-            <div style="font-size:9px; color:var(--neon-blue); font-weight:900;">${n.c}</div>
-            <div style="margin:10px 0; font-weight:600;">${n.q}</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div style="font-size:10px; color:var(--neon-blue); font-weight:900; letter-spacing:1px;">${n.c}</div>
+            <div style="margin:12px 0; font-weight:600; font-size:16px;">${n.q}</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.c}')">YES</button>
                 <button class="btn-main" style="background:#ef4444" onclick="openPopup('BET: NO - ${n.c}')">NO</button>
             </div>
@@ -189,7 +243,7 @@
         const amt = document.getElementById("userAmt").value;
         const bal = parseInt(document.getElementById("displayBalance").innerText);
         const title = document.getElementById("modalTitle").innerText;
-        if(!amt || amt <= 0) return alert("Invalid Credits");
+        if(!amt || amt <= 0) return alert("Invalid Credit Amount!");
 
         if(title === "DEPOSIT") {
             document.getElementById("inputPhase").style.display = "none";
@@ -207,14 +261,14 @@
                 }
             }, 1000);
         } else if(title === "WITHDRAW") {
-            if(amt > bal) return alert("Insufficient Credits");
+            if(amt > bal) return alert("Insufficient Liquid Credits!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "WITHDRAW", time: serverTimestamp(), status: "PENDING" });
             document.getElementById("inputPhase").style.display = "none";
             document.getElementById("statusPhase").style.display = "block";
-            document.getElementById("statusPhase").innerText = "WITHDRAWAL REQUEST SENT TO AUTHORITY";
+            document.getElementById("statusPhase").innerText = "WITHDRAWAL SYNCED WITH AUTHORITY";
             setTimeout(() => closePopup(), 3000);
         } else {
-            if(amt > bal) return alert("Insufficient Credits");
+            if(amt > bal) return alert("Insufficient Liquid Credits!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - parseInt(amt) });
             closePopup();
