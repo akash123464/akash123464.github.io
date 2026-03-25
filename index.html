@@ -6,163 +6,66 @@
     <title>WISHWORK | NEXUS PROTOCOL</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        :root {
-            --neon-pink: #ff007a;
-            --neon-blue: #00f2ff;
-            --neon-purple: #7000ff;
-            --neon-green: #38ef7d;
-            --glass: rgba(255, 255, 255, 0.08);
-            --glass-border: rgba(255, 255, 255, 0.15);
-        }
-
+        :root { --neon-pink: #ff007a; --neon-blue: #00f2ff; --neon-purple: #7000ff; --neon-green: #38ef7d; --glass: rgba(255, 255, 255, 0.08); --glass-border: rgba(255, 255, 255, 0.15); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-
-        body {
-            margin: 0;
-            font-family: 'Outfit', sans-serif;
-            background: #020205;
-            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
-            background-attachment: fixed;
-            color: #fff;
-            overflow-x: hidden;
-            min-height: 100vh;
-            padding-bottom: 120px;
-        }
-
-        .header {
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(25px);
-            background: rgba(0, 0, 0, 0.4);
-            position: sticky; top: 0; z-index: 2000;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .brand-logo {
-            font-family: 'Syncopate', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink), var(--neon-purple), var(--neon-blue));
-            background-size: 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: flow 4s linear infinite;
-            transform: skewX(-15deg);
-        }
-
-        @keyframes flow { to { background-position: 300% center; } }
-
-        .balance-card {
-            background: var(--glass);
-            backdrop-filter: blur(40px);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            padding: 25px;
-            margin: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .balance-amount { font-size: 38px; font-weight: 900; color: var(--neon-green); }
-
-        .deposit-btn {
-            background: linear-gradient(135deg, var(--neon-purple), #4158D0);
-            color: #fff; border: none; padding: 12px 24px; border-radius: 15px;
-            font-weight: 800; cursor: pointer;
-        }
-
-        .section-title { padding: 0 25px; font-weight: 900; font-size: 14px; color: var(--neon-blue); letter-spacing: 2px; text-transform: uppercase; }
-
-        .bet-grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 20px; }
-        
-        .bet-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            padding: 20px;
-        }
-
-        .history-card {
-            background: rgba(255, 255, 255, 0.02);
-            margin: 10px 20px;
-            padding: 15px;
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid #444;
-        }
-        .history-card.win { border-left-color: var(--neon-green); }
-        .history-card.loss { border-left-color: #ef4444; }
-
-        .popup {
-            position: fixed; bottom: -110%; left: 0; width: 100%;
-            background: #050508; padding: 40px 30px; border-radius: 40px 40px 0 0;
-            transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000;
-            border-top: 3px solid var(--neon-pink);
-        }
+        body { margin: 0; font-family: 'Outfit', sans-serif; background: #020205; background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(262,50%,20%,1) 0, transparent 50%); color: #fff; min-height: 100vh; padding-bottom: 100px; }
+        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); background: rgba(0, 0, 0, 0.5); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
+        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: 18px; font-weight: 700; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; transform: skewX(-10deg); }
+        .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; margin: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .balance-amount { font-size: 32px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 10px rgba(56, 239, 125, 0.3); }
+        .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; }
+        .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
+        .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; }
+        .history-card { background: rgba(255, 255, 255, 0.02); margin: 8px 20px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; border-left: 4px solid #333; }
+        .history-card.WIN { border-left-color: var(--neon-green); }
+        .history-card.LOST { border-left-color: #ef4444; }
+        .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 30px; border-radius: 35px 35px 0 0; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 3px solid var(--neon-pink); }
         .popup.active { bottom: 0; }
-
-        .input-nexus {
-            width: 100%; background: rgba(255,255,255,0.05); border: 2px solid var(--glass-border);
-            padding: 20px; border-radius: 20px; color: #fff; font-size: 28px;
-            text-align: center; font-weight: 900;
-        }
-
-        .qr-area { display: none; flex-direction: column; align-items: center; }
-        .qr-box { background: #fff; padding: 10px; border-radius: 15px; width: 220px; height: 220px; margin-bottom: 15px; }
-        .qr-box img { width: 100%; height: 100%; object-fit: contain; }
-
-        .timer-bar { width: 100%; height: 6px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .timer-progress { width: 100%; height: 100%; background: var(--neon-pink); transition: 1s linear; }
+        .input-nexus { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; border-radius: 15px; color: #fff; font-size: 24px; text-align: center; font-weight: 900; margin-bottom: 15px; }
+        .qr-area { display: none; flex-direction: column; align-items: center; text-align: center; }
+        .qr-box { background: #fff; padding: 10px; border-radius: 15px; width: 200px; height: 200px; margin-bottom: 10px; }
+        .qr-box img { width: 100%; height: 100%; }
+        .timer-bar { width: 100%; height: 5px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .timer-fill { width: 100%; height: 100%; background: var(--neon-pink); transition: 1s linear; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="brand-logo">WISHWORK.ONLINE</div>
-    <div onclick="logout()" style="color: #ef4444; font-weight: 900; font-size: 12px; cursor:pointer;">TERMINATE</div>
+    <div onclick="logout()" style="color: #ef4444; font-weight: 900; font-size: 11px; cursor:pointer;">TERMINATE</div>
 </div>
 
 <div class="balance-card">
     <div>
-        <div style="font-size:10px; opacity:0.6; font-weight:800;">LIQUID CREDITS</div>
+        <div style="font-size:9px; opacity:0.5; font-weight:900;">LIQUID CREDITS</div>
         <div class="balance-amount">₹<span id="displayBalance">0</span></div>
     </div>
-    <button class="deposit-btn" onclick="openPopup('DEPOSIT')">Deposit</button>
+    <button class="btn-main" onclick="openPopup('DEPOSIT')">Deposit</button>
 </div>
 
-<div class="section-title">Active Nodes</div>
+<div class="section-label">LIVE NODES</div>
 <div class="bet-grid" id="betGrid"></div>
 
-<div class="section-title">Neural History</div>
+<div class="section-label" style="margin-top:20px;">NEURAL HISTORY</div>
 <div id="historyList"></div>
 
 <div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900; margin-bottom:20px;">NODE SYNC</h2>
-    
+    <h2 id="modalTitle" style="text-align:center; font-weight:900; margin-bottom:20px; font-size:18px;">NODE SYNC</h2>
     <div id="inputPhase">
-        <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="showWin()">
-        <div id="winDisplay" style="text-align:center; color:var(--neon-green); font-weight:800; margin:15px 0; display:none;">EST. PAYOUT: ₹<span id="payoutAmt">0</span></div>
-        <button class="deposit-btn" style="width:100%; padding:18px; margin-top:10px;" onclick="startAction()">INITIALIZE</button>
+        <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
+        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:15px;">EST. PAYOUT: ₹<span id="payoutAmt">0</span></div>
+        <button class="btn-main" style="width:100%; padding:18px;" onclick="handleAction()">EXECUTE LINK</button>
     </div>
-
     <div id="qrPhase" class="qr-area">
-        <div class="qr-box">
-            <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/qr.png" alt="Payment QR">
-        </div>
-        <div style="font-weight:900;">SYNCING... <span id="timer">60</span>s</div>
-        <div class="timer-bar"><div id="progress" class="timer-progress"></div></div>
+        <div class="qr-box"><img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/qr.png"></div>
+        <div style="font-weight:900; font-size:14px;">WINDOW CLOSES: <span id="timer">60</span>s</div>
+        <div class="timer-bar"><div id="timerFill" class="timer-fill"></div></div>
     </div>
-
-    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:800;">VALIDATING WITH AUTHORITY...</div>
-
-    <div onclick="closePopup()" style="text-align:center; margin-top:25px; opacity:0.3; cursor:pointer;">CANCEL LINK</div>
+    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900; animation:pulse 1s infinite;">VALIDATING TRANSACTION...</div>
+    <div onclick="closePopup()" style="text-align:center; margin-top:20px; opacity:0.3; cursor:pointer; font-size:12px;">CLOSE CONNECTION</div>
 </div>
 
 <script type="module">
@@ -178,57 +81,41 @@
 
     let timerInt;
 
-    // 1. Sync Balance
-    onSnapshot(doc(db, "wallets", uEmail), (s) => {
-        if (s.exists()) document.getElementById("displayBalance").innerText = s.data().balance;
-    });
+    onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
 
-    // 2. Sync History
     onSnapshot(query(collection(db, "users"), where("email", "==", uEmail), orderBy("time", "desc")), (snap) => {
         const list = document.getElementById("historyList");
         list.innerHTML = "";
         snap.forEach(d => {
             const data = d.data();
-            let statusClass = data.status === "WIN 🏆" ? "win" : (data.status === "LOST 💀" ? "loss" : "");
-            list.innerHTML += `
-                <div class="history-card ${statusClass}">
-                    <div>
-                        <div style="font-size:10px; opacity:0.5;">${data.actionType}</div>
-                        <div style="font-weight:800;">${data.password}</div>
-                    </div>
-                    <div style="font-weight:900; font-size:11px;">${data.status || 'PENDING'}</div>
-                </div>
-            `;
+            let status = data.status || "PENDING";
+            list.innerHTML += `<div class="history-card ${status.split(' ')[0]}">
+                <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800;">${data.password}</div></div>
+                <div style="font-weight:900; font-size:11px;">${status}</div>
+            </div>`;
         });
     });
 
-    // 3. Grid Generation
-    const questions = [
-        { cat: "INSTA-NEXUS", q: "Will Karan Aujla post a story tonight?" },
-        { cat: "CRYPTO-PULSE", q: "Will Bitcoin stay above $65k today?" }
-    ];
-    questions.forEach((item, i) => {
-        document.getElementById('betGrid').innerHTML += `
-            <div class="bet-card">
-                <div style="font-size:10px; color:var(--neon-blue); font-weight:900;">${item.cat}</div>
-                <div class="question">${item.q}</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <button class="deposit-btn" style="background:#22c55e" onclick="openPopup('BET: YES - ${item.cat}')">YES</button>
-                    <button class="deposit-btn" style="background:#ef4444" onclick="openPopup('BET: NO - ${item.cat}')">NO</button>
-                </div>
-            </div>`;
+    const nodes = [{c:"INSTA", q:"Karan Aujla story in 1hr?"}, {c:"CRYPTO", q:"BTC breaks $68k tonight?"}];
+    nodes.forEach(n => {
+        document.getElementById('betGrid').innerHTML += `<div class="bet-card">
+            <div style="font-size:9px; color:var(--neon-blue); font-weight:900;">${n.c}</div>
+            <div style="margin:10px 0; font-weight:600;">${n.q}</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.c}')">YES</button>
+                <button class="btn-main" style="background:#ef4444" onclick="openPopup('BET: NO - ${n.c}')">NO</button>
+            </div>
+        </div>`;
     });
 
-    window.showWin = () => {
-        const val = document.getElementById("userAmt").value;
-        const title = document.getElementById("modalTitle").innerText;
-        if(val > 0 && title.includes("BET")) {
-            document.getElementById("winDisplay").style.display = "block";
-            document.getElementById("payoutAmt").innerText = (val * 2);
-        } else {
-            document.getElementById("winDisplay").style.display = "none";
-        }
-    }
+    window.updatePayout = () => {
+        const v = document.getElementById("userAmt").value;
+        const t = document.getElementById("modalTitle").innerText;
+        if(v > 0 && t.includes("BET")) {
+            document.getElementById("payoutBox").style.display = "block";
+            document.getElementById("payoutAmt").innerText = v * 2;
+        } else document.getElementById("payoutBox").style.display = "none";
+    };
 
     window.openPopup = (t) => {
         document.getElementById('modalTitle').innerText = t;
@@ -238,44 +125,34 @@
         document.getElementById('masterPopup').classList.add('active');
     };
 
-    window.startAction = async () => {
+    window.handleAction = async () => {
         const amt = document.getElementById("userAmt").value;
         const bal = parseInt(document.getElementById("displayBalance").innerText);
         const title = document.getElementById("modalTitle").innerText;
-
-        if(!amt || amt <= 0) return alert("Enter Amount");
+        if(!amt || amt <= 0) return alert("Invalid Amount");
 
         if(title === "DEPOSIT") {
             document.getElementById("inputPhase").style.display = "none";
             document.getElementById("qrPhase").style.display = "flex";
             let left = 60;
-            timerInt = setInterval(() => {
-                left--;
-                document.getElementById("timer").innerText = left;
-                document.getElementById("progress").style.width = (left/60)*100 + "%";
+            timerInt = setInterval(async () => {
+                left--; document.getElementById("timer").innerText = left;
+                document.getElementById("timerFill").style.width = (left/60)*100 + "%";
                 if(left <= 0) {
                     clearInterval(timerInt);
-                    finishDeposit(amt);
+                    await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "PENDING" });
+                    document.getElementById("qrPhase").style.display = "none";
+                    document.getElementById("statusPhase").style.display = "block";
+                    setTimeout(() => closePopup(), 3000);
                 }
             }, 1000);
         } else {
             if(amt > bal) return alert("Low Balance");
-            await addDoc(collection(db, "users"), {
-                email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING"
-            });
+            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - parseInt(amt) });
             closePopup();
         }
     };
-
-    async function finishDeposit(amt) {
-        await addDoc(collection(db, "users"), {
-            email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT_REQUEST", time: serverTimestamp(), status: "PENDING"
-        });
-        document.getElementById("qrPhase").style.display = "none";
-        document.getElementById("statusPhase").style.display = "block";
-        setTimeout(() => closePopup(), 3000);
-    }
 
     window.closePopup = () => { clearInterval(timerInt); document.getElementById('masterPopup').classList.remove('active'); };
     window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
