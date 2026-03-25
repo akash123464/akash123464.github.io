@@ -9,23 +9,37 @@
     <style>
         :root { --neon-pink: #ff007a; --neon-blue: #00f2ff; --neon-purple: #7000ff; --neon-green: #38ef7d; --glass: rgba(255, 255, 255, 0.08); --glass-border: rgba(255, 255, 255, 0.15); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; font-family: 'Outfit', sans-serif; background: #020205; background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(262,50%,20%,1) 0, transparent 50%); color: #fff; min-height: 100vh; padding-bottom: 100px; }
+        body { margin: 0; font-family: 'Outfit', sans-serif; background: #020205; background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(262,50%,20%,1) 0, transparent 50%); color: #fff; min-height: 100vh; padding-bottom: 100px; overflow-x: hidden; }
+        
+        /* NEW: WINNER NOTIFICATION BOX */
+        .win-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--neon-green); color: black; padding: 15px 30px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 30px var(--neon-green); text-transform: uppercase; letter-spacing: 1px; }
+        .win-notif.active { top: 30px; }
+
+        /* NEW: CASH PARTICLES */
+        .cash-particle { position: fixed; pointer-events: none; z-index: 10000; font-size: 24px; animation: fall 3s linear forwards; }
+        @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
         .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); background: rgba(0, 0, 0, 0.5); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
-        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: 18px; font-weight: 700; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; transform: skewX(-10deg); }
+        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: 18px; font-weight: 700; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; transform: skewX(-10deg); cursor: pointer; }
+        
         .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; margin: 20px; display: flex; justify-content: space-between; align-items: center; }
         .balance-amount { font-size: 32px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 10px rgba(56, 239, 125, 0.3); }
         .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
-        .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; }
+
+        .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; text-transform: uppercase; }
         .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
-        .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; }
+        .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; transition: 0.3s; }
+        
         .history-card { background: rgba(255, 255, 255, 0.02); margin: 8px 20px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; border-left: 4px solid #333; }
-        .history-card.WIN { border-left-color: var(--neon-green); }
-        .history-card.LOST { border-left-color: #ef4444; }
+        .history-card.WIN { border-left-color: var(--neon-green); background: rgba(56, 239, 125, 0.05); }
+        .history-card.LOST { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+
         .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 30px; border-radius: 35px 35px 0 0; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 3px solid var(--neon-pink); }
         .popup.active { bottom: 0; }
         .input-nexus { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; border-radius: 15px; color: #fff; font-size: 24px; text-align: center; font-weight: 900; margin-bottom: 15px; }
+
         .qr-area { display: none; flex-direction: column; align-items: center; text-align: center; }
-        .qr-box { background: #fff; padding: 10px; border-radius: 15px; width: 200px; height: 200px; margin-bottom: 10px; }
+        .qr-box { background: #fff; padding: 10px; border-radius: 15px; width: 200px; height: 200px; margin-bottom: 10px; border: 3px solid var(--neon-blue); }
         .qr-box img { width: 100%; height: 100%; }
         .timer-bar { width: 100%; height: 5px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         .timer-fill { width: 100%; height: 100%; background: var(--neon-pink); transition: 1s linear; }
@@ -33,8 +47,11 @@
 </head>
 <body>
 
+<div id="rain-zone"></div>
+<div id="winNotif" class="win-notif">NODE SYNC SUCCESS: YOU WON! 🏆</div>
+
 <div class="header">
-    <div class="brand-logo">WISHWORK.ONLINE</div>
+    <div class="brand-logo" onclick="cashExplosion()">WISHWORK.ONLINE</div>
     <div onclick="logout()" style="color: #ef4444; font-weight: 900; font-size: 11px; cursor:pointer;">TERMINATE</div>
 </div>
 
@@ -49,7 +66,7 @@
 <div class="section-label">LIVE NODES</div>
 <div class="bet-grid" id="betGrid"></div>
 
-<div class="section-label" style="margin-top:20px;">NEURAL HISTORY</div>
+<div class="section-label" style="margin-top:25px;">NEURAL HISTORY</div>
 <div id="historyList"></div>
 
 <div class="popup" id="masterPopup">
@@ -80,21 +97,54 @@
     if(!uEmail) window.location.href = "login.html";
 
     let timerInt;
+    let winTracker = {}; // Prevents notification repeat
 
     onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
 
+    // REAL-TIME HISTORY + WIN NOTIFICATION
     onSnapshot(query(collection(db, "users"), where("email", "==", uEmail), orderBy("time", "desc")), (snap) => {
         const list = document.getElementById("historyList");
         list.innerHTML = "";
         snap.forEach(d => {
             const data = d.data();
+            const id = d.id;
             let status = data.status || "PENDING";
+            
+            // IF NEW WIN DETECTED
+            if (status === "WIN 🏆" && !winTracker[id]) {
+                triggerNeuralWin();
+                winTracker[id] = true;
+            }
+
             list.innerHTML += `<div class="history-card ${status.split(' ')[0]}">
                 <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800;">${data.password}</div></div>
                 <div style="font-weight:900; font-size:11px;">${status}</div>
             </div>`;
         });
     });
+
+    function triggerNeuralWin() {
+        const notif = document.getElementById("winNotif");
+        notif.classList.add("active");
+        cashExplosion();
+        // Play Ka-ching sound
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
+        audio.play().catch(e => console.log("Audio play blocked until interaction"));
+        setTimeout(() => notif.classList.remove("active"), 5000);
+    }
+
+    window.cashExplosion = () => {
+        const zone = document.getElementById('rain-zone');
+        for(let i=0; i<40; i++) {
+            const p = document.createElement('div');
+            p.className = 'cash-particle';
+            p.innerText = ['💸', '💰', '💎'][Math.floor(Math.random()*3)];
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDelay = (Math.random() * 2) + 's';
+            zone.appendChild(p);
+            setTimeout(() => p.remove(), 3000);
+        }
+    };
 
     const nodes = [{c:"INSTA", q:"Karan Aujla story in 1hr?"}, {c:"CRYPTO", q:"BTC breaks $68k tonight?"}];
     nodes.forEach(n => {
