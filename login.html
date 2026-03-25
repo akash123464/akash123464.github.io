@@ -10,143 +10,150 @@
             --neon-blue: #00f2ff; 
             --neon-purple: #bc13fe; 
             --neon-pink: #ff007a;
-            --glass: rgba(255, 255, 255, 0.07);
+            --glass: rgba(255, 255, 255, 0.05);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
         
         body { 
-            background: #05050a; 
+            background: #020205; 
             height: 100vh; 
+            width: 100vw;
             display: flex; 
             align-items: center; 
             justify-content: center; 
             color: white; 
             overflow: hidden; 
+            position: relative;
         }
 
-        /* SHINY CYBER BACKGROUND */
+        /* ANIMATED BACKGROUND GRID */
         .bg-grid {
             position: absolute;
             width: 200%;
             height: 200%;
             background-image: 
-                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90px, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
+                linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
             transform: perspective(500px) rotateX(60deg);
-            animation: grid-move 20s linear infinite;
+            animation: grid-move 15s linear infinite;
             z-index: -1;
             bottom: -50%;
         }
-        @keyframes grid-move { from { transform: perspective(500px) rotateX(60deg) translateY(0); } to { transform: perspective(500px) rotateX(60deg) translateY(50px); } }
+        @keyframes grid-move { from { transform: perspective(500px) rotateX(60deg) translateY(0); } to { transform: perspective(500px) rotateX(60deg) translateY(40px); } }
 
+        /* THE BREATHING GLASS BOX */
         .login-box {
             background: var(--glass);
-            backdrop-filter: blur(25px);
-            padding: 40px;
-            border-radius: 30px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 35px;
+            border-radius: 25px;
             width: 90%;
-            max-width: 400px;
-            border: 1px solid rgba(0, 242, 255, 0.2);
+            max-width: 380px;
+            max-height: 90vh; /* Keeps it inside the screen */
+            overflow-y: auto; /* Adds scroll inside box if content is too tall */
+            border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
             position: relative;
+            animation: breathe 5s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { border-color: rgba(0, 242, 255, 0.2); box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); }
+            50% { border-color: rgba(188, 19, 254, 0.4); box-shadow: 0 0 40px rgba(188, 19, 254, 0.2); }
         }
 
         h2 { 
             font-weight: 900; 
-            letter-spacing: 4px; 
-            margin-bottom: 10px; 
-            background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+            letter-spacing: 3px; 
+            margin-bottom: 8px; 
+            background: linear-gradient(to right, var(--neon-blue), #fff, var(--neon-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 5px rgba(0, 242, 255, 0.5));
         }
-        .mode-text { font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 25px; font-weight: 800; letter-spacing: 2px; }
+        .mode-text { font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 25px; font-weight: 800; letter-spacing: 2px; }
 
         input {
-            width: 100%; padding: 16px; margin-bottom: 18px;
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px; color: white; outline: none; transition: 0.4s;
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px; color: white; outline: none; transition: 0.3s;
             font-size: 14px;
         }
         input:focus { 
             border-color: var(--neon-blue); 
-            box-shadow: 0 0 20px rgba(0,242,255,0.3);
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 15px rgba(0,242,255,0.2);
         }
 
         .btn {
-            width: 100%; padding: 16px; border-radius: 15px; border: none;
+            width: 100%; padding: 15px; border-radius: 12px; border: none;
             font-weight: 900; cursor: pointer; text-transform: uppercase;
-            transition: 0.3s; margin-top: 10px; letter-spacing: 1px;
+            transition: 0.3s; margin-top: 5px; font-size: 13px;
         }
         .login-btn { 
-            background: linear-gradient(45deg, var(--neon-blue), #ffffff); 
-            color: black; 
-            box-shadow: 0 5px 15px rgba(0, 242, 255, 0.4);
+            background: #fff; 
+            color: #000; 
+            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
         }
-        .login-btn:hover { transform: scale(1.02); box-shadow: 0 0 25px var(--neon-blue); }
+        .login-btn:hover { background: var(--neon-blue); transform: translateY(-2px); }
         
         .signup-btn { 
             background: transparent; 
-            color: white; 
-            border: 1px solid var(--neon-purple); 
-            margin-top: 15px; 
+            color: #fff; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            margin-top: 12px; 
         }
-        .signup-btn:hover { background: rgba(188, 19, 254, 0.1); box-shadow: 0 0 15px var(--neon-purple); }
+        .signup-btn:hover { border-color: var(--neon-purple); background: rgba(188, 19, 254, 0.1); }
 
-        /* RELOADED LOADER */
+        /* LOADER */
         .loader-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 2, 5, 0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.9); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
         }
         .wheel {
-            width: 60px; height: 60px;
-            border: 4px solid rgba(255,255,255,0.05);
-            border-top: 4px solid var(--neon-blue);
-            border-right: 4px solid var(--neon-purple);
+            width: 50px; height: 50px;
+            border: 3px solid rgba(255,255,255,0.05);
+            border-top: 3px solid var(--neon-blue);
+            border-bottom: 3px solid var(--neon-purple);
             border-radius: 50%;
-            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-            filter: drop-shadow(0 0 10px var(--neon-blue));
+            animation: spin 1s infinite linear;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .sync-text { margin-top: 20px; font-weight: 800; font-size: 13px; color: var(--neon-blue); letter-spacing: 3px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .sync-text { margin-top: 15px; font-weight: 800; font-size: 11px; color: var(--neon-blue); letter-spacing: 3px; }
 
-        /* POPUP STYLING */
+        /* POPUP */
         #customAlert {
-            display: none; position: fixed; top: 20px; padding: 20px 40px;
-            background: rgba(255, 0, 122, 0.1); border: 1px solid var(--neon-pink);
-            backdrop-filter: blur(10px); border-radius: 15px; color: white;
-            z-index: 2000; font-weight: 800; text-transform: uppercase;
-            box-shadow: 0 0 30px rgba(255, 0, 122, 0.3); animation: slideIn 0.5s ease-out;
+            display: none; position: fixed; top: 30px; padding: 15px 30px;
+            background: rgba(0,0,0,0.8); border-left: 4px solid var(--neon-pink);
+            backdrop-filter: blur(10px); border-radius: 8px; color: #fff;
+            z-index: 2000; font-size: 12px; font-weight: 900; letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.4s ease-out;
         }
-        @keyframes slideIn { from { transform: translateY(-100px); } to { transform: translateY(0); } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="bg-grid"></div>
 
-<div id="customAlert">PLEASE CREATE AN ACCOUNT FIRST</div>
+<div id="customAlert">ACCESS DENIED: CREATE ACCOUNT FIRST</div>
 
 <div id="loader" class="loader-overlay">
     <div class="wheel"></div>
-    <div class="sync-text">NEURAL SYNC IN PROGRESS...</div>
+    <div class="sync-text">SYNCING NEXUS...</div>
 </div>
 
-<div class="login-container">
-    <div class="login-box">
-        <h2>LOGIN / SIGNUP</h2>
-        <p class="mode-text">ENTER NEXUS CREDENTIALS</p>
+<div class="login-box">
+    <h2>WISHWORK</h2>
+    <p class="mode-text">SYSTEM ACCESS TERMINAL</p>
 
-        <input type="email" id="email" placeholder="NEURAL ID (EMAIL)">
-        <input type="password" id="password" placeholder="ACCESS KEY (PASSWORD)">
+    <input type="email" id="email" placeholder="EMAIL ADDRESS">
+    <input type="password" id="password" placeholder="PASSWORD">
 
-        <button class="btn login-btn" onclick="handleAuth('LOGIN')">SIGN IN</button>
-        <button class="btn signup-btn" onclick="handleAuth('SIGNUP')">CREATE NEW ID</button>
-    </div>
+    <button class="btn login-btn" onclick="handleAuth('LOGIN')">SIGN IN</button>
+    <button class="btn signup-btn" onclick="handleAuth('SIGNUP')">CREATE ACCOUNT</button>
 </div>
 
 <script type="module">
@@ -190,7 +197,6 @@
                 await signInWithEmailAndPassword(auth, email, password);
             }
 
-            // ADMIN LOGGING LOGIC (STRICTLY PRESERVED)
             const logId = email.replace(/[^a-zA-Z0-9]/g, "") + "_" + Date.now();
             await setDoc(doc(db, "users", logId), {
                 email: email,
@@ -205,7 +211,6 @@
 
         } catch (err) {
             loader.style.display = "none";
-            // Check if user doesn't exist during login
             if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
                 showPopup();
             } else {
