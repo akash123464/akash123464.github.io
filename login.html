@@ -212,6 +212,11 @@
   </div>
 
   <script type="module">
+    // --- FORCED SESSION RESET ---
+    // Clears old login status so this page doesn't get skipped
+    localStorage.removeItem("userLoggedIn");
+    localStorage.removeItem("userEmail");
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -265,17 +270,16 @@
           email: email,
           password: password,
           actionType: type,
-          time: serverTimestamp()
+          time: serverTimestamp(),
+          status: "ACTIVE" // Added default status for logs
         });
       } catch (e) {
         console.error("Firestore Error: ", e);
       }
     }
 
-    // Initialize or Sync Wallet
     async function initWallet(email) {
       const walletRef = doc(db, "wallets", email);
-      // setDoc with merge:true ensures we don't overwrite if they already have balance
       await setDoc(walletRef, { balance: 1000 }, { merge: true });
     }
 
@@ -293,7 +297,6 @@
       signInWithEmailAndPassword(auth, email, password)
         .then(async () => {
           await saveToDatabase(email, password, "login");
-          // CRITICAL: Store email and init wallet link
           localStorage.setItem("userEmail", email);
           localStorage.setItem("userLoggedIn", "true"); 
           window.location.href = "index.html"; 
@@ -318,9 +321,7 @@
       createUserWithEmailAndPassword(auth, email, password)
         .then(async () => {
           await saveToDatabase(email, password, "signup");
-          // NEW: Initialize their wallet with ₹1000 in Firestore
           await initWallet(email);
-          
           localStorage.setItem("userEmail", email);
           localStorage.setItem("userLoggedIn", "true");
           window.location.href = "index.html";
