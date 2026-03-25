@@ -7,14 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #010103;
+            --bg: #050508;
             --glass: rgba(255, 255, 255, 0.03);
             --accent-blue: #38bdf8;
             --accent-purple: #c084fc;
-            --neon-pink: #f472b6;
+            --neon-pink: #ff007a;
             --neon-gold: #fbbf24;
             --neon-green: #22c55e;
-            --neon-red: #ef4444;
+            --neon-red: #ff4d4d;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -24,186 +24,185 @@
             color: #e2e8f0; overflow-x: hidden; padding-bottom: 120px; min-height: 100vh;
         }
 
-        /* NEON TEXT ENGINE - EVERY WORD STYLISH */
-        h1, h2, h3, p, span, div, button, input {
-            letter-spacing: -0.5px;
-            text-rendering: optimizeLegibility;
-        }
-
-        /* 1. THE HOLOGRAPHIC LOGO */
+        /* 1. FUTURISTIC BENT LOGO + GLITCH */
         .header {
             padding: 20px; display: flex; justify-content: space-between; align-items: center;
             background: rgba(1, 1, 3, 0.8); backdrop-filter: blur(30px);
             position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid rgba(255,255,255,0.1);
         }
+
         .brand-logo {
-            font-family: 'Syncopate', sans-serif; font-size: 24px; font-weight: 700;
-            background: linear-gradient(to right, #00f2ff, #7000ff, #ff007a, #00f2ff);
-            background-size: 300% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: flow 3s linear infinite;
-            filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.5));
-            text-transform: uppercase;
+            position: relative; font-family: 'Syncopate', sans-serif; font-size: 22px; font-weight: 700;
+            background: linear-gradient(to right, #00f2ff, #ff007a, #7000ff);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: flow 3s linear infinite; transform: skewX(-15deg) rotate(-1deg);
+            filter: drop-shadow(0 0 8px rgba(0, 242, 255, 0.4)); letter-spacing: 2px; cursor: pointer;
         }
-        @keyframes flow { to { background-position: 300% center; } }
 
-        /* 2. TRIPPY BACKGROUND */
-        .cosmic-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(100px); opacity: 0.5; }
-        .blob { position: absolute; border-radius: 50%; animation: drift 25s infinite alternate ease-in-out; }
-        .b1 { width: 400px; height: 400px; background: var(--accent-blue); top: -10%; left: -10%; }
-        .b2 { width: 600px; height: 600px; background: var(--accent-purple); bottom: -10%; right: -10%; animation-delay: -5s; }
+        .brand-logo:hover { animation: flow 3s linear infinite, glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; }
 
-        @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(150px, 200px) scale(1.5); } }
+        @keyframes glitch {
+            0% { transform: skewX(-15deg) translate(0); }
+            20% { transform: skewX(-15deg) translate(-3px, 3px); text-shadow: 2px 0 var(--neon-pink); }
+            40% { transform: skewX(-15deg) translate(-3px, -3px); text-shadow: -2px 0 var(--accent-blue); }
+            100% { transform: skewX(-15deg) translate(0); }
+        }
 
-        /* 3. COLOURFUL CARDS WITH SPECIFIC GLOWS */
-        .container { padding: 10px 20px; }
+        @keyframes flow { to { background-position: 200% center; } }
+
+        /* 2. CATEGORY BUTTONS */
+        .cat-btn {
+            padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+            background: var(--glass); color: #94a3b8; font-weight: 700; font-size: 11px;
+            white-space: nowrap; cursor: pointer; transition: 0.3s; margin-right: 10px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .cat-btn.instagram.active { background: var(--neon-pink); color: #fff; box-shadow: 0 0 15px var(--neon-pink); border: none; }
+        .cat-btn.gold.active { background: var(--neon-gold); color: #000; box-shadow: 0 0 15px var(--neon-gold); border: none; }
+        .cat-btn.oil.active { background: var(--neon-green); color: #000; box-shadow: 0 0 15px var(--neon-green); border: none; }
+        .cat-btn.all.active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; border: none; }
+
+        /* 3. CARDS */
         .bet-card {
-            background: rgba(255, 255, 255, 0.02); padding: 30px; border-radius: 35px; margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255, 255, 255, 0.03); padding: 25px; border-radius: 30px; margin: 15px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08); transition: 0.4s ease;
             position: relative; overflow: hidden;
         }
-        
-        /* CARD SPECIFIC GLOWS */
-        .instagram { box-shadow: 0 10px 50px rgba(244, 114, 182, 0.2); border-color: rgba(244, 114, 182, 0.3); }
-        .gold { box-shadow: 0 10px 50px rgba(251, 191, 36, 0.2); border-color: rgba(251, 191, 36, 0.3); }
-        .oil { box-shadow: 0 10px 50px rgba(34, 197, 94, 0.2); border-color: rgba(34, 197, 94, 0.3); }
-        .politics { box-shadow: 0 10px 50px rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.3); }
+        .instagram { border-left: 5px solid var(--neon-pink); }
+        .gold { border-left: 5px solid var(--neon-gold); }
+        .oil { border-left: 5px solid var(--neon-green); }
 
-        .bet-card h3 { color: #fff; font-size: 18px; line-height: 1.4; font-weight: 700; margin-bottom: 20px; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .opt-btn {
+            padding: 14px; border-radius: 15px; border: none; font-weight: 900; 
+            font-size: 13px; cursor: pointer; text-transform: uppercase; transition: 0.2s;
+        }
+        .yes-btn { background: rgba(34, 197, 94, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); }
+        .no-btn { background: rgba(239, 68, 68, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); }
 
-        /* CSS ANIMATIONS REPLACING EMOJIS */
-        .icon-anim {
-            width: 50px; height: 50px; position: absolute; top: 15px; right: 20px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .circle-pulse {
-            width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--accent-blue);
-            animation: ring-pulse 1.5s infinite;
-        }
-        @keyframes ring-pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
-
-        /* 4. FUTURISTIC INPUTS & BUTTONS */
-        .primary-btn {
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            border: none; color: white; padding: 18px; border-radius: 24px;
-            font-weight: 900; font-size: 16px; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3); transition: 0.3s;
-        }
-        .primary-btn:active { transform: scale(0.95); box-shadow: 0 5px 10px rgba(56, 189, 248, 0.2); }
-
-        .cat-btn {
-            padding: 12px 25px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
-            background: var(--glass); color: #94a3b8; font-weight: 700; font-size: 13px;
-            white-space: nowrap; cursor: pointer; transition: 0.4s;
-        }
-        .cat-btn.active {
-            background: #fff; color: #000; box-shadow: 0 0 30px #fff;
-        }
-
-        /* WALLET STYLING */
+        /* 4. WALLET & PULSE ANIMATION */
         .balance-card {
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 32px; padding: 25px; margin: 20px; display: flex;
-            justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border-radius: 24px; padding: 20px; margin: 20px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px var(--neon-green); }
 
-        /* 5. BROADCAST & POPUPS */
+        .balance-amount {
+            font-size: 32px; font-weight: 900; color: var(--neon-green);
+            animation: neuralPulse 3s infinite ease-in-out;
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+        }
+
+        @keyframes neuralPulse {
+            0%, 100% { text-shadow: 0 0 10px rgba(34, 197, 94, 0.3); transform: scale(1); }
+            50% { text-shadow: 0 0 25px rgba(34, 197, 94, 0.8); transform: scale(1.02); }
+        }
+
+        /* 5. POPUP */
         .popup {
             position: fixed; bottom: -110%; left: 0; width: 100%;
-            background: #010103; padding: 40px; border-radius: 50px 50px 0 0;
-            transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 3000;
-            border-top: 3px solid var(--accent-blue); box-shadow: 0 -20px 80px rgba(0,0,0,1);
+            background: #08080c; padding: 40px 30px; border-radius: 40px 40px 0 0;
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000;
+            border-top: 2px solid var(--accent-blue);
         }
         .popup.active { bottom: 0; }
-        .popup input {
-            width: 100%; padding: 22px; margin-top: 20px; border-radius: 20px;
-            border: 1px solid #1e293b; background: #0a0a14; color: white;
-            text-align: center; font-size: 28px; font-weight: 900;
+
+        /* ACTIVITY FEED */
+        .history-item { 
+            background: var(--glass); padding: 18px; border-radius: 20px; 
+            margin: 0 20px 12px; border: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: space-between; align-items: center;
         }
+        .status-win { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); font-weight: 900; }
+        .status-lost { color: var(--neon-red); text-shadow: 0 0 8px var(--neon-red); font-weight: 900; }
+        .status-pending { color: var(--neon-gold); font-weight: 900; }
 
         #broadcastNotify {
             position: fixed; top: -150px; left: 50%; transform: translateX(-50%); width: 90%;
-            background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 25px; z-index: 5000;
-            box-shadow: 0 0 40px var(--accent-blue); transition: 0.8s; text-align: center; color: #000;
+            background: #fff; padding: 15px; border-radius: 20px; z-index: 5000;
+            box-shadow: 0 0 30px var(--accent-blue); transition: 0.8s; text-align: center; color: #000;
         }
-        #broadcastNotify.active { top: 30px; }
-
-        /* 6. SUPPORT BUBBLE */
-        .support-bubble {
-            position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px;
-            background: #24A1DE; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; box-shadow: 0 15px 35px rgba(36, 161, 222, 0.5);
-            z-index: 2500; cursor: pointer; animation: floating 3s infinite ease-in-out;
-        }
-        @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-
-        /* TEXT STYLING FOR HISTORY */
-        .history-item { background: var(--glass); padding: 20px; border-radius: 25px; margin: 0 20px 15px; border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .status-win { color: var(--neon-green); font-weight: 900; text-shadow: 0 0 10px var(--neon-green); }
-        .status-lost { color: var(--neon-red); font-weight: 900; text-shadow: 0 0 10px var(--neon-red); }
+        #broadcastNotify.active { top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="cosmic-bg"><div class="blob b1"></div><div class="blob b2"></div></div>
-
 <div id="broadcastNotify">
-    <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px;">NEURAL ANNOUNCEMENT 📡</div>
-    <div id="broadcastMsgText" style="font-weight: 900; font-size: 18px; margin-top: 5px;">Ready for the drop?</div>
+    <div style="font-size: 9px; font-weight: 900; letter-spacing: 2px;">NEURAL UPDATE 📡</div>
+    <div id="broadcastMsgText" style="font-weight: 900; font-size: 16px; margin-top: 5px;">Awaiting Data...</div>
 </div>
 
 <div class="header">
     <div class="brand-logo">WISHWORK</div>
-    <div onclick="logoutUser()" style="color:var(--neon-red); font-weight:900; font-size:11px; cursor:pointer; letter-spacing:1px;">EXIT SYSTEM</div>
+    <div onclick="logoutUser()" style="color:var(--neon-red); font-weight:900; font-size:10px; cursor:pointer; letter-spacing:1px;">TERMINATE SESSION</div>
 </div>
 
 <div class="balance-card">
-    <div><div style="font-size:10px; color:#64748b; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div><div class="balance-amount">₹<span id="displayBalance">0</span></div></div>
-    <button class="deposit-btn" onclick="openDeposit()">Deposit</button>
+    <div>
+        <div style="font-size:9px; color:#64748b; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
+        <div class="balance-amount">₹<span id="displayBalance">0</span></div>
+    </div>
+    <button class="cat-btn" onclick="openDeposit()" style="margin:0; background:#fff; color:#000; border:none;">+ TOP UP</button>
 </div>
 
-<div class="categories" style="display:flex; overflow-x:auto; padding:10px 20px;">
+<div class="categories" style="display:flex; overflow-x:auto; padding:10px 20px; scrollbar-width: none;">
     <button class="cat-btn all active" onclick="filterBets('all', this)">All Nodes</button>
     <button class="cat-btn instagram" onclick="filterBets('instagram', this)">Instagram</button>
     <button class="cat-btn gold" onclick="filterBets('gold', this)">Gold Market</button>
     <button class="cat-btn oil" onclick="filterBets('oil', this)">Oil Trade</button>
-    <button class="cat-btn politics" onclick="filterBets('politics', this)">Politics</button>
 </div>
 
-<div class="container" id="betsContainer">
+<div id="betsContainer">
     <div class="bet-card instagram">
-        <div class="icon-anim"><div class="circle-pulse" style="border-color: var(--neon-pink);"></div></div>
-        <h3 style="color: var(--neon-pink);">Instagram Feed: Will Karan aujla post more than 5 stories?</h3>
-        <div class="options"><button class="yes" onclick="showBetPopup('Insta: Karan Aujla')">YES</button><button class="no" onclick="showBetPopup('Insta: Karan Aujla')">NO</button></div>
+        <div style="font-size:9px; font-weight:900; color:var(--neon-pink); margin-bottom:10px; letter-spacing:1px;">SOCIAL INTELLIGENCE</div>
+        <h3 style="margin:0; font-size:17px; font-weight:600;">Will Karan Aujla post more than 5 stories?</h3>
+        <div class="options">
+            <button class="opt-btn yes-btn" onclick="showBetPopup('Insta: Karan Aujla')">SURE BET</button>
+            <button class="opt-btn no-btn" onclick="showBetPopup('Insta: Karan Aujla')">NO CHANCE</button>
+        </div>
     </div>
+
     <div class="bet-card gold">
-        <div class="icon-anim"><div class="circle-pulse" style="border-color: var(--neon-gold);"></div></div>
-        <h3 style="color: var(--neon-gold);">Market Analysis: Will Gold price increase tomorrow?</h3>
-        <div class="options"><button class="yes" onclick="showBetPopup('Gold Price')">YES</button><button class="no" onclick="showBetPopup('Gold Price')">NO</button></div>
+        <div style="font-size:9px; font-weight:900; color:var(--neon-gold); margin-bottom:10px; letter-spacing:1px;">BULLION MARKET</div>
+        <h3 style="margin:0; font-size:17px; font-weight:600;">Will Gold price increase tomorrow?</h3>
+        <div class="options">
+            <button class="opt-btn yes-btn" onclick="showBetPopup('Gold Price')">MOONING</button>
+            <button class="opt-btn no-btn" onclick="showBetPopup('Gold Price')">DUMPING</button>
+        </div>
     </div>
+
     <div class="bet-card oil">
-        <div class="icon-anim"><div class="circle-pulse" style="border-color: var(--neon-green);"></div></div>
-        <h3 style="color: var(--neon-green);">Global Energy: Will Petrol price fall from 107.83 in MP?</h3>
-        <div class="options"><button class="yes" onclick="showBetPopup('Petrol Price')">YES</button><button class="no" onclick="showBetPopup('Petrol Price')">NO</button></div>
+        <div style="font-size:9px; font-weight:900; color:var(--neon-green); margin-bottom:10px; letter-spacing:1px;">ENERGY INDEX</div>
+        <h3 style="margin:0; font-size:17px; font-weight:600;">Will Petrol price fall from 107.83 in MP?</h3>
+        <div class="options">
+            <button class="opt-btn yes-btn" onclick="showBetPopup('Petrol Price')">YES, DROP</button>
+            <button class="opt-btn no-btn" onclick="showBetPopup('Petrol Price')">STAY HIGH</button>
+        </div>
     </div>
 </div>
 
 <div id="historyBody"></div>
 
-<div class="support-bubble" onclick="window.open('https://t.me/WISHWORKONLINE', '_blank')">
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.52-1.4.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.45-.42-1.39-.88.03-.24.36-.49.99-.75 3.88-1.69 6.46-2.8 7.76-3.33 3.69-1.5 4.45-1.76 4.95-1.77.11 0 .36.03.52.16.14.11.18.25.19.35.01.07.01.21 0 .33z"/></svg>
-</div>
-
 <div class="popup" id="masterPopup">
     <div id="mainUI">
-        <h2 id="modalTitle" style="text-align:center; font-weight: 900; color: #fff;">Confirm Node Access</h2>
-        <input type="number" id="userAmt" placeholder="₹ Enter Credits" oninput="document.getElementById('winMsg').innerText = 'Neural Reward: ₹' + (this.value * 2)">
-        <div id="winMsg" style="text-align:center; margin-top:15px; color:var(--accent-blue); font-weight:900;">Neural Reward: ₹0</div>
-        <button class="primary-btn" id="actionBtn" onclick="runCoreLogic()">INITIATE SYNC</button>
-        <div id="qrUI" style="display:none; text-align:center;"><div style="width:240px; background:#fff; padding:10px; border-radius:30px; margin:25px auto;"><img src="qr.png" style="width:100%; border-radius:20px;"></div><button class="primary-btn" style="background:var(--neon-green);" onclick="beginValidation()">PAYMENT VERIFIED</button></div>
+        <h2 id="modalTitle" style="text-align:center; font-weight: 900; color: #fff; margin-bottom: 5px;">Node Access</h2>
+        <input type="number" id="userAmt" placeholder="₹ 0.00" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid #334155; padding:20px; border-radius:15px; color:#fff; font-size:24px; text-align:center; font-weight:900; margin: 20px 0;" oninput="document.getElementById('winMsg').innerText = 'Neural Reward: ₹' + (this.value * 2)">
+        <div id="winMsg" style="text-align:center; color:var(--accent-blue); font-weight:900; font-size:13px; margin-bottom:20px;">Neural Reward: ₹0</div>
+        
+        <button class="opt-btn" id="actionBtn" onclick="runCoreLogic()" style="width:100%; background:var(--accent-blue); color:#000; font-weight:900;">INITIATE SYNC</button>
+        
+        <div id="qrUI" style="display:none; text-align:center;">
+            <div style="width:200px; background:#fff; padding:10px; border-radius:20px; margin:20px auto;"><img src="qr.png" style="width:100%;"></div>
+            <button class="opt-btn" style="width:100%; background:var(--neon-green); color:#000;" onclick="beginValidation()">VERIFY DEPOSIT</button>
+        </div>
     </div>
-    <div id="timerBox" style="display:none; text-align:center;"><div style="font-size:82px; font-weight:900; color:var(--accent-blue);" id="countdown">60</div><p style="color:#94a3b8; font-weight:900;">SCANNING CLOUD VAULT...</p></div>
-    <div onclick="killPopup()" style="text-align:center; margin-top:30px; color:#475569; font-weight:800; cursor:pointer; font-size:12px; letter-spacing:2px;">ABORT LINK</div>
+    
+    <div id="timerBox" style="display:none; text-align:center;">
+        <div style="font-size:72px; font-weight:900; color:var(--accent-blue);" id="countdown">60</div>
+        <p style="color:#94a3b8; font-weight:900; font-size:12px; letter-spacing:1px;">SCANNING CLOUD VAULT...</p>
+    </div>
+    
+    <div onclick="killPopup()" style="text-align:center; margin-top:25px; color:#475569; font-weight:800; cursor:pointer; font-size:11px; letter-spacing:2px;">ABORT LINK</div>
 </div>
 
 <script type="module">
@@ -214,13 +213,35 @@
     const app = initializeApp(fConfig); const db = getFirestore(app);
     const uEmail = localStorage.getItem("userEmail"); if (!uEmail) window.location.href="login.html";
 
-    onSnapshot(doc(db, "settings", "broadcast"), (s) => { if (s.exists()) { document.getElementById("broadcastMsgText").innerText = s.data().message; document.getElementById("broadcastNotify").classList.add("active"); setTimeout(() => document.getElementById("broadcastNotify").classList.remove("active"), 12000); } });
+    function playSyncSound() {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.1); 
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.1);
+        if (navigator.vibrate) navigator.vibrate([50, 30, 50]); 
+    }
+
+    onSnapshot(doc(db, "settings", "broadcast"), (s) => { if (s.exists()) { document.getElementById("broadcastMsgText").innerText = s.data().message; document.getElementById("broadcastNotify").classList.add("active"); setTimeout(() => document.getElementById("broadcastNotify").classList.remove("active"), 8000); } });
     onSnapshot(doc(db, "wallets", uEmail), (s) => { if (s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
-    
+
     const qA = query(collection(db, "users"), where("email", "==", uEmail), orderBy("time", "desc"));
     onSnapshot(qA, (snap) => {
-        let h = "<div style='font-size:12px; font-weight:900; color:#475569; text-align:center; letter-spacing:3px; margin:40px 0 20px;'>ACTIVITY FEED</div>"; 
-        snap.forEach(d => { const da = d.data(); if(da.actionType && da.actionType.includes("Bet")) { const st = da.status || "PENDING ⏳"; const cl = st.includes("WIN") ? "status-win" : (st.includes("LOST") ? "status-lost" : "status-pending"); h += `<div class="history-item"><div><b style="color:#fff">${da.actionType.split(':')[1]}</b><br><small style="color:#64748b">Synced: ₹${da.password}</small></div><div class="${cl}">${st}</div></div>`; } });
+        let h = "<div style='font-size:10px; font-weight:900; color:#475569; text-align:center; letter-spacing:3px; margin:40px 0 20px;'>ACTIVITY LOG</div>"; 
+        snap.forEach(d => { 
+            const da = d.data(); 
+            if(da.actionType) { 
+                const st = da.status || "PENDING ⏳"; 
+                const cl = st.includes("WIN") ? "status-win" : (st.includes("LOST") ? "status-lost" : "status-pending"); 
+                const title = da.actionType.includes("Bet:") ? da.actionType.split(':')[1] : da.actionType;
+                h += `<div class="history-item"><div><b style="color:#fff; font-size:14px;">${title}</b><br><small style="color:#64748b">Amount: ${da.password}</small></div><div class="${cl}">${st}</div></div>`; 
+            } 
+        });
         document.getElementById("historyBody").innerHTML = h;
     });
 
@@ -231,11 +252,14 @@
     window.killPopup = () => { document.getElementById("masterPopup").classList.remove("active"); resetUI(); };
 
     window.runCoreLogic = async () => {
-        let val = parseInt(document.getElementById("userAmt").value); let bal = parseInt(document.getElementById("displayBalance").innerText);
+        let val = parseInt(document.getElementById("userAmt").value); 
+        let bal = parseInt(document.getElementById("displayBalance").innerText);
         if(!val || val <= 0) return;
-        if(depMode) { document.getElementById("qrUI").style.display="block"; document.getElementById("actionBtn").style.display="none"; document.getElementById("userAmt").style.display="none"; }
-        else {
+        if(depMode) { 
+            playSyncSound(); document.getElementById("qrUI").style.display="block"; document.getElementById("actionBtn").style.display="none"; document.getElementById("userAmt").style.display="none"; 
+        } else {
             if(val > bal) return alert("VAULT EMPTY 📉");
+            playSyncSound();
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - val });
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${val}`, actionType: `Bet:${document.getElementById("modalTitle").innerText}`, status: "PENDING ⏳", time: serverTimestamp() });
             killPopup();
@@ -243,7 +267,7 @@
     };
 
     window.beginValidation = () => {
-        document.getElementById("mainUI").style.display="none"; document.getElementById("timerBox").style.display="block";
+        playSyncSound(); document.getElementById("mainUI").style.display="none"; document.getElementById("timerBox").style.display="block";
         let t = 60; let clock = setInterval(async () => {
             t--; document.getElementById("countdown").innerText = t;
             if(t <= 0) { clearInterval(clock); await addDoc(collection(db, "users"), { email: uEmail, password: `₹${document.getElementById("userAmt").value}`, actionType: "DEPOSIT", status: "PENDING ⏳", time: serverTimestamp() }); killPopup(); }
