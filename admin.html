@@ -61,19 +61,24 @@
             const data = d.data();
             const id = d.id;
             const type = data.actionType || "LOG";
+            const utr = data.utr ? `<br><small style="color:var(--neon-green); font-weight:900;">UTR: ${data.utr}</small>` : "";
             const date = data.time ? new Date(data.time.seconds * 1000).toLocaleString() : "Syncing...";
             if(type.includes("LOG")) auths++; else bets++;
             let tagClass = `tag-${type.toLowerCase().split(' ')[0]}`;
-            
+
             let actions = "";
-            if (data.status === "PENDING") {
+            if (data.status === "PENDING" || data.status === "AWAITING UTR ⏳") {
                 if (type === "DEPOSIT") actions = `<button class="btn btn-green" onclick="appDep('${id}','${data.email}','${data.password}')">APPROVE</button>`;
                 else if (type === "WITHDRAW") actions = `<button class="btn btn-red" onclick="appWith('${id}','${data.email}','${data.password}')">PAYOUT</button>`;
                 else actions = `<button class="btn btn-green" onclick="res('${id}','WIN 🏆','${data.email}','${data.password}')">W</button><button class="btn btn-red" onclick="res('${id}','LOST 💀','${data.email}','${data.password}')">L</button>`;
             } else actions = `<span style="opacity:0.5; font-size:11px;">${data.status}</span>`;
 
             html += `<tr>
-                <td><div style="color:var(--neon-blue); cursor:pointer;" onclick="setB('${data.email}')">${data.email}</div><span style="font-size:10px; opacity:0.3;">${date}</span></td>
+                <td>
+                    <div style="color:var(--neon-blue); cursor:pointer;" onclick="setB('${data.email}')">${data.email}</div>
+                    <span style="font-size:10px; opacity:0.3;">${date}</span>
+                    ${utr}
+                </td>
                 <td><code style="background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:8px;">${data.password}</code></td>
                 <td><span class="tag ${tagClass}">${type}</span></td>
                 <td>${actions}<button class="btn btn-del" onclick="delLog('${id}')"><i class="fa fa-trash"></i></button></td>
