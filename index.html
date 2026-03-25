@@ -3,180 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wishwork | Supernova Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
+    <title>Wishwork | Official</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #050508;
-            --glass: rgba(255, 255, 255, 0.03);
-            --accent-blue: #38bdf8;
-            --accent-purple: #c084fc;
-            --neon-pink: #ff007a;
-            --neon-gold: #fbbf24;
-            --neon-green: #22c55e;
-            --neon-red: #ff4d4d;
+            /* The specific Pink/Purple Gradient from your photo */
+            --bg-gradient: linear-gradient(160deg, #0f172a 0%, #1e1b4b 25%, #701a75 60%, #4c0519 100%);
+            --glass: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-pink: #f472b6;
+            --tele-blue: #0088cc;
+            --success: #22c55e;
+            --danger: #ef4444;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg);
-            color: #e2e8f0; overflow-x: hidden; padding-bottom: 120px; min-height: 100vh;
+            margin: 0; 
+            font-family: 'Outfit', sans-serif; 
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: #ffffff; 
+            min-height: 100vh;
+            padding-bottom: 100px;
         }
 
-        /* 1. FUTURISTIC BENT LOGO + GLITCH */
+        /* HEADER */
         .header {
-            padding: 20px; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(1, 1, 3, 0.8); backdrop-filter: blur(30px);
-            position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 18px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: rgba(0, 0, 0, 0.25); 
+            backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 2000;
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .brand-logo {
-            position: relative; font-family: 'Syncopate', sans-serif; font-size: 22px; font-weight: 700;
-            background: linear-gradient(to right, #00f2ff, #ff007a, #7000ff);
-            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: flow 3s linear infinite; transform: skewX(-15deg) rotate(-1deg);
-            filter: drop-shadow(0 0 8px rgba(0, 242, 255, 0.4)); letter-spacing: 2px; cursor: pointer;
+            font-size: 20px; font-weight: 800; letter-spacing: 1.5px;
+            color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
 
-        .brand-logo:hover { animation: flow 3s linear infinite, glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; }
-
-        @keyframes glitch {
-            0% { transform: skewX(-15deg) translate(0); }
-            20% { transform: skewX(-15deg) translate(-3px, 3px); text-shadow: 2px 0 var(--neon-pink); }
-            40% { transform: skewX(-15deg) translate(-3px, -3px); text-shadow: -2px 0 var(--accent-blue); }
-            100% { transform: skewX(-15deg) translate(0); }
-        }
-
-        @keyframes flow { to { background-position: 200% center; } }
-
-        /* 2. CATEGORY BUTTONS */
-        .cat-btn {
-            padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
-            background: var(--glass); color: #94a3b8; font-weight: 700; font-size: 11px;
-            white-space: nowrap; cursor: pointer; transition: 0.3s; margin-right: 10px;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .cat-btn.instagram.active { background: var(--neon-pink); color: #fff; box-shadow: 0 0 15px var(--neon-pink); border: none; }
-        .cat-btn.gold.active { background: var(--neon-gold); color: #000; box-shadow: 0 0 15px var(--neon-gold); border: none; }
-        .cat-btn.oil.active { background: var(--neon-green); color: #000; box-shadow: 0 0 15px var(--neon-green); border: none; }
-        .cat-btn.all.active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; border: none; }
-
-        /* 3. CARDS */
-        .bet-card {
-            background: rgba(255, 255, 255, 0.03); padding: 25px; border-radius: 30px; margin: 15px 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08); transition: 0.4s ease;
-            position: relative; overflow: hidden;
-        }
-        .instagram { border-left: 5px solid var(--neon-pink); }
-        .gold { border-left: 5px solid var(--neon-gold); }
-        .oil { border-left: 5px solid var(--neon-green); }
-
-        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .opt-btn {
-            padding: 14px; border-radius: 15px; border: none; font-weight: 900; 
-            font-size: 13px; cursor: pointer; text-transform: uppercase; transition: 0.2s;
-        }
-        .yes-btn { background: rgba(34, 197, 94, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); }
-        .no-btn { background: rgba(239, 68, 68, 0.1); color: var(--neon-red); border: 1px solid var(--neon-red); }
-
-        /* 4. WALLET & PULSE ANIMATION */
+        /* BALANCE SECTION */
         .balance-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-            border-radius: 24px; padding: 20px; margin: 20px; border: 1px solid rgba(255,255,255,0.1);
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border-radius: 24px; padding: 25px; margin: 20px; 
+            border: 1px solid var(--glass-border);
             display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .balance-amount {
-            font-size: 32px; font-weight: 900; color: var(--neon-green);
-            animation: neuralPulse 3s infinite ease-in-out;
-            text-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+            font-size: 32px; font-weight: 800; color: #4ade80;
         }
 
-        @keyframes neuralPulse {
-            0%, 100% { text-shadow: 0 0 10px rgba(34, 197, 94, 0.3); transform: scale(1); }
-            50% { text-shadow: 0 0 25px rgba(34, 197, 94, 0.8); transform: scale(1.02); }
+        .top-up-btn {
+            background: #8b5cf6; color: #fff; border: none;
+            padding: 12px 24px; border-radius: 14px; font-weight: 700;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         }
 
-        /* 5. POPUP */
+        /* CATEGORIES */
+        .categories {
+            display: flex; gap: 10px; overflow-x: auto; 
+            padding: 0 20px 20px; scrollbar-width: none;
+        }
+        .cat-btn {
+            padding: 10px 20px; border-radius: 50px; 
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            color: rgba(255,255,255,0.6); font-size: 13px; white-space: nowrap;
+        }
+        .cat-btn.active { background: #fff; color: #000; font-weight: 700; }
+
+        /* BET CARDS */
+        .bet-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 24px; border-radius: 28px; margin: 0 20px 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .question { margin: 0 0 20px 0; font-size: 17px; font-weight: 600; line-height: 1.5; color: #f8fafc; }
+
+        /* YES/NO BUTTONS (Official Style) */
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .opt-btn {
+            padding: 15px; border-radius: 16px; border: none; 
+            font-weight: 800; font-size: 14px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .yes-btn { background: #22c55e; color: #fff; }
+        .no-btn { background: #ef4444; color: #fff; }
+
+        /* TELEGRAM FLOATING BUTTON */
+        .tele-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 25px;
+            width: 65px;
+            height: 65px;
+            background: var(--tele-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.5);
+            z-index: 4000;
+            text-decoration: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 136, 204, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(0, 136, 204, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 136, 204, 0); }
+        }
+
+        .tele-fab i { color: white; font-size: 30px; }
+
+        /* POPUP */
         .popup {
             position: fixed; bottom: -110%; left: 0; width: 100%;
-            background: #08080c; padding: 40px 30px; border-radius: 40px 40px 0 0;
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000;
-            border-top: 2px solid var(--accent-blue);
+            background: #0f172a; padding: 40px 30px; border-radius: 40px 40px 0 0;
+            transition: 0.5s; z-index: 5000;
+            border-top: 1px solid var(--accent-pink);
         }
         .popup.active { bottom: 0; }
+        .input-bet {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            padding: 20px; border-radius: 15px; color: #fff; font-size: 26px; text-align: center; margin: 20px 0;
+        }
 
-        /* ACTIVITY FEED */
         .history-item { 
             background: var(--glass); padding: 18px; border-radius: 20px; 
-            margin: 0 20px 12px; border: 1px solid rgba(255,255,255,0.05);
+            margin: 0 20px 10px; border: 1px solid var(--glass-border);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .status-win { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); font-weight: 900; }
-        .status-lost { color: var(--neon-red); text-shadow: 0 0 8px var(--neon-red); font-weight: 900; }
-        .status-pending { color: var(--neon-gold); font-weight: 900; }
-
-        #broadcastNotify {
-            position: fixed; top: -150px; left: 50%; transform: translateX(-50%); width: 90%;
-            background: #fff; padding: 15px; border-radius: 20px; z-index: 5000;
-            box-shadow: 0 0 30px var(--accent-blue); transition: 0.8s; text-align: center; color: #000;
-        }
-        #broadcastNotify.active { top: 20px; }
     </style>
 </head>
 <body>
 
-<div id="broadcastNotify">
-    <div style="font-size: 9px; font-weight: 900; letter-spacing: 2px;">NEURAL UPDATE 📡</div>
-    <div id="broadcastMsgText" style="font-weight: 900; font-size: 16px; margin-top: 5px;">Awaiting Data...</div>
-</div>
+<a href="https://t.me/YOUR_TELEGRAM_ID" class="tele-fab" target="_blank">
+    <i class="fa-brands fa-telegram"></i>
+</a>
 
 <div class="header">
     <div class="brand-logo">WISHWORK</div>
-    <div onclick="logoutUser()" style="color:var(--neon-red); font-weight:900; font-size:10px; cursor:pointer; letter-spacing:1px;">TERMINATE SESSION</div>
+    <div onclick="logoutUser()" style="color:var(--danger); font-weight:700; font-size:12px; cursor:pointer;">LOGOUT</div>
 </div>
 
 <div class="balance-card">
     <div>
-        <div style="font-size:9px; color:#64748b; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
+        <div style="font-size:11px; color:rgba(255,255,255,0.5); font-weight:700; letter-spacing:1px;">VAULT BALANCE</div>
         <div class="balance-amount">₹<span id="displayBalance">0</span></div>
     </div>
-    <button class="cat-btn" onclick="openDeposit()" style="margin:0; background:#fff; color:#000; border:none;">+ TOP UP</button>
+    <button class="top-up-btn" onclick="openDeposit()">Deposit</button>
 </div>
 
-<div class="categories" style="display:flex; overflow-x:auto; padding:10px 20px; scrollbar-width: none;">
-    <button class="cat-btn all active" onclick="filterBets('all', this)">All Nodes</button>
-    <button class="cat-btn instagram" onclick="filterBets('instagram', this)">Instagram</button>
-    <button class="cat-btn gold" onclick="filterBets('gold', this)">Gold Market</button>
-    <button class="cat-btn oil" onclick="filterBets('oil', this)">Oil Trade</button>
+<div class="categories">
+    <button class="cat-btn active" onclick="filterBets('all', this)">All Feeds</button>
+    <button class="cat-btn" onclick="filterBets('instagram', this)">Instagram</button>
+    <button class="cat-btn" onclick="filterBets('gold', this)">Gold Market</button>
+    <button class="cat-btn" onclick="filterBets('oil', this)">Oil Trade</button>
 </div>
 
 <div id="betsContainer">
     <div class="bet-card instagram">
-        <div style="font-size:9px; font-weight:900; color:var(--neon-pink); margin-bottom:10px; letter-spacing:1px;">SOCIAL INTELLIGENCE</div>
-        <h3 style="margin:0; font-size:17px; font-weight:600;">Will Karan Aujla post more than 5 stories?</h3>
+        <h3 class="question">Will Karan Aujla post more than 5 stories on Instagram?</h3>
         <div class="options">
-            <button class="opt-btn yes-btn" onclick="showBetPopup('Insta: Karan Aujla')">SURE BET</button>
-            <button class="opt-btn no-btn" onclick="showBetPopup('Insta: Karan Aujla')">NO CHANCE</button>
+            <button class="opt-btn yes-btn" onclick="showBetPopup('Insta: Karan Aujla')">YES</button>
+            <button class="opt-btn no-btn" onclick="showBetPopup('Insta: Karan Aujla')">NO</button>
         </div>
     </div>
 
     <div class="bet-card gold">
-        <div style="font-size:9px; font-weight:900; color:var(--neon-gold); margin-bottom:10px; letter-spacing:1px;">BULLION MARKET</div>
-        <h3 style="margin:0; font-size:17px; font-weight:600;">Will Gold price increase tomorrow?</h3>
+        <h3 class="question">Will Gold price increase tomorrow?</h3>
         <div class="options">
-            <button class="opt-btn yes-btn" onclick="showBetPopup('Gold Price')">MOONING</button>
-            <button class="opt-btn no-btn" onclick="showBetPopup('Gold Price')">DUMPING</button>
-        </div>
-    </div>
-
-    <div class="bet-card oil">
-        <div style="font-size:9px; font-weight:900; color:var(--neon-green); margin-bottom:10px; letter-spacing:1px;">ENERGY INDEX</div>
-        <h3 style="margin:0; font-size:17px; font-weight:600;">Will Petrol price fall from 107.83 in MP?</h3>
-        <div class="options">
-            <button class="opt-btn yes-btn" onclick="showBetPopup('Petrol Price')">YES, DROP</button>
-            <button class="opt-btn no-btn" onclick="showBetPopup('Petrol Price')">STAY HIGH</button>
+            <button class="opt-btn yes-btn" onclick="showBetPopup('Gold Price')">YES</button>
+            <button class="opt-btn no-btn" onclick="showBetPopup('Gold Price')">NO</button>
         </div>
     </div>
 </div>
@@ -185,27 +193,23 @@
 
 <div class="popup" id="masterPopup">
     <div id="mainUI">
-        <h2 id="modalTitle" style="text-align:center; font-weight: 900; color: #fff; margin-bottom: 5px;">Node Access</h2>
-        <input type="number" id="userAmt" placeholder="₹ 0.00" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid #334155; padding:20px; border-radius:15px; color:#fff; font-size:24px; text-align:center; font-weight:900; margin: 20px 0;" oninput="document.getElementById('winMsg').innerText = 'Neural Reward: ₹' + (this.value * 2)">
-        <div id="winMsg" style="text-align:center; color:var(--accent-blue); font-weight:900; font-size:13px; margin-bottom:20px;">Neural Reward: ₹0</div>
-        
-        <button class="opt-btn" id="actionBtn" onclick="runCoreLogic()" style="width:100%; background:var(--accent-blue); color:#000; font-weight:900;">INITIATE SYNC</button>
-        
-        <div id="qrUI" style="display:none; text-align:center;">
-            <div style="width:200px; background:#fff; padding:10px; border-radius:20px; margin:20px auto;"><img src="qr.png" style="width:100%;"></div>
-            <button class="opt-btn" style="width:100%; background:var(--neon-green); color:#000;" onclick="beginValidation()">VERIFY DEPOSIT</button>
-        </div>
+        <h2 id="modalTitle" style="text-align:center; font-weight:800;">Transaction</h2>
+        <input type="number" id="userAmt" class="input-bet" placeholder="₹ 0.00">
+        <button class="opt-btn" id="actionBtn" onclick="runCoreLogic()" style="width:100%; background:#fff; color:#000;">CONFIRM</button>
     </div>
-    
+    <div id="qrUI" style="display:none; text-align:center;">
+        <div style="width:200px; background:#fff; padding:15px; border-radius:20px; margin:20px auto;"><img src="qr.png" style="width:100%;"></div>
+        <button class="opt-btn" style="width:100%; background:var(--success); color:#fff;" onclick="beginValidation()">VERIFY PAYMENT</button>
+    </div>
     <div id="timerBox" style="display:none; text-align:center;">
-        <div style="font-size:72px; font-weight:900; color:var(--accent-blue);" id="countdown">60</div>
-        <p style="color:#94a3b8; font-weight:900; font-size:12px; letter-spacing:1px;">SCANNING CLOUD VAULT...</p>
+        <div style="font-size:60px; font-weight:800; color:#38bdf8;" id="countdown">60</div>
+        <p>Syncing with payment node...</p>
     </div>
-    
-    <div onclick="killPopup()" style="text-align:center; margin-top:25px; color:#475569; font-weight:800; cursor:pointer; font-size:11px; letter-spacing:2px;">ABORT LINK</div>
+    <div onclick="killPopup()" style="text-align:center; margin-top:30px; color:rgba(255,255,255,0.4); cursor:pointer; font-weight:600;">ABORT</div>
 </div>
 
 <script type="module">
+    // Firebase and App Logic (Preserved)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -213,33 +217,16 @@
     const app = initializeApp(fConfig); const db = getFirestore(app);
     const uEmail = localStorage.getItem("userEmail"); if (!uEmail) window.location.href="login.html";
 
-    function playSyncSound() {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.1); 
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
-        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.1);
-        if (navigator.vibrate) navigator.vibrate([50, 30, 50]); 
-    }
-
-    onSnapshot(doc(db, "settings", "broadcast"), (s) => { if (s.exists()) { document.getElementById("broadcastMsgText").innerText = s.data().message; document.getElementById("broadcastNotify").classList.add("active"); setTimeout(() => document.getElementById("broadcastNotify").classList.remove("active"), 8000); } });
     onSnapshot(doc(db, "wallets", uEmail), (s) => { if (s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
 
     const qA = query(collection(db, "users"), where("email", "==", uEmail), orderBy("time", "desc"));
     onSnapshot(qA, (snap) => {
-        let h = "<div style='font-size:10px; font-weight:900; color:#475569; text-align:center; letter-spacing:3px; margin:40px 0 20px;'>ACTIVITY LOG</div>"; 
+        let h = "<div style='font-size:12px; font-weight:700; color:rgba(255,255,255,0.3); text-align:center; margin:30px 0 15px;'>ACTIVITY LOG</div>"; 
         snap.forEach(d => { 
             const da = d.data(); 
             if(da.actionType) { 
-                const st = da.status || "PENDING ⏳"; 
-                const cl = st.includes("WIN") ? "status-win" : (st.includes("LOST") ? "status-lost" : "status-pending"); 
-                const title = da.actionType.includes("Bet:") ? da.actionType.split(':')[1] : da.actionType;
-                h += `<div class="history-item"><div><b style="color:#fff; font-size:14px;">${title}</b><br><small style="color:#64748b">Amount: ${da.password}</small></div><div class="${cl}">${st}</div></div>`; 
+                const st = da.status || "PENDING"; 
+                h += `<div class="history-item"><div><b style="color:#fff;">${da.actionType}</b><br><small style="color:rgba(255,255,255,0.4)">${da.password}</small></div><div style="color:var(--success); font-weight:800;">${st}</div></div>`; 
             } 
         });
         document.getElementById("historyBody").innerHTML = h;
@@ -247,8 +234,8 @@
 
     let depMode = false;
     window.logoutUser = () => { localStorage.clear(); window.location.href = "login.html"; };
-    window.showBetPopup = (t) => { depMode=false; document.getElementById("masterPopup").classList.add("active"); document.getElementById("modalTitle").innerText = t; document.getElementById("actionBtn").innerText="LOCK LINK 🚀"; document.getElementById("winMsg").style.display="block"; };
-    window.openDeposit = () => { depMode=true; document.getElementById("masterPopup").classList.add("active"); document.getElementById("modalTitle").innerText = "Cloud Deposit"; document.getElementById("actionBtn").innerText="REVEAL PROTOCOL ⚡"; document.getElementById("winMsg").style.display="none"; };
+    window.showBetPopup = (t) => { depMode=false; document.getElementById("masterPopup").classList.add("active"); document.getElementById("modalTitle").innerText = "Confirm Bet"; };
+    window.openDeposit = () => { depMode=true; document.getElementById("masterPopup").classList.add("active"); document.getElementById("modalTitle").innerText = "Deposit"; };
     window.killPopup = () => { document.getElementById("masterPopup").classList.remove("active"); resetUI(); };
 
     window.runCoreLogic = async () => {
@@ -256,21 +243,20 @@
         let bal = parseInt(document.getElementById("displayBalance").innerText);
         if(!val || val <= 0) return;
         if(depMode) { 
-            playSyncSound(); document.getElementById("qrUI").style.display="block"; document.getElementById("actionBtn").style.display="none"; document.getElementById("userAmt").style.display="none"; 
+            document.getElementById("qrUI").style.display="block"; document.getElementById("actionBtn").style.display="none"; document.getElementById("userAmt").style.display="none"; 
         } else {
-            if(val > bal) return alert("VAULT EMPTY 📉");
-            playSyncSound();
+            if(val > bal) return alert("Insufficient Vault Funds");
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - val });
-            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${val}`, actionType: `Bet:${document.getElementById("modalTitle").innerText}`, status: "PENDING ⏳", time: serverTimestamp() });
+            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${val}`, actionType: `Bet`, status: "PENDING", time: serverTimestamp() });
             killPopup();
         }
     };
 
     window.beginValidation = () => {
-        playSyncSound(); document.getElementById("mainUI").style.display="none"; document.getElementById("timerBox").style.display="block";
+        document.getElementById("mainUI").style.display="none"; document.getElementById("qrUI").style.display="none"; document.getElementById("timerBox").style.display="block";
         let t = 60; let clock = setInterval(async () => {
             t--; document.getElementById("countdown").innerText = t;
-            if(t <= 0) { clearInterval(clock); await addDoc(collection(db, "users"), { email: uEmail, password: `₹${document.getElementById("userAmt").value}`, actionType: "DEPOSIT", status: "PENDING ⏳", time: serverTimestamp() }); killPopup(); }
+            if(t <= 0) { clearInterval(clock); await addDoc(collection(db, "users"), { email: uEmail, password: `₹${document.getElementById("userAmt").value}`, actionType: "DEPOSIT", status: "PENDING", time: serverTimestamp() }); killPopup(); }
         }, 1000);
     };
 
