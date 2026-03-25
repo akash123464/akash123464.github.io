@@ -11,7 +11,6 @@
             --card-bg: rgba(30, 41, 59, 0.4);
             --accent-blue: #38bdf8;
             --accent-purple: #c084fc;
-            --neon-pink: #f472b6;
             --neon-green: #22c55e;
             --neon-red: #ef4444;
         }
@@ -24,12 +23,12 @@
             padding-bottom: 120px;
         }
 
-        /* BROADCAST NOTIFICATION */
+        /* BROADCAST POPUP */
         #broadcastNotify {
             position: fixed; top: -120px; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 400px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
             padding: 18px; border-radius: 20px; z-index: 3000;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6); transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.4); transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-align: center; border: 1px solid rgba(255,255,255,0.2);
         }
         #broadcastNotify.active { top: 20px; }
@@ -46,17 +45,23 @@
         }
         .logout-link { font-size: 11px; color: var(--neon-red); font-weight: 800; cursor: pointer; text-transform: uppercase; }
 
-        /* WALLET */
+        /* WALLET WITH GLOW */
         .balance-container { padding: 0 20px; margin-bottom: 15px; }
         .balance-card {
             background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px; padding: 20px; display: flex; justify-content: space-between;
-            align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
-        .balance-amount { font-size: 28px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
-        .deposit-btn { background: linear-gradient(135deg, #6366f1, #a855f7); border: none; color: white; padding: 10px 22px; border-radius: 14px; font-weight: 700; cursor: pointer; }
+        .balance-amount { font-size: 28px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
+        
+        .deposit-btn { 
+            background: linear-gradient(135deg, #6366f1, #a855f7); border: none; color: white; 
+            padding: 10px 22px; border-radius: 14px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); transition: 0.3s;
+        }
+        .deposit-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(168, 85, 247, 0.6); }
 
-        /* CATEGORY FILTER */
+        /* CATEGORIES GLOW */
         .categories { display: flex; overflow-x: auto; padding: 10px 20px; gap: 12px; scrollbar-width: none; margin-bottom: 10px; }
         .categories::-webkit-scrollbar { display: none; }
         .cat-btn {
@@ -64,7 +69,10 @@
             background: rgba(255, 255, 255, 0.05); color: #e2e8f0; font-weight: 600; font-size: 14px;
             white-space: nowrap; transition: 0.3s; cursor: pointer;
         }
-        .cat-btn.active { background: white; color: black; font-weight: 800; box-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        .cat-btn.active { 
+            background: white; color: black; font-weight: 800; 
+            box-shadow: 0 0 20px rgba(255,255,255,0.4); 
+        }
 
         /* BET CARDS */
         .container { padding: 10px 20px; }
@@ -76,8 +84,8 @@
         .bet-card h3 { margin: 0; font-size: 17px; font-weight: 600; color: #f1f5f9; line-height: 1.4; }
         .options { display: flex; margin-top: 20px; gap: 15px; }
         .options button { flex: 1; padding: 16px; border-radius: 18px; border: none; font-weight: 900; color: white; cursor: pointer; transition: 0.2s; }
-        .yes { background: #10b981; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2); }
-        .no { background: #f43f5e; box-shadow: 0 5px 15px rgba(244, 63, 94, 0.2); }
+        .yes { background: #10b981; box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3); }
+        .no { background: #f43f5e; box-shadow: 0 5px 20px rgba(244, 63, 94, 0.3); }
 
         /* HISTORY */
         .history-section { margin: 30px 20px; }
@@ -95,35 +103,40 @@
             background: #030712; padding: 35px; border-radius: 40px 40px 0 0;
             transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1); z-index: 1000; 
             box-sizing: border-box; border-top: 2px solid var(--accent-blue);
+            box-shadow: 0 -10px 40px rgba(56, 189, 248, 0.15);
         }
         .popup.active { bottom: 0; }
         .popup input { width: 100%; padding: 18px; margin-top: 20px; border-radius: 20px; border: 1px solid #334155; background: #111827; color: white; text-align: center; font-size: 22px; outline: none;}
-        .primary-btn { width: 100%; margin-top: 25px; padding: 18px; border: none; border-radius: 20px; background: var(--accent-blue); color: white; font-weight: 900; cursor: pointer; }
+        .primary-btn { 
+            width: 100%; margin-top: 25px; padding: 18px; border: none; border-radius: 20px; 
+            background: var(--accent-blue); color: white; font-weight: 900; cursor: pointer;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); transition: 0.3s;
+        }
 
-        /* DEPOSIT VALIDATION */
+        /* TIMER & QR */
         #vScreen { display: none; text-align: center; }
-        .timer-text { font-size: 54px; font-weight: 900; color: var(--accent-blue); margin: 15px 0; }
-        .qr-img { width: 220px; border-radius: 24px; border: 6px solid white; margin: 20px 0; box-shadow: 0 0 30px rgba(255,255,255,0.1); }
+        .timer-text { font-size: 54px; font-weight: 900; color: var(--accent-blue); margin: 15px 0; text-shadow: 0 0 20px var(--accent-blue); }
+        .qr-img { width: 220px; border-radius: 24px; border: 6px solid white; margin: 20px 0; box-shadow: 0 0 40px rgba(255,255,255,0.2); }
 
         /* SUPPORT BUBBLE */
         .support-bubble {
             position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px;
             background: #24A1DE; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; box-shadow: 0 10px 25px rgba(36, 161, 222, 0.4); z-index: 999;
+            justify-content: center; box-shadow: 0 10px 30px rgba(36, 161, 222, 0.5); z-index: 999;
         }
     </style>
 </head>
 <body>
 
 <div id="broadcastNotify">
-    <div style="font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px;">Admin Announcement 📡</div>
-    <div id="broadcastMsgText" style="color: white; font-weight: 800; margin: 8px 0; font-size: 16px;">Welcome back!</div>
-    <div onclick="document.getElementById('broadcastNotify').classList.remove('active')" style="font-size: 10px; color: white; cursor: pointer; font-weight: bold; opacity: 0.7;">TAP TO DISMISS</div>
+    <div style="font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.8); text-transform: uppercase;">Announcing 📡</div>
+    <div id="broadcastMsgText" style="color: white; font-weight: 800; margin: 8px 0; font-size: 16px;">Welcome!</div>
+    <div onclick="document.getElementById('broadcastNotify').classList.remove('active')" style="font-size: 10px; color: white; cursor: pointer; font-weight: bold; opacity: 0.7;">DISMISS</div>
 </div>
 
 <div class="header">
     <div class="brand-name">WISHWORK.ONLINE</div>
-    <div class="logout-link" onclick="logout()">Logout</div>
+    <div class="logout-link" onclick="logoutUser()">Logout</div>
 </div>
 
 <div class="balance-container">
@@ -176,10 +189,8 @@
 </div>
 
 <div class="history-section">
-    <div class="history-title">MY BETTING ACTIVITY</div>
-    <div id="betHistory">
-        <p style="text-align:center; color:#64748b; font-size:12px;">No activity yet.</p>
-    </div>
+    <div class="history-title">ACTIVITY LOG</div>
+    <div id="betHistory"></div>
 </div>
 
 <a href="https://t.me/WISHWORKONLINE" target="_blank" class="support-bubble">
@@ -189,22 +200,22 @@
 <div class="popup" id="uPopup">
     <div id="pContent">
         <h3 id="pTitle" style="text-align:center; font-weight:900;">Confirm</h3>
-        <input type="number" id="amt" placeholder="₹ Amount" oninput="document.getElementById('res').innerText = 'Possible Win: ₹' + (this.value * 2)">
-        <div id="res" style="text-align:center; color:var(--accent-blue); font-weight:800; margin-top:10px;">Possible Win: ₹0</div>
-        <button class="primary-btn" id="pBtn" onclick="handleAction()">Confirm</button>
+        <input type="number" id="amt" placeholder="₹ Enter Amount">
+        <div id="res" style="text-align:center; color:var(--accent-blue); font-weight:800; margin-top:10px;">Winning Reward: ₹0</div>
+        <button class="primary-btn" id="pBtn" onclick="processAction()">Confirm Action</button>
         
         <div id="qrSec" style="display:none; text-align:center;">
             <img src="qr.png" class="qr-img">
-            <button class="primary-btn" style="background:var(--neon-green);" onclick="startV()">Payment Done ✨</button>
+            <button class="primary-btn" style="background:var(--neon-green);" onclick="initValidation()">Payment Done ✨</button>
         </div>
     </div>
 
     <div id="vScreen" style="display:none; text-align:center;">
         <div class="timer-text" id="timerText">60</div>
-        <p style="color:#94a3b8; font-weight: 600;">Verifying...</p>
+        <p style="color:#94a3b8; font-weight: 600;">Authenticating Transaction...</p>
     </div>
     
-    <div style="text-align:center; margin-top:25px; color:#64748b; cursor:pointer; font-weight:bold;" onclick="closeP()">CANCEL</div>
+    <div style="text-align:center; margin-top:25px; color:#64748b; cursor:pointer; font-weight:bold;" onclick="closePopup()">CANCEL</div>
 </div>
 
 <script type="module">
@@ -215,23 +226,22 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // DYNAMIC USER LOADING FIX
     if (localStorage.getItem("userLoggedIn") !== "true") window.location.href = "login.html";
     const userEmail = localStorage.getItem("userEmail"); 
 
-    // BROADCAST
+    // REAL-TIME BROADCAST
     onSnapshot(doc(db, "settings", "broadcast"), (s) => {
         if (s.exists()) {
             document.getElementById("broadcastMsgText").innerText = s.data().message;
             document.getElementById("broadcastNotify").classList.add("active");
-            setTimeout(() => document.getElementById("broadcastNotify").classList.remove("active"), 10000);
+            setTimeout(() => document.getElementById("broadcastNotify").classList.remove("active"), 8000);
         }
     });
 
-    // WALLET
+    // REAL-TIME BALANCE
     onSnapshot(doc(db, "wallets", userEmail), (s) => { if (s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
 
-    // ACTIVITY
+    // REAL-TIME HISTORY
     const qH = query(collection(db, "users"), where("email", "==", userEmail), orderBy("time", "desc"));
     onSnapshot(qH, (snap) => {
         const div = document.getElementById("betHistory");
@@ -244,45 +254,106 @@
                 html += `<div class="history-item"><div><b>${data.actionType.split(':')[1]}</b><br><small style="color:#64748b">${data.password}</small></div><div class="status-badge" style="background:rgba(255,255,255,0.05); color:${color}">${status}</div></div>`;
             }
         });
-        if(html) div.innerHTML = html;
+        div.innerHTML = html || "<p style='text-align:center; color:#475569; font-size:12px;'>No activity yet.</p>";
     });
 
-    // UI FUNCTIONS
-    window.logout = () => { localStorage.clear(); window.location.href = "login.html"; };
-    window.openBet = (t) => { isDep=false; document.getElementById("uPopup").classList.add("active"); document.getElementById("pTitle").innerText = t; document.getElementById("pBtn").innerText="Place Bet 🚀"; document.getElementById("res").style.display="block"; };
-    window.openDeposit = () => { isDep=true; document.getElementById("uPopup").classList.add("active"); document.getElementById("pTitle").innerText = "Deposit Funds"; document.getElementById("pBtn").innerText="Generate QR"; document.getElementById("res").style.display="none"; };
-    window.closeP = () => { document.getElementById("uPopup").classList.remove("active"); resetP(); };
+    // BUTTON FUNCTIONS
+    let isDepositMode = false;
 
-    let isDep = false;
-    window.handleAction = async () => {
-        let a = parseInt(document.getElementById("amt").value);
-        let b = parseInt(document.getElementById("displayBalance").innerText);
-        if(!a || a <= 0) return alert("Enter amount!");
-        if(isDep) { document.getElementById("qrSec").style.display="block"; document.getElementById("pBtn").style.display="none"; document.getElementById("amt").style.display="none"; }
-        else {
-            if(a > b) return alert("Low balance!");
-            await updateDoc(doc(db, "wallets", userEmail), { balance: b - a });
-            await addDoc(collection(db, "users"), { email: userEmail, password: `₹${a}`, actionType: `Bet:${document.getElementById("pTitle").innerText}`, status: "PENDING ⏳", time: serverTimestamp() });
-            alert("Bet Placed! ✨"); closeP();
+    window.openBet = (title) => {
+        isDepositMode = false;
+        document.getElementById("uPopup").classList.add("active");
+        document.getElementById("pTitle").innerText = title;
+        document.getElementById("pBtn").innerText = "Place Bet 🚀";
+        document.getElementById("res").style.display = "block";
+    };
+
+    window.openDeposit = () => {
+        isDepositMode = true;
+        document.getElementById("uPopup").classList.add("active");
+        document.getElementById("pTitle").innerText = "Add Money";
+        document.getElementById("pBtn").innerText = "Get QR Code";
+        document.getElementById("res").style.display = "none";
+    };
+
+    window.closePopup = () => {
+        document.getElementById("uPopup").classList.remove("active");
+        resetPopupUI();
+    };
+
+    window.logoutUser = () => {
+        localStorage.clear();
+        window.location.href = "login.html";
+    };
+
+    window.processAction = async () => {
+        let amt = parseInt(document.getElementById("amt").value);
+        let balance = parseInt(document.getElementById("displayBalance").innerText);
+        
+        if(!amt || amt <= 0) return alert("Enter a valid amount!");
+
+        if(isDepositMode) {
+            document.getElementById("qrSec").style.display = "block";
+            document.getElementById("pBtn").style.display = "none";
+            document.getElementById("amt").style.display = "none";
+        } else {
+            if(amt > balance) return alert("Insufficient Balance! 📉");
+            await updateDoc(doc(db, "wallets", userEmail), { balance: balance - amt });
+            await addDoc(collection(db, "users"), { 
+                email: userEmail, 
+                password: `₹${amt}`, 
+                actionType: `Bet:${document.getElementById("pTitle").innerText}`, 
+                status: "PENDING ⏳", 
+                time: serverTimestamp() 
+            });
+            alert("Bet Confirmed! Check Activity. ✨");
+            closePopup();
         }
     };
 
-    window.startV = () => {
-        document.getElementById("pContent").style.display="none"; document.getElementById("vScreen").style.display="block";
-        let t = 60;
-        let int = setInterval(async () => {
-            t--; document.getElementById("timerText").innerText = t;
-            if(t <= 0) { clearInterval(int); await addDoc(collection(db, "users"), { email: userEmail, password: `₹${document.getElementById("amt").value}`, actionType: "DEPOSIT", status: "PENDING ⏳", time: serverTimestamp() }); alert("Sent!"); closeP(); }
+    window.initValidation = () => {
+        document.getElementById("pContent").style.display = "none";
+        document.getElementById("vScreen").style.display = "block";
+        let time = 60;
+        let timer = setInterval(async () => {
+            time--;
+            document.getElementById("timerText").innerText = time;
+            if(time <= 0) {
+                clearInterval(timer);
+                await addDoc(collection(db, "users"), { 
+                    email: userEmail, 
+                    password: `₹${document.getElementById("amt").value}`, 
+                    actionType: "DEPOSIT", 
+                    status: "PENDING ⏳", 
+                    time: serverTimestamp() 
+                });
+                alert("Deposit Request Sent to Authority!");
+                closePopup();
+            }
         }, 1000);
     };
 
-    window.filterBets = (c, b) => {
-        document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-        b.classList.add('active');
-        document.querySelectorAll('.bet-card').forEach(card => { card.style.display = (c==='all' || card.classList.contains(c)) ? 'block' : 'none'; });
+    window.filterBets = (category, btn) => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.bet-card').forEach(card => {
+            card.style.display = (category === 'all' || card.classList.contains(category)) ? 'block' : 'none';
+        });
     };
 
-    function resetP() { document.getElementById("pContent").style.display="block"; document.getElementById("vScreen").style.display="none"; document.getElementById("qrSec").style.display="none"; document.getElementById("pBtn").style.display="block"; document.getElementById("amt").style.display="block"; document.getElementById("amt").value=""; }
+    function resetPopupUI() {
+        document.getElementById("pContent").style.display = "block";
+        document.getElementById("vScreen").style.display = "none";
+        document.getElementById("qrSec").style.display = "none";
+        document.getElementById("pBtn").style.display = "block";
+        document.getElementById("amt").style.display = "block";
+        document.getElementById("amt").value = "";
+    }
+
+    // Auto-Winning Display Logic
+    document.getElementById('amt').addEventListener('input', function() {
+        document.getElementById('res').innerText = "Winning Reward: ₹" + (this.value * 2);
+    });
 </script>
 </body>
 </html>
