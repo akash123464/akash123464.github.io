@@ -43,6 +43,7 @@
         .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; text-transform: uppercase; }
         .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
         .bet-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px; }
+        
         .history-card { background: rgba(255, 255, 255, 0.02); margin: 10px 20px; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; border-left: 5px solid #333; }
         .history-card.WIN { border-left-color: var(--neon-green); background: rgba(56, 239, 125, 0.05); }
 
@@ -90,7 +91,7 @@
 <div class="support-fab" onclick="toggleSupport()"><i class="fa-brands fa-telegram" style="font-size: 30px; color: white;"></i></div>
 <div class="support-card" id="supportCard">
     <div style="font-weight: 900; color: var(--neon-blue); font-size: 16px;">NEURAL SUPPORT</div>
-    <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/main/qr.png" style="width:100%; border-radius:15px; margin:20px 0;">
+    <img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png" style="width:100%; border-radius:15px; margin:20px 0; border: 2px solid var(--neon-blue);">
     <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none;">CONNECT TELEGRAM</a>
 </div>
 
@@ -101,7 +102,7 @@
 
 <div class="balance-card">
     <div>
-        <div style="font-size:10px; opacity:0.5; font-weight:900;">LIQUID CREDITS</div>
+        <div style="font-size:10px; opacity:0.5; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
         <div class="balance-amount">₹<span id="displayBalance">0</span></div>
     </div>
     <div class="action-btns">
@@ -125,9 +126,7 @@
     </div>
     <div id="qrPhase" class="qr-area">
         <div class="qr-box">
-            <img id="qrImg" src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/main/qr.png" 
-                 onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=WISHWORKONLINE'" 
-                 alt="PAYMENT QR">
+            <img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png" alt="PAYMENT QR">
         </div>
         <div style="font-weight:900; color:var(--neon-pink); margin-top:15px;">SYNCING: <span id="timer">60</span>s</div>
         <div class="timer-wrap"><div id="timerFill"></div></div>
@@ -161,7 +160,7 @@
             let status = data.status || "PENDING";
             if (status === "WIN 🏆" && !winTracker[id]) { triggerNeuralWin(); winTracker[id] = true; }
             list.innerHTML += `<div class="history-card ${status.split(' ')[0]}">
-                <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800; font-size:16px;">${data.password}</div></div>
+                <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800;">${data.password}</div></div>
                 <div style="font-weight:900; font-size:12px;">${status}</div>
             </div>`;
         });
@@ -181,7 +180,7 @@
 
     window.toggleSupport = () => document.getElementById("supportCard").classList.toggle("active");
 
-    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story in next 40m?"}, {c:"CRYPTO-PULSE", q:"BTC price stays above $69k?"}];
+    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story in next 30m?"}, {c:"CRYPTO-PULSE", q:"BTC price stays above resistance?"}];
     nodes.forEach(n => {
         document.getElementById('betGrid').innerHTML += `<div class="bet-card">
             <div style="font-size:10px; color:var(--neon-blue); font-weight:900;">${n.c}</div>
