@@ -13,14 +13,38 @@
         .stat-card { background: rgba(30, 41, 59, 0.5); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
         .stat-card h2 { margin: 0; font-size: 28px; color: #22c55e; }
         .stat-card p { margin: 5px 0 0; color: #94a3b8; font-size: 12px; text-transform: uppercase; }
+        
         .table-wrapper { background: rgba(30, 41, 59, 0.3); border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         th { background: rgba(255,255,255,0.05); text-align: left; padding: 15px; color: #94a3b8; font-size: 11px; text-transform: uppercase; }
-        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #e2e8f0; cursor: pointer; }
-        tr:hover { background: rgba(255,255,255,0.02); }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #e2e8f0; }
+        
+        /* New Row Styling */
+        .user-row:hover { background: rgba(255, 255, 255, 0.02); }
+        .email-cell { font-weight: 600; cursor: pointer; color: #38bdf8; }
+        
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
         .badge-signup { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
         .badge-login { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+
+        /* DELETE BUTTON STYLES */
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
         .loading { text-align: center; padding: 50px; color: #64748b; }
     </style>
 </head>
@@ -28,7 +52,7 @@
 
 <div class="header">
     <h1>🛠 Admin Panel</h1>
-    <p style="color: #64748b;">Click a user to update balance</p>
+    <p style="color: #64748b;">Click Email to add balance | Use 🗑 to delete</p>
 </div>
 
 <div class="stats-container">
@@ -46,10 +70,11 @@
     <table id="userTable">
         <thead>
             <tr>
-                <th>Email (Click to Edit)</th>
+                <th>Email</th>
                 <th>Password</th>
                 <th>Type</th>
                 <th>Time</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -59,7 +84,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
@@ -73,23 +98,31 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Function to update balance
+    // 1. UPDATE BALANCE FUNCTION
     window.updateBalance = async (email) => {
         const newBal = prompt(`Enter new balance for ${email}:`, "1000");
-        if (newBal !== null) {
+        if (newBal !== null && newBal !== "") {
             try {
-                // We save to a 'wallets' collection using email as the ID
                 await setDoc(doc(db, "wallets", email), {
                     balance: parseInt(newBal)
                 }, { merge: true });
-                alert("Balance updated successfully! 🚀");
-            } catch (e) {
-                alert("Error: " + e.message);
-            }
+                alert("Balance updated! 💸");
+            } catch (e) { alert("Error: " + e.message); }
+        }
+    };
+
+    // 2. DELETE USER LOG FUNCTION
+    window.deleteUser = async (docId) => {
+        if (confirm("Are you sure you want to delete this log? This is permanent! 🛑")) {
+            try {
+                await deleteDoc(doc(db, "users", docId));
+                alert("User log deleted! 👋");
+            } catch (e) { alert("Error: " + e.message); }
         }
     };
 
     const q = query(collection(db, "users"), orderBy("time", "desc"));
+
     onSnapshot(q, (snapshot) => {
         const tableBody = document.getElementById("tableBody");
         const loader = document.getElementById("loader");
@@ -98,20 +131,25 @@
 
         loader.style.display = snapshot.empty ? "block" : "none";
 
-        snapshot.forEach((doc) => {
-            const data = doc.data();
+        snapshot.forEach((userDoc) => {
+            const data = userDoc.data();
+            const docId = userDoc.id; // Unique ID needed for deletion
             uniqueUsers.add(data.email);
+
             const date = data.time ? data.time.toDate().toLocaleString() : "Just now";
             const typeBadge = data.actionType === "signup" ? 
                 `<span class="badge badge-signup">Signup</span>` : 
                 `<span class="badge badge-login">Login</span>`;
 
             html += `
-                <tr onclick="updateBalance('${data.email}')">
-                    <td style="font-weight:600;">${data.email}</td>
+                <tr class="user-row">
+                    <td class="email-cell" onclick="updateBalance('${data.email}')">${data.email}</td>
                     <td style="font-family:monospace; color:#94a3b8;">${data.password}</td>
                     <td>${typeBadge}</td>
                     <td style="font-size:12px; color:#64748b;">${date}</td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteUser('${docId}')">🗑 Delete</button>
+                    </td>
                 </tr>
             `;
         });
