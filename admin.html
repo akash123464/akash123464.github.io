@@ -3,46 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WISHWORK | COMMAND CENTER</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
+    <title>WISHWORK | NEXUS COMMAND</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #020205; color: white; font-family: 'Outfit', sans-serif; padding: 20px; }
-        h1 { text-align: center; color: #00f2ff; font-weight: 900; letter-spacing: 2px; }
-        .stats { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
-        .stat-box { background: rgba(255,255,255,0.05); padding: 15px 30px; border-radius: 15px; border: 1px solid rgba(0,242,255,0.2); }
-        table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.02); border-radius: 15px; overflow: hidden; }
-        th { background: rgba(0,242,255,0.1); color: #00f2ff; padding: 15px; text-align: left; font-size: 11px; text-transform: uppercase; }
-        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
-        .btn { padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; color: white; margin-right: 5px; }
-        .win { background: #22c55e; } .loss { background: #ef4444; } .del { background: #444; }
-        .action-tag { font-weight: 900; font-size: 10px; color: #a855f7; }
+        :root { 
+            --neon-blue: #00f2ff; 
+            --neon-pink: #ff007a; 
+            --neon-purple: #7000ff; 
+            --neon-green: #38ef7d; 
+            --bg-dark: #020205;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        
+        body { 
+            background: var(--bg-dark); 
+            color: white; 
+            padding: 20px; 
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
+            min-height: 100vh;
+        }
+
+        h1 { text-align: center; font-weight: 900; letter-spacing: 5px; color: var(--neon-blue); margin-bottom: 30px; text-shadow: 0 0 15px rgba(0,242,255,0.4); }
+        
+        /* ANALYTICS HUD */
+        .stats-hud { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+        .hud-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; text-align: center; backdrop-filter: blur(10px); }
+        .hud-card h3 { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .hud-card p { font-size: 28px; font-weight: 900; color: var(--neon-blue); }
+
+        /* COMMAND TABLE */
+        .table-wrap { background: rgba(255,255,255,0.02); border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { padding: 20px; text-align: left; font-size: 11px; text-transform: uppercase; color: var(--neon-blue); background: rgba(0,242,255,0.05); letter-spacing: 1px; }
+        td { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; vertical-align: middle; }
+
+        /* NEURAL ID STYLING */
+        .neural-id { color: var(--neon-blue); font-weight: 600; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .neural-id:hover { text-shadow: 0 0 10px var(--neon-blue); }
+        .timestamp { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 4px; display: block; }
+
+        /* PROTOCOL TAGS */
+        .tag { padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; display: inline-block; }
+        .tag-login { background: rgba(112, 0, 255, 0.2); color: var(--neon-purple); border: 1px solid var(--neon-purple); }
+        .tag-bet { background: rgba(255, 0, 122, 0.2); color: var(--neon-pink); border: 1px solid var(--neon-pink); }
+        .tag-deposit { background: rgba(0, 242, 255, 0.2); color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+
+        /* ACTION BUTTONS */
+        .btn { padding: 10px 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: 900; color: white; transition: 0.3s; margin-right: 5px; text-transform: uppercase; font-size: 11px; }
+        .btn-win { background: var(--neon-green); color: #000; box-shadow: 0 0 15px rgba(56, 239, 125, 0.3); }
+        .btn-loss { background: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
+        .btn-del { background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; }
+        .btn-del:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+        /* SEARCH BAR */
+        #searchBox { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 20px; color: white; margin-bottom: 20px; font-size: 16px; outline: none; transition: 0.3s; }
+        #searchBox:focus { border-color: var(--neon-blue); box-shadow: 0 0 20px rgba(0,242,255,0.1); }
     </style>
 </head>
 <body>
 
 <h1>NEXUS COMMAND</h1>
 
-<div class="stats">
-    <div class="stat-box">LOGS: <span id="logCount" style="color:#00f2ff">0</span></div>
+<div class="stats-hud">
+    <div class="hud-card"><h3>Live Signals</h3><p id="logCount">0</p></div>
+    <div class="hud-card"><h3>Auth Events</h3><p id="authCount" style="color:var(--neon-purple)">0</p></div>
+    <div class="hud-card"><h3>Risk Nodes</h3><p id="betCount" style="color:var(--neon-pink)">0</p></div>
 </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>Neural ID</th>
-            <th>Value/Pass</th>
-            <th>Type</th>
-            <th>Status/Control</th>
-        </tr>
-    </thead>
-    <tbody id="adminBody">
-        <tr><td colspan="4" style="text-align:center; color:orange;">Synchronizing with Firebase...</td></tr>
-    </tbody>
-</table>
+<input type="text" id="searchBox" placeholder="SEARCH NEURAL ID (EMAIL)..." onkeyup="filterTable()">
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Neural ID & Timestamp</th>
+                <th>Access / Value</th>
+                <th>Protocol Type</th>
+                <th>Node Control</th>
+            </tr>
+        </thead>
+        <tbody id="adminBody">
+            <tr><td colspan="4" style="text-align:center; padding:50px; color:orange;">LINKING TO FIREBASE...</td></tr>
+        </tbody>
+    </table>
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", 
@@ -56,51 +106,92 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // SIMPLE LISTENER - No sorting, just raw data pull
-    onSnapshot(collection(db, "users"), (snap) => {
+    // 1. REAL-TIME DATA HUB
+    onSnapshot(query(collection(db, "users"), orderBy("time", "desc")), (snap) => {
         const body = document.getElementById("adminBody");
-        document.getElementById("logCount").innerText = snap.size;
-        body.innerHTML = "";
+        let html = "";
+        let auths = 0, bets = 0;
 
         snap.forEach(d => {
             const data = d.data();
             const id = d.id;
-            
-            body.innerHTML += `
+            const type = data.actionType || "LOG";
+            const date = data.time ? new Date(data.time.seconds * 1000).toLocaleString() : "Syncing...";
+
+            if(type.includes("LOG")) auths++; else bets++;
+
+            let tagClass = type.includes("LOG") ? "tag-login" : (type.includes("DEPOSIT") ? "tag-deposit" : "tag-bet");
+
+            html += `
                 <tr>
-                    <td onclick="setBal('${data.email}')" style="color:#00f2ff; cursor:pointer;">${data.email || 'Unknown'}</td>
-                    <td>${data.password || 'N/A'}</td>
-                    <td class="action-tag">${data.actionType || 'LOG'}</td>
+                    <td>
+                        <div class="neural-id" onclick="setBal('${data.email}')">${data.email || 'UNKNOWN'}</div>
+                        <span class="timestamp">${date}</span>
+                    </td>
+                    <td><code style="background:rgba(0,0,0,0.3); padding:5px 10px; border-radius:8px; font-weight:900;">${data.password || 'N/A'}</code></td>
+                    <td><span class="tag ${tagClass}">${type}</span></td>
                     <td>
                         ${data.status === "PENDING" ? `
-                            <button class="btn win" onclick="resolve('${id}','WIN 🏆','${data.email}','${data.password}')">W</button>
-                            <button class="btn loss" onclick="resolve('${id}','LOST 💀','${data.email}','${data.password}')">L</button>
-                        ` : `<span style="opacity:0.6">${data.status || 'PROCESSED'}</span>`}
-                        <button class="btn del" onclick="delLog('${id}')">×</button>
+                            <button class="btn btn-win" onclick="resolve('${id}','WIN 🏆','${data.email}','${data.password}')">WIN</button>
+                            <button class="btn btn-loss" onclick="resolve('${id}','LOST 💀','${data.email}','${data.password}')">LOSS</button>
+                        ` : `<span style="font-weight:900; font-size:11px; opacity:0.5;">${data.status || 'PROCESSED'}</span>`}
+                        <button class="btn btn-del" onclick="delLog('${id}')"><i class="fa fa-trash"></i></button>
                     </td>
                 </tr>`;
         });
+        
+        body.innerHTML = html;
+        document.getElementById("logCount").innerText = snap.size;
+        document.getElementById("authCount").innerText = auths;
+        document.getElementById("betCount").innerText = bets;
     }, (err) => {
-        alert("Firebase Connection Failed: " + err.message);
+        alert("CRITICAL ERROR: " + err.message);
     });
 
-    window.setBal = async (e) => {
-        const val = prompt(`New balance for ${e}:`);
-        if(val) await setDoc(doc(db, "wallets", e), { balance: parseInt(val) });
+    // 2. WALLET OVERRIDE (Click Email)
+    window.setBal = async (email) => {
+        const val = prompt(`FORCE OVERRIDE BALANCE FOR: ${email}`);
+        if(val !== null && val !== "") {
+            await setDoc(doc(db, "wallets", email), { balance: parseInt(val) });
+            alert(`SUCCESS: Wallet for ${email} updated to ₹${val}`);
+        }
     };
 
+    // 3. RESOLVE NODE (Win/Loss)
     window.resolve = async (id, res, email, val) => {
         const amt = parseInt(val.replace(/[^\d]/g, ''));
         await updateDoc(doc(db, "users", id), { status: res });
+        
         if(res === "WIN 🏆") {
             const snap = await getDoc(doc(db, "wallets", email));
-            const cur = snap.exists() ? snap.data().balance : 0;
-            await setDoc(doc(db, "wallets", email), { balance: cur + (amt * 2) });
+            const current = snap.exists() ? snap.data().balance : 0;
+            // PAYOUT 2X LOGIC
+            await setDoc(doc(db, "wallets", email), { balance: current + (amt * 2) });
+            alert("TRANSACTION RESOLVED: PAYOUT DISPATCHED");
+        } else {
+            alert("TRANSACTION RESOLVED: NODE TERMINATED");
         }
-        alert("Neural Sync Complete");
     };
 
-    window.delLog = async (id) => { if(confirm("Terminate log?")) await deleteDoc(doc(db, "users", id)); };
+    // 4. TERMINATE LOG
+    window.delLog = async (id) => { 
+        if(confirm("PERMANENTLY TERMINATE THIS LOG FROM NEXUS?")) {
+            await deleteDoc(doc(db, "users", id));
+        }
+    };
+
+    // 5. SEARCH FILTER
+    window.filterTable = () => {
+        let input = document.getElementById("searchBox").value.toUpperCase();
+        let rows = document.getElementById("adminBody").getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            let emailText = rows[i].getElementsByClassName("neural-id")[0];
+            if (emailText) {
+                let textValue = emailText.textContent || emailText.innerText;
+                rows[i].style.display = (textValue.toUpperCase().indexOf(input) > -1) ? "" : "none";
+            }
+        }
+    };
 </script>
 </body>
 </html>
