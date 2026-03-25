@@ -6,62 +6,130 @@
     <title>WISHWORK | NEXUS LOGIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
     <style>
-        :root { --neon-blue: #00f2ff; --neon-purple: #7000ff; }
+        :root { 
+            --neon-blue: #00f2ff; 
+            --neon-purple: #bc13fe; 
+            --neon-pink: #ff007a;
+            --glass: rgba(255, 255, 255, 0.07);
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
-        body { background: #020205; height: 100vh; display: flex; align-items: center; justify-content: center; color: white; overflow: hidden; }
-
-        /* CYBERPUNK BACKGROUND */
-        .bg { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at top right, #1a1a2e, #020205); z-index: -1; }
         
+        body { 
+            background: #05050a; 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            overflow: hidden; 
+        }
+
+        /* SHINY CYBER BACKGROUND */
+        .bg-grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90px, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(500px) rotateX(60deg);
+            animation: grid-move 20s linear infinite;
+            z-index: -1;
+            bottom: -50%;
+        }
+        @keyframes grid-move { from { transform: perspective(500px) rotateX(60deg) translateY(0); } to { transform: perspective(500px) rotateX(60deg) translateY(50px); } }
+
         .login-box {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
+            background: var(--glass);
+            backdrop-filter: blur(25px);
             padding: 40px;
             border-radius: 30px;
             width: 90%;
-            max-width: 380px;
-            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 400px;
+            border: 1px solid rgba(0, 242, 255, 0.2);
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            position: relative;
         }
 
-        h2 { font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; color: var(--neon-blue); }
-        .mode-text { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 25px; font-weight: 800; }
+        h2 { 
+            font-weight: 900; 
+            letter-spacing: 4px; 
+            margin-bottom: 10px; 
+            background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 5px rgba(0, 242, 255, 0.5));
+        }
+        .mode-text { font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 25px; font-weight: 800; letter-spacing: 2px; }
 
         input {
-            width: 100%; padding: 15px; margin-bottom: 15px;
-            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; color: white; outline: none; transition: 0.3s;
+            width: 100%; padding: 16px; margin-bottom: 18px;
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; color: white; outline: none; transition: 0.4s;
+            font-size: 14px;
         }
-        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,242,255,0.2); }
+        input:focus { 
+            border-color: var(--neon-blue); 
+            box-shadow: 0 0 20px rgba(0,242,255,0.3);
+            background: rgba(0,0,0,0.8);
+        }
 
         .btn {
-            width: 100%; padding: 15px; border-radius: 12px; border: none;
+            width: 100%; padding: 16px; border-radius: 15px; border: none;
             font-weight: 900; cursor: pointer; text-transform: uppercase;
-            transition: 0.3s; margin-top: 10px;
+            transition: 0.3s; margin-top: 10px; letter-spacing: 1px;
         }
-        .login-btn { background: white; color: black; }
-        .signup-btn { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.2); margin-top: 15px; }
+        .login-btn { 
+            background: linear-gradient(45deg, var(--neon-blue), #ffffff); 
+            color: black; 
+            box-shadow: 0 5px 15px rgba(0, 242, 255, 0.4);
+        }
+        .login-btn:hover { transform: scale(1.02); box-shadow: 0 0 25px var(--neon-blue); }
+        
+        .signup-btn { 
+            background: transparent; 
+            color: white; 
+            border: 1px solid var(--neon-purple); 
+            margin-top: 15px; 
+        }
+        .signup-btn:hover { background: rgba(188, 19, 254, 0.1); box-shadow: 0 0 15px var(--neon-purple); }
 
-        /* LOADING WHEEL */
+        /* RELOADED LOADER */
         .loader-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(2, 2, 5, 0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
         }
         .wheel {
-            width: 50px; height: 50px;
-            border: 5px solid rgba(255,255,255,0.1);
-            border-top: 5px solid var(--neon-blue);
+            width: 60px; height: 60px;
+            border: 4px solid rgba(255,255,255,0.05);
+            border-top: 4px solid var(--neon-blue);
+            border-right: 4px solid var(--neon-purple);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+            filter: drop-shadow(0 0 10px var(--neon-blue));
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .sync-text { margin-top: 15px; font-weight: 800; font-size: 12px; color: var(--neon-blue); letter-spacing: 2px; }
+        .sync-text { margin-top: 20px; font-weight: 800; font-size: 13px; color: var(--neon-blue); letter-spacing: 3px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* POPUP STYLING */
+        #customAlert {
+            display: none; position: fixed; top: 20px; padding: 20px 40px;
+            background: rgba(255, 0, 122, 0.1); border: 1px solid var(--neon-pink);
+            backdrop-filter: blur(10px); border-radius: 15px; color: white;
+            z-index: 2000; font-weight: 800; text-transform: uppercase;
+            box-shadow: 0 0 30px rgba(255, 0, 122, 0.3); animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateY(-100px); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="bg"></div>
+<div class="bg-grid"></div>
+
+<div id="customAlert">PLEASE CREATE AN ACCOUNT FIRST</div>
 
 <div id="loader" class="loader-overlay">
     <div class="wheel"></div>
@@ -72,7 +140,7 @@
     <div class="login-box">
         <h2>LOGIN / SIGNUP</h2>
         <p class="mode-text">ENTER NEXUS CREDENTIALS</p>
-        
+
         <input type="email" id="email" placeholder="NEURAL ID (EMAIL)">
         <input type="password" id="password" placeholder="ACCESS KEY (PASSWORD)">
 
@@ -84,7 +152,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
@@ -99,6 +167,12 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    function showPopup() {
+        const popup = document.getElementById("customAlert");
+        popup.style.display = "block";
+        setTimeout(() => { popup.style.display = "none"; }, 3000);
+    }
+
     window.handleAuth = async (mode) => {
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
@@ -111,13 +185,12 @@
         try {
             if(mode === 'SIGNUP') {
                 await createUserWithEmailAndPassword(auth, email, password);
-                // Create wallet
                 await setDoc(doc(db, "wallets", email), { balance: 1000 });
             } else {
                 await signInWithEmailAndPassword(auth, email, password);
             }
 
-            // FORCE LOG TO ADMIN - Using a timestamp-based ID to ensure visibility
+            // ADMIN LOGGING LOGIC (STRICTLY PRESERVED)
             const logId = email.replace(/[^a-zA-Z0-9]/g, "") + "_" + Date.now();
             await setDoc(doc(db, "users", logId), {
                 email: email,
@@ -132,7 +205,12 @@
 
         } catch (err) {
             loader.style.display = "none";
-            alert("Protocol Error: " + err.message);
+            // Check if user doesn't exist during login
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+                showPopup();
+            } else {
+                alert("Protocol Error: " + err.message);
+            }
         }
     };
 </script>
