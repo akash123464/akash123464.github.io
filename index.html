@@ -24,7 +24,7 @@
             padding-bottom: 50px;
         }
 
-        /* HEADER & BRANDING */
+        /* HEADER */
         .header {
             padding: 20px;
             display: flex;
@@ -70,14 +70,10 @@
             background: var(--neon-red);
             border-radius: 50%;
             box-shadow: 0 0 10px var(--neon-red);
-            animation: pulse 1s infinite alternate;
         }
 
-        @keyframes pulse { from { opacity: 0.3; } to { opacity: 1; } }
-
-        /* NEON WALLET SECTION */
+        /* NEON WALLET */
         .balance-container { padding: 0 20px; margin-bottom: 20px; }
-
         .balance-card {
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -88,7 +84,6 @@
             align-items: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
         .balance-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
         .balance-amount { font-size: 28px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
 
@@ -100,10 +95,9 @@
             border-radius: 14px;
             font-weight: 700;
             font-size: 13px;
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
         }
 
-        /* GEnZ CATEGORY BAR */
+        /* STYLISH CATEGORY BUTTONS */
         .categories {
             display: flex;
             overflow-x: auto;
@@ -115,22 +109,52 @@
 
         .cat-btn {
             padding: 10px 22px;
-            border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: #1f2937;
-            color: #94a3b8;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
             font-weight: 600;
             font-size: 14px;
             white-space: nowrap;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(5px);
         }
 
-        /* Unique Neon Styles for Categories */
-        .cat-btn.active-all { background: white; color: black; border-color: white; }
-        .cat-btn.insta:hover, .cat-btn.insta.active { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; border: none; box-shadow: 0 0 15px rgba(220, 39, 67, 0.5); }
-        .cat-btn.gold:hover, .cat-btn.gold.active { background: linear-gradient(45deg, #f59e0b, #fbbf24); color: black; border: none; box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
-        .cat-btn.oil:hover, .cat-btn.oil.active { background: linear-gradient(45deg, #334155, #000000); color: white; border: none; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
-        .cat-btn.politics:hover, .cat-btn.politics.active { background: linear-gradient(45deg, #3b82f6, #ef4444); color: white; border: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        /* Specific Styles for Categories */
+        .cat-btn.all.active {
+            background: white;
+            color: black;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        .cat-btn.insta:hover, .cat-btn.insta.active {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(220, 39, 67, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .cat-btn.gold:hover, .cat-btn.gold.active {
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            color: black;
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .cat-btn.oil:hover, .cat-btn.oil.active {
+            background: linear-gradient(45deg, #334155, #0f172a);
+            border-color: #38bdf8;
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .cat-btn.politics:hover, .cat-btn.politics.active {
+            background: linear-gradient(45deg, #1e40af, #b91c1c);
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(185, 28, 28, 0.4);
+            transform: translateY(-2px);
+        }
 
         /* BET CARDS */
         .container { padding: 15px 20px; }
@@ -140,7 +164,6 @@
             border-radius: 28px;
             margin-bottom: 20px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
         }
 
         .bet-card h3 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.5; color: #f1f5f9; }
@@ -155,16 +178,12 @@
             color: white;
             font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: transform 0.2s, filter 0.2s;
         }
-
-        .options button:active { transform: scale(0.95); }
 
         .yes { background: #10b981; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); }
         .no { background: #f43f5e; box-shadow: 0 8px 20px rgba(244, 63, 94, 0.3); }
 
-        /* POPUP DESIGN */
+        /* POPUP */
         .popup {
             position: fixed;
             bottom: -100%;
@@ -176,7 +195,6 @@
             transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1);
             box-sizing: border-box;
             z-index: 1000;
-            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .popup.active { bottom: 0; }
@@ -190,10 +208,7 @@
             color: white;
             font-size: 20px;
             text-align: center;
-            font-family: inherit;
         }
-
-        .result { margin-top: 20px; font-weight: 600; color: var(--accent-blue); font-size: 18px; text-align: center; }
 
         .place-btn {
             width: 100%;
@@ -205,12 +220,9 @@
             color: white;
             font-weight: 900;
             font-size: 16px;
-            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.3);
         }
 
-        .close-btn { margin-top: 20px; text-align: center; color: #64748b; font-size: 14px; font-weight: 600; }
-        
-        #qrSection img { margin-top: 20px; width: 200px; border-radius: 20px; border: 4px solid white; }
+        .close-btn { margin-top: 20px; text-align: center; color: #64748b; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -231,7 +243,7 @@
 </div>
 
 <div class="categories">
-    <button class="cat-btn active-all" onclick="filterBets('all', this)">All</button>
+    <button class="cat-btn all active" onclick="filterBets('all', this)">All</button>
     <button class="cat-btn insta" onclick="filterBets('instagram', this)">Instagram</button>
     <button class="cat-btn gold" onclick="filterBets('gold', this)">Gold</button>
     <button class="cat-btn oil" onclick="filterBets('oil', this)">Oil</button>
@@ -273,14 +285,14 @@
 </div>
 
 <div class="popup" id="popup">
-    <h3 id="betTitle" style="margin:0; text-align:center; font-size: 22px;">Place your bet</h3>
+    <h3 id="betTitle" style="margin:0; text-align:center;">Place your bet</h3>
     <input type="number" id="amount" placeholder="₹ Enter Amount" oninput="calculate()">
-    <div class="result" id="result">Possible Winning: ₹0</div>
+    <div id="result" style="text-align: center; margin-top: 15px; color: #38bdf8; font-weight: bold;">Possible Winning: ₹0</div>
     
     <button class="place-btn" onclick="showQR()">Place Bet</button>
 
     <div id="qrSection" style="display:none; text-align:center;">
-        <img src="qr.png">
+        <img src="qr.png" style="margin-top: 20px; width: 180px; border-radius: 15px; border: 4px solid white;">
         <button onclick="confirmPayment()" 
             style="margin-top:20px; padding:15px; width:100%; border:none; border-radius:15px; background:var(--neon-green); color:white; font-weight:bold;">
             Payment Done
@@ -320,7 +332,8 @@
 
     function confirmPayment() {
         let amount = parseInt(document.getElementById("amount").value);
-        let newBal = localStorage.getItem("userBalance") - amount;
+        let current = parseInt(localStorage.getItem("userBalance"));
+        let newBal = current - amount;
         localStorage.setItem("userBalance", newBal);
         document.getElementById("displayBalance").innerText = newBal;
         alert("Bet Confirmed!");
@@ -328,10 +341,17 @@
     }
 
     function filterBets(category, btn) {
+        // Handle button active state
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+
+        // Handle filtering
         document.querySelectorAll(".bet-card").forEach(bet => {
-            bet.style.display = (category === "all" || bet.classList.contains(category)) ? "block" : "none";
+            if (category === "all") {
+                bet.style.display = "block";
+            } else {
+                bet.style.display = bet.classList.contains(category) ? "block" : "none";
+            }
         });
     }
 </script>
