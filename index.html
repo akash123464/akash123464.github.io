@@ -11,28 +11,35 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { margin: 0; font-family: 'Outfit', sans-serif; background: #020205; background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(262,50%,20%,1) 0, transparent 50%); color: #fff; min-height: 100vh; padding-bottom: 100px; overflow-x: hidden; }
         
-        /* NEW: WINNER NOTIFICATION BOX */
         .win-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--neon-green); color: black; padding: 15px 30px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 30px var(--neon-green); text-transform: uppercase; letter-spacing: 1px; }
         .win-notif.active { top: 30px; }
-
-        /* NEW: CASH PARTICLES */
         .cash-particle { position: fixed; pointer-events: none; z-index: 10000; font-size: 24px; animation: fall 3s linear forwards; }
         @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+        /* SUPPORT HUB */
+        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: linear-gradient(135deg, #0088cc, var(--neon-blue)); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.5); cursor: pointer; border: 2px solid rgba(255,255,255,0.2); animation: pulse-blue 2s infinite; }
+        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
+        .support-card { position: fixed; bottom: -100%; right: 25px; width: 280px; background: rgba(5, 5, 8, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--neon-blue); border-radius: 25px; padding: 20px; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 4999; text-align: center; box-shadow: 0 15px 50px rgba(0,0,0,0.8); }
+        .support-card.active { bottom: 100px; }
+        .tele-qr { width: 100%; border-radius: 15px; margin: 15px 0; border: 2px solid var(--neon-blue); }
 
         .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); background: rgba(0, 0, 0, 0.5); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
         .brand-logo { font-family: 'Syncopate', sans-serif; font-size: 18px; font-weight: 700; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; transform: skewX(-10deg); cursor: pointer; }
         
-        .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; margin: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .balance-amount { font-size: 32px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 10px rgba(56, 239, 125, 0.3); }
-        .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; margin: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .balance-amount { font-size: 32px; font-weight: 900; color: var(--neon-green); }
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        .btn-withdraw { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); }
 
         .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; text-transform: uppercase; }
         .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
-        .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; transition: 0.3s; }
+        .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px; }
         
         .history-card { background: rgba(255, 255, 255, 0.02); margin: 8px 20px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; border-left: 4px solid #333; }
         .history-card.WIN { border-left-color: var(--neon-green); background: rgba(56, 239, 125, 0.05); }
         .history-card.LOST { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+        .history-card.WITHDRAW { border-left-color: var(--neon-pink); }
 
         .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 30px; border-radius: 35px 35px 0 0; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 3px solid var(--neon-pink); }
         .popup.active { bottom: 0; }
@@ -50,6 +57,13 @@
 <div id="rain-zone"></div>
 <div id="winNotif" class="win-notif">NODE SYNC SUCCESS: YOU WON! 🏆</div>
 
+<div class="support-fab" onclick="toggleSupport()"><i class="fa-brands fa-telegram" style="font-size: 30px; color: white;"></i></div>
+<div class="support-card" id="supportCard">
+    <div style="font-weight: 900; color: var(--neon-blue); font-size: 14px;">NEURAL SUPPORT</div>
+    <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/Screenshot_20260325-161845.png" class="tele-qr">
+    <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none;">OPEN TELEGRAM</a>
+</div>
+
 <div class="header">
     <div class="brand-logo" onclick="cashExplosion()">WISHWORK.ONLINE</div>
     <div onclick="logout()" style="color: #ef4444; font-weight: 900; font-size: 11px; cursor:pointer;">TERMINATE</div>
@@ -60,7 +74,10 @@
         <div style="font-size:9px; opacity:0.5; font-weight:900;">LIQUID CREDITS</div>
         <div class="balance-amount">₹<span id="displayBalance">0</span></div>
     </div>
-    <button class="btn-main" onclick="openPopup('DEPOSIT')">Deposit</button>
+    <div class="action-btns">
+        <button class="btn-main" onclick="openPopup('DEPOSIT')">Deposit</button>
+        <button class="btn-main btn-withdraw" onclick="openPopup('WITHDRAW')">Withdraw</button>
+    </div>
 </div>
 
 <div class="section-label">LIVE NODES</div>
@@ -70,19 +87,19 @@
 <div id="historyList"></div>
 
 <div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900; margin-bottom:20px; font-size:18px;">NODE SYNC</h2>
+    <h2 id="modalTitle" style="text-align:center; font-weight:900; margin-bottom:20px;">NODE SYNC</h2>
     <div id="inputPhase">
         <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
-        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:15px;">EST. PAYOUT: ₹<span id="payoutAmt">0</span></div>
-        <button class="btn-main" style="width:100%; padding:18px;" onclick="handleAction()">EXECUTE LINK</button>
+        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:15px;">NEURAL GAIN: ₹<span id="payoutAmt">0</span></div>
+        <button class="btn-main" style="width:100%; padding:18px;" onclick="handleAction()">INITIALIZE LINK</button>
     </div>
     <div id="qrPhase" class="qr-area">
         <div class="qr-box"><img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/qr.png"></div>
-        <div style="font-weight:900; font-size:14px;">WINDOW CLOSES: <span id="timer">60</span>s</div>
+        <div style="font-weight:900;">WINDOW CLOSES: <span id="timer">60</span>s</div>
         <div class="timer-bar"><div id="timerFill" class="timer-fill"></div></div>
     </div>
-    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900; animation:pulse 1s infinite;">VALIDATING TRANSACTION...</div>
-    <div onclick="closePopup()" style="text-align:center; margin-top:20px; opacity:0.3; cursor:pointer; font-size:12px;">CLOSE CONNECTION</div>
+    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900;">VALIDATING...</div>
+    <div onclick="closePopup()" style="text-align:center; margin-top:25px; opacity:0.3; cursor:pointer; font-size:11px;">CANCEL CONNECTION</div>
 </div>
 
 <script type="module">
@@ -97,11 +114,10 @@
     if(!uEmail) window.location.href = "login.html";
 
     let timerInt;
-    let winTracker = {}; // Prevents notification repeat
+    let winTracker = {};
 
     onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
 
-    // REAL-TIME HISTORY + WIN NOTIFICATION
     onSnapshot(query(collection(db, "users"), where("email", "==", uEmail), orderBy("time", "desc")), (snap) => {
         const list = document.getElementById("historyList");
         list.innerHTML = "";
@@ -109,13 +125,7 @@
             const data = d.data();
             const id = d.id;
             let status = data.status || "PENDING";
-            
-            // IF NEW WIN DETECTED
-            if (status === "WIN 🏆" && !winTracker[id]) {
-                triggerNeuralWin();
-                winTracker[id] = true;
-            }
-
+            if (status === "WIN 🏆" && !winTracker[id]) { triggerNeuralWin(); winTracker[id] = true; }
             list.innerHTML += `<div class="history-card ${status.split(' ')[0]}">
                 <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800;">${data.password}</div></div>
                 <div style="font-weight:900; font-size:11px;">${status}</div>
@@ -124,13 +134,11 @@
     });
 
     function triggerNeuralWin() {
-        const notif = document.getElementById("winNotif");
-        notif.classList.add("active");
+        document.getElementById("winNotif").classList.add("active");
         cashExplosion();
-        // Play Ka-ching sound
         const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
-        audio.play().catch(e => console.log("Audio play blocked until interaction"));
-        setTimeout(() => notif.classList.remove("active"), 5000);
+        audio.play().catch(e => console.log("Sound muted"));
+        setTimeout(() => document.getElementById("winNotif").classList.remove("active"), 5000);
     }
 
     window.cashExplosion = () => {
@@ -146,7 +154,9 @@
         }
     };
 
-    const nodes = [{c:"INSTA", q:"Karan Aujla story in 1hr?"}, {c:"CRYPTO", q:"BTC breaks $68k tonight?"}];
+    window.toggleSupport = () => document.getElementById("supportCard").classList.toggle("active");
+
+    const nodes = [{c:"INSTA", q:"Karan Aujla story by 11PM?"}, {c:"CRYPTO", q:"BTC holds $69k for 1hr?"}];
     nodes.forEach(n => {
         document.getElementById('betGrid').innerHTML += `<div class="bet-card">
             <div style="font-size:9px; color:var(--neon-blue); font-weight:900;">${n.c}</div>
@@ -179,7 +189,7 @@
         const amt = document.getElementById("userAmt").value;
         const bal = parseInt(document.getElementById("displayBalance").innerText);
         const title = document.getElementById("modalTitle").innerText;
-        if(!amt || amt <= 0) return alert("Invalid Amount");
+        if(!amt || amt <= 0) return alert("Invalid Credits");
 
         if(title === "DEPOSIT") {
             document.getElementById("inputPhase").style.display = "none";
@@ -196,8 +206,15 @@
                     setTimeout(() => closePopup(), 3000);
                 }
             }, 1000);
+        } else if(title === "WITHDRAW") {
+            if(amt > bal) return alert("Insufficient Credits");
+            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "WITHDRAW", time: serverTimestamp(), status: "PENDING" });
+            document.getElementById("inputPhase").style.display = "none";
+            document.getElementById("statusPhase").style.display = "block";
+            document.getElementById("statusPhase").innerText = "WITHDRAWAL REQUEST SENT TO AUTHORITY";
+            setTimeout(() => closePopup(), 3000);
         } else {
-            if(amt > bal) return alert("Low Balance");
+            if(amt > bal) return alert("Insufficient Credits");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - parseInt(amt) });
             closePopup();
