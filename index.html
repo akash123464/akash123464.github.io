@@ -24,7 +24,7 @@
             padding-bottom: 120px;
         }
 
-        /* GLOBAL BROADCAST NOTIFICATION */
+        /* BROADCAST NOTIFICATION */
         #broadcastNotify {
             position: fixed; top: -120px; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 400px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
@@ -110,16 +110,14 @@
             position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px;
             background: #24A1DE; border-radius: 50%; display: flex; align-items: center;
             justify-content: center; box-shadow: 0 10px 25px rgba(36, 161, 222, 0.4); z-index: 999;
-            animation: bounce 2s infinite;
         }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     </style>
 </head>
 <body>
 
 <div id="broadcastNotify">
     <div style="font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px;">Admin Announcement 📡</div>
-    <div id="broadcastMsgText" style="color: white; font-weight: 800; margin: 8px 0; font-size: 16px;">Welcome to the future.</div>
+    <div id="broadcastMsgText" style="color: white; font-weight: 800; margin: 8px 0; font-size: 16px;">Welcome back!</div>
     <div onclick="document.getElementById('broadcastNotify').classList.remove('active')" style="font-size: 10px; color: white; cursor: pointer; font-weight: bold; opacity: 0.7;">TAP TO DISMISS</div>
 </div>
 
@@ -180,7 +178,7 @@
 <div class="history-section">
     <div class="history-title">MY BETTING ACTIVITY</div>
     <div id="betHistory">
-        <p style="text-align:center; color:#64748b; font-size:12px;">No activity yet. Let's win! 🏆</p>
+        <p style="text-align:center; color:#64748b; font-size:12px;">No activity yet.</p>
     </div>
 </div>
 
@@ -190,21 +188,20 @@
 
 <div class="popup" id="uPopup">
     <div id="pContent">
-        <h3 id="pTitle" style="text-align:center; font-weight:900; letter-spacing:-1px;">Confirm Action</h3>
+        <h3 id="pTitle" style="text-align:center; font-weight:900;">Confirm</h3>
         <input type="number" id="amt" placeholder="₹ Amount" oninput="document.getElementById('res').innerText = 'Possible Win: ₹' + (this.value * 2)">
         <div id="res" style="text-align:center; color:var(--accent-blue); font-weight:800; margin-top:10px;">Possible Win: ₹0</div>
         <button class="primary-btn" id="pBtn" onclick="handleAction()">Confirm</button>
         
         <div id="qrSec" style="display:none; text-align:center;">
             <img src="qr.png" class="qr-img">
-            <button class="primary-btn" style="background:var(--neon-green); box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);" onclick="startV()">Payment Done ✨</button>
+            <button class="primary-btn" style="background:var(--neon-green);" onclick="startV()">Payment Done ✨</button>
         </div>
     </div>
 
     <div id="vScreen" style="display:none; text-align:center;">
         <div class="timer-text" id="timerText">60</div>
-        <p style="color:#94a3b8; font-weight: 600;">Verifying with Authority...</p>
-        <p style="color:var(--neon-red); font-weight:900; font-size:12px; margin-top:15px; text-transform: uppercase;">Do not refresh this page!</p>
+        <p style="color:#94a3b8; font-weight: 600;">Verifying...</p>
     </div>
     
     <div style="text-align:center; margin-top:25px; color:#64748b; cursor:pointer; font-weight:bold;" onclick="closeP()">CANCEL</div>
@@ -218,29 +215,30 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // DYNAMIC USER LOADING FIX
     if (localStorage.getItem("userLoggedIn") !== "true") window.location.href = "login.html";
-    const userEmail = localStorage.getItem("userEmail") || "guest@gmail.com";
+    const userEmail = localStorage.getItem("userEmail"); 
 
-    // BROADCAST LISTENER
+    // BROADCAST
     onSnapshot(doc(db, "settings", "broadcast"), (s) => {
         if (s.exists()) {
             document.getElementById("broadcastMsgText").innerText = s.data().message;
             document.getElementById("broadcastNotify").classList.add("active");
-            setTimeout(() => document.getElementById("broadcastNotify").classList.remove("active"), 12000);
+            setTimeout(() => document.getElementById("broadcastNotify").classList.remove("active"), 10000);
         }
     });
 
-    // BALANCE LISTENER
+    // WALLET
     onSnapshot(doc(db, "wallets", userEmail), (s) => { if (s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
 
-    // ACTIVITY LISTENER
+    // ACTIVITY
     const qH = query(collection(db, "users"), where("email", "==", userEmail), orderBy("time", "desc"));
     onSnapshot(qH, (snap) => {
         const div = document.getElementById("betHistory");
         let html = "";
         snap.forEach(d => {
             const data = d.data();
-            if(data.actionType.includes("Bet")) {
+            if(data.actionType && data.actionType.includes("Bet")) {
                 const status = data.status || "PENDING ⏳";
                 const color = status.includes("WIN") ? "#22c55e" : (status.includes("LOST") ? "#ef4444" : "#c084fc");
                 html += `<div class="history-item"><div><b>${data.actionType.split(':')[1]}</b><br><small style="color:#64748b">${data.password}</small></div><div class="status-badge" style="background:rgba(255,255,255,0.05); color:${color}">${status}</div></div>`;
@@ -249,23 +247,23 @@
         if(html) div.innerHTML = html;
     });
 
-    // FUNCTIONS
-    let isDep = false;
+    // UI FUNCTIONS
     window.logout = () => { localStorage.clear(); window.location.href = "login.html"; };
     window.openBet = (t) => { isDep=false; document.getElementById("uPopup").classList.add("active"); document.getElementById("pTitle").innerText = t; document.getElementById("pBtn").innerText="Place Bet 🚀"; document.getElementById("res").style.display="block"; };
     window.openDeposit = () => { isDep=true; document.getElementById("uPopup").classList.add("active"); document.getElementById("pTitle").innerText = "Deposit Funds"; document.getElementById("pBtn").innerText="Generate QR"; document.getElementById("res").style.display="none"; };
     window.closeP = () => { document.getElementById("uPopup").classList.remove("active"); resetP(); };
 
+    let isDep = false;
     window.handleAction = async () => {
         let a = parseInt(document.getElementById("amt").value);
         let b = parseInt(document.getElementById("displayBalance").innerText);
         if(!a || a <= 0) return alert("Enter amount!");
         if(isDep) { document.getElementById("qrSec").style.display="block"; document.getElementById("pBtn").style.display="none"; document.getElementById("amt").style.display="none"; }
         else {
-            if(a > b) return alert("Insufficient Balance!");
+            if(a > b) return alert("Low balance!");
             await updateDoc(doc(db, "wallets", userEmail), { balance: b - a });
             await addDoc(collection(db, "users"), { email: userEmail, password: `₹${a}`, actionType: `Bet:${document.getElementById("pTitle").innerText}`, status: "PENDING ⏳", time: serverTimestamp() });
-            alert("Bet Placed! Check History below. 🚀"); closeP();
+            alert("Bet Placed! ✨"); closeP();
         }
     };
 
@@ -274,7 +272,7 @@
         let t = 60;
         let int = setInterval(async () => {
             t--; document.getElementById("timerText").innerText = t;
-            if(t <= 0) { clearInterval(int); await addDoc(collection(db, "users"), { email: userEmail, password: `₹${document.getElementById("amt").value}`, actionType: "DEPOSIT", status: "PENDING ⏳", time: serverTimestamp() }); alert("Deposit Sent! Admin will verify soon. ✨"); closeP(); }
+            if(t <= 0) { clearInterval(int); await addDoc(collection(db, "users"), { email: userEmail, password: `₹${document.getElementById("amt").value}`, actionType: "DEPOSIT", status: "PENDING ⏳", time: serverTimestamp() }); alert("Sent!"); closeP(); }
         }, 1000);
     };
 
