@@ -16,11 +16,29 @@
         
         body { 
             margin: 0; font-family: 'Outfit', sans-serif; background: #020205; 
-            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(339,49%,30%,1) 0, transparent 50%);
             color: #fff; min-height: 100vh; padding-bottom: 120px; overflow-x: hidden;
+            position: relative;
         }
 
-        /* 🚀 NEON PRISM LOGO */
+        /* 🌌 FLOATING PLASMA LIGHTS */
+        .plasma-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; overflow: hidden; pointer-events: none;
+        }
+        .light-orb {
+            position: absolute; width: 300px; height: 300px; border-radius: 50%;
+            filter: blur(100px); opacity: 0.4; animation: float-orb 20s infinite alternate ease-in-out;
+        }
+        .orb-1 { background: var(--neon-purple); top: -10%; left: -10%; }
+        .orb-2 { background: var(--neon-blue); bottom: 10%; right: -5%; animation-delay: -5s; }
+        .orb-3 { background: var(--neon-pink); top: 40%; left: 30%; animation-duration: 15s; }
+        
+        @keyframes float-orb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 100px) scale(1.2); }
+        }
+
+        /* 🚀 NEON LOGO */
         .header { 
             padding: 20px; display: flex; justify-content: space-between; align-items: center; 
             backdrop-filter: blur(30px); background: rgba(0, 0, 0, 0.6); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); 
@@ -30,87 +48,74 @@
             background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink), var(--neon-purple), var(--neon-blue));
             background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             animation: flow 4s linear infinite; transform: skewX(-15deg); cursor: pointer;
-            filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.5));
         }
         @keyframes flow { to { background-position: 300% center; } }
 
-        /* 💎 NEURAL BALANCE CARD */
+        /* 💎 BALANCE CARD */
         .balance-card { 
             background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); 
             border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative;
         }
-        .balance-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, var(--neon-blue), transparent 30%); animation: rotate 4s linear infinite; opacity: 0.1; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
         .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
         
         .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .btn-main { 
             background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; 
             padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .btn-main:active { transform: scale(0.95); }
         .btn-withdraw { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); }
 
-        /* ⚡ NODES & HISTORY */
-        .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 3px; text-transform: uppercase; }
         .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
-        .bet-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px; transition: 0.4s; }
-        .bet-card:hover { background: rgba(255,255,255,0.05); border-color: var(--neon-blue); }
+        .bet-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px; }
 
-        .history-card { background: rgba(255, 255, 255, 0.02); margin: 10px 20px; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; border-left: 5px solid #333; align-items: center; }
+        .history-card { background: rgba(255, 255, 255, 0.02); margin: 10px 20px; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; border-left: 5px solid #333; }
         .history-card.WIN { border-left-color: var(--neon-green); background: rgba(56, 239, 125, 0.05); }
         .history-card.LOST { border-left-color: var(--neon-pink); background: rgba(255, 0, 122, 0.05); }
 
-        /* 🌑 MASTER POPUP & QR */
+        /* POPUP & QR */
         .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--neon-pink); }
         .popup.active { bottom: 0; }
         .input-nexus { width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--glass-border); padding: 20px; border-radius: 20px; color: #fff; font-size: 32px; text-align: center; font-weight: 900; margin-bottom: 20px; }
 
         .qr-area { display: none; flex-direction: column; align-items: center; }
-        .qr-box { 
-            background: #fff; padding: 15px; border-radius: 25px; width: 220px; height: 220px; 
-            margin-bottom: 20px; border: 5px solid var(--neon-blue); box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
-            animation: scan 2s infinite alternate;
-        }
-        @keyframes scan { from { filter: brightness(1); } to { filter: brightness(1.2) drop-shadow(0 0 10px var(--neon-blue)); } }
-        .qr-box img { width: 100%; height: 100%; border-radius: 10px; }
-
-        /* 🔋 FUTURISTIC TIMER */
-        .timer-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 20px 0; overflow: hidden; position: relative; }
+        .qr-box { background: #fff; padding: 15px; border-radius: 25px; width: 220px; height: 220px; border: 5px solid var(--neon-blue); }
+        .qr-box img { width: 100%; height: 100%; }
+        .timer-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 20px 0; overflow: hidden; }
         #timerFill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); transition: 1s linear; }
 
-        /* 🛰️ SUPPORT HUB */
-        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); animation: float 3s infinite ease-in-out; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        
-        .support-card { position: fixed; bottom: -100%; right: 25px; width: 300px; background: rgba(5,5,8,0.98); backdrop-filter: blur(25px); border: 2px solid var(--neon-blue); border-radius: 30px; padding: 25px; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 4999; text-align: center; }
-        .support-card.active { bottom: 110px; }
-
-        /* 🏆 WIN ALERT */
-        .win-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--neon-green); color: black; padding: 18px 40px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 40px var(--neon-green); text-transform: uppercase; }
+        .win-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--neon-green); color: black; padding: 18px 40px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.5s; }
         .win-notif.active { top: 30px; }
+
+        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); }
+        .support-card { position: fixed; bottom: -100%; right: 25px; width: 300px; background: rgba(5,5,8,0.98); backdrop-filter: blur(25px); border: 2px solid var(--neon-blue); border-radius: 30px; padding: 25px; transition: 0.5s; z-index: 4999; text-align: center; }
+        .support-card.active { bottom: 110px; }
+        
         .cash-particle { position: fixed; pointer-events: none; z-index: 10000; font-size: 30px; animation: fall 3s linear forwards; }
-        @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        @keyframes fall { 0% { transform: translateY(-50px); opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }
     </style>
 </head>
 <body>
 
+<div class="plasma-bg">
+    <div class="light-orb orb-1"></div>
+    <div class="light-orb orb-2"></div>
+    <div class="light-orb orb-3"></div>
+</div>
+
 <div id="rain-zone"></div>
-<div id="winNotif" class="win-notif">NEURAL GAIN DETECTED: +₹ WINNER 🏆</div>
+<div id="winNotif" class="win-notif">NEURAL GAIN DETECTED: YOU WON! 🏆</div>
 
 <div class="support-fab" onclick="toggleSupport()"><i class="fa-brands fa-telegram" style="font-size: 30px; color: white;"></i></div>
 <div class="support-card" id="supportCard">
-    <div style="font-weight: 900; color: var(--neon-blue); font-size: 16px; letter-spacing: 2px;">SUPPORT HUB</div>
-    <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/Screenshot_20260325-161845.png" style="width:100%; border-radius:15px; margin:20px 0; border:2px solid var(--neon-blue);">
+    <div style="font-weight: 900; color: var(--neon-blue); font-size: 16px;">SUPPORT HUB</div>
+    <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/Screenshot_20260325-161845.png" style="width:100%; border-radius:15px; margin:20px 0;">
     <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none;">CONNECT TELEGRAM</a>
 </div>
 
 <div class="header">
     <div class="brand-logo" onclick="logoTrigger()">WISHWORK.ONLINE</div>
-    <div onclick="logout()" style="color: var(--neon-pink); font-weight: 900; font-size: 11px; cursor:pointer; letter-spacing:1px;">TERMINATE</div>
+    <div onclick="logout()" style="color: var(--neon-pink); font-weight: 900; font-size: 11px; cursor:pointer;">TERMINATE</div>
 </div>
 
 <div class="balance-card">
@@ -131,21 +136,19 @@
 <div id="historyList"></div>
 
 <div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900; letter-spacing:2px;">NODE SYNC</h2>
+    <h2 id="modalTitle" style="text-align:center; font-weight:900;">NODE SYNC</h2>
     <div id="inputPhase">
         <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
         <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px;">EST. PAYOUT: ₹<span id="payoutAmt">0</span></div>
         <button class="btn-main" style="width:100%; padding:20px;" onclick="handleAction()">INITIALIZE LINK</button>
     </div>
     <div id="qrPhase" class="qr-area">
-        <div class="qr-box">
-            <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/qr.png" alt="QR Payment">
-        </div>
+        <div class="qr-box"><img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/qr.png"></div>
         <div style="font-weight:900; color:var(--neon-pink);">SYNCING WINDOW: <span id="timer">60</span>s</div>
         <div class="timer-wrap"><div id="timerFill"></div></div>
     </div>
-    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900; letter-spacing:1px;">VALIDATING TRANSACTION...</div>
-    <div onclick="closePopup()" style="text-align:center; margin-top:30px; opacity:0.3; cursor:pointer; font-size:12px; font-weight:800;">CLOSE CONNECTION</div>
+    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900;">VALIDATING TRANSACTION...</div>
+    <div onclick="closePopup()" style="text-align:center; margin-top:30px; opacity:0.3; cursor:pointer; font-size:12px;">CLOSE CONNECTION</div>
 </div>
 
 <script type="module">
@@ -173,47 +176,30 @@
             let status = data.status || "PENDING";
             if (status === "WIN 🏆" && !winTracker[id]) { triggerNeuralWin(); winTracker[id] = true; }
             list.innerHTML += `<div class="history-card ${status.split(' ')[0]}">
-                <div><div style="font-size:9px; opacity:0.5; font-weight:900;">${data.actionType}</div><div style="font-weight:800; font-size:16px;">${data.password}</div></div>
+                <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800; font-size:16px;">${data.password}</div></div>
                 <div style="font-weight:900; font-size:12px;">${status}</div>
             </div>`;
         });
     });
 
-    window.logoTrigger = () => {
-        cashExplosion();
-        if(navigator.vibrate) navigator.vibrate(200);
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
-        audio.play();
-    };
-
-    function triggerNeuralWin() {
-        document.getElementById("winNotif").classList.add("active");
-        cashExplosion();
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3');
-        audio.play();
-        setTimeout(() => document.getElementById("winNotif").classList.remove("active"), 6000);
-    }
-
+    window.logoTrigger = () => { cashExplosion(); if(navigator.vibrate) navigator.vibrate(200); (new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3')).play(); };
+    function triggerNeuralWin() { document.getElementById("winNotif").classList.add("active"); cashExplosion(); (new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3')).play(); setTimeout(() => document.getElementById("winNotif").classList.remove("active"), 6000); }
+    
     window.cashExplosion = () => {
         const zone = document.getElementById('rain-zone');
-        const emojis = ['💸', '💰', '💎', '🔥', '💵'];
-        for(let i=0; i<50; i++) {
-            const p = document.createElement('div');
-            p.className = 'cash-particle';
-            p.innerText = emojis[Math.floor(Math.random()*emojis.length)];
-            p.style.left = Math.random() * 100 + 'vw';
-            p.style.animationDelay = (Math.random() * 2) + 's';
-            zone.appendChild(p);
-            setTimeout(() => p.remove(), 3000);
+        for(let i=0; i<40; i++) {
+            const p = document.createElement('div'); p.className = 'cash-particle'; p.innerText = ['💸', '💰', '💎'][Math.floor(Math.random()*3)];
+            p.style.left = Math.random() * 100 + 'vw'; p.style.animationDelay = (Math.random() * 2) + 's';
+            zone.appendChild(p); setTimeout(() => p.remove(), 3000);
         }
     };
 
     window.toggleSupport = () => document.getElementById("supportCard").classList.toggle("active");
 
-    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story within 45 mins?"}, {c:"CRYPTO-PULSE", q:"BTC price holds $68,500?"}];
+    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story by 11:30PM?"}, {c:"CRYPTO-PULSE", q:"BTC price holds $69,000?"}];
     nodes.forEach(n => {
         document.getElementById('betGrid').innerHTML += `<div class="bet-card">
-            <div style="font-size:10px; color:var(--neon-blue); font-weight:900; letter-spacing:1px;">${n.c}</div>
+            <div style="font-size:10px; color:var(--neon-blue); font-weight:900;">${n.c}</div>
             <div style="margin:12px 0; font-weight:600; font-size:16px;">${n.q}</div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.c}')">YES</button>
@@ -225,10 +211,8 @@
     window.updatePayout = () => {
         const v = document.getElementById("userAmt").value;
         const t = document.getElementById("modalTitle").innerText;
-        if(v > 0 && t.includes("BET")) {
-            document.getElementById("payoutBox").style.display = "block";
-            document.getElementById("payoutAmt").innerText = v * 2;
-        } else document.getElementById("payoutBox").style.display = "none";
+        if(v > 0 && t.includes("BET")) { document.getElementById("payoutBox").style.display = "block"; document.getElementById("payoutAmt").innerText = v * 2; }
+        else document.getElementById("payoutBox").style.display = "none";
     };
 
     window.openPopup = (t) => {
@@ -261,14 +245,14 @@
                 }
             }, 1000);
         } else if(title === "WITHDRAW") {
-            if(amt > bal) return alert("Insufficient Liquid Credits!");
+            if(parseInt(amt) > bal) return alert("Insufficient Liquid Credits!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "WITHDRAW", time: serverTimestamp(), status: "PENDING" });
             document.getElementById("inputPhase").style.display = "none";
             document.getElementById("statusPhase").style.display = "block";
             document.getElementById("statusPhase").innerText = "WITHDRAWAL SYNCED WITH AUTHORITY";
             setTimeout(() => closePopup(), 3000);
         } else {
-            if(amt > bal) return alert("Insufficient Liquid Credits!");
+            if(parseInt(amt) > bal) return alert("Insufficient Liquid Credits!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - parseInt(amt) });
             closePopup();
