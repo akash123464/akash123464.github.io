@@ -38,16 +38,16 @@
         .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
         .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-main:active { transform: scale(0.95); }
         .btn-withdraw { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); }
 
         .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; text-transform: uppercase; }
         .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
         .bet-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px; }
-        
         .history-card { background: rgba(255, 255, 255, 0.02); margin: 10px 20px; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; border-left: 5px solid #333; }
         .history-card.WIN { border-left-color: var(--neon-green); background: rgba(56, 239, 125, 0.05); }
 
-        /* 🌑 POPUP & COOL SCANNER QR */
+        /* 🌑 POPUP & DEPOSIT QR */
         .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--neon-pink); }
         .popup.active { bottom: 0; }
         .input-nexus { width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--glass-border); padding: 20px; border-radius: 20px; color: #fff; font-size: 32px; text-align: center; font-weight: 900; margin-bottom: 20px; }
@@ -64,13 +64,19 @@
             animation: scan-line 2s infinite linear;
         }
         @keyframes scan-line { 0% { top: 0; } 100% { top: 100%; } }
+        /* YOUR DEPOSIT QR FILE - Keep this fixed */
         .qr-box img { width: 100%; height: 100%; object-fit: contain; }
 
         .timer-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 25px 0; overflow: hidden; }
         #timerFill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); transition: 1s linear; }
 
-        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); }
-        .support-card { position: fixed; bottom: -100%; right: 25px; width: 300px; background: rgba(5,5,8,0.98); backdrop-filter: blur(25px); border: 2px solid var(--neon-blue); border-radius: 30px; padding: 25px; transition: 0.5s; z-index: 4999; text-align: center; }
+        /* 🏆 WIN ALERT */
+        .win-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--neon-green); color: black; padding: 18px 40px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.5s; }
+        .win-notif.active { top: 30px; }
+
+        /* 🛰️ SUPPORT HUB - No QR Mistake! */
+        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
+        .support-card { position: fixed; bottom: -100%; right: 25px; width: 280px; background: rgba(5,5,8,0.98); backdrop-filter: blur(25px); border: 2px solid var(--neon-blue); border-radius: 30px; padding: 25px; transition: 0.5s; z-index: 4999; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .support-card.active { bottom: 110px; }
         
         .cash-particle { position: fixed; pointer-events: none; z-index: 10000; font-size: 30px; animation: fall 3s linear forwards; }
@@ -86,13 +92,13 @@
 </div>
 
 <div id="rain-zone"></div>
-<div id="winNotif" class="win-notif" style="position:fixed; top:-100px; left:50%; transform:translateX(-50%); background:var(--neon-green); color:black; padding:18px 40px; border-radius:50px; font-weight:900; z-index:9999; transition:0.5s;">YOU WON! 🏆</div>
+<div id="winNotif" class="win-notif">YOU WON! 🏆</div>
 
 <div class="support-fab" onclick="toggleSupport()"><i class="fa-brands fa-telegram" style="font-size: 30px; color: white;"></i></div>
 <div class="support-card" id="supportCard">
     <div style="font-weight: 900; color: var(--neon-blue); font-size: 16px;">NEURAL SUPPORT</div>
-    <img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png" style="width:100%; border-radius:15px; margin:20px 0; border: 2px solid var(--neon-blue);">
-    <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none;">CONNECT TELEGRAM</a>
+    <div style="font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">DIRECT TELEGRAM CONNECTION</div>
+    <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none; width: 100%;">CONNECT TELEGRAM</a>
 </div>
 
 <div class="header">
@@ -102,7 +108,7 @@
 
 <div class="balance-card">
     <div>
-        <div style="font-size:10px; opacity:0.5; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
+        <div style="font-size:10px; opacity:0.5; font-weight:900;">LIQUID CREDITS</div>
         <div class="balance-amount">₹<span id="displayBalance">0</span></div>
     </div>
     <div class="action-btns">
@@ -126,9 +132,11 @@
     </div>
     <div id="qrPhase" class="qr-area">
         <div class="qr-box">
-            <img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png" alt="PAYMENT QR">
+            <img src="https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/refs/heads/main/qr.png" 
+                 onerror="this.src='https://raw.githubusercontent.com/Wishworkonline/Wishwork.online/main/qr.png'" 
+                 alt="PAYMENT QR">
         </div>
-        <div style="font-weight:900; color:var(--neon-pink); margin-top:15px;">SYNCING: <span id="timer">60</span>s</div>
+        <div style="font-weight:900; color:var(--neon-pink); margin-top:15px;">SYNC WINDOW: <span id="timer">60</span>s</div>
         <div class="timer-wrap"><div id="timerFill"></div></div>
     </div>
     <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900;">VALIDATING TRANSACTION...</div>
@@ -160,7 +168,7 @@
             let status = data.status || "PENDING";
             if (status === "WIN 🏆" && !winTracker[id]) { triggerNeuralWin(); winTracker[id] = true; }
             list.innerHTML += `<div class="history-card ${status.split(' ')[0]}">
-                <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800;">${data.password}</div></div>
+                <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800; font-size:16px;">${data.password}</div></div>
                 <div style="font-weight:900; font-size:12px;">${status}</div>
             </div>`;
         });
@@ -180,7 +188,7 @@
 
     window.toggleSupport = () => document.getElementById("supportCard").classList.toggle("active");
 
-    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story in next 30m?"}, {c:"CRYPTO-PULSE", q:"BTC price stays above resistance?"}];
+    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story in next 40m?"}, {c:"CRYPTO-PULSE", q:"BTC price holds $69k resistance?"}];
     nodes.forEach(n => {
         document.getElementById('betGrid').innerHTML += `<div class="bet-card">
             <div style="font-size:10px; color:var(--neon-blue); font-weight:900;">${n.c}</div>
