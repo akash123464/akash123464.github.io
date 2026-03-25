@@ -31,7 +31,6 @@
         .orb-3 { background: var(--orb-color-3); top: 30%; left: 30%; }
         @keyframes float-orb { from { transform: translate(0, 0); } to { transform: translate(120px, 90px); } }
 
-        /* GLASSY WHEEL STYLES */
         .loader-container { position: relative; width: 100px; height: 100px; margin: 15px auto; }
         .glass-wheel {
             width: 100%; height: 100%; border: 4px solid rgba(255,255,255,0.05);
@@ -41,7 +40,7 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .timer-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 900; color: var(--neon-blue); font-size: 18px; font-family: 'Orbitron'; }
-        
+
         .utr-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--neon-blue); padding: 12px; border-radius: 12px; color: #fff; margin-top: 15px; text-align: center; font-family: 'Orbitron'; letter-spacing: 2px; }
 
         #winNotif { 
@@ -65,7 +64,7 @@
 
         .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; }
         .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
-        
+
         .ledger-trigger { 
             position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); 
             border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; 
@@ -80,16 +79,14 @@
         .ledger-overlay.active { right: 0; }
         .ledger-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; }
         .ledger-scroll { height: calc(100% - 120px); overflow-y: auto; padding-right: 5px; }
-        
+
         .transaction-node { 
-            background: rgba(255, 255, 255, 0.04); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
+            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); 
             border-radius: 22px; padding: 20px; margin-bottom: 15px; display: flex; 
-            justify-content: space-between; align-items: center; 
-            backdrop-filter: blur(10px);
+            justify-content: space-between; align-items: center; backdrop-filter: blur(10px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
-        
+
         .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
         .status-PENDING { color: var(--neon-gold); background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); }
         .status-WIN { color: var(--neon-green); background: rgba(56, 239, 125, 0.1); border: 1px solid rgba(56, 239, 125, 0.3); }
@@ -105,7 +102,7 @@
         .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--active-theme); }
         .popup.active { bottom: 0; }
         .input-nexus { width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--glass-border); padding: 20px; border-radius: 20px; color: #fff; font-size: 32px; text-align: center; font-weight: 900; margin-bottom: 20px; }
-        
+
         .qr-area { display: none; flex-direction: column; align-items: center; }
         .qr-box { background: #fff; padding: 10px; border-radius: 25px; width: 180px; height: 180px; border: 4px solid var(--neon-blue); }
         .qr-box img { width: 100%; height: 100%; }
@@ -168,18 +165,15 @@
         <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px;">EST. WINNING: ₹<span id="payoutAmt">0</span></div>
         <button class="btn-main" id="primaryActionBtn" style="width:100%; padding:20px;" onclick="handleAction()">SYNC</button>
     </div>
-    
+
     <div id="qrPhase" class="qr-area">
         <div class="qr-box"><img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png"></div>
-        
         <div class="loader-container">
             <div class="glass-wheel"></div>
             <div class="timer-val" id="wheelTimer">80</div>
         </div>
-
         <input type="text" id="utrField" class="utr-input" placeholder="ENTER 12-DIGIT UTR" maxlength="12">
         <button class="btn-main" style="width:100%; margin-top:10px; background:var(--neon-green); color:#000;" onclick="submitUTR()">SUBMIT NODE</button>
-        
         <p style="font-size:10px; margin-top:15px; opacity:0.6; font-weight: 800; color: var(--neon-blue);">VALIDATING PAYMENT PROTOCOL...</p>
     </div>
     <div onclick="closePopup()" style="text-align:center; margin-top:20px; opacity:0.3; cursor:pointer; font-weight:800;">CANCEL</div>
@@ -189,7 +183,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
     const app = initializeApp(firebaseConfig);
@@ -202,54 +196,12 @@
     let timerInt = null;
 
     window.allBets = {
-        INSTAGRAM: [
-            {q: "Karan Aujla story in next 30m?", id: "INSTA-1"}, 
-            {q: "Post likes reach 1M in 1hr?", id: "INSTA-2"},
-            {q: "Virat Kohli posts a gym reel?", id: "INSTA-3"},
-            {q: "Elvish Yadav live in 2 hours?", id: "INSTA-4"},
-            {q: "Influencer A hits 10M today?", id: "INSTA-5"},
-            {q: "Verified tag color changes?", id: "INSTA-6"}
-        ],
-        OIL: [
-            {q: "Crude Oil jumps above $85?", id: "OIL-1"}, 
-            {q: "Petrol prices drop by midnight?", id: "OIL-2"},
-            {q: "Diesel shortage in North India?", id: "OIL-3"},
-            {q: "Brent Crude hits yearly high?", id: "OIL-4"},
-            {q: "EV sales beat Petrol this month?", id: "OIL-5"},
-            {q: "Gasoline tax increases today?", id: "OIL-6"}
-        ],
-        POLITICS: [
-            {q: "New Bill passed in Parliament?", id: "POL-1"},
-            {q: "PM speech scheduled tonight?", id: "POL-2"},
-            {q: "State Election dates out?", id: "POL-3"},
-            {q: "Finance Minister meets CEO?", id: "POL-4"},
-            {q: "New Highway Project approval?", id: "POL-5"},
-            {q: "Global Summit held in Delhi?", id: "POL-6"}
-        ],
-        YOUTUBE: [
-            {q: "CarryMinati video in 24h?", id: "YT-1"},
-            {q: "T-Series hits next milestone?", id: "YT-2"},
-            {q: "YouTube Server down globally?", id: "YT-3"},
-            {q: "MrBeast giveaway announced?", id: "YT-4"},
-            {q: "Gaming stream hits 500k Live?", id: "YT-5"},
-            {q: "YouTube Rewind 2026 leaked?", id: "YT-6"}
-        ],
-        RANDOM: [
-            {q: "Will it rain in Mumbai today?", id: "RND-1"}, 
-            {q: "BTC hits new ATH today?", id: "RND-2"},
-            {q: "SpaceX launch successful?", id: "RND-3"},
-            {q: "Gold price drops ₹1000?", id: "RND-4"},
-            {q: "AI robot passes Turing test?", id: "RND-5"},
-            {q: "Mars mission signal received?", id: "RND-6"}
-        ],
-        NAUGHTY: [
-            {q: "Secret party leak tonight?", id: "NGH-1"},
-            {q: "Late night spicy vlog up?", id: "NGH-2"},
-            {q: "Model A joins OnlyFans?", id: "NGH-3"},
-            {q: "Club X raided in Mumbai?", id: "NGH-4"},
-            {q: "Viral clip hits 50M views?", id: "NGH-5"},
-            {q: "Banned App back on Store?", id: "NGH-6"}
-        ]
+        INSTAGRAM: [{q: "Karan Aujla story in next 30m?", id: "INSTA-1"}, {q: "Post likes reach 1M in 1hr?", id: "INSTA-2"}, {q: "Virat Kohli posts a gym reel?", id: "INSTA-3"}, {q: "Elvish Yadav live in 2 hours?", id: "INSTA-4"}, {q: "Influencer A hits 10M today?", id: "INSTA-5"}, {q: "Verified tag color changes?", id: "INSTA-6"}],
+        OIL: [{q: "Crude Oil jumps above $85?", id: "OIL-1"}, {q: "Petrol prices drop by midnight?", id: "OIL-2"}, {q: "Diesel shortage in North India?", id: "OIL-3"}, {q: "Brent Crude hits yearly high?", id: "OIL-4"}, {q: "EV sales beat Petrol this month?", id: "OIL-5"}, {q: "Gasoline tax increases today?", id: "OIL-6"}],
+        POLITICS: [{q: "New Bill passed in Parliament?", id: "POL-1"}, {q: "PM speech scheduled tonight?", id: "POL-2"}, {q: "State Election dates out?", id: "POL-3"}, {q: "Finance Minister meets CEO?", id: "POL-4"}, {q: "New Highway Project approval?", id: "POL-5"}, {q: "Global Summit held in Delhi?", id: "POL-6"}],
+        YOUTUBE: [{q: "CarryMinati video in 24h?", id: "YT-1"}, {q: "T-Series hits next milestone?", id: "YT-2"}, {q: "YouTube Server down globally?", id: "YT-3"}, {q: "MrBeast giveaway announced?", id: "YT-4"}, {q: "Gaming stream hits 500k Live?", id: "YT-5"}, {q: "YouTube Rewind 2026 leaked?", id: "YT-6"}],
+        RANDOM: [{q: "Will it rain in Mumbai today?", id: "RND-1"}, {q: "BTC hits new ATH today?", id: "RND-2"}, {q: "SpaceX launch successful?", id: "RND-3"}, {q: "Gold price drops ₹1000?", id: "RND-4"}, {q: "AI robot passes Turing test?", id: "RND-5"}, {q: "Mars mission signal received?", id: "RND-6"}],
+        NAUGHTY: [{q: "Secret party leak tonight?", id: "NGH-1"}, {q: "Late night spicy vlog up?", id: "NGH-2"}, {q: "Model A joins OnlyFans?", id: "NGH-3"}, {q: "Club X raided in Mumbai?", id: "NGH-4"}, {q: "Viral clip hits 50M views?", id: "NGH-5"}, {q: "Banned App back on Store?", id: "NGH-6"}]
     };
 
     window.toggleLedger = () => document.getElementById('ledgerOverlay').classList.toggle('active');
@@ -258,19 +210,14 @@
         if(!el) return;
         const themeColor = el.getAttribute('data-color');
         document.documentElement.style.setProperty('--active-theme', themeColor);
-        
-        const o1 = document.getElementById('orb1');
-        const o2 = document.getElementById('orb2');
-        const o3 = document.getElementById('orb3');
+        const o1 = document.getElementById('orb1'), o2 = document.getElementById('orb2'), o3 = document.getElementById('orb3');
         if(o1) o1.style.background = themeColor;
         if(o2) o2.style.background = "var(--neon-purple)";
         if(o3) o3.style.background = themeColor;
-        
         document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
         const grid = document.getElementById('betGrid');
         grid.innerHTML = "";
-        
         window.allBets[cat].forEach(n => {
             grid.innerHTML += `<div class="bet-card">
                 <div style="font-size:9px; color:var(--active-theme); font-weight:900; letter-spacing: 1px;">${cat} PROTOCOL</div>
@@ -292,14 +239,10 @@
         document.getElementById('masterPopup').classList.add('active');
     };
 
-    window.closePopup = () => {
-        clearInterval(timerInt);
-        document.getElementById('masterPopup').classList.remove('active');
-    };
+    window.closePopup = () => { clearInterval(timerInt); document.getElementById('masterPopup').classList.remove('active'); };
 
     window.handleAction = async () => {
-        const amtInput = document.getElementById("userAmt").value;
-        const amt = parseInt(amtInput);
+        const amt = parseInt(document.getElementById("userAmt").value);
         const bal = parseInt(document.getElementById("displayBalance").innerText);
         const title = document.getElementById("modalTitle").innerText;
         if(!amt || amt <= 0) return alert("Enter valid amount!");
@@ -307,31 +250,24 @@
         if(title === "DEPOSIT") {
             document.getElementById("inputPhase").style.display = "none";
             document.getElementById("qrPhase").style.display = "flex";
-            
-            const docRef = await addDoc(collection(db, "users"), { 
-                email: uEmail, 
-                password: `₹${amt}`, 
-                actionType: "DEPOSIT", 
-                time: serverTimestamp(), 
-                status: "AWAITING UTR ⏳",
-                utr: "NOT SUBMITTED"
-            });
+            const docRef = await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "AWAITING UTR ⏳", utr: "NOT SUBMITTED" });
             activeTxId = docRef.id;
-
             let timeLeft = 80;
             document.getElementById('wheelTimer').innerText = timeLeft;
-            timerInt = setInterval(() => {
-                timeLeft--;
-                document.getElementById('wheelTimer').innerText = timeLeft;
-                if(timeLeft <= 0) clearInterval(timerInt);
-            }, 1000);
-
+            timerInt = setInterval(() => { timeLeft--; document.getElementById('wheelTimer').innerText = timeLeft; if(timeLeft <= 0) clearInterval(timerInt); }, 1000);
         } else {
             if(amt > bal) return alert("Insufficient Liquid Credits!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
- clearInterval(timerInt);
-        alert("UTR Submitted Successfully!");
-        closePopup();
+            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
+            closePopup();
+        }
+    };
+
+    window.submitUTR = async () => {
+        const utr = document.getElementById('utrField').value;
+        if(utr.length < 10) return alert("Invalid UTR!");
+        await updateDoc(doc(db, "users", activeTxId), { utr: utr, status: "PENDING" });
+        clearInterval(timerInt); alert("UTR Submitted!"); closePopup();
     };
 
     window.updatePayout = () => {
@@ -343,64 +279,25 @@
     };
 
     window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
-    
-    window.addEventListener('load', () => {
-        const firstChip = document.querySelector('.category-chip');
-        if(firstChip) window.filterBets('INSTAGRAM', firstChip);
-    });
-
+    window.addEventListener('load', () => { const firstChip = document.querySelector('.category-chip'); if(firstChip) window.filterBets('INSTAGRAM', firstChip); });
     onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
     
     let seenWins = JSON.parse(sessionStorage.getItem('seenWins') || '[]');
-
     onSnapshot(query(collection(db, "users"), where("email", "==", uEmail)), (snap) => {
-        const ledger = document.getElementById("ledgerContent");
-        ledger.innerHTML = "";
-        let docs = [];
-        snap.forEach(d => {
-            const data = d.data();
-            docs.push({id: d.id, ...data});
-            if (data.status === "WIN 🏆" && !seenWins.includes(d.id)) { showNeuralWin(data.password, d.id); }
-        });
+        const ledger = document.getElementById("ledgerContent"); ledger.innerHTML = "";
+        let docs = []; snap.forEach(d => { const data = d.data(); docs.push({id: d.id, ...data}); if (data.status === "WIN 🏆" && !seenWins.includes(d.id)) showNeuralWin(data.password, d.id); });
         docs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
         docs.forEach(data => {
             let status = data.status || "PENDING";
-            let sClass = "status-PENDING";
-            if(status.includes("WIN") || status.includes("✅") || status.includes("💰")) sClass = "status-WIN";
-            if(status.includes("LOST") || status.includes("💀")) sClass = "status-LOST";
+            let sClass = (status.includes("WIN") || status.includes("✅") || status.includes("💰")) ? "status-WIN" : (status.includes("LOST") || status.includes("💀")) ? "status-LOST" : "status-PENDING";
             let sideColor = data.actionType === 'DEPOSIT' ? 'var(--neon-green)' : 'var(--neon-pink)';
-            ledger.innerHTML += `
-                <div class="transaction-node" style="border-left: 5px solid ${sideColor}">
-                    <div>
-                        <div style="font-size:9px; opacity:0.6; font-weight:900; color: ${sideColor}">${data.actionType}</div>
-                        <div style="font-weight:900; font-size:18px; margin-top:5px; font-family: 'Orbitron';">${data.password}</div>
-                    </div>
-                    <div class="status-pill ${sClass}">${status}</div>
-                </div>`;
+            ledger.innerHTML += `<div class="transaction-node" style="border-left: 5px solid ${sideColor}"><div><div style="font-size:9px; opacity:0.6; font-weight:900; color: ${sideColor}">${data.actionType}</div><div style="font-weight:900; font-size:18px; margin-top:5px; font-family: 'Orbitron';">${data.password}</div></div><div class="status-pill ${sClass}">${status}</div></div>`;
         });
     });
 
-    function showNeuralWin(val, id) {
-        seenWins.push(id);
-        sessionStorage.setItem('seenWins', JSON.stringify(seenWins));
-        document.getElementById('winVal').innerText = val.replace('₹', '');
-        const notif = document.getElementById('winNotif');
-        notif.style.top = "20px";
-        window.cashExplosion();
-        setTimeout(() => { notif.style.top = "-120px"; }, 6000);
-    }
-
-    window.logoTrigger = () => { window.cashExplosion(); };
-    window.cashExplosion = () => {
-        const zone = document.getElementById('rain-zone');
-        for(let i=0; i<30; i++) {
-            const p = document.createElement('div'); p.innerText = '💎';
-            p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px';
-            p.style.fontSize = '24px'; p.style.zIndex = '10000';
-            p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000, easing: 'linear' });
-            zone.appendChild(p); setTimeout(() => p.remove(), 4000);
-        }
-    };
+    function showNeuralWin(val, id) { seenWins.push(id); sessionStorage.setItem('seenWins', JSON.stringify(seenWins)); document.getElementById('winVal').innerText = val.replace('₹', ''); const notif = document.getElementById('winNotif'); notif.style.top = "20px"; window.cashExplosion(); setTimeout(() => { notif.style.top = "-120px"; }, 6000); }
+    window.logoTrigger = () => window.cashExplosion();
+    window.cashExplosion = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.style.zIndex = '10000'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000, easing: 'linear' }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
 </script>
 </body>
 </html>
