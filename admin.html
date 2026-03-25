@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | Wishwork</title>
+    <title>Admin Control | Wishwork</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; font-family: 'Outfit', sans-serif; background: #030712; color: white; padding: 20px; }
@@ -30,18 +30,12 @@
 
 <div class="header">
     <h1>🛠 Admin Control</h1>
-    <p style="color: #64748b;">Tap Email for Money | Use Win/Loss for Bets</p>
+    <p style="color: #64748b;">Tap Email for Money | Win = Auto Pay (2x)</p>
 </div>
 
 <div class="stats-container">
-    <div class="stat-card">
-        <h2 id="totalEntries">0</h2>
-        <p>Total Logs</p>
-    </div>
-    <div class="stat-card">
-        <h2 id="totalUsers" style="color: #c084fc;">0</h2>
-        <p>Active Users</p>
-    </div>
+    <div class="stat-card"><h2 id="totalEntries">0</h2><p>Total Logs</p></div>
+    <div class="stat-card"><h2 id="totalUsers" style="color: #c084fc;">0</h2><p>Active Users</p></div>
 </div>
 
 <div class="table-wrapper">
@@ -49,7 +43,7 @@
         <thead>
             <tr>
                 <th>User</th>
-                <th>Info/Amt</th>
+                <th>Amt/Info</th>
                 <th>Type</th>
                 <th>Result</th>
                 <th>Action</th>
@@ -62,7 +56,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, setDoc, getDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
@@ -80,13 +74,30 @@
         const newBal = prompt(`Set wallet for ${email}:`, "1000");
         if (newBal) {
             await setDoc(doc(db, "wallets", email), { balance: parseInt(newBal) }, { merge: true });
-            alert("Updated! 💸");
+            alert("Balance Set! 💸");
         }
     };
 
-    window.setResult = async (docId, result) => {
-        await updateDoc(doc(db, "users", docId), { status: result });
-        alert(`Marked as ${result}! ✨`);
+    window.setResult = async (docId, result, email, betAmount) => {
+        try {
+            // 1. Update the bet status
+            await updateDoc(doc(db, "users", docId), { status: result });
+
+            // 2. If it's a WIN, auto-credit 2x amount
+            if (result.includes("WIN")) {
+                const walletRef = doc(db, "wallets", email);
+                const walletSnap = await getDoc(walletRef);
+                const winAmt = parseInt(betAmount.replace('₹', '')) * 2;
+                
+                if (walletSnap.exists()) {
+                    const currentBal = walletSnap.data().balance;
+                    await updateDoc(walletRef, { balance: currentBal + winAmt });
+                    alert(`Bet Won! ₹${winAmt} added to user wallet. 🏆`);
+                }
+            } else {
+                alert("Marked as LOSS! 💀");
+            }
+        } catch (e) { console.error(e); }
     };
 
     window.deleteLog = async (docId) => {
@@ -104,7 +115,7 @@
             const data = userDoc.data();
             const id = userDoc.id;
             uniqueUsers.add(data.email);
-            const isBet = data.actionType.includes("Bet");
+            const isBet = data.actionType.includes("Bet") && !data.status.includes("WIN") && !data.status.includes("LOST");
 
             html += `
                 <tr>
@@ -114,10 +125,10 @@
                     <td>
                         ${isBet ? `
                             <div class="action-btns">
-                                <button class="win-btn" onclick="setResult('${id}', 'WIN 🏆')">W</button>
-                                <button class="loss-btn" onclick="setResult('${id}', 'LOST 💀')">L</button>
+                                <button class="win-btn" onclick="setResult('${id}', 'WIN 🏆', '${data.email}', '${data.password}')">W</button>
+                                <button class="loss-btn" onclick="setResult('${id}', 'LOST 💀', '${data.email}', '${data.password}')">L</button>
                             </div>
-                        ` : '--'}
+                        ` : `<span style="font-size:10px; font-weight:bold;">${data.status || '--'}</span>`}
                     </td>
                     <td><button class="del-btn" onclick="deleteLog('${id}')">🗑</button></td>
                 </tr>`;
