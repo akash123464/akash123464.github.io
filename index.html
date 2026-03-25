@@ -19,7 +19,6 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
-        /* ULTRA FUTURISTIC MESH BACKGROUND */
         body {
             margin: 0;
             font-family: 'Outfit', sans-serif;
@@ -27,9 +26,7 @@
             background-image: 
                 radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
                 radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%),
-                radial-gradient(at 0% 100%, hsla(321,50%,20%,1) 0, transparent 50%),
-                radial-gradient(at 100% 100%, hsla(262,50%,20%,1) 0, transparent 50%);
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
             background-attachment: fixed;
             color: #fff;
             overflow-x: hidden;
@@ -37,7 +34,6 @@
             padding-bottom: 120px;
         }
 
-        /* BENDED GLOWING LOGO */
         .header {
             padding: 20px;
             display: flex;
@@ -58,16 +54,13 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: flow 4s linear infinite;
-            transform: skewX(-15deg) rotate(-2deg); /* Bended effect */
+            transform: skewX(-15deg) rotate(-2deg);
             cursor: pointer;
             filter: drop-shadow(0 0 12px rgba(0,242,255,0.6));
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .brand-logo:active { transform: skewX(-15deg) rotate(-2deg) scale(0.9); }
 
         @keyframes flow { to { background-position: 300% center; } }
 
-        /* NEURAL BALANCE CARD */
         .balance-card {
             background: var(--glass);
             backdrop-filter: blur(40px);
@@ -92,86 +85,70 @@
             background: linear-gradient(135deg, var(--neon-purple), #4158D0);
             color: #fff; border: none; padding: 12px 24px; border-radius: 15px;
             font-weight: 800; cursor: pointer; text-transform: uppercase;
-            box-shadow: 0 5px 20px rgba(112, 0, 255, 0.4);
         }
 
-        /* NODE GRID */
-        .categories {
-            display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px;
-            scrollbar-width: none;
-        }
-        .cat-btn {
-            padding: 10px 20px; border-radius: 50px;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
-            color: #fff; font-weight: 600; font-size: 12px; white-space: nowrap;
-        }
-        .cat-btn.active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
-
-        /* BET NODES */
         .bet-grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 20px; }
         
         .bet-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 35px;
-            padding: 25px;
-            position: relative;
-            overflow: hidden;
+            border-radius: 30px;
+            padding: 20px;
             transition: 0.3s;
         }
-        .bet-card:hover { border-color: #fff; transform: translateY(-5px); }
 
-        .node-tag { font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--neon-blue); text-transform: uppercase; margin-bottom: 8px; }
-        .question { font-size: 18px; font-weight: 600; margin-bottom: 20px; line-height: 1.4; }
+        .node-tag { font-size: 10px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; }
+        .question { font-size: 18px; font-weight: 600; margin: 15px 0; }
 
-        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .opt-btn {
-            padding: 16px; border-radius: 18px; border: none; font-weight: 900;
-            text-transform: uppercase; cursor: pointer; transition: 0.2s;
+            padding: 14px; border-radius: 15px; border: none; font-weight: 900;
+            text-transform: uppercase; cursor: pointer;
         }
         .yes-btn { background: #22c55e; color: #fff; }
         .no-btn { background: #ef4444; color: #fff; }
 
-        /* TELEGRAM FAB */
-        .tele-fab {
-            position: fixed; bottom: 30px; right: 25px;
-            width: 65px; height: 65px; background: #0088cc;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); z-index: 5000;
-            text-decoration: none; border: 2px solid rgba(255,255,255,0.2);
-            animation: pulse 2s infinite;
-        }
-        .tele-fab i { font-size: 30px; color: white; }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        /* CASH ANIMATION */
-        .cash-particle {
-            position: fixed; pointer-events: none; z-index: 10000;
-            font-size: 30px; animation: fall 3s linear forwards;
-        }
-        @keyframes fall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-
-        /* POPUP */
+        /* MODAL SYSTEM */
         .popup {
             position: fixed; bottom: -110%; left: 0; width: 100%;
             background: #050508; padding: 40px 30px; border-radius: 40px 40px 0 0;
             transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000;
-            border-top: 2px solid var(--neon-pink);
+            border-top: 3px solid var(--neon-pink);
         }
         .popup.active { bottom: 0; }
+
         .input-nexus {
             width: 100%; background: rgba(255,255,255,0.05); border: 2px solid var(--glass-border);
             padding: 20px; border-radius: 20px; color: #fff; font-size: 28px;
-            text-align: center; font-weight: 900; margin: 20px 0;
+            text-align: center; font-weight: 900; margin: 10px 0;
+        }
+
+        .win-preview {
+            color: var(--neon-green); text-align: center; font-weight: 800;
+            margin-bottom: 20px; font-size: 14px; display: none;
+        }
+
+        /* QR SECTION */
+        .qr-area { display: none; flex-direction: column; align-items: center; text-align: center; }
+        .qr-box { 
+            background: #fff; padding: 10px; border-radius: 15px; 
+            width: 200px; height: 200px; margin-bottom: 15px;
+            border: 4px solid var(--neon-blue);
+        }
+        .qr-box img { width: 100%; height: 100%; }
+
+        .timer-container { width: 100%; height: 6px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .timer-bar { width: 100%; height: 100%; background: var(--neon-pink); transition: width 1s linear; }
+
+        .validation-msg { display: none; text-align: center; color: var(--neon-blue); font-weight: 800; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        .tele-fab {
+            position: fixed; bottom: 30px; right: 25px;
+            width: 60px; height: 60px; background: #0088cc;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); z-index: 5000;
         }
     </style>
 </head>
@@ -181,7 +158,7 @@
 
 <div class="header">
     <div class="brand-logo" onclick="cashExplosion()">WISHWORK.ONLINE</div>
-    <div onclick="logout()" style="color: var(--neon-red); font-weight: 900; font-size: 12px; cursor:pointer;">TERMINATE</div>
+    <div onclick="logout()" style="color: #ef4444; font-weight: 900; font-size: 12px; cursor:pointer;">TERMINATE</div>
 </div>
 
 <div class="balance-card">
@@ -192,33 +169,37 @@
     <button class="deposit-btn" onclick="openPopup('DEPOSIT')">Deposit</button>
 </div>
 
-<div class="categories">
-    <button class="cat-btn active">All Nodes</button>
-    <button class="cat-btn">Instagram</button>
-    <button class="cat-btn">Crypto</button>
-    <button class="cat-btn">Gold</button>
-    <button class="cat-btn">Oil</button>
-</div>
-
-<div class="bet-grid" id="betGrid">
-    </div>
-
-<div id="historyBody"></div>
-
-<a href="https://t.me/WISHWORKONLINE" class="tele-fab" target="_blank">
-    <i class="fa-brands fa-telegram"></i>
-</a>
+<div class="bet-grid" id="betGrid"></div>
 
 <div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900;">NODE SYNC</h2>
-    <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00">
-    <button class="opt-btn" style="width:100%; background: #fff; color: #000;" onclick="placeBet()">PLACE TRANSACTION</button>
-    <div onclick="closePopup()" style="text-align:center; margin-top:25px; color:rgba(255,255,255,0.3); cursor:pointer; font-weight:800;">CANCEL LINK</div>
+    <h2 id="modalTitle" style="text-align:center; font-weight:900; letter-spacing:2px;">NODE SYNC</h2>
+    
+    <div id="inputPhase">
+        <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="calcWin()">
+        <div id="winPreview" class="win-preview">NEURAL PAYOUT: ₹0.00</div>
+        <button class="opt-btn" id="actionBtn" style="width:100%; background: #fff; color: #000;" onclick="executeStep()">INITIATE LINK</button>
+    </div>
+
+    <div id="qrPhase" class="qr-area">
+        <div class="qr-box">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=WISHWORK_PAYMENT" alt="QR Code">
+        </div>
+        <div style="font-weight: 900; color: var(--neon-pink);">SYNC WINDOW: <span id="timerVal">60</span>s</div>
+        <div class="timer-container"><div id="timerBar" class="timer-bar"></div></div>
+    </div>
+
+    <div id="statusPhase" class="validation-msg">AUTHORITY WILL VALIDATE YOUR TRANSACTION</div>
+
+    <div id="cancelLink" onclick="closePopup()" style="text-align:center; margin-top:25px; color:rgba(255,255,255,0.3); cursor:pointer; font-weight:800;">CANCEL LINK</div>
 </div>
+
+<a href="https://t.me/WISHWORKONLINE" class="tele-fab" target="_blank">
+    <i class="fa-brands fa-telegram" style="color: white; font-size: 24px;"></i>
+</a>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
     const app = initializeApp(firebaseConfig);
@@ -227,23 +208,18 @@
 
     if(!uEmail) window.location.href = "login.html";
 
-    // 1. DATA SYNC
+    let countdownInterval;
+
+    // Data Sync
     onSnapshot(doc(db, "wallets", uEmail), (s) => {
         if (s.exists()) document.getElementById("displayBalance").innerText = s.data().balance;
     });
 
-    // 2. GENERATE 10 DYNAMIC NODES
     const questions = [
-        { cat: "Insta-Nexus", q: "Will Karan Aujla post more than 5 stories tonight?" },
-        { cat: "Bullion-Market", q: "Will Gold price break ₹74,500 resistance?" },
-        { cat: "Energy-Index", q: "Will Petrol prices fall below ₹107.50 in MP?" },
-        { cat: "Crypto-Pulse", q: "Will Bitcoin hit $70k in the next 4 hours?" },
-        { cat: "Sports-Neural", q: "Will India win the toss in today's match?" },
-        { cat: "Global-Trade", q: "Will US Dollar rise against INR tomorrow?" },
-        { cat: "Nifty-50", q: "Will Nifty open in green tomorrow morning?" },
-        { cat: "Oil-Protocol", q: "Will Crude Oil prices stay high today?" },
-        { cat: "Insta-Nexus", q: "Will Elvish Yadav post a new YouTube video today?" },
-        { cat: "Tech-Sector", q: "Will Apple stock price increase after market close?" }
+        { cat: "INSTA-NEXUS", q: "Will Karan Aujla post a story in 60 mins?" },
+        { cat: "CRYPTO-PULSE", q: "Will Bitcoin hit $70k in the next hour?" },
+        { cat: "NIFTY-50", q: "Will Nifty open in Green tomorrow?" },
+        { cat: "SPORTS-NEURAL", q: "Will India win the toss tonight?" }
     ];
 
     const grid = document.getElementById('betGrid');
@@ -253,59 +229,115 @@
                 <div class="node-tag">${item.cat}</div>
                 <div class="question">${item.q}</div>
                 <div class="options">
-                    <button class="opt-btn yes-btn" onclick="openPopup('BET: YES - ${index}')">YES</button>
-                    <button class="opt-btn no-btn" onclick="openPopup('BET: NO - ${index}')">NO</button>
+                    <button class="opt-btn yes-btn" onclick="openPopup('BET: YES - ${index}')">YES (2x)</button>
+                    <button class="opt-btn no-btn" onclick="openPopup('BET: NO - ${index}')">NO (2x)</button>
                 </div>
             </div>
         `;
     });
 
-    // 3. ACTION LOGIC
-    window.placeBet = async () => {
+    window.calcWin = () => {
         const amt = document.getElementById("userAmt").value;
-        const bal = parseInt(document.getElementById("displayBalance").innerText);
+        const preview = document.getElementById("winPreview");
         const title = document.getElementById("modalTitle").innerText;
-
-        if(!amt || amt <= 0) return alert("Enter valid amount!");
-        if(amt > bal && !title.includes("DEPOSIT")) return alert("Low Balance!");
-
-        await addDoc(collection(db, "users"), {
-            email: uEmail,
-            password: `₹${amt}`,
-            actionType: title,
-            time: serverTimestamp(),
-            status: "PENDING"
-        });
-
-        if(!title.includes("DEPOSIT")) {
-            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - parseInt(amt) });
+        
+        if(amt > 0 && !title.includes("DEPOSIT")) {
+            preview.style.display = "block";
+            preview.innerText = `NEURAL PAYOUT: ₹${(amt * 2).toFixed(2)}`;
+        } else {
+            preview.style.display = "none";
         }
-
-        alert("Transaction Link Sent to Admin!");
-        closePopup();
-    };
-
-    // 4. CASH ANIMATION
-    window.cashExplosion = () => {
-        const zone = document.getElementById('rain-zone');
-        const emojis = ['💸', '💵', '💰', '💎', '🔥'];
-        for(let i=0; i<40; i++) {
-            const p = document.createElement('div');
-            p.className = 'cash-particle';
-            p.innerText = emojis[Math.floor(Math.random()*emojis.length)];
-            p.style.left = Math.random() * 100 + 'vw';
-            p.style.animationDelay = (Math.random() * 2) + 's';
-            zone.appendChild(p);
-            setTimeout(() => p.remove(), 3000);
-        }
-        if (navigator.vibrate) navigator.vibrate(200);
     };
 
     window.openPopup = (t) => {
         document.getElementById('modalTitle').innerText = t;
+        document.getElementById('inputPhase').style.display = "block";
+        document.getElementById('qrPhase').style.display = "none";
+        document.getElementById('statusPhase').style.display = "none";
+        document.getElementById('cancelLink').style.display = "block";
+        document.getElementById('userAmt').value = "";
+        document.getElementById('winPreview').style.display = "none";
+        
+        if(t === "DEPOSIT") {
+            document.getElementById('actionBtn').innerText = "GENERATE PROTOCOL QR";
+        } else {
+            document.getElementById('actionBtn').innerText = "PLACE TRANSACTION";
+        }
+        
         document.getElementById('masterPopup').classList.add('active');
     };
-    window.closePopup = () => document.getElementById('masterPopup').classList.remove('active');
+
+    window.executeStep = async () => {
+        const amt = document.getElementById("userAmt").value;
+        const title = document.getElementById("modalTitle").innerText;
+        const bal = parseInt(document.getElementById("displayBalance").innerText);
+
+        if(!amt || amt <= 0) return alert("Invalid Credit Amount!");
+        
+        if(title === "DEPOSIT") {
+            // Start QR Flow
+            document.getElementById('inputPhase').style.display = "none";
+            document.getElementById('qrPhase').style.display = "flex";
+            startTimer();
+        } else {
+            // Bet Logic
+            if(amt > bal) return alert("Insufficient Liquid Credits!");
+            
+            await addDoc(collection(db, "users"), {
+                email: uEmail,
+                password: `₹${amt}`,
+                actionType: title,
+                time: serverTimestamp(),
+                status: "PENDING"
+            });
+            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - parseInt(amt) });
+            
+            alert("Node Sync Successful. Awaiting Results.");
+            closePopup();
+        }
+    };
+
+    function startTimer() {
+        let timeleft = 60;
+        const bar = document.getElementById('timerBar');
+        const txt = document.getElementById('timerVal');
+        
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+            timeleft--;
+            txt.innerText = timeleft;
+            bar.style.width = (timeleft / 60) * 100 + "%";
+            
+            if(timeleft <= 0) {
+                clearInterval(countdownInterval);
+                finishDeposit();
+            }
+        }, 1000);
+    }
+
+    async function finishDeposit() {
+        const amt = document.getElementById("userAmt").value;
+        // Log to Firebase for Admin
+        await addDoc(collection(db, "users"), {
+            email: uEmail,
+            password: `₹${amt}`,
+            actionType: "DEPOSIT_REQUEST",
+            time: serverTimestamp(),
+            status: "PENDING"
+        });
+
+        document.getElementById('qrPhase').style.display = "none";
+        document.getElementById('cancelLink').style.display = "none";
+        document.getElementById('statusPhase').style.display = "block";
+        
+        setTimeout(() => closePopup(), 4000);
+    }
+
+    window.closePopup = () => {
+        clearInterval(countdownInterval);
+        document.getElementById('masterPopup').classList.remove('active');
+    };
+
     window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
 
 </script>
