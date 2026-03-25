@@ -10,6 +10,7 @@
         :root { 
             --neon-pink: #ff007a; --neon-blue: #00f2ff; --neon-purple: #7000ff; --neon-green: #38ef7d; 
             --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); 
+            --active-theme: var(--neon-blue); 
         }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -20,15 +21,13 @@
             position: relative;
         }
 
-        /* 🌌 PLASMA BACKGROUND */
         .plasma-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
         .light-orb { position: absolute; width: 400px; height: 400px; border-radius: 50%; filter: blur(120px); opacity: 0.45; animation: float-orb 12s infinite alternate ease-in-out; }
         .orb-1 { background: var(--neon-purple); top: -10%; left: -10%; }
-        .orb-2 { background: var(--neon-blue); bottom: 10%; right: -5%; animation-delay: -3s; }
-        .orb-3 { background: var(--neon-pink); top: 30%; left: 30%; animation-duration: 8s; }
-        @keyframes float-orb { from { transform: translate(0, 0); } to { transform: translate(150px, 100px); } }
+        .orb-2 { background: var(--neon-blue); bottom: 10%; right: -5%; }
+        .orb-3 { background: var(--neon-pink); top: 30%; left: 30%; }
+        @keyframes float-orb { from { transform: translate(0, 0); } to { transform: translate(100px, 80px); } }
 
-        /* 🚀 STYLISH GLOW LOGO */
         .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(30px); background: rgba(0, 0, 0, 0.6); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
         .brand-logo { 
             font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; 
@@ -37,45 +36,58 @@
             text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
             letter-spacing: 2px; cursor: pointer; transition: 0.3s;
         }
-        .brand-logo:hover { filter: drop-shadow(0 0 15px var(--neon-blue)); transform: skewX(-5deg); }
 
-        /* 💎 BALANCE CARD */
         .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
         .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
         .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
         .btn-withdraw { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); }
 
-        .section-label { padding: 10px 25px; font-size: 11px; font-weight: 900; color: var(--neon-blue); letter-spacing: 2px; text-transform: uppercase; }
-        .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
-        .bet-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px; }
+        /* 📂 THEMED CATEGORIES WITH ICONS */
+        .protocol-selector { display: flex; overflow-x: auto; gap: 12px; padding: 15px 20px; scrollbar-width: none; }
+        .protocol-selector::-webkit-scrollbar { display: none; }
+        .category-chip { 
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 22px; border-radius: 15px; background: var(--glass); border: 1px solid var(--glass-border);
+            white-space: nowrap; font-weight: 900; font-size: 11px; letter-spacing: 1px; color: rgba(255,255,255,0.5);
+            cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .category-chip i { font-size: 14px; }
+        .category-chip.active { 
+            color: #fff; transform: scale(1.05); border-color: #fff;
+            box-shadow: 0 0 20px var(--active-theme); background: var(--active-theme);
+        }
+
+        .section-label { padding: 5px 25px; font-size: 10px; font-weight: 900; color: var(--active-theme); letter-spacing: 2px; text-transform: uppercase; transition: 0.3s; }
+        .bet-grid { display: grid; gap: 15px; padding: 0 20px; min-height: 100px; }
+        .bet-card { 
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 30px; padding: 22px; 
+            animation: slideIn 0.4s ease-out; border-left: 4px solid var(--active-theme);
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        .timer-container { position: relative; width: 130px; height: 130px; margin: 15px auto; display: flex; align-items: center; justify-content: center; }
+        .timer-svg { transform: rotate(-90deg); width: 130px; height: 130px; }
+        .timer-svg circle { fill: none; stroke-width: 10; stroke-linecap: round; }
+        .timer-bg { stroke: rgba(255,255,255,0.05); }
+        .timer-bar { 
+            stroke: var(--neon-pink); stroke-dasharray: 339; stroke-dashoffset: 0;
+            filter: drop-shadow(0 0 10px var(--neon-pink)); transition: stroke-dashoffset 1s linear;
+        }
+        #timerText { position: absolute; font-size: 28px; font-weight: 900; color: #fff; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px var(--neon-pink); }
+
         .history-card { background: rgba(255, 255, 255, 0.02); margin: 10px 20px; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; border-left: 5px solid #333; }
         .history-card.WIN { border-left-color: var(--neon-green); background: rgba(56, 239, 125, 0.05); }
 
-        /* 🌑 POPUP & DEPOSIT QR */
-        .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--neon-pink); }
+        .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--active-theme); }
         .popup.active { bottom: 0; }
         .input-nexus { width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--glass-border); padding: 20px; border-radius: 20px; color: #fff; font-size: 32px; text-align: center; font-weight: 900; margin-bottom: 20px; }
 
         .qr-area { display: none; flex-direction: column; align-items: center; }
-        .qr-box { 
-            background: #fff; padding: 10px; border-radius: 25px; width: 220px; height: 220px; 
-            border: 5px solid var(--neon-blue); position: relative; overflow: hidden;
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
-        }
+        .qr-box { background: #fff; padding: 10px; border-radius: 25px; width: 180px; height: 180px; border: 4px solid var(--neon-blue); }
         .qr-box img { width: 100%; height: 100%; object-fit: contain; }
 
-        /* 🔋 COLOURFUL NEON TIMER */
-        .timer-wrap { width: 100%; height: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 25px 0; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); }
-        #timerFill { 
-            width: 100%; height: 100%; 
-            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-pink)); 
-            box-shadow: 0 0 15px var(--neon-pink);
-            transition: 1s linear; 
-        }
-
-        /* 🛰️ SUPPORT HUB */
-        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
+        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); cursor: pointer; }
         .support-card { position: fixed; bottom: -100%; right: 25px; width: 280px; background: rgba(5,5,8,0.98); backdrop-filter: blur(25px); border: 2px solid var(--neon-blue); border-radius: 30px; padding: 30px 25px; transition: 0.5s; z-index: 4999; text-align: center; display: flex; flex-direction: column; gap: 20px; }
         .support-card.active { bottom: 110px; }
         
@@ -92,13 +104,12 @@
 </div>
 
 <div id="rain-zone"></div>
-<div id="winNotif" class="win-notif" style="position:fixed; top:-100px; left:50%; transform:translateX(-50%); background:var(--neon-green); color:black; padding:18px 40px; border-radius:50px; font-weight:900; z-index:9999; transition:0.5s;">YOU WON! 🏆</div>
+<div id="winNotif" style="position:fixed; top:-100px; left:50%; transform:translateX(-50%); background:var(--neon-green); color:black; padding:18px 40px; border-radius:50px; font-weight:900; z-index:9999; transition:0.5s;">YOU WON! 🏆</div>
 
 <div class="support-fab" onclick="toggleSupport()"><i class="fa-brands fa-telegram" style="font-size: 30px; color: white;"></i></div>
 <div class="support-card" id="supportCard">
     <div style="font-weight: 900; color: var(--neon-blue); font-size: 16px; letter-spacing: 1px;">NEURAL SUPPORT</div>
-    <div style="font-size: 12px; color: rgba(255,255,255,0.6);">DIRECT LINE TO AUTHORITY</div>
-    <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none; width: 100%;">CONNECT TELEGRAM</a>
+    <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none;">CONNECT TELEGRAM</a>
 </div>
 
 <div class="header">
@@ -117,28 +128,40 @@
     </div>
 </div>
 
-<div class="section-label">LIVE PROTOCOLS</div>
-<div class="bet-grid" id="betGrid"></div>
+<div class="section-label" id="protocolLabel">LIVE PROTOCOLS</div>
+<div class="protocol-selector" id="catSelector">
+    <div class="category-chip active" data-color="#E1306C" onclick="filterBets('INSTAGRAM', this)"><i class="fa-brands fa-instagram"></i> INSTAGRAM</div>
+    <div class="category-chip" data-color="#FFD700" onclick="filterBets('OIL', this)"><i class="fa-solid fa-droplet"></i> OIL</div>
+    <div class="category-chip" data-color="#FF4500" onclick="filterBets('POLITICS', this)"><i class="fa-solid fa-landmark"></i> POLITICS</div>
+    <div class="category-chip" data-color="#FF0000" onclick="filterBets('YOUTUBE', this)"><i class="fa-brands fa-youtube"></i> YOUTUBE</div>
+    <div class="category-chip" data-color="#00f2ff" onclick="filterBets('RANDOM', this)"><i class="fa-solid fa-shuffle"></i> RANDOM</div>
+</div>
 
-<div class="section-label" style="margin-top:30px;">NEURAL HISTORY</div>
+<div class="bet-grid" id="betGrid" style="margin-top: 10px;"></div>
+
+<div class="section-label" style="margin-top:30px; color: var(--neon-pink);">NEURAL HISTORY</div>
 <div id="historyList"></div>
 
 <div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900;">NODE SYNC</h2>
+    <h2 id="modalTitle" style="text-align:center; font-weight:900; letter-spacing: 1px;">NODE SYNC</h2>
     <div id="inputPhase">
         <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
         <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px; font-size:14px;">EST. WINNING: ₹<span id="payoutAmt">0</span></div>
         <button class="btn-main" id="primaryActionBtn" style="width:100%; padding:20px;" onclick="handleAction()">PLACE BET</button>
     </div>
     <div id="qrPhase" class="qr-area">
-        <div class="qr-box">
-            <img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png" alt="PAYMENT QR">
+        <div class="qr-box"><img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png" alt="QR"></div>
+        <div class="timer-container">
+            <svg class="timer-svg">
+                <circle class="timer-bg" cx="65" cy="65" r="54"></circle>
+                <circle id="timerCircle" class="timer-bar" cx="65" cy="65" r="54"></circle>
+            </svg>
+            <div id="timerText">60</div>
         </div>
-        <div style="font-weight:900; color:var(--neon-blue); margin-top:15px; letter-spacing:1px;">AUTHORIZING PAYMENT: <span id="timer" style="color:var(--neon-pink)">60</span>s</div>
-        <div class="timer-wrap"><div id="timerFill"></div></div>
+        <div style="font-weight:900; color:var(--neon-blue); font-size: 11px; letter-spacing:1px; margin-top: -10px;">VALIDATING PAYMENT NODE...</div>
     </div>
-    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900;">VALIDATING TRANSACTION...</div>
-    <div onclick="closePopup()" style="text-align:center; margin-top:30px; opacity:0.3; cursor:pointer; font-size:14px; font-weight:800;">CLOSE</div>
+    <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900; padding: 20px;">SYNCING WITH BLOCKCHAIN...</div>
+    <div onclick="closePopup()" style="text-align:center; margin-top:20px; opacity:0.3; cursor:pointer; font-size:14px; font-weight:800;">CANCEL</div>
 </div>
 
 <script type="module">
@@ -155,8 +178,35 @@
     let timerInt;
     let winTracker = {};
 
-    onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
+    const allBets = {
+        INSTAGRAM: [{q: "Karan Aujla story in next 30m?", id: "INSTA-1"}, {q: "Post likes reach 1M in 1hr?", id: "INSTA-2"}],
+        OIL: [{q: "Crude Oil jumps above $85?", id: "OIL-1"}, {q: "Petrol prices drop by midnight?", id: "OIL-2"}],
+        POLITICS: [{q: "New bill passed today?", id: "POL-1"}, {q: "Election results favor Party A?", id: "POL-2"}],
+        YOUTUBE: [{q: "CarryMinati video in 48h?", id: "YT-1"}, {q: "Live stream reaches 100k views?", id: "YT-2"}],
+        RANDOM: [{q: "Will it rain in Mumbai today?", id: "RND-1"}, {q: "BTC hits new ATH today?", id: "RND-2"}]
+    };
 
+    window.filterBets = (cat, el) => {
+        const themeColor = el.getAttribute('data-color');
+        document.documentElement.style.setProperty('--active-theme', themeColor);
+        document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        const grid = document.getElementById('betGrid');
+        grid.innerHTML = "";
+        allBets[cat].forEach(n => {
+            grid.innerHTML += `<div class="bet-card">
+                <div style="font-size:9px; color:var(--active-theme); font-weight:900; letter-spacing:2px;">${cat} PROTOCOL</div>
+                <div style="margin:12px 0; font-weight:600; font-size:15px;">${n.q}</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.q}')">YES</button>
+                    <button class="btn-main" style="background:#ef4444" onclick="openPopup('BET: NO - ${n.q}')">NO</button>
+                </div>
+            </div>`;
+        });
+    };
+
+    filterBets('INSTAGRAM', document.querySelector('.category-chip'));
+    onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
     onSnapshot(query(collection(db, "users"), where("email", "==", uEmail), orderBy("time", "desc")), (snap) => {
         const list = document.getElementById("historyList");
         list.innerHTML = "";
@@ -166,97 +216,74 @@
             let status = data.status || "PENDING";
             if (status === "WIN 🏆" && !winTracker[id]) { triggerNeuralWin(); winTracker[id] = true; }
             list.innerHTML += `<div class="history-card ${status.split(' ')[0]}">
-                <div><div style="font-size:9px; opacity:0.5; font-weight:900;">${data.actionType}</div><div style="font-weight:800; font-size:16px;">${data.password}</div></div>
-                <div style="font-weight:900; font-size:12px;">${status}</div>
+                <div><div style="font-size:9px; opacity:0.5; font-weight:900;">${data.actionType}</div><div style="font-weight:800; font-size:14px;">${data.password}</div></div>
+                <div style="font-weight:900; font-size:11px;">${status}</div>
             </div>`;
         });
     });
 
-    window.logoTrigger = () => { cashExplosion(); if(navigator.vibrate) navigator.vibrate(200); (new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3')).play(); };
-    function triggerNeuralWin() { document.getElementById("winNotif").classList.add("active"); cashExplosion(); (new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3')).play(); setTimeout(() => document.getElementById("winNotif").classList.remove("active"), 6000); }
-    
+    window.logoTrigger = () => { cashExplosion(); (new Audio('https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3')).play(); };
+    function triggerNeuralWin() { document.getElementById("winNotif").style.top = "20px"; cashExplosion(); setTimeout(() => document.getElementById("winNotif").style.top = "-100px", 5000); }
     window.cashExplosion = () => {
         const zone = document.getElementById('rain-zone');
-        for(let i=0; i<45; i++) {
-            const p = document.createElement('div'); p.className = 'cash-particle'; p.innerText = ['💸', '💰', '💎'][Math.floor(Math.random()*3)];
-            p.style.left = Math.random() * 100 + 'vw'; p.style.animationDelay = (Math.random() * 2) + 's';
+        for(let i=0; i<30; i++) {
+            const p = document.createElement('div'); p.className = 'cash-particle'; p.innerText = '💎';
+            p.style.left = Math.random() * 100 + 'vw'; p.style.animationDelay = Math.random() + 's';
             zone.appendChild(p); setTimeout(() => p.remove(), 3000);
         }
     };
-
     window.toggleSupport = () => document.getElementById("supportCard").classList.toggle("active");
-
-    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story in next 30m?"}, {c:"CRYPTO-PULSE", q:"BTC price stays above support?"}];
-    nodes.forEach(n => {
-        document.getElementById('betGrid').innerHTML += `<div class="bet-card">
-            <div style="font-size:10px; color:var(--neon-blue); font-weight:900; letter-spacing:2px;">${n.c}</div>
-            <div style="margin:12px 0; font-weight:600; font-size:16px;">${n.q}</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.c}')">YES</button>
-                <button class="btn-main" style="background:#ef4444" onclick="openPopup('BET: NO - ${n.c}')">NO</button>
-            </div>
-        </div>`;
-    });
-
     window.updatePayout = () => {
         const v = document.getElementById("userAmt").value;
         const t = document.getElementById("modalTitle").innerText;
-        if(v > 0 && t.includes("BET")) { document.getElementById("payoutBox").style.display = "block"; document.getElementById("payoutAmt").innerText = v * 2; }
+        if(v > 0 && t.includes("BET")) { document.getElementById("payoutBox").style.display = "block"; document.getElementById("payoutAmt").innerText = (v * 1.9).toFixed(0); }
         else document.getElementById("payoutBox").style.display = "none";
     };
-
     window.openPopup = (t) => {
         document.getElementById('modalTitle').innerText = t;
         document.getElementById('inputPhase').style.display = "block";
         document.getElementById('qrPhase').style.display = "none";
         document.getElementById('statusPhase').style.display = "none";
-        
-        // Dynamic Button Label
         const btn = document.getElementById('primaryActionBtn');
-        if(t === 'DEPOSIT') btn.innerText = "GENERATE QR";
-        else if(t === 'WITHDRAW') btn.innerText = "REQUEST WITHDRAWAL";
-        else btn.innerText = "PLACE BET";
-
+        btn.innerText = t === 'DEPOSIT' ? "GENERATE QR" : (t === 'WITHDRAW' ? "REQUEST WITHDRAWAL" : "PLACE BET");
         document.getElementById('masterPopup').classList.add('active');
     };
-
     window.handleAction = async () => {
         const amt = document.getElementById("userAmt").value;
         const bal = parseInt(document.getElementById("displayBalance").innerText);
         const title = document.getElementById("modalTitle").innerText;
-        if(!amt || amt <= 0) return alert("Enter Credits!");
-
+        if(!amt || amt <= 0) return alert("Enter Amount!");
         if(title === "DEPOSIT") {
             document.getElementById("inputPhase").style.display = "none";
             document.getElementById("qrPhase").style.display = "flex";
             let left = 60;
+            const circle = document.getElementById("timerCircle");
             timerInt = setInterval(async () => {
-                left--; document.getElementById("timer").innerText = left;
-                document.getElementById("timerFill").style.width = (left/60)*100 + "%";
+                left--; document.getElementById("timerText").innerText = left;
+                const offset = (left / 60) * 339;
+                circle.style.strokeDashoffset = 339 - offset;
                 if(left <= 0) {
                     clearInterval(timerInt);
                     await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "PENDING" });
                     document.getElementById("qrPhase").style.display = "none";
                     document.getElementById("statusPhase").style.display = "block";
-                    setTimeout(() => closePopup(), 3000);
+                    setTimeout(() => closePopup(), 2000);
                 }
             }, 1000);
         } else if(title === "WITHDRAW") {
-            if(parseInt(amt) > bal) return alert("Insufficient Liquid Credits!");
+            if(parseInt(amt) > bal) return alert("Low Balance!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "WITHDRAW", time: serverTimestamp(), status: "PENDING" });
             document.getElementById("inputPhase").style.display = "none";
             document.getElementById("statusPhase").style.display = "block";
-            document.getElementById("statusPhase").innerText = "WITHDRAWAL SYNCED WITH AUTHORITY";
-            setTimeout(() => closePopup(), 3000);
+            document.getElementById("statusPhase").innerText = "WITHDRAWAL SYNCED";
+            setTimeout(() => closePopup(), 2000);
         } else {
-            if(parseInt(amt) > bal) return alert("Insufficient Liquid Credits!");
+            if(parseInt(amt) > bal) return alert("Low Balance!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - parseInt(amt) });
-            alert("BET PLACED SUCCESSFULLY ON " + (title.includes("YES") ? "YES" : "NO"));
             closePopup();
         }
     };
-
     window.closePopup = () => { clearInterval(timerInt); document.getElementById('masterPopup').classList.remove('active'); };
     window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
 </script>
