@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WISHWORK | NEXUS PROTOCOL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
@@ -28,10 +28,16 @@
         .orb-3 { background: var(--neon-pink); top: 30%; left: 30%; animation-duration: 8s; }
         @keyframes float-orb { from { transform: translate(0, 0); } to { transform: translate(150px, 100px); } }
 
-        /* 🚀 NEON HEADER */
+        /* 🚀 STYLISH GLOW LOGO */
         .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(30px); background: rgba(0, 0, 0, 0.6); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
-        .brand-logo { font-family: 'Syncopate', sans-serif; font-size: 22px; font-weight: 700; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink), var(--neon-purple), var(--neon-blue)); background-size: 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flow 4s linear infinite; transform: skewX(-15deg); cursor: pointer; }
-        @keyframes flow { to { background-position: 300% center; } }
+        .brand-logo { 
+            font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; 
+            background: linear-gradient(to right, var(--neon-blue), #fff, var(--neon-pink));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+            letter-spacing: 2px; cursor: pointer; transition: 0.3s;
+        }
+        .brand-logo:hover { filter: drop-shadow(0 0 15px var(--neon-blue)); transform: skewX(-5deg); }
 
         /* 💎 BALANCE CARD */
         .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
@@ -58,10 +64,17 @@
             box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
         }
         .qr-box img { width: 100%; height: 100%; object-fit: contain; }
-        .timer-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 25px 0; overflow: hidden; }
-        #timerFill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); transition: 1s linear; }
 
-        /* 🛰️ SUPPORT HUB (Clean - No QR) */
+        /* 🔋 COLOURFUL NEON TIMER */
+        .timer-wrap { width: 100%; height: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 25px 0; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); }
+        #timerFill { 
+            width: 100%; height: 100%; 
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-pink)); 
+            box-shadow: 0 0 15px var(--neon-pink);
+            transition: 1s linear; 
+        }
+
+        /* 🛰️ SUPPORT HUB */
         .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.6); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
         .support-card { position: fixed; bottom: -100%; right: 25px; width: 280px; background: rgba(5,5,8,0.98); backdrop-filter: blur(25px); border: 2px solid var(--neon-blue); border-radius: 30px; padding: 30px 25px; transition: 0.5s; z-index: 4999; text-align: center; display: flex; flex-direction: column; gap: 20px; }
         .support-card.active { bottom: 110px; }
@@ -85,12 +98,12 @@
 <div class="support-card" id="supportCard">
     <div style="font-weight: 900; color: var(--neon-blue); font-size: 16px; letter-spacing: 1px;">NEURAL SUPPORT</div>
     <div style="font-size: 12px; color: rgba(255,255,255,0.6);">DIRECT LINE TO AUTHORITY</div>
-    <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none; width: 100%;">OPEN TELEGRAM</a>
+    <a href="https://t.me/WISHWORKONLINE" target="_blank" class="btn-main" style="display: block; text-decoration: none; width: 100%;">CONNECT TELEGRAM</a>
 </div>
 
 <div class="header">
-    <div class="brand-logo" onclick="logoTrigger()">WISHWORK.ONLINE</div>
-    <div onclick="logout()" style="color: var(--neon-pink); font-weight: 900; font-size: 11px; cursor:pointer;">TERMINATE</div>
+    <div class="brand-logo" onclick="logoTrigger()">WISHWORK</div>
+    <div onclick="logout()" style="color: var(--neon-pink); font-weight: 900; font-size: 11px; cursor:pointer; letter-spacing:1px;">LOGOUT</div>
 </div>
 
 <div class="balance-card">
@@ -114,18 +127,18 @@
     <h2 id="modalTitle" style="text-align:center; font-weight:900;">NODE SYNC</h2>
     <div id="inputPhase">
         <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
-        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px;">EST. PAYOUT: ₹<span id="payoutAmt">0</span></div>
-        <button class="btn-main" style="width:100%; padding:20px;" onclick="handleAction()">INITIALIZE LINK</button>
+        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px; font-size:14px;">EST. WINNING: ₹<span id="payoutAmt">0</span></div>
+        <button class="btn-main" id="primaryActionBtn" style="width:100%; padding:20px;" onclick="handleAction()">PLACE BET</button>
     </div>
     <div id="qrPhase" class="qr-area">
         <div class="qr-box">
             <img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png" alt="PAYMENT QR">
         </div>
-        <div style="font-weight:900; color:var(--neon-pink); margin-top:15px;">SYNCING: <span id="timer">60</span>s</div>
+        <div style="font-weight:900; color:var(--neon-blue); margin-top:15px; letter-spacing:1px;">AUTHORIZING PAYMENT: <span id="timer" style="color:var(--neon-pink)">60</span>s</div>
         <div class="timer-wrap"><div id="timerFill"></div></div>
     </div>
     <div id="statusPhase" style="display:none; text-align:center; color:var(--neon-blue); font-weight:900;">VALIDATING TRANSACTION...</div>
-    <div onclick="closePopup()" style="text-align:center; margin-top:30px; opacity:0.3; cursor:pointer; font-size:12px;">CLOSE CONNECTION</div>
+    <div onclick="closePopup()" style="text-align:center; margin-top:30px; opacity:0.3; cursor:pointer; font-size:14px; font-weight:800;">CLOSE</div>
 </div>
 
 <script type="module">
@@ -153,7 +166,7 @@
             let status = data.status || "PENDING";
             if (status === "WIN 🏆" && !winTracker[id]) { triggerNeuralWin(); winTracker[id] = true; }
             list.innerHTML += `<div class="history-card ${status.split(' ')[0]}">
-                <div><div style="font-size:9px; opacity:0.5;">${data.actionType}</div><div style="font-weight:800;">${data.password}</div></div>
+                <div><div style="font-size:9px; opacity:0.5; font-weight:900;">${data.actionType}</div><div style="font-weight:800; font-size:16px;">${data.password}</div></div>
                 <div style="font-weight:900; font-size:12px;">${status}</div>
             </div>`;
         });
@@ -173,10 +186,10 @@
 
     window.toggleSupport = () => document.getElementById("supportCard").classList.toggle("active");
 
-    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story in next 30m?"}, {c:"CRYPTO-PULSE", q:"BTC price stays above $69k?"}];
+    const nodes = [{c:"INSTA-NEXUS", q:"Karan Aujla story in next 30m?"}, {c:"CRYPTO-PULSE", q:"BTC price stays above support?"}];
     nodes.forEach(n => {
         document.getElementById('betGrid').innerHTML += `<div class="bet-card">
-            <div style="font-size:10px; color:var(--neon-blue); font-weight:900;">${n.c}</div>
+            <div style="font-size:10px; color:var(--neon-blue); font-weight:900; letter-spacing:2px;">${n.c}</div>
             <div style="margin:12px 0; font-weight:600; font-size:16px;">${n.q}</div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.c}')">YES</button>
@@ -197,6 +210,13 @@
         document.getElementById('inputPhase').style.display = "block";
         document.getElementById('qrPhase').style.display = "none";
         document.getElementById('statusPhase').style.display = "none";
+        
+        // Dynamic Button Label
+        const btn = document.getElementById('primaryActionBtn');
+        if(t === 'DEPOSIT') btn.innerText = "GENERATE QR";
+        else if(t === 'WITHDRAW') btn.innerText = "REQUEST WITHDRAWAL";
+        else btn.innerText = "PLACE BET";
+
         document.getElementById('masterPopup').classList.add('active');
     };
 
@@ -204,7 +224,7 @@
         const amt = document.getElementById("userAmt").value;
         const bal = parseInt(document.getElementById("displayBalance").innerText);
         const title = document.getElementById("modalTitle").innerText;
-        if(!amt || amt <= 0) return alert("Credits required!");
+        if(!amt || amt <= 0) return alert("Enter Credits!");
 
         if(title === "DEPOSIT") {
             document.getElementById("inputPhase").style.display = "none";
@@ -222,16 +242,17 @@
                 }
             }, 1000);
         } else if(title === "WITHDRAW") {
-            if(parseInt(amt) > bal) return alert("Insufficient Credits!");
+            if(parseInt(amt) > bal) return alert("Insufficient Liquid Credits!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "WITHDRAW", time: serverTimestamp(), status: "PENDING" });
             document.getElementById("inputPhase").style.display = "none";
             document.getElementById("statusPhase").style.display = "block";
             document.getElementById("statusPhase").innerText = "WITHDRAWAL SYNCED WITH AUTHORITY";
             setTimeout(() => closePopup(), 3000);
         } else {
-            if(parseInt(amt) > bal) return alert("Insufficient Credits!");
+            if(parseInt(amt) > bal) return alert("Insufficient Liquid Credits!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - parseInt(amt) });
+            alert("BET PLACED SUCCESSFULLY ON " + (title.includes("YES") ? "YES" : "NO"));
             closePopup();
         }
     };
