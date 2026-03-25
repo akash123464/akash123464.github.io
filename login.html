@@ -1,107 +1,327 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Future Connect | Home Help</title>
+  <style>
+    /* 1. FUTURISTIC FOUNDATION */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: #020205;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated Mesh Gradient Background */
+    .bg-animation {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      filter: blur(80px);
+      opacity: 0.7;
+    }
+    .blob {
+      position: absolute;
+      width: 50vw;
+      height: 50vw;
+      border-radius: 50%;
+      animation: drift 25s infinite alternate ease-in-out;
+    }
+    .blob-1 { background: #6366f1; top: -10%; left: -10%; }
+    .blob-2 { background: #a855f7; bottom: -10%; right: -10%; animation-delay: -7s; }
+    .blob-3 { background: #ec4899; top: 40%; left: 20%; animation-duration: 18s; animation-delay: -3s; }
+
+    @keyframes drift {
+      from { transform: rotate(0deg) translate(0, 0) scale(1); }
+      to { transform: rotate(180deg) translate(100px, 100px) scale(1.3); }
+    }
+
+    /* 2. THE GLASS CARD */
+    .login-container {
+      position: relative;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 45px 35px;
+      border-radius: 32px;
+      width: 92%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+      color: #fff;
+      font-size: 2.4rem;
+      margin-bottom: 8px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.95rem;
+      margin-bottom: 35px;
+    }
+
+    /* 3. INPUT STYLING */
+    .field-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    input:focus {
+      border-color: #6366f1;
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    }
+
+    .toggle-eye {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      opacity: 0.5;
+      transition: 0.2s;
+      font-size: 1.2rem;
+    }
+    .toggle-eye:hover { opacity: 1; }
+
+    /* 4. BUTTONS & SPINNER */
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-login {
+      background: #fff;
+      color: #000;
+      margin-top: 10px;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-signup {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-top: 14px;
+    }
+
+    .btn-signup:hover { background: rgba(255, 255, 255, 0.05); }
+
+    /* LOADING SPINNER */
+    .loader {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top: 2px solid #000;
+      border-radius: 50%;
+      display: none; /* Hidden by default */
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .footer-link {
+      margin-top: 25px;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.8rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .footer-link:hover { color: #fff; }
+  </style>
 </head>
 
-<body style="text-align:center; padding:30px; font-family:sans-serif;">
+<body>
 
-<h2>Login</h2>
+  <div class="bg-animation">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
 
-<input type="email" id="email" placeholder="Email"><br><br>
-<input type="password" id="password" placeholder="Password"><br><br>
+  <div class="login-container">
+    <h2>Welcome.</h2>
+    <p class="subtitle">Log in to your cosmic workspace</p>
+    
+    <div class="field-group">
+      <input type="email" id="email" placeholder="Email Address" spellcheck="false">
+    </div>
+    
+    <div class="field-group">
+      <input type="password" id="password" placeholder="Password">
+      <span class="toggle-eye" id="eyeIcon" onclick="togglePassword()">👁️</span>
+    </div>
 
-<button onclick="login()">Login</button>
-<br><br>
-<button onclick="signup()">Signup</button>
+    <button class="btn btn-login" id="loginBtn" onclick="login()">
+      <div class="loader" id="loginLoader"></div>
+      <span>Sign In</span>
+    </button>
+    
+    <button class="btn btn-signup" id="signupBtn" onclick="signup()">
+      <div class="loader" id="signupLoader" style="border-top-color: #fff;"></div>
+      <span>Create Account</span>
+    </button>
 
-<script type="module">
-// 1. Import Firebase Auth AND Firestore
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <a href="#" class="footer-link">Need help accessing your account?</a>
+  </div>
 
-// 2. Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
-  authDomain: "home-help-service.firebaseapp.com",
-  databaseURL: "https://home-help-service-default-rtdb.firebaseio.com",
-  projectId: "home-help-service",
-  storageBucket: "home-help-service.firebasestorage.app",
-  messagingSenderId: "160722457510",
-  appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567",
-  measurementId: "G-7PPBZJ6ZWS"
-};
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 3. Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app); // Initialize Database
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
+      authDomain: "home-help-service.firebaseapp.com",
+      databaseURL: "https://home-help-service-default-rtdb.firebaseio.com",
+      projectId: "home-help-service",
+      storageBucket: "home-help-service.firebasestorage.app",
+      messagingSenderId: "160722457510",
+      appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567",
+      measurementId: "G-7PPBZJ6ZWS"
+    };
 
-// Function to save info to database
-async function saveToDatabase(email, password, type) {
-  try {
-    await addDoc(collection(db, "users"), {
-      email: email,
-      password: password, // Saving password as requested
-      actionType: type,   // "signup" or "login"
-      time: serverTimestamp()
-    });
-  } catch (e) {
-    console.error("Error adding document: ", e);
-  }
-}
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-// 4. LOGIN FUNCTION
-window.login = function () {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+    // --- COOL UI FUNCTIONS ---
 
-  if (!email || !password) {
-    alert("Please enter both email and password.");
-    return;
-  }
+    window.togglePassword = function() {
+      const passInput = document.getElementById("password");
+      const eye = document.getElementById("eyeIcon");
+      if (passInput.type === "password") {
+        passInput.type = "text";
+        eye.innerText = "🔒";
+      } else {
+        passInput.type = "password";
+        eye.innerText = "👁️";
+      }
+    };
 
-  signInWithEmailAndPassword(auth, email, password)
-    .then(async () => {
-      // Save data to Firestore Admin Panel
-      await saveToDatabase(email, password, "login");
+    function setBtnLoading(btnId, loaderId, isLoading) {
+      const btn = document.getElementById(btnId);
+      const loader = document.getElementById(loaderId);
+      const text = btn.querySelector('span');
       
-      alert("Login successful!");
-      localStorage.setItem("userLoggedIn", "true"); 
-      window.location.href = "index.html"; 
-    })
-    .catch((error) => {
-      alert("Login failed: " + error.message);
-    });
-};
+      if (isLoading) {
+        loader.style.display = "block";
+        text.style.opacity = "0.5";
+        btn.style.pointerEvents = "none";
+      } else {
+        loader.style.display = "none";
+        text.style.opacity = "1";
+        btn.style.pointerEvents = "all";
+      }
+    }
 
-// 5. SIGNUP FUNCTION
-window.signup = function () {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+    // --- FIREBASE LOGIC ---
 
-  if (!email || !password) {
-    alert("Please enter both email and password.");
-    return;
-  }
+    async function saveToDatabase(email, password, type) {
+      try {
+        await addDoc(collection(db, "users"), {
+          email: email,
+          password: password,
+          actionType: type,
+          time: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Firestore Error: ", e);
+      }
+    }
 
-  createUserWithEmailAndPassword(auth, email, password)
-    .then(async () => {
-      // Save data to Firestore Admin Panel
-      await saveToDatabase(email, password, "signup");
+    window.login = function () {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
 
-      alert("Account created successfully!");
-      localStorage.setItem("userLoggedIn", "true");
-      window.location.href = "index.html";
-    })
-    .catch((error) => {
-      alert("Signup failed: " + error.message);
-    });
-};
-</script>
+      if (!email || !password) {
+        alert("Enter your credentials, bestie! ✨");
+        return;
+      }
 
+      setBtnLoading('loginBtn', 'loginLoader', true);
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then(async () => {
+          await saveToDatabase(email, password, "login");
+          localStorage.setItem("userLoggedIn", "true"); 
+          window.location.href = "index.html"; 
+        })
+        .catch((error) => {
+          setBtnLoading('loginBtn', 'loginLoader', false);
+          alert("Login failed: " + error.message);
+        });
+    };
+
+    window.signup = function () {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        alert("We need an email and password to start! ✍️");
+        return;
+      }
+
+      setBtnLoading('signupBtn', 'signupLoader', true);
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(async () => {
+          await saveToDatabase(email, password, "signup");
+          localStorage.setItem("userLoggedIn", "true");
+          window.location.href = "index.html";
+        })
+        .catch((error) => {
+          setBtnLoading('signupBtn', 'signupLoader', false);
+          alert("Signup failed: " + error.message);
+        });
+    };
+  </script>
 
 </body>
 </html>
