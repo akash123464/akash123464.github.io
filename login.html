@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WISHWORK | NEXUS LOGIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
     <style>
@@ -10,10 +10,12 @@
             --neon-blue: #00f2ff; 
             --neon-purple: #bc13fe; 
             --neon-pink: #ff007a;
-            --glass: rgba(255, 255, 255, 0.05);
+            --fire-orange: #ff4d00;
+            --glass: rgba(255, 255, 255, 0.07);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
         
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+
         body { 
             background: #020205; 
             height: 100vh; 
@@ -22,8 +24,9 @@
             align-items: center; 
             justify-content: center; 
             color: white; 
-            overflow: hidden; 
-            position: relative;
+            overflow: hidden; /* Prevents whole page scroll */
+            position: fixed; /* Fixes the "vanishing box" on mobile swipe */
+            touch-action: pan-y;
         }
 
         /* ANIMATED BACKGROUND GRID */
@@ -42,49 +45,60 @@
         }
         @keyframes grid-move { from { transform: perspective(500px) rotateX(60deg) translateY(0); } to { transform: perspective(500px) rotateX(60deg) translateY(40px); } }
 
+        /* THE CONTAINER (To keep Popups and Box together) */
+        .main-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
         /* THE BREATHING GLASS BOX */
         .login-box {
             background: var(--glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             padding: 35px;
-            border-radius: 25px;
+            border-radius: 30px;
             width: 90%;
             max-width: 380px;
-            max-height: 90vh; /* Keeps it inside the screen */
-            overflow-y: auto; /* Adds scroll inside box if content is too tall */
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
             animation: breathe 5s ease-in-out infinite;
+            position: relative;
         }
 
         @keyframes breathe {
-            0%, 100% { border-color: rgba(0, 242, 255, 0.2); box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); }
-            50% { border-color: rgba(188, 19, 254, 0.4); box-shadow: 0 0 40px rgba(188, 19, 254, 0.2); }
+            0%, 100% { border-color: rgba(0, 242, 255, 0.3); box-shadow: 0 0 30px rgba(0, 242, 255, 0.15); }
+            50% { border-color: var(--neon-pink); box-shadow: 0 0 50px rgba(255, 0, 122, 0.2); }
         }
 
         h2 { 
             font-weight: 900; 
-            letter-spacing: 3px; 
+            letter-spacing: 4px; 
             margin-bottom: 8px; 
-            background: linear-gradient(to right, var(--neon-blue), #fff, var(--neon-purple));
+            background: linear-gradient(to right, var(--neon-blue), #fff, var(--fire-orange));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
         }
-        .mode-text { font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 25px; font-weight: 800; letter-spacing: 2px; }
+        
+        .mode-text { font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 25px; font-weight: 800; letter-spacing: 2px; }
 
         input {
             width: 100%; padding: 15px; margin-bottom: 15px;
-            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px; color: white; outline: none; transition: 0.3s;
             font-size: 14px;
         }
         input:focus { 
             border-color: var(--neon-blue); 
-            background: rgba(0,0,0,0.6);
-            box-shadow: 0 0 15px rgba(0,242,255,0.2);
+            background: rgba(0,0,0,0.7);
+            box-shadow: 0 0 15px rgba(0,242,255,0.3);
         }
 
         .btn {
@@ -93,12 +107,12 @@
             transition: 0.3s; margin-top: 5px; font-size: 13px;
         }
         .login-btn { 
-            background: #fff; 
+            background: linear-gradient(45deg, #fff, var(--neon-blue)); 
             color: #000; 
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(0, 242, 255, 0.3);
         }
-        .login-btn:hover { background: var(--neon-blue); transform: translateY(-2px); }
-        
+        .login-btn:hover { transform: translateY(-2px); filter: brightness(1.2); }
+
         .signup-btn { 
             background: transparent; 
             color: #fff; 
@@ -107,53 +121,82 @@
         }
         .signup-btn:hover { border-color: var(--neon-purple); background: rgba(188, 19, 254, 0.1); }
 
+        /* FORGOT PASSWORD LINK */
+        .forgot-link {
+            display: block;
+            margin-top: 20px;
+            font-size: 11px;
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        .forgot-link:hover { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
+
         /* LOADER */
         .loader-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
         }
         .wheel {
             width: 50px; height: 50px;
             border: 3px solid rgba(255,255,255,0.05);
             border-top: 3px solid var(--neon-blue);
-            border-bottom: 3px solid var(--neon-purple);
+            border-bottom: 3px solid var(--fire-orange);
             border-radius: 50%;
             animation: spin 1s infinite linear;
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .sync-text { margin-top: 15px; font-weight: 800; font-size: 11px; color: var(--neon-blue); letter-spacing: 3px; }
 
-        /* POPUP */
+        /* FIXED POPUP - NOW ATTACHED TO TOP OF BOX AREA */
         #customAlert {
-            display: none; position: fixed; top: 30px; padding: 15px 30px;
-            background: rgba(0,0,0,0.8); border-left: 4px solid var(--neon-pink);
-            backdrop-filter: blur(10px); border-radius: 8px; color: #fff;
-            z-index: 2000; font-size: 12px; font-weight: 900; letter-spacing: 1px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.4s ease-out;
+            display: none; 
+            margin-bottom: 15px;
+            padding: 12px 25px;
+            background: rgba(255, 0, 122, 0.15); 
+            border: 1px solid var(--neon-pink);
+            backdrop-filter: blur(10px); 
+            border-radius: 12px; 
+            color: #fff;
+            font-size: 11px; 
+            font-weight: 900; 
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(255, 0, 122, 0.2); 
+            animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            text-align: center;
+            width: 90%;
+            max-width: 380px;
         }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="bg-grid"></div>
 
-<div id="customAlert">ACCESS DENIED: CREATE ACCOUNT FIRST</div>
-
 <div id="loader" class="loader-overlay">
     <div class="wheel"></div>
     <div class="sync-text">SYNCING NEXUS...</div>
 </div>
 
-<div class="login-box">
-    <h2>WISHWORK</h2>
-    <p class="mode-text">SYSTEM ACCESS TERMINAL</p>
+<div class="main-container">
+    <div id="customAlert">ACCESS DENIED: CREATE ACCOUNT FIRST</div>
 
-    <input type="email" id="email" placeholder="EMAIL ADDRESS">
-    <input type="password" id="password" placeholder="PASSWORD">
+    <div class="login-box">
+        <h2>WISHWORK</h2>
+        <p class="mode-text">SYSTEM ACCESS TERMINAL</p>
 
-    <button class="btn login-btn" onclick="handleAuth('LOGIN')">SIGN IN</button>
-    <button class="btn signup-btn" onclick="handleAuth('SIGNUP')">CREATE ACCOUNT</button>
+        <input type="email" id="email" placeholder="EMAIL ADDRESS" spellcheck="false">
+        <input type="password" id="password" placeholder="PASSWORD">
+
+        <button class="btn login-btn" onclick="handleAuth('LOGIN')">SIGN IN</button>
+        <button class="btn signup-btn" onclick="handleAuth('SIGNUP')">CREATE ACCOUNT</button>
+
+        <a href="https://t.me/WISHWORKONLINE" target="_blank" class="forgot-link">Forgot Password?</a>
+    </div>
 </div>
 
 <script type="module">
@@ -177,7 +220,7 @@
     function showPopup() {
         const popup = document.getElementById("customAlert");
         popup.style.display = "block";
-        setTimeout(() => { popup.style.display = "none"; }, 3000);
+        setTimeout(() => { popup.style.display = "none"; }, 4000);
     }
 
     window.handleAuth = async (mode) => {
@@ -185,7 +228,10 @@
         const password = document.getElementById("password").value;
         const loader = document.getElementById("loader");
 
-        if(!email || !password) return alert("Credentials required!");
+        if(!email || !password) {
+            alert("Protocol Error: Credentials required!");
+            return;
+        }
 
         loader.style.display = "flex";
 
@@ -211,7 +257,8 @@
 
         } catch (err) {
             loader.style.display = "none";
-            if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+            // Trigger the custom popup for login errors
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
                 showPopup();
             } else {
                 alert("Protocol Error: " + err.message);
