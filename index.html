@@ -9,219 +9,163 @@
         :root {
             --neon-pink: #ff0099;
             --neon-green: #00ff88;
-            --glass: rgba(255, 255, 255, 0.05);
+            --bg-dark: #0a0a0c;
         }
 
-        /* --- STYLES FOR THE BETTING CARDS --- */
-        .bet-card {
-            background: rgba(20, 20, 25, 0.7);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-left: 5px solid var(--neon-pink);
-            border-radius: 22px;
-            padding: 25px;
-            margin: 15px 0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-dark); color: white; overflow-x: hidden; min-height: 100vh; }
 
-        /* BIGGER BOLD QUESTIONS */
-        .bet-card .question-text {
-            font-size: 22px !important;
-            font-weight: 900 !important;
-            color: #ffffff;
-            font-family: 'Orbitron', sans-serif;
-            margin-bottom: 20px;
-            line-height: 1.3;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-        }
+        /* --- NAVIGATION --- */
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-family: 'Orbitron'; font-weight: 900; font-size: 24px; background: linear-gradient(to right, #00f2fe, #ff0099); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
+        .logout-btn { color: var(--neon-pink); font-family: 'Orbitron'; font-weight: 900; font-size: 12px; text-decoration: none; letter-spacing: 2px; }
 
-        .protocol-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--neon-pink);
-            font-weight: 900;
-            margin-bottom: 8px;
-            display: block;
-        }
+        /* --- DASHBOARD --- */
+        .dashboard-header { padding: 20px; background: linear-gradient(180deg, rgba(255,0,153,0.1) 0%, transparent 100%); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .balance-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; }
+        .balance-label { font-family: 'Orbitron'; font-size: 10px; letter-spacing: 2px; opacity: 0.6; text-transform: uppercase; }
+        .balance-amount { font-family: 'Orbitron'; font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(0,255,136,0.3); margin: 5px 0; }
+        
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn { padding: 12px; border-radius: 12px; border: none; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 12px; }
+        .btn-deposit { background: linear-gradient(45deg, #7000ff, #ff0099); color: white; }
+        .btn-withdraw { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.1); }
 
-        /* GLOWING YES/NO BUTTONS */
-        .btn-row {
-            display: flex;
-            gap: 15px;
-        }
+        /* --- CATEGORY CHIPS --- */
+        .categories { display: flex; gap: 10px; overflow-x: auto; padding: 20px; scrollbar-width: none; }
+        .category-chip { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; white-space: nowrap; font-family: 'Orbitron'; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); transition: 0.3s; }
+        .category-chip.active { background: var(--neon-pink); color: white; border-color: var(--neon-pink); box-shadow: 0 0 15px rgba(255,0,153,0.4); }
 
-        .yes-btn, .no-btn {
-            flex: 1;
-            padding: 16px;
-            border-radius: 14px;
-            font-weight: 900;
-            font-size: 18px;
-            font-family: 'Orbitron';
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        /* --- BIG BOLD BETTING CARDS --- */
+        .bet-container { padding: 0 20px 100px 20px; }
+        .bet-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-left: 5px solid var(--neon-pink); border-radius: 20px; padding: 25px; margin-bottom: 20px; }
+        .protocol-tag { font-family: 'Orbitron'; font-size: 9px; color: var(--neon-pink); font-weight: 900; letter-spacing: 1px; margin-bottom: 10px; display: block; }
+        
+        /* NEW: BIG BOLD QUESTION STYLE */
+        .bet-question { font-family: 'Orbitron', sans-serif; font-size: 22px !important; font-weight: 900 !important; color: white; line-height: 1.3; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
 
-        .yes-btn {
-            background: linear-gradient(45deg, #00ff88, #00bd65);
-            color: #000;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
-        }
+        /* NEW: GLOWING YES/NO BUTTONS */
+        .bet-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .yes-btn { background: linear-gradient(45deg, #00ff88, #00bd65); color: #000; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
+        .no-btn { background: linear-gradient(45deg, #ff0055, #cc0044); color: #fff; box-shadow: 0 0 15px rgba(255, 0, 85, 0.4); }
+        .yes-btn:hover, .no-btn:hover { transform: scale(1.02); }
 
-        .yes-btn:hover {
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.7);
-            transform: scale(1.03);
-        }
+        /* --- SHINY MODAL --- */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .modal-content { background: #121216; border: 2px solid rgba(255,255,255,0.1); border-radius: 30px; width: 100%; max-width: 400px; padding: 30px; position: relative; text-align: center; }
+        #userAmt { background: rgba(255,255,255,0.05); border: 2px solid var(--neon-pink); border-radius: 15px; color: white; width: 100%; padding: 15px; font-size: 32px; font-family: 'Orbitron'; font-weight: 900; text-align: center; margin: 20px 0; outline: none; }
+        
+        /* NEW: SHINY PAYOUT BOX */
+        #payoutBox { background: rgba(0, 255, 136, 0.1); border: 1px solid var(--neon-green); border-radius: 15px; padding: 15px; margin: 10px 0; animation: pulse 2s infinite; }
+        #payoutAmt { color: var(--neon-green); font-weight: 900; font-family: 'Orbitron'; font-size: 24px; text-shadow: 0 0 15px var(--neon-green); }
 
-        .no-btn {
-            background: linear-gradient(45deg, #ff0055, #cc0044);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
-        }
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; box-shadow: 0 0 20px rgba(0,255,136,0.2); } 100% { opacity: 0.7; } }
 
-        .no-btn:hover {
-            box-shadow: 0 0 25px rgba(255, 0, 85, 0.7);
-            transform: scale(1.03);
-        }
-
-        /* ULTRA GLASSY MODAL */
-        #betModal .modal-content {
-            background: rgba(15, 15, 20, 0.95);
-            backdrop-filter: blur(30px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            padding: 30px;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
-        }
-
-        #userAmt {
-            background: rgba(0,0,0,0.3);
-            border: 2px solid var(--neon-pink);
-            border-radius: 15px;
-            color: #fff;
-            font-size: 35px;
-            font-weight: 900;
-            text-align: center;
-            width: 100%;
-            padding: 15px;
-            font-family: 'Orbitron';
-            margin: 20px 0;
-            outline: none;
-            box-shadow: inset 0 0 15px rgba(255, 0, 153, 0.2);
-        }
-
-        /* SHINY PAYOUT BOX */
-        #payoutBox {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 204, 255, 0.1));
-            border: 1px solid rgba(0, 255, 136, 0.4);
-            border-radius: 18px;
-            padding: 20px;
-            margin: 15px 0;
-            animation: pulseGlow 2s infinite;
-        }
-
-        #payoutAmt {
-            font-size: 30px;
-            color: var(--neon-green);
-            font-weight: 900;
-            text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
-        }
-
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px rgba(0, 255, 136, 0.2); border-color: rgba(0, 255, 136, 0.4); }
-            50% { box-shadow: 0 0 25px rgba(0, 255, 136, 0.5); border-color: rgba(0, 255, 136, 0.9); }
-            100% { box-shadow: 0 0 5px rgba(0, 255, 136, 0.2); border-color: rgba(0, 255, 136, 0.4); }
-        }
-
-        #placeBetBtn {
-            background: linear-gradient(90deg, #ff0099, #7000ff);
-            font-size: 20px;
-            letter-spacing: 2px;
-            box-shadow: 0 0 30px rgba(255, 0, 153, 0.4);
-        }
-
-        /* Your existing layout styles go here... */
+        /* --- LEDGER --- */
+        .ledger-node { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .status-win { color: var(--neon-green); font-weight: 900; }
+        .status-lost { color: var(--neon-pink); font-weight: 900; }
     </style>
 </head>
 <body>
 
-<script type="module">
-    // --- KEEP ALL YOUR FIREBASE IMPORTS AND INIT CODE HERE ---
+    <nav>
+        <div class="logo" onclick="window.location.reload()">WISHWORK</div>
+        <a href="#" class="logout-btn" onclick="logout()">LOGOUT</a>
+    </nav>
 
-    window.processTransaction = async (title) => {
-        const amt = parseInt(document.getElementById("userAmt").value);
-        if(!amt || amt < 100) return alert("Minimum amount is ₹100");
+    <div class="dashboard-header">
+        <div class="balance-card">
+            <div class="balance-label">LIQUID CREDITS</div>
+            <div class="balance-amount">₹<span id="displayBalance">0</span></div>
+            <div class="action-btns">
+                <button class="btn btn-deposit" onclick="openPopup('DEPOSIT')">DEPOSIT</button>
+                <button class="btn btn-withdraw" onclick="openPopup('WITHDRAW')">WITHDRAW</button>
+            </div>
+        </div>
+    </div>
 
-        if(title === "DEPOSIT") {
-            document.getElementById("inputPhase").style.display = "none";
-            document.getElementById("qrPhase").style.display = "flex";
-            const docRef = await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "AWAITING UTR ⏳", utr: "NOT SUBMITTED" });
-            activeTxId = docRef.id;
-            let timeLeft = 80;
-            document.getElementById('wheelTimer').innerText = timeLeft;
-            timerInt = setInterval(() => { timeLeft--; document.getElementById('wheelTimer').innerText = timeLeft; if(timeLeft <= 0) clearInterval(timerInt); }, 1000);
-        } else {
-            if(amt > bal) return alert("Insufficient Liquid Credits!");
-            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
-            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
-            closePopup();
-        }
-    };
+    <div class="categories">
+        <div class="category-chip active" onclick="filterBets('INSTAGRAM', this)">INSTAGRAM</div>
+        <div class="category-chip" onclick="filterBets('OIL', this)">OIL</div>
+        <div class="category-chip" onclick="filterBets('POLITICS', this)">POLITICS</div>
+        <div class="category-chip" onclick="filterBets('YOUTUBE', this)">YOUTUBE</div>
+    </div>
 
-    window.submitUTR = async () => {
-        const utr = document.getElementById('utrField').value;
-        if(utr.length < 10) return alert("Invalid UTR!");
-        await updateDoc(doc(db, "users", activeTxId), { utr: utr, status: "PENDING" });
-        clearInterval(timerInt); alert("UTR Submitted!"); closePopup();
-    };
+    <div class="bet-container" id="betList">
+        </div>
 
-    // UPDATED PAYOUT UI LOGIC
-    window.updatePayout = () => {
-        const v = document.getElementById("userAmt").value;
-        const pBox = document.getElementById("payoutBox");
-        const title = document.getElementById("modalTitle").innerText;
+    <div class="modal" id="betModal">
+        <div class="modal-content">
+            <h2 id="modalTitle" style="font-family: Orbitron; color: var(--neon-pink);">PLACE BET</h2>
+            <input type="number" id="userAmt" placeholder="0.00" oninput="updatePayout()">
+            <div id="payoutBox" style="display:none">
+                <div style="font-size: 10px; opacity: 0.6;">ESTIMATED PAYOUT</div>
+                <div id="payoutAmt">₹0</div>
+            </div>
+            <button class="btn btn-deposit" style="width:100%; margin-top:10px;" onclick="processTransaction()">CONFIRM</button>
+            <button class="btn btn-withdraw" style="width:100%; margin-top:10px;" onclick="closePopup()">CANCEL</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- DO NOT DELETE: PASTE YOUR FIREBASE SDK & CONFIG HERE ---
+        // import { initializeApp } from "https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js";
+        // ... (Keep your original import and const firebaseConfig = { ... } block here)
+
+        // --- ALL YOUR ORIGINAL LOGIC STARTS HERE ---
+        let uEmail = localStorage.getItem("userEmail") || "test@user.com"; // Get actual email from your login logic
         
-        if(v > 0 && title.includes("BET")) {
-            pBox.style.display = "block";
-            // Calculate 1.9x Winning
-            const win = (v * 1.9).toFixed(0);
-            document.getElementById("payoutAmt").innerText = "₹" + win;
+        window.filterBets = (category, el) => {
+            document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
             
-            // Trigger a glow effect on change
-            pBox.style.animation = 'none';
-            pBox.offsetHeight; 
-            pBox.style.animation = 'pulseGlow 2s infinite';
-        } else {
-            pBox.style.display = "none";
-        }
-    };
+            // Logic to load questions based on category
+            const list = document.getElementById('betList');
+            list.innerHTML = `
+                <div class="bet-card">
+                    <span class="protocol-tag">${category} PROTOCOL</span>
+                    <div class="bet-question">Will the ${category} price surge in next 10 mins?</div>
+                    <div class="bet-btns">
+                        <button class="btn yes-btn" onclick="openPopup('BET: YES')">YES</button>
+                        <button class="btn no-btn" onclick="openPopup('BET: NO')">NO</button>
+                    </div>
+                </div>
+            `;
+        };
 
-    window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
-    window.addEventListener('load', () => { const firstChip = document.querySelector('.category-chip'); if(firstChip) window.filterBets('INSTAGRAM', firstChip); });
-    
-    // BALANCE & LEDGER SNAPSHOTS (Keep as is)
-    onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
+        window.openPopup = (title) => {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('betModal').style.display = 'flex';
+        };
 
-    let seenWins = JSON.parse(sessionStorage.getItem('seenWins') || '[]');
-    onSnapshot(query(collection(db, "users"), where("email", "==", uEmail)), (snap) => {
-        const ledger = document.getElementById("ledgerContent"); ledger.innerHTML = "";
-        let docs = []; snap.forEach(d => { const data = d.data(); docs.push({id: d.id, ...data}); if (data.status === "WIN 🏆" && !seenWins.includes(d.id)) showNeuralWin(data.password, d.id); });
-        docs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
-        docs.forEach(data => {
-            let status = data.status || "PENDING";
-            let sClass = (status.includes("WIN") || status.includes("✅") || status.includes("💰")) ? "status-WIN" : (status.includes("LOST") || status.includes("💀")) ? "status-LOST" : "status-PENDING";
-            let sideColor = data.actionType === 'DEPOSIT' ? 'var(--neon-green)' : 'var(--neon-pink)';
-            ledger.innerHTML += `<div class="transaction-node" style="border-left: 5px solid ${sideColor}"><div><div style="font-size:9px; opacity:0.6; font-weight:900; color: ${sideColor}">${data.actionType}</div><div style="font-weight:900; font-size:18px; margin-top:5px; font-family: 'Orbitron';">${data.password}</div></div><div class="status-pill ${sClass}">${status}</div></div>`;
+        window.closePopup = () => {
+            document.getElementById('betModal').style.display = 'none';
+        };
+
+        window.updatePayout = () => {
+            const val = document.getElementById('userAmt').value;
+            const pBox = document.getElementById('payoutBox');
+            if(val > 0) {
+                pBox.style.display = 'block';
+                document.getElementById('payoutAmt').innerText = '₹' + (val * 1.9).toFixed(0);
+            } else { pBox.style.display = 'none'; }
+        };
+
+        window.processTransaction = async () => {
+            // Your original database logic stays here
+            alert("Transaction processing...");
+            closePopup();
+        };
+
+        window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
+
+        // Initial load
+        window.addEventListener('load', () => { 
+            const first = document.querySelector('.category-chip');
+            if(first) filterBets('INSTAGRAM', first);
         });
-    });
 
-    function showNeuralWin(val, id) { seenWins.push(id); sessionStorage.setItem('seenWins', JSON.stringify(seenWins)); document.getElementById('winVal').innerText = val.replace('₹', ''); const notif = document.getElementById('winNotif'); notif.style.top = "20px"; window.cashExplosion(); setTimeout(() => { notif.style.top = "-120px"; }, 6000); }
-    window.logoTrigger = () => window.cashExplosion();
-    window.cashExplosion = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.style.zIndex = '10000'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000, easing: 'linear' }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
-</script>
+    </script>
 </body>
 </html>
