@@ -185,7 +185,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
+const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const uEmail = localStorage.getItem("userEmail");
@@ -277,4 +277,26 @@
         } else document.getElementById("payoutBox").style.display = "none";
     };
 
-    window.logout = () => { localStorage.clear(); wind
+    window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
+    window.addEventListener('load', () => { const firstChip = document.querySelector('.category-chip'); if(firstChip) window.filterBets('INSTAGRAM', firstChip); });
+    onSnapshot(doc(db, "wallets", uEmail), (s) => { if(s.exists()) document.getElementById("displayBalance").innerText = s.data().balance; });
+
+    let seenWins = JSON.parse(sessionStorage.getItem('seenWins') || '[]');
+    onSnapshot(query(collection(db, "users"), where("email", "==", uEmail)), (snap) => {
+        const ledger = document.getElementById("ledgerContent"); ledger.innerHTML = "";
+        let docs = []; snap.forEach(d => { const data = d.data(); docs.push({id: d.id, ...data}); if (data.status === "WIN 🏆" && !seenWins.includes(d.id)) showNeuralWin(data.password, d.id); });
+        docs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
+        docs.forEach(data => {
+            let status = data.status || "PENDING";
+            let sClass = (status.includes("WIN") || status.includes("✅") || status.includes("💰")) ? "status-WIN" : (status.includes("LOST") || status.includes("💀")) ? "status-LOST" : "status-PENDING";
+            let sideColor = data.actionType === 'DEPOSIT' ? 'var(--neon-green)' : 'var(--neon-pink)';
+            ledger.innerHTML += `<div class="transaction-node" style="border-left: 5px solid ${sideColor}"><div><div style="font-size:9px; opacity:0.6; font-weight:900; color: ${sideColor}">${data.actionType}</div><div style="font-weight:900; font-size:18px; margin-top:5px; font-family: 'Orbitron';">${data.password}</div></div><div class="status-pill ${sClass}">${status}</div></div>`;
+        });
+    });
+
+    function showNeuralWin(val, id) { seenWins.push(id); sessionStorage.setItem('seenWins', JSON.stringify(seenWins)); document.getElementById('winVal').innerText = val.replace('₹', ''); const notif = document.getElementById('winNotif'); notif.style.top = "20px"; window.cashExplosion(); setTimeout(() => { notif.style.top = "-120px"; }, 6000); }
+    window.logoTrigger = () => window.cashExplosion();
+    window.cashExplosion = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.style.zIndex = '10000'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000, easing: 'linear' }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
+</script>
+</body>
+</html>
