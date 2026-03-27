@@ -7,10 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --neon-blue: #00f2ff; --neon-pink: #ff007a; --neon-purple: #7000ff; --neon-green: #38ef7d; --bg-dark: #020205; }
+        :root { --neon-blue: #00f2ff; --neon-pink: #ff007a; --neon-purple: #7000ff; --neon-green: #38ef7d; --neon-gold: #f1c40f; --bg-dark: #020205; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
         body { background: var(--bg-dark); color: white; padding: 20px; background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(225,39%,30%,1) 0, transparent 50%); min-height: 100vh; }
-        
+
         /* LOGIN SCREEN STYLES */
         #auth-gate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 10000; display: flex; justify-content: center; align-items: center; }
         .login-box { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 30px; border: 1px solid var(--neon-blue); text-align: center; box-shadow: 0 0 30px rgba(0,242,255,0.2); width: 90%; max-width: 400px; }
@@ -18,7 +18,7 @@
         .login-box input { width: 100%; padding: 15px; margin: 10px 0; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none; }
         .login-box button { width: 100%; padding: 15px; background: var(--neon-blue); border: none; border-radius: 12px; color: #000; font-weight: 900; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         .login-box button:hover { box-shadow: 0 0 20px var(--neon-blue); }
-        
+
         /* DASHBOARD (Hidden until login) */
         #main-content { display: none; }
 
@@ -86,12 +86,12 @@
         messagingSenderId: "160722457510", 
         appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" 
     };
-    
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // SECURITY CHECK (Updated Email)
+    // SECURITY CHECK
     const myEmail = "bhadouryaakash@gmail.com";
 
     onAuthStateChanged(auth, (user) => {
@@ -115,8 +115,17 @@
 
     window.logout = () => signOut(auth);
 
+    // CACHE USER WALLETS FOR QUICK UPI LOOKUP
+    let walletCache = {};
+
     // DASHBOARD LOGIC
     function startDashboard() {
+        // 1. Sync all wallets so we know everyone's UPI IDs
+        onSnapshot(collection(db, "wallets"), (snap) => {
+            snap.forEach(doc => { walletCache[doc.id] = doc.data(); });
+        });
+
+        // 2. Load the main transactions table
         onSnapshot(query(collection(db, "users"), orderBy("time", "desc")), (snap) => {
             const body = document.getElementById("adminBody");
             let html = ""; let auths = 0, bets = 0;
@@ -128,6 +137,17 @@
                 const date = data.time ? new Date(data.time.seconds * 1000).toLocaleString() : "Syncing...";
                 if(type.includes("LOG")) auths++; else bets++;
                 let tagClass = `tag-${type.toLowerCase().split(' ')[0]}`;
+
+                // Fetch UPI details if it's a WITHDRAWAL
+                let upiDetails = "";
+                if (type === "WITHDRAW") {
+                    let wData = walletCache[data.email];
+                    if (wData && wData.upiId && wData.phone) {
+                        upiDetails = `<br><small style="color:var(--neon-gold); font-weight:900; letter-spacing:1px;"><i class="fa-solid fa-building-columns"></i> ${wData.upiId} <br><i class="fa-solid fa-phone"></i> ${wData.phone}</small>`;
+                    } else {
+                        upiDetails = `<br><small style="color:var(--neon-pink); font-weight:900;">⚠️ NO UPI SAVED</small>`;
+                    }
+                }
 
                 let actions = "";
                 if (data.status === "PENDING" || data.status === "AWAITING UTR ⏳") {
@@ -141,6 +161,7 @@
                         <div style="color:var(--neon-blue); cursor:pointer;" onclick="setB('${data.email}')">${data.email}</div>
                         <span style="font-size:10px; opacity:0.3;">${date}</span>
                         ${utr}
+                        ${upiDetails}
                     </td>
                     <td><code style="background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:8px;">${data.password}</code></td>
                     <td><span class="tag ${tagClass}">${type}</span></td>
@@ -159,7 +180,7 @@
         const amt = parseInt(v.replace(/[^\d]/g, ''));
         const snap = await getDoc(doc(db, "wallets", e));
         const cur = snap.exists() ? snap.data().balance : 0;
-        await setDoc(doc(db, "wallets", e), { balance: cur + amt });
+        await setDoc(doc(db, "wallets", e), { balance: cur + amt, upiId: snap.data().upiId || "", phone: snap.data().phone || "" });
         await updateDoc(doc(db, "users", id), { status: "COMPLETED ✅" });
         alert("Deposit Added!");
     };
@@ -169,14 +190,17 @@
         const snap = await getDoc(doc(db, "wallets", e));
         const cur = snap.exists() ? snap.data().balance : 0;
         if(amt > cur) return alert("Insufficient user balance!");
-        await setDoc(doc(db, "wallets", e), { balance: cur - amt });
+        await setDoc(doc(db, "wallets", e), { balance: cur - amt, upiId: snap.data().upiId || "", phone: snap.data().phone || "" });
         await updateDoc(doc(db, "users", id), { status: "PAID 💰" });
         alert("Withdrawal Processed!");
     };
 
     window.setB = async (e) => {
         const v = prompt(`Set wallet for ${e}:`);
-        if(v) await setDoc(doc(db, "wallets", e), { balance: parseInt(v) });
+        if(v) {
+             const snap = await getDoc(doc(db, "wallets", e));
+             await setDoc(doc(db, "wallets", e), { balance: parseInt(v), upiId: snap.exists() ? snap.data().upiId || "" : "", phone: snap.exists() ? snap.data().phone || "" : "" });
+        }
     };
 
     window.res = async (id, s, e, v) => {
@@ -185,7 +209,7 @@
         if(s === "WIN 🏆") {
             const snap = await getDoc(doc(db, "wallets", e));
             const cur = snap.exists() ? snap.data().balance : 0;
-            await setDoc(doc(db, "wallets", e), { balance: cur + (amt * 2) });
+            await setDoc(doc(db, "wallets", e), { balance: cur + (amt * 2), upiId: snap.data().upiId || "", phone: snap.data().phone || "" });
         }
     };
 
