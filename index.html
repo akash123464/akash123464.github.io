@@ -205,11 +205,18 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    // 1. ADDED THE AUTHENTICATION IMPORT
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
     const app = initializeApp(firebaseConfig);
+    
+    // 2. INITIALIZE AUTH SO FIRESTORE KNOWS YOU ARE LOGGED IN
+    const auth = getAuth(app);
     const db = getFirestore(app);
-    const uEmail = localStorage.getItem("userEmail");
+    
+    // 3. BULLETPROOF EMAIL CHECK (Forces lowercase to match your login rules)
+    const uEmail = localStorage.getItem("userEmail")?.toLowerCase();
 
     if(!uEmail) window.location.href = "login.html";
 
@@ -268,27 +275,38 @@
         const title = document.getElementById("modalTitle").innerText;
         if(!amt || amt <= 0) return alert("Enter valid amount!");
 
-        if(title === "DEPOSIT") {
-            document.getElementById("inputPhase").style.display = "none";
-            document.getElementById("qrPhase").style.display = "flex";
-            const docRef = await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "AWAITING UTR ⏳", utr: "NOT SUBMITTED" });
-            activeTxId = docRef.id;
-            let timeLeft = 80;
-            document.getElementById('wheelTimer').innerText = timeLeft;
-            timerInt = setInterval(() => { timeLeft--; document.getElementById('wheelTimer').innerText = timeLeft; if(timeLeft <= 0) clearInterval(timerInt); }, 1000);
-        } else {
-            if(amt > bal) return alert("Insufficient Liquid Credits!");
-            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
-            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
-            closePopup();
+        try {
+            if(title === "DEPOSIT") {
+                document.getElementById("inputPhase").style.display = "none";
+                document.getElementById("qrPhase").style.display = "flex";
+                const docRef = await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: "DEPOSIT", time: serverTimestamp(), status: "AWAITING UTR ⏳", utr: "NOT SUBMITTED" });
+                activeTxId = docRef.id;
+                let timeLeft = 80;
+                document.getElementById('wheelTimer').innerText = timeLeft;
+                timerInt = setInterval(() => { timeLeft--; document.getElementById('wheelTimer').innerText = timeLeft; if(timeLeft <= 0) clearInterval(timerInt); }, 1000);
+            } else {
+                if(amt > bal) return alert("Insufficient Liquid Credits!");
+                await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
+                await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
+                closePopup();
+            }
+        } catch(err) {
+            alert("Protocol Error: " + err.message);
         }
     };
 
     window.submitUTR = async () => {
         const utr = document.getElementById('utrField').value;
         if(utr.length < 10) return alert("Invalid UTR!");
-        await updateDoc(doc(db, "users", activeTxId), { utr: utr, status: "PENDING" });
-        clearInterval(timerInt); alert("UTR Submitted!"); closePopup();
+        
+        try {
+            await updateDoc(doc(db, "users", activeTxId), { utr: utr, status: "PENDING" });
+            clearInterval(timerInt); 
+            alert("UTR Submitted!"); 
+            closePopup();
+        } catch(err) {
+            alert("Protocol Error: " + err.message);
+        }
     };
 
     window.updatePayout = () => {
@@ -299,7 +317,6 @@
         } else document.getElementById("payoutBox").style.display = "none";
     };
 
-    // --- NEW PAYMENT INFO FUNCTIONS ---
     window.savePaymentInfo = async () => {
         const upi = document.getElementById('upiField').value.trim();
         const phone = document.getElementById('phoneField').value.trim();
@@ -317,24 +334,21 @@
         document.getElementById('upiInputState').style.display = 'block';
         document.getElementById('upiDisplayState').style.display = 'none';
     };
-    // ----------------------------------
 
     window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
     window.addEventListener('load', () => { const firstChip = document.querySelector('.category-chip'); if(firstChip) window.filterBets('INSTAGRAM', firstChip); });
     
-    // Updated snapshot to handle balance AND payment info UI
     onSnapshot(doc(db, "wallets", uEmail), (s) => { 
         if(s.exists()) {
             const data = s.data();
             document.getElementById("displayBalance").innerText = data.balance; 
             
-            // Toggle payment UI based on database state
             if(data.upiId && data.phone) {
                 document.getElementById('upiInputState').style.display = 'none';
                 document.getElementById('upiDisplayState').style.display = 'block';
                 document.getElementById('displayUpi').innerText = data.upiId;
                 document.getElementById('displayPhone').innerText = data.phone;
-                document.getElementById('upiField').value = data.upiId; // Pre-fill for editing
+                document.getElementById('upiField').value = data.upiId; 
                 document.getElementById('phoneField').value = data.phone;
             } else {
                 document.getElementById('upiInputState').style.display = 'block';
@@ -360,5 +374,3 @@
     window.logoTrigger = () => window.cashExplosion();
     window.cashExplosion = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.style.zIndex = '10000'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000, easing: 'linear' }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
 </script>
-</body>
-</html>
