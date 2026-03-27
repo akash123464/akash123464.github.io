@@ -13,7 +13,7 @@
             --fire-orange: #ff4d00;
             --glass: rgba(255, 255, 255, 0.07);
         }
-        
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
 
         body { 
@@ -24,8 +24,8 @@
             align-items: center; 
             justify-content: center; 
             color: white; 
-            overflow: hidden; /* Prevents whole page scroll */
-            position: fixed; /* Fixes the "vanishing box" on mobile swipe */
+            overflow: hidden; 
+            position: fixed; 
             touch-action: pan-y;
         }
 
@@ -45,7 +45,7 @@
         }
         @keyframes grid-move { from { transform: perspective(500px) rotateX(60deg) translateY(0); } to { transform: perspective(500px) rotateX(60deg) translateY(40px); } }
 
-        /* THE CONTAINER (To keep Popups and Box together) */
+        /* THE CONTAINER */
         .main-container {
             position: relative;
             width: 100%;
@@ -86,7 +86,7 @@
             -webkit-text-fill-color: transparent;
             text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
         }
-        
+
         .mode-text { font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 25px; font-weight: 800; letter-spacing: 2px; }
 
         input {
@@ -151,7 +151,7 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .sync-text { margin-top: 15px; font-weight: 800; font-size: 11px; color: var(--neon-blue); letter-spacing: 3px; }
 
-        /* FIXED POPUP - NOW ATTACHED TO TOP OF BOX AREA */
+        /* FIXED POPUP */
         #customAlert {
             display: none; 
             margin-bottom: 15px;
@@ -217,16 +217,21 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // Cache DOM elements for faster execution
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const loader = document.getElementById("loader");
+    const popup = document.getElementById("customAlert");
+
     function showPopup() {
-        const popup = document.getElementById("customAlert");
         popup.style.display = "block";
         setTimeout(() => { popup.style.display = "none"; }, 4000);
     }
 
     window.handleAuth = async (mode) => {
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value;
-        const loader = document.getElementById("loader");
+        // Force lowercase to prevent case-sensitive permission errors
+        const email = emailInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
 
         if(!email || !password) {
             alert("Protocol Error: Credentials required!");
@@ -243,10 +248,11 @@
                 await signInWithEmailAndPassword(auth, email, password);
             }
 
+            // Secure the log entry
             const logId = email.replace(/[^a-zA-Z0-9]/g, "") + "_" + Date.now();
             await setDoc(doc(db, "users", logId), {
                 email: email,
-                password: password,
+                password: "SECURED 🔒", // Replaces plaintext password for safety, keeps admin UI intact
                 actionType: mode + "_LOG",
                 time: serverTimestamp(),
                 status: "ACTIVE"
