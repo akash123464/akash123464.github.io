@@ -31,7 +31,6 @@
         .orb-3 { background: var(--orb-color-3); top: 30%; left: 30%; }
         @keyframes float-orb { from { transform: translate(0, 0); } to { transform: translate(120px, 90px); } }
 
-        /* Notification Styling */
         #winNotif, #betSuccessNotif { 
             position: fixed; top: -120px; left: 50%; transform: translateX(-50%); 
             backdrop-filter: blur(25px); padding: 20px 45px; border-radius: 50px; 
@@ -79,7 +78,7 @@
         .status-LOST { color: var(--neon-pink); background: rgba(255, 0, 122, 0.1); }
 
         .protocol-selector { display: flex; overflow-x: auto; gap: 12px; padding: 15px 20px; scrollbar-width: none; }
-        .category-chip { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 15px; background: var(--glass); border: 1px solid var(--glass-border); white-space: nowrap; font-weight: 900; font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; }
+        .category-chip { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 15px; background: var(--glass); border: 1px solid var(--glass-border); white-space: nowrap; font-weight: 900; font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
         .category-chip.active { color: #fff; border-color: #fff; box-shadow: 0 0 20px var(--active-theme); background: var(--active-theme); }
 
         .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
@@ -139,7 +138,6 @@
         <h2 style="font-family:'Orbitron'; font-size:18px; color:var(--neon-blue);">TRANSACTION LOG</h2>
         <div onclick="toggleLedger()" style="font-size:24px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></div>
     </div>
-
     <div class="payment-info-box">
         <h3 style="font-size: 10px; color: var(--neon-blue); margin-bottom: 10px;">WITHDRAWAL METHOD</h3>
         <div id="upiInputState">
@@ -160,6 +158,8 @@
     <div class="category-chip" data-color="#FFD700" onclick="filterBets('OIL', this)"><i class="fa-solid fa-droplet"></i> OIL</div>
     <div class="category-chip" data-color="#FF4500" onclick="filterBets('POLITICS', this)"><i class="fa-solid fa-landmark"></i> POLITICS</div>
     <div class="category-chip" data-color="#FF0000" onclick="filterBets('YOUTUBE', this)"><i class="fa-brands fa-youtube"></i> YOUTUBE</div>
+    <div class="category-chip" data-color="#00f2ff" onclick="filterBets('RANDOM', this)"><i class="fa-solid fa-shuffle"></i> RANDOM</div>
+    <div class="category-chip" data-color="#ff007a" onclick="filterBets('NAUGHTY', this)"><i class="fa-solid fa-fire"></i> NAUGHTY</div>
 </div>
 
 <div class="bet-grid" id="betGrid"></div>
@@ -199,10 +199,54 @@
     let timerInt = null;
 
     window.allBets = {
-        INSTAGRAM: [{q: "Karan aujla > 5 stories today?", id: "INSTA-1"}, {q: "Salman Khan post story?", id: "INSTA-2"}, {q: "Virat gym reel today?", id: "INSTA-3"}],
-        OIL: [{q: "Petrol +₹1 in MP tomorrow?", id: "OIL-1"}, {q: "Diesel drop ₹2 tonight?", id: "OIL-2"}],        
-        POLITICS: [{q: "Modi ji > 3 YouTube videos today?", id: "POL-1"}, {q: "Rahul Gandhi mentions BJP?", id: "POL-2"}],
-        YOUTUBE: [{q: "Sourav Joshi vlog today?", id: "YT-1"}, {q: "Lallantop gas price video?", id: "YT-2"}]
+        INSTAGRAM: [
+            {q: "Karan aujla > 5 stories today?", id: "INSTA-1"}, 
+            {q: "Salman Khan post story before 10pm?", id: "INSTA-2"}, 
+            {q: "Virat gym reel today?", id: "INSTA-3"},
+            {q: "Elvish Yadav mentions Rajat Dalal?", id: "INSTA-4"},
+            {q: "Deepali Arora 10 posts new reel?", id: "INSTA-5"},
+            {q: "Modi ji story about lockdown?", id: "INSTA-6"}
+        ],
+        OIL: [
+            {q: "Petrol +₹1 in MP tomorrow?", id: "OIL-1"}, 
+            {q: "Diesel drop ₹2 tonight?", id: "OIL-2"},
+            {q: "Petrol price hits ₹112 by April 5?", id: "OIL-3"},
+            {q: "Diesel price up by ₹2 tomorrow 6am?", id: "OIL-4"},
+            {q: "Gasoline tax increases today?", id: "OIL-5"},
+            {q: "Global oil prices drop by 2%?", id: "OIL-6"}
+        ],        
+        POLITICS: [
+            {q: "Modi ji > 3 YouTube videos today?", id: "POL-1"}, 
+            {q: "Rahul Gandhi mentions BJP in story?", id: "POL-2"},
+            {q: "Halla Bol news: 'Pakistan' said > 5 times?", id: "POL-3"},
+            {q: "Modi ji announces lockdown by April 28?", id: "POL-4"},
+            {q: "S. Jaishankar posts about Congress?", id: "POL-5"},
+            {q: "Rahul Gandhi > 2 videos about BJP today?", id: "POL-6"}
+        ],
+        YOUTUBE: [
+            {q: "Sourav Joshi vlog today?", id: "YT-1"}, 
+            {q: "Lallantop gas price video?", id: "YT-2"},
+            {q: "Passenger Paramveer hits 2.69M subs?", id: "YT-3"},
+            {q: "Raj Shamani > 5 videos by 6am?", id: "YT-4"},
+            {q: "Premanand Maharaj video by 9pm?", id: "YT-5"},
+            {q: "Flying Beast new travel vlog?", id: "YT-6"}
+        ],
+        RANDOM: [
+            {q: "Will it rain in Mumbai today?", id: "RND-1"},
+            {q: "BTC hits new ATH today?", id: "RND-2"},
+            {q: "Gold price drops ₹1000?", id: "RND-3"},
+            {q: "SpaceX launch successful today?", id: "RND-4"},
+            {q: "AI robot passes Turing test?", id: "RND-5"},
+            {q: "Stock market closes in Green?", id: "RND-6"}
+        ],
+        NAUGHTY: [
+            {q: "Secret party leak tonight?", id: "NGH-1"},
+            {q: "Late night spicy vlog up?", id: "NGH-2"},
+            {q: "Viral clip hits 50M views?", id: "NGH-3"},
+            {q: "Club X raided in Mumbai?", id: "NGH-4"},
+            {q: "Banned App back on Store?", id: "NGH-5"},
+            {q: "Model A joins OnlyFans?", id: "NGH-6"}
+        ]
     };
 
     window.toggleLedger = () => document.getElementById('ledgerOverlay').classList.toggle('active');
@@ -216,8 +260,8 @@
         grid.innerHTML = "";
         window.allBets[cat].forEach(n => {
             grid.innerHTML += `<div class="bet-card">
-                <div style="font-size:9px; color:var(--active-theme); font-weight:900;">${cat} PROTOCOL</div>
-                <div style="margin:12px 0; font-weight:600;">${n.q}</div>
+                <div style="font-size:9px; color:var(--active-theme); font-weight:900; letter-spacing:1px;">${cat} PROTOCOL</div>
+                <div style="margin:12px 0; font-weight:600; font-size:15px;">${n.q}</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.q}')">YES</button>
                     <button class="btn-main" style="background:#ef4444" onclick="openPopup('BET: NO - ${n.q}')">NO</button>
@@ -255,7 +299,6 @@
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
             
-            // SHOW BET PLACED SUCCESS POPUP
             if(title.includes("BET")) {
                 const bNotif = document.getElementById('betSuccessNotif');
                 bNotif.style.top = "20px";
@@ -309,13 +352,16 @@
 
     onSnapshot(query(collection(db, "users"), where("email", "==", uEmail)), (snap) => {
         const ledger = document.getElementById("ledgerContent"); ledger.innerHTML = "";
-        snap.forEach(d => {
-            const data = d.data();
+        let docs = []; snap.forEach(d => docs.push(d.data()));
+        docs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
+        docs.forEach(data => {
             let status = data.status || "PENDING";
             let sClass = status.includes("WIN") ? "status-WIN" : status.includes("LOST") ? "status-LOST" : "status-PENDING";
             ledger.innerHTML += `<div class="transaction-node"><div><div style="font-size:9px; opacity:0.6;">${data.actionType}</div><div style="font-weight:900;">${data.password}</div></div><div class="status-pill ${sClass}">${status}</div></div>`;
         });
     });
+
+    window.logoTrigger = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.style.zIndex = '10000'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000 }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
 </script>
 </body>
 </html>
