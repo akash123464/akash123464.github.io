@@ -33,7 +33,11 @@
 
         .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; position: relative; }
         .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
-        .ledger-trigger { position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; animation: pulse-blue 2s infinite; font-family: 'Orbitron'; }
+        
+        /* Updated Transactions Button Styles for instant response */
+        .ledger-trigger { position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; animation: pulse-blue 2s infinite; font-family: 'Orbitron'; z-index: 50; transition: transform 0.1s ease; }
+        .ledger-trigger:active { transform: scale(0.92); }
+        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
 
         .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
@@ -90,7 +94,7 @@
 </div>
 
 <div class="balance-card">
-    <div class="ledger-trigger" onclick="toggleLedger()">TRANSACTIONS</div>
+    <button class="ledger-trigger" onclick="toggleLedger()">TRANSACTIONS</button>
     <div>
         <div style="font-size:10px; opacity:0.5; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
         <div class="balance-amount">₹<span id="displayBalance">0</span></div>
@@ -104,7 +108,7 @@
 <div class="ledger-overlay" id="ledgerOverlay">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <h2 style="font-family:'Orbitron'; font-size:18px; color:var(--neon-blue);">TRANSACTION LOG</h2>
-        <div onclick="toggleLedger()" style="font-size:24px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></div>
+        <div onclick="toggleLedger()" style="font-size:24px; cursor:pointer; padding: 10px; margin: -10px;"><i class="fa-solid fa-xmark"></i></div>
     </div>
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--neon-blue); border-radius: 20px; padding: 15px; margin-top: 15px;">
         <h3 style="font-size: 9px; color: var(--neon-blue); margin-bottom: 8px;">WITHDRAWAL METHOD</h3>
