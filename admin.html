@@ -92,7 +92,7 @@
     const auth = getAuth(app);
 
     // SECURITY CHECK (Updated Email)
-    const myEmail = "Bhadouryaakash@gmail.com";
+    const myEmail = "bhadouryaakash@gmail.com";
 
     onAuthStateChanged(auth, (user) => {
         if (user && user.email === myEmail) {
