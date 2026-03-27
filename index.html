@@ -45,8 +45,8 @@
         .transaction-node { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 22px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--active-theme); }
         .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
         .status-PENDING { color: var(--neon-gold); background: rgba(241, 196, 15, 0.1); }
-        .status-WIN { color: var(--neon-green); background: rgba(56, 239, 125, 0.1); }
-        .status-LOST { color: var(--neon-pink); background: rgba(255, 0, 122, 0.1); }
+        .status-WIN, .status-COMPLETED { color: var(--neon-green); background: rgba(56, 239, 125, 0.1); }
+        .status-LOST, .status-FAILED { color: var(--neon-pink); background: rgba(255, 0, 122, 0.1); }
 
         .protocol-selector { display: flex; overflow-x: auto; gap: 12px; padding: 15px 20px; scrollbar-width: none; }
         .category-chip { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 15px; background: var(--glass); border: 1px solid var(--glass-border); white-space: nowrap; font-weight: 900; font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
@@ -152,7 +152,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
     const app = initializeApp(firebaseConfig);
@@ -178,10 +178,9 @@
     window.filterBets = (cat, el) => {
         const themeColor = el.getAttribute('data-color');
         document.documentElement.style.setProperty('--active-theme', themeColor);
-        // Restored Glow Animation for Background
         document.getElementById('orb1').style.background = themeColor;
         document.getElementById('orb3').style.background = themeColor;
-        
+
         document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
         const grid = document.getElementById('betGrid');
@@ -197,11 +196,12 @@
             </div>`;
         });
     };
-
+    
     window.openPopup = (t) => {
         document.getElementById('modalTitle').innerText = t;
         document.getElementById('inputPhase').style.display = "block";
         document.getElementById('qrPhase').style.display = "none";
+        document.getElementById('userAmt').value = "";
         document.getElementById('primaryActionBtn').innerText = t === 'DEPOSIT' ? "GENERATE QR" : (t === 'WITHDRAW' ? "CONFIRM" : "PLACE BET");
         document.getElementById('masterPopup').classList.add('active');
     };
@@ -235,13 +235,12 @@
         const utr = document.getElementById('utrField').value;
         if(!utr || utr.length < 10) return alert("Invalid UTR!");
         try {
-            // FIXED: Using addDoc to bypass permission errors
             await addDoc(collection(db, "users"), { 
                 email: uEmail, password: `₹${pendingDepositAmt}`, actionType: "DEPOSIT", utr: utr, status: "PENDING", time: serverTimestamp() 
             });
             alert("UTR Submitted Successfully!");
             closePopup();
-        } catch(err) { alert("Permission Error: " + err.message); }
+        } catch(err) { alert("Submission Error: " + err.message); }
     };
 
     window.savePaymentInfo = async () => {
@@ -249,7 +248,6 @@
         const ph = document.getElementById('phoneField').value;
         if(!upi || !ph) return alert("All fields required");
         try {
-            // FIXED: Ensuring record exists or update works
             await updateDoc(doc(db, "wallets", uEmail), { upiId: upi, phone: ph });
             alert("Payment info saved!");
         } catch(e) { alert("Save Error: " + e.message); }
@@ -272,6 +270,7 @@
 
     window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
 
+    // WALLET LISTENER
     onSnapshot(doc(db, "wallets", uEmail), (s) => { 
         if(s.exists()) {
             const d = s.data();
@@ -281,27 +280,49 @@
                 document.getElementById('upiDisplayState').style.display = 'block';
                 document.getElementById('displayUpi').innerText = d.upiId;
             }
-        } 
+        } else {
+            document.getElementById("displayBalance").innerText = "0";
+        }
     });
 
-    onSnapshot(query(collection(db, "users"), where("email", "==", uEmail)), (snap) => {
+    // TRANSACTIONS LISTENER
+    const qLedger = query(collection(db, "users"), where("email", "==", uEmail));
+    onSnapshot(qLedger, (snap) => {
         const ledger = document.getElementById("ledgerContent"); 
         ledger.innerHTML = "";
         let logs = [];
-        snap.forEach(d => logs.push(d.data()));
+        snap.forEach(d => {
+            let data = d.data();
+            logs.push(data);
+        });
+        
+        // Sort by time descending (newest first)
         logs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
+
+        if(logs.length === 0) {
+            ledger.innerHTML = "<div style='text-align:center; opacity:0.5; margin-top:20px;'>No logs found</div>";
+        }
+
         logs.forEach(data => {
             let s = data.status || "PENDING";
-            let sClass = s.includes("WIN") ? "status-WIN" : s.includes("LOST") ? "status-LOST" : "status-PENDING";
+            let sClass = "status-PENDING";
+            if(s.includes("WIN") || s === "COMPLETED") sClass = "status-WIN";
+            if(s.includes("LOST") || s === "FAILED") sClass = "status-LOST";
+
             ledger.innerHTML += `<div class="transaction-node">
-                <div><div style="font-size:9px; opacity:0.6; color:var(--neon-blue);">${data.actionType}</div><div style="font-weight:900;">${data.password}</div></div>
+                <div>
+                    <div style="font-size:9px; opacity:0.6; color:var(--neon-blue); text-transform:uppercase;">${data.actionType}</div>
+                    <div style="font-weight:900;">${data.password}</div>
+                </div>
                 <div class="status-pill ${sClass}">${s}</div>
             </div>`;
         });
+    }, (error) => {
+        console.error("Ledger error: ", error);
     });
 
     window.logoTrigger = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000 }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
-    
+
     window.onload = () => filterBets('INSTAGRAM', document.querySelector('.category-chip'));
 </script>
 </body>
