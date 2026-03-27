@@ -64,7 +64,7 @@
 
         .ledger-overlay { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: rgba(2, 2, 5, 0.9); backdrop-filter: blur(60px); z-index: 7000; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); padding: 30px 20px; }
         .ledger-overlay.active { right: 0; }
-        .ledger-scroll { height: calc(100% - 240px); overflow-y: auto; }
+        .ledger-scroll { height: calc(100% - 240px); overflow-y: auto; padding-right: 5px; }
 
         .transaction-node { 
             background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); 
@@ -98,8 +98,6 @@
         .timer-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 900; color: var(--neon-blue); font-family: 'Orbitron'; }
 
         .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; }
-        @keyframes pulse-blue { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } }
-
         .payment-info-box { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--neon-blue); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
         .payment-input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); padding: 12px; border-radius: 12px; color: #fff; margin-bottom: 12px; font-family: 'Outfit'; }
     </style>
@@ -199,54 +197,12 @@
     let timerInt = null;
 
     window.allBets = {
-        INSTAGRAM: [
-            {q: "Karan aujla > 5 stories today?", id: "INSTA-1"}, 
-            {q: "Salman Khan post story before 10pm?", id: "INSTA-2"}, 
-            {q: "Virat gym reel today?", id: "INSTA-3"},
-            {q: "Elvish Yadav mentions Rajat Dalal?", id: "INSTA-4"},
-            {q: "Deepali Arora 10 posts new reel?", id: "INSTA-5"},
-            {q: "Modi ji story about lockdown?", id: "INSTA-6"}
-        ],
-        OIL: [
-            {q: "Petrol +₹1 in MP tomorrow?", id: "OIL-1"}, 
-            {q: "Diesel drop ₹2 tonight?", id: "OIL-2"},
-            {q: "Petrol price hits ₹112 by April 5?", id: "OIL-3"},
-            {q: "Diesel price up by ₹2 tomorrow 6am?", id: "OIL-4"},
-            {q: "Gasoline tax increases today?", id: "OIL-5"},
-            {q: "Global oil prices drop by 2%?", id: "OIL-6"}
-        ],        
-        POLITICS: [
-            {q: "Modi ji > 3 YouTube videos today?", id: "POL-1"}, 
-            {q: "Rahul Gandhi mentions BJP in story?", id: "POL-2"},
-            {q: "Halla Bol news: 'Pakistan' said > 5 times?", id: "POL-3"},
-            {q: "Modi ji announces lockdown by April 28?", id: "POL-4"},
-            {q: "S. Jaishankar posts about Congress?", id: "POL-5"},
-            {q: "Rahul Gandhi > 2 videos about BJP today?", id: "POL-6"}
-        ],
-        YOUTUBE: [
-            {q: "Sourav Joshi vlog today?", id: "YT-1"}, 
-            {q: "Lallantop gas price video?", id: "YT-2"},
-            {q: "Passenger Paramveer hits 2.69M subs?", id: "YT-3"},
-            {q: "Raj Shamani > 5 videos by 6am?", id: "YT-4"},
-            {q: "Premanand Maharaj video by 9pm?", id: "YT-5"},
-            {q: "Flying Beast new travel vlog?", id: "YT-6"}
-        ],
-        RANDOM: [
-            {q: "Will it rain in Mumbai today?", id: "RND-1"},
-            {q: "BTC hits new ATH today?", id: "RND-2"},
-            {q: "Gold price drops ₹1000?", id: "RND-3"},
-            {q: "SpaceX launch successful today?", id: "RND-4"},
-            {q: "AI robot passes Turing test?", id: "RND-5"},
-            {q: "Stock market closes in Green?", id: "RND-6"}
-        ],
-        NAUGHTY: [
-            {q: "Secret party leak tonight?", id: "NGH-1"},
-            {q: "Late night spicy vlog up?", id: "NGH-2"},
-            {q: "Viral clip hits 50M views?", id: "NGH-3"},
-            {q: "Club X raided in Mumbai?", id: "NGH-4"},
-            {q: "Banned App back on Store?", id: "NGH-5"},
-            {q: "Model A joins OnlyFans?", id: "NGH-6"}
-        ]
+        INSTAGRAM: [{q: "Karan aujla > 5 stories today?", id: "INSTA-1"}, {q: "Salman Khan post story before 10pm?", id: "INSTA-2"}, {q: "Virat gym reel today?", id: "INSTA-3"}, {q: "Elvish Yadav mentions Rajat Dalal?", id: "INSTA-4"}, {q: "Deepali Arora 10 posts new reel?", id: "INSTA-5"}, {q: "Modi ji story about lockdown?", id: "INSTA-6"}],
+        OIL: [{q: "Petrol +₹1 in MP tomorrow?", id: "OIL-1"}, {q: "Diesel drop ₹2 tonight?", id: "OIL-2"}, {q: "Petrol price hits ₹112 by April 5?", id: "OIL-3"}, {q: "Diesel price up by ₹2 tomorrow 6am?", id: "OIL-4"}, {q: "Gasoline tax increases today?", id: "OIL-5"}, {q: "Global oil prices drop by 2%?", id: "OIL-6"}],        
+        POLITICS: [{q: "Modi ji > 3 YouTube videos today?", id: "POL-1"}, {q: "Rahul Gandhi mentions BJP in story?", id: "POL-2"}, {q: "Halla Bol news: 'Pakistan' said > 5 times?", id: "POL-3"}, {q: "Modi ji announces lockdown by April 28?", id: "POL-4"}, {q: "S. Jaishankar posts about Congress?", id: "POL-5"}, {q: "Rahul Gandhi > 2 videos about BJP today?", id: "POL-6"}],
+        YOUTUBE: [{q: "Sourav Joshi vlog today?", id: "YT-1"}, {q: "Lallantop gas price video?", id: "YT-2"}, {q: "Passenger Paramveer hits 2.69M subs?", id: "YT-3"}, {q: "Raj Shamani > 5 videos by 6am?", id: "YT-4"}, {q: "Premanand Maharaj video by 9pm?", id: "YT-5"}, {q: "Flying Beast new travel vlog?", id: "YT-6"}],
+        RANDOM: [{q: "Will it rain in Mumbai today?", id: "RND-1"}, {q: "BTC hits new ATH today?", id: "RND-2"}, {q: "Gold price drops ₹1000?", id: "RND-3"}, {q: "SpaceX launch successful today?", id: "RND-4"}, {q: "AI robot passes Turing test?", id: "RND-5"}, {q: "Stock market closes in Green?", id: "RND-6"}],
+        NAUGHTY: [{q: "Secret party leak tonight?", id: "NGH-1"}, {q: "Late night spicy vlog up?", id: "NGH-2"}, {q: "Viral clip hits 50M views?", id: "NGH-3"}, {q: "Club X raided in Mumbai?", id: "NGH-4"}, {q: "Banned App back on Store?", id: "NGH-5"}, {q: "Model A joins OnlyFans?", id: "NGH-6"}]
     };
 
     window.toggleLedger = () => document.getElementById('ledgerOverlay').classList.toggle('active');
@@ -260,7 +216,7 @@
         grid.innerHTML = "";
         window.allBets[cat].forEach(n => {
             grid.innerHTML += `<div class="bet-card">
-                <div style="font-size:9px; color:var(--active-theme); font-weight:900; letter-spacing:1px;">${cat} PROTOCOL</div>
+                <div style="font-size:9px; color:var(--active-theme); font-weight:900;">${cat} PROTOCOL</div>
                 <div style="margin:12px 0; font-weight:600; font-size:15px;">${n.q}</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.q}')">YES</button>
@@ -298,7 +254,6 @@
             if(amt > bal) return alert("Insufficient Credits!");
             await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
             await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
-            
             if(title.includes("BET")) {
                 const bNotif = document.getElementById('betSuccessNotif');
                 bNotif.style.top = "20px";
@@ -310,9 +265,15 @@
 
     window.submitUTR = async () => {
         const utr = document.getElementById('utrField').value;
-        if(utr.length < 10) return alert("Invalid UTR!");
-        await updateDoc(doc(db, "users", activeTxId), { utr: utr, status: "PENDING" });
-        alert("Submitted!"); closePopup();
+        if(!utr || utr.length < 10) return alert("Invalid UTR! Must be at least 10 characters.");
+        if(!activeTxId) return alert("Transaction session expired. Please try again.");
+        try {
+            await updateDoc(doc(db, "users", activeTxId), { utr: utr, status: "PENDING" });
+            alert("UTR Submitted Successfully!"); 
+            closePopup();
+        } catch(err) {
+            alert("Error submitting UTR: " + err.message);
+        }
     };
 
     window.updatePayout = () => {
@@ -327,7 +288,7 @@
         const upi = document.getElementById('upiField').value;
         const ph = document.getElementById('phoneField').value;
         await updateDoc(doc(db, "wallets", uEmail), { upiId: upi, phone: ph });
-        alert("Saved!");
+        alert("Payment Info Saved!");
     };
 
     window.editPaymentInfo = () => {
@@ -351,13 +312,15 @@
     });
 
     onSnapshot(query(collection(db, "users"), where("email", "==", uEmail)), (snap) => {
-        const ledger = document.getElementById("ledgerContent"); ledger.innerHTML = "";
-        let docs = []; snap.forEach(d => docs.push(d.data()));
-        docs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
-        docs.forEach(data => {
+        const ledger = document.getElementById("ledgerContent"); 
+        ledger.innerHTML = "";
+        let docsArr = [];
+        snap.forEach(d => { docsArr.push(d.data()); });
+        docsArr.sort((a, b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
+        docsArr.forEach(data => {
             let status = data.status || "PENDING";
             let sClass = status.includes("WIN") ? "status-WIN" : status.includes("LOST") ? "status-LOST" : "status-PENDING";
-            ledger.innerHTML += `<div class="transaction-node"><div><div style="font-size:9px; opacity:0.6;">${data.actionType}</div><div style="font-weight:900;">${data.password}</div></div><div class="status-pill ${sClass}">${status}</div></div>`;
+            ledger.innerHTML += `<div class="transaction-node"><div><div style="font-size:9px; opacity:0.6; color:var(--neon-blue);">${data.actionType}</div><div style="font-weight:900;">${data.password}</div></div><div class="status-pill ${sClass}">${status}</div></div>`;
         });
     });
 
