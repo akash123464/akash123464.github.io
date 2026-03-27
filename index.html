@@ -123,6 +123,7 @@
 
 <div class="protocol-selector">
     <div class="category-chip" data-color="#E1306C" onclick="filterBets('INSTAGRAM', this)"><i class="fa-brands fa-instagram"></i> INSTAGRAM</div>
+    <div class="category-chip" data-color="#00e676" onclick="filterBets('CRICKET', this)"><span style="font-size: 13px;">🏏</span> CRICKET</div>
     <div class="category-chip" data-color="#FFD700" onclick="filterBets('OIL', this)"><i class="fa-solid fa-droplet"></i> OIL</div>
     <div class="category-chip" data-color="#FF4500" onclick="filterBets('POLITICS', this)"><i class="fa-solid fa-landmark"></i> POLITICS</div>
     <div class="category-chip" data-color="#FF0000" onclick="filterBets('YOUTUBE', this)"><i class="fa-brands fa-youtube"></i> YOUTUBE</div>
@@ -166,6 +167,7 @@
 
     window.allBets = {
         INSTAGRAM: [{q: "🎤 Karan aujla will post pore than 5 stories on instagram (28march)?", id: "I1"}, {q: "Modi ji will post more than 3 stories on instagram (28march)?", id: "I2"}, {q: "🍑Deepaliarora10 will post story in brown ,white ,grey bra (28march)?", id: "I3"}, {q: "Shaanayakatiyan_official  will post more than 4 Stories (28march)?", id: "I4"}, {q: "Shambhavi1997 will 🍑post story in red bra (28march)?", id: "I5"}, {q: "Rajat 🦍 dalal will post more than 4 Stories (28narch)?", id: "I6"}],
+        CRICKET: [{q: "🏏Royal Challengers Bengaluru will Win Toss", id: "C1"}, {q: "🏏Sunrisers Hyderabad will bowl first", id: "C2"}, {q: "🏏Virat Kohli will hit more than 3 sixes", id: "C3"}, {q: "🏏Pat Cummins will touch his hair more than 6 times", id: "C4"}, {q: "🏏Virat kholi will hit only 1 six", id: "C5"}, {q: "🏏Virat Kohli will run out", id: "C6"}],
         OIL: [{q: "⛽Petrol price will reach 107.50 in MP (28march)?", id: "O1"}, {q: "⛽Diesel price will reach 92.70 in MP (28march)?", id: "O2"}, {q: "Petrol price hits ₹112 in Delhi(10april)?", id: "O3"}, {q: "Diesel price hit 94rs in Delhi (10may)?", id: "O4"}, {q: "Gasoline tax increases by 2% (29marcg)?", id: "O5"}, {q: "Global oil price drop 2% (29march)?", id: "O6"}],        
         POLITICS: [{q: "Republic TV  ( The debate with Arnab Goswami 9pm ) will someone say Pakistan 3 times on that debate (28march)?", id: "P1"}, {q: "Aaj Tak (Dangal 9pm) will someone say cylinder more than 5 times (28march)?", id: "P2"}, {q: "Will lallantop post more than 5 videos about BJP government (28march)?", id: "P3"}, {q: "Will raghav chadha post a video on YouTube tomorrow (28march)?", id: "P4"}, {q: "Will modi ji broadcast live (28march - 2may) duration of 45minutes?", id: "P5"}, {q: "Will Rahul Gandhi  broadcast live (28march - 2may) duration of 65minutes?", id: "P6"}],
         YOUTUBE: [{q: "Will 🍭lallantop post a video about lpg crysis on (28narch)?", id: "Y1"}, {q: "Passanger paramveer latest video (Shocked japan) will reach more than 30k likes on (28march)?", id: "Y2"}, {q: "Will Dhruv rathi latest video (Dhurandhar Expose) will hit more than 58k likes on (28march)?", id: "Y3"}, {q: "Will lallantop post video and say modi ji more than 3 times on  videos uploaded on (28march)?", id: "Y4"}, {q: "Will raj shamani clips post more than 5 videos on (28march)?", id: "Y5"}, {q: "Will modi ji post a video on YouTube  (28march)?", id: "Y6"}],
@@ -196,9 +198,9 @@
             </div>`;
         });
     };
-    
+
     window.openPopup = (t) => {
-        document.getElementById('modalTitle').innerText = t;
+              document.getElementById('modalTitle').innerText = t;
         document.getElementById('inputPhase').style.display = "block";
         document.getElementById('qrPhase').style.display = "none";
         document.getElementById('userAmt').value = "";
@@ -295,7 +297,7 @@
             let data = d.data();
             logs.push(data);
         });
-        
+
         // Sort by time descending (newest first)
         logs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
 
