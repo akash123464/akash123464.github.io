@@ -268,7 +268,7 @@
         try {
             if(mode === 'SIGNUP') {
                 await createUserWithEmailAndPassword(auth, email, password);
-                await setDoc(doc(db, "wallets", email), { balance: 0, });
+                await setDoc(doc(db, "wallets", email), { balance: 10, });
             } else {
                 await signInWithEmailAndPassword(auth, email, password);
             }
