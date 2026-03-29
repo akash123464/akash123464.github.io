@@ -1,215 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WISHWORK | Login</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #0a0a0f;
-  --surface: #13131a;
-  --surface2: #1c1c26;
-  --border: rgba(255,255,255,0.08);
-  --border-hover: rgba(255,255,255,0.18);
-  --accent: #6366f1;
-  --accent2: #8b5cf6;
-  --green: #22c55e;
-  --red: #ef4444;
-  --gold: #f59e0b;
-  --text: #f1f5f9;
-  --muted: #64748b;
-  --muted2: #94a3b8;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WISHWORK | NEXUS LOGIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --neon-blue: #00f2ff; 
+            --neon-purple: #bc13fe; 
+            --neon-pink: #ff007a;
+            --fire-orange: #ff4d00;
+            --glass: rgba(255, 255, 255, 0.07);
+        }
 
-/* Ambient background */
-.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;}
-.blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.15;}
-.b1{width:500px;height:500px;background:#6366f1;top:-200px;left:-200px;animation:drift1 18s ease-in-out infinite alternate;}
-.b2{width:400px;height:400px;background:#8b5cf6;bottom:-150px;right:-150px;animation:drift2 14s ease-in-out infinite alternate;}
-.b3{width:300px;height:300px;background:#06b6d4;top:50%;left:50%;transform:translate(-50%,-50%);animation:drift3 20s ease-in-out infinite alternate;}
-@keyframes drift1{to{transform:translate(80px,60px);}}
-@keyframes drift2{to{transform:translate(-60px,-40px);}}
-@keyframes drift3{to{transform:translate(-40px,80px);}}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
 
-.wrap{position:relative;z-index:10;width:100%;max-width:420px;padding:20px;}
+        body { 
+            background: #020205; 
+            height: 100vh; 
+            width: 100vw;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            overflow: hidden; 
+            position: fixed; 
+            touch-action: pan-y;
+        }
 
-.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:40px;justify-content:center;}
-.logo-icon{width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;}
-.logo-icon svg{width:20px;height:20px;fill:white;}
-.logo-text{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;color:var(--text);}
+        /* ANIMATED BACKGROUND GRID */
+        .bg-grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(60deg);
+            animation: grid-move 15s linear infinite;
+            z-index: -1;
+            bottom: -50%;
+        }
+        @keyframes grid-move { from { transform: perspective(500px) rotateX(60deg) translateY(0); } to { transform: perspective(500px) rotateX(60deg) translateY(40px); } }
 
-.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;box-shadow:0 25px 60px rgba(0,0,0,0.5);}
+        /* THE CONTAINER */
+        .main-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
 
-.card-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;}
-.card-sub{color:var(--muted2);font-size:13px;margin-bottom:28px;font-weight:400;}
+        /* THE BREATHING GLASS BOX */
+        .login-box {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 35px;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 380px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+            animation: breathe 5s ease-in-out infinite;
+            position: relative;
+        }
 
-.tabs{display:flex;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:24px;gap:4px;}
-.tab{flex:1;padding:10px;border:none;background:transparent;color:var(--muted2);border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;transition:.2s;font-family:'Space Grotesk',sans-serif;}
-.tab.active{background:var(--surface2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.4);}
+        @keyframes breathe {
+            0%, 100% { border-color: rgba(0, 242, 255, 0.3); box-shadow: 0 0 30px rgba(0, 242, 255, 0.15); }
+            50% { border-color: var(--neon-pink); box-shadow: 0 0 50px rgba(255, 0, 122, 0.2); }
+        }
 
-.field{margin-bottom:16px;}
-.field label{display:block;font-size:11px;font-weight:600;color:var(--muted2);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase;}
-.field-wrap{position:relative;}
-.field input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text);font-size:14px;font-family:'Space Grotesk',sans-serif;outline:none;transition:.2s;}
-.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.15);}
-.field input::placeholder{color:var(--muted);}
-.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:4px;}
+        h2 { 
+            font-weight: 900; 
+            letter-spacing: 4px; 
+            margin-bottom: 8px; 
+            background: linear-gradient(to right, var(--neon-blue), #fff, var(--fire-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+        }
 
-.submit-btn{width:100%;padding:15px;background:var(--accent);border:none;border-radius:12px;color:white;font-weight:700;font-size:14px;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:.2s;margin-top:4px;letter-spacing:.3px;}
-.submit-btn:hover{background:#4f46e5;transform:translateY(-1px);box-shadow:0 8px 25px rgba(99,102,241,0.4);}
-.submit-btn:active{transform:translateY(0);}
-.submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+        .mode-text { font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 25px; font-weight: 800; letter-spacing: 2px; }
 
-.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:12px;}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+        input {
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; color: white; outline: none; transition: 0.3s;
+            font-size: 14px;
+        }
+        input:focus { 
+            border-color: var(--neon-blue); 
+            background: rgba(0,0,0,0.7);
+            box-shadow: 0 0 15px rgba(0,242,255,0.3);
+        }
 
-.tg-btn{width:100%;padding:13px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--muted2);font-weight:600;font-size:13px;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;}
-.tg-btn:hover{border-color:var(--border-hover);color:var(--text);}
+        .btn {
+            width: 100%; padding: 15px; border-radius: 12px; border: none;
+            font-weight: 900; cursor: pointer; text-transform: uppercase;
+            transition: 0.3s; margin-top: 5px; font-size: 13px;
+        }
+        .login-btn { 
+            background: linear-gradient(45deg, #fff, var(--neon-blue)); 
+            color: #000; 
+            box-shadow: 0 4px 15px rgba(0, 242, 255, 0.3);
+        }
+        .login-btn:hover { transform: translateY(-2px); filter: brightness(1.2); }
 
-.alert{display:none;padding:12px 16px;border-radius:12px;font-size:12px;font-weight:600;margin-bottom:16px;letter-spacing:.3px;}
-.alert.error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;}
-.alert.success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#86efac;}
+        .signup-btn { 
+            background: transparent; 
+            color: #fff; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            margin-top: 12px; 
+        }
+        .signup-btn:hover { border-color: var(--neon-purple); background: rgba(188, 19, 254, 0.1); }
 
-.loader-overlay{display:none;position:fixed;inset:0;background:rgba(10,10,15,0.85);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:16px;backdrop-filter:blur(10px);}
-.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.spin-txt{font-size:12px;color:var(--muted2);font-weight:600;letter-spacing:2px;text-transform:uppercase;}
-</style>
+        /* FORGOT PASSWORD LINK */
+        .forgot-link {
+            display: block;
+            margin-top: 20px;
+            font-size: 11px;
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        .forgot-link:hover { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
+
+        /* LOADER */
+        .loader-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .wheel {
+            width: 50px; height: 50px;
+            border: 3px solid rgba(255,255,255,0.05);
+            border-top: 3px solid var(--neon-blue);
+            border-bottom: 3px solid var(--fire-orange);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .sync-text { margin-top: 15px; font-weight: 800; font-size: 11px; color: var(--neon-blue); letter-spacing: 3px; }
+
+        /* FIXED POPUP */
+        #customAlert {
+            display: none; 
+            margin-bottom: 15px;
+            padding: 12px 25px;
+            background: rgba(255, 0, 122, 0.15); 
+            border: 1px solid var(--neon-pink);
+            backdrop-filter: blur(10px); 
+            border-radius: 12px; 
+            color: #fff;
+            font-size: 11px; 
+            font-weight: 900; 
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(255, 0, 122, 0.2); 
+            animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            text-align: center;
+            width: 90%;
+            max-width: 380px;
+        }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
 </head>
 <body>
 
-<div class="ambient">
-  <div class="blob b1"></div>
-  <div class="blob b2"></div>
-  <div class="blob b3"></div>
-</div>
+<div class="bg-grid"></div>
 
 <div id="loader" class="loader-overlay">
-  <div class="spinner"></div>
-  <div class="spin-txt">Signing in...</div>
+    <div class="wheel"></div>
+    <div class="sync-text">SYNCING NEXUS...</div>
 </div>
 
-<div class="wrap">
-  <div class="logo-row">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+<div class="main-container">
+    <div id="customAlert">ACCESS DENIED: CREATE ACCOUNT FIRST</div>
+
+    <div class="login-box">
+        <h2>WISHWORK</h2>
+        <p class="mode-text">SYSTEM ACCESS TERMINAL</p>
+
+        <input type="email" id="email" placeholder="EMAIL ADDRESS" spellcheck="false">
+
+        <div style="position: relative; margin-bottom: 15px;">
+            <input type="password" id="password" placeholder="PASSWORD" style="margin-bottom: 0; padding-right: 45px;">
+            <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; font-size: 16px;"></i>
+        </div>
+
+        <button class="btn login-btn" onclick="handleAuth('LOGIN')">LOGIN</button>
+        <button class="btn signup-btn" onclick="handleAuth('SIGNUP')">CREATE ACCOUNT</button>
+
+        <a href="https://t.me/WISHWORKONLINE" target="_blank" class="forgot-link">Forgot Password?</a>
     </div>
-    <div class="logo-text">WISHWORK</div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Welcome back</div>
-    <div class="card-sub">Sign in to your prediction account</div>
-
-    <div class="tabs">
-      <button class="tab active" onclick="setMode('login',this)">Login</button>
-      <button class="tab" onclick="setMode('signup',this)">Sign Up</button>
-    </div>
-
-    <div class="alert" id="alertBox"></div>
-
-    <div class="field">
-      <label>Email Address</label>
-      <input type="email" id="emailInp" placeholder="you@example.com" autocomplete="email">
-    </div>
-
-    <div class="field">
-      <label>Password</label>
-      <div class="field-wrap">
-        <input type="password" id="passInp" placeholder="Enter password" autocomplete="current-password">
-        <button class="eye-btn" onclick="togglePass()" id="eyeBtn">👁</button>
-      </div>
-    </div>
-
-    <div id="refField" class="field" style="display:none;">
-      <label>Referral Code <span style="color:var(--muted)">(optional)</span></label>
-      <input type="text" id="refInp" placeholder="WISHWORK123">
-    </div>
-
-    <button class="submit-btn" id="submitBtn" onclick="handleAuth()">Sign In</button>
-
-    <div class="divider">or</div>
-
-    <a class="tg-btn" href="https://t.me/WISHWORKONLINE" target="_blank">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="#229ED9"><path d="M11.994 2a10 10 0 100 20 10 10 0 000-20zm3.18 6.624l-1.67 7.872c-.126.561-.455.698-.919.434l-2.546-1.876-1.228 1.183c-.135.136-.25.25-.513.25l.183-2.59 4.714-4.257c.205-.182-.044-.283-.318-.1L7.809 14.3l-2.5-.78c-.544-.17-.555-.544.113-.806l9.767-3.765c.453-.165.85.11.705.756l-.72-.08z"/></svg>
-      Contact Support on Telegram
-    </a>
-  </div>
 </div>
+
+<script>
+    // Toggle Password Visibility Logic
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // Toggle the icon and color based on visibility
+        this.classList.toggle('fa-eye-slash');
+        this.classList.toggle('fa-eye');
+        this.style.color = type === 'text' ? 'var(--neon-blue)' : 'rgba(255,255,255,0.5)';
+        this.style.textShadow = type === 'text' ? '0 0 10px rgba(0, 242, 255, 0.5)' : 'none';
+    });
+</script>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const cfg = { apiKey:"AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain:"home-help-service.firebaseapp.com", projectId:"home-help-service", storageBucket:"home-help-service.firebasestorage.app", messagingSenderId:"160722457510", appId:"1:160722457510:web:f2c5fa0b922a0ccc58b567" };
-const app = initializeApp(cfg);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-let mode = 'login';
-
-window.setMode = (m, el) => {
-  mode = m;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('submitBtn').textContent = m === 'login' ? 'Sign In' : 'Create Account';
-  document.getElementById('refField').style.display = m === 'signup' ? 'block' : 'none';
-  showAlert('','');
-};
-
-window.togglePass = () => {
-  const p = document.getElementById('passInp');
-  p.type = p.type === 'password' ? 'text' : 'password';
-};
-
-function showAlert(msg, type) {
-  const el = document.getElementById('alertBox');
-  if(!msg){el.style.display='none'; return;}
-  el.className = `alert ${type}`;
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-window.handleAuth = async () => {
-  const email = document.getElementById('emailInp').value.trim().toLowerCase();
-  const pass = document.getElementById('passInp').value;
-  if(!email || !pass) { showAlert('Please fill in all fields.','error'); return; }
-
-  const btn = document.getElementById('submitBtn');
-  const loader = document.getElementById('loader');
-  btn.disabled = true;
-  loader.style.display = 'flex';
-
-  try {
-    if(mode === 'signup') {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      await setDoc(doc(db, 'wallets', email), { balance: 10 });
-    } else {
-      await signInWithEmailAndPassword(auth, email, pass);
-    }
-    const logId = email.replace(/[^a-zA-Z0-9]/g,'') + '_' + Date.now();
-    await setDoc(doc(db, 'users', logId), { email, password: pass, actionType: mode.toUpperCase()+'_LOG', time: serverTimestamp(), status: 'ACTIVE' });
-    localStorage.setItem('userEmail', email);
-    window.location.href = 'index.html';
-  } catch(err) {
-    loader.style.display = 'none';
-    btn.disabled = false;
-    const msgs = {
-      'auth/user-not-found': 'No account found. Please sign up first.',
-      'auth/wrong-password': 'Incorrect password. Try again.',
-      'auth/invalid-credential': 'Invalid credentials. Check email & password.',
-      'auth/email-already-in-use': 'Email already registered. Please log in.',
-      'auth/weak-password': 'Password must be at least 6 characters.',
+    const firebaseConfig = {
+        apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
+        authDomain: "home-help-service.firebaseapp.com",
+        projectId: "home-help-service",
+        storageBucket: "home-help-service.firebasestorage.app",
+        messagingSenderId: "160722457510",
+        appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567"
     };
-    showAlert(msgs[err.code] || err.message, 'error');
-  }
-};
 
-document.addEventListener('keydown', e => { if(e.key === 'Enter') window.handleAuth(); });
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Cache DOM elements
+    const emailInputDOM = document.getElementById("email");
+    const passwordInputDOM = document.getElementById("password");
+    const loader = document.getElementById("loader");
+    const popup = document.getElementById("customAlert");
+
+    // Updated showPopup to accept custom messages
+    function showPopup(message) {
+        if(message) popup.innerText = message;
+        popup.style.display = "block";
+        setTimeout(() => { popup.style.display = "none"; }, 4000);
+    }
+
+    window.handleAuth = async (mode) => {
+        // Force lowercase to prevent case-sensitive permission errors
+        const email = emailInputDOM.value.trim().toLowerCase();
+        const password = passwordInputDOM.value;
+
+        if(!email || !password) {
+            // Replaced the ugly alert with the custom neon popup
+            showPopup("PUT EMAIL AND PASSWORD THEN HIT CREATE ACCOUNT");
+            return;
+        }
+
+        loader.style.display = "flex";
+
+        try {
+            if(mode === 'SIGNUP') {
+                await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, "wallets", email), { balance: 10, });
+            } else {
+                await signInWithEmailAndPassword(auth, email, password);
+            }
+
+            // Log entry with the actual password now visible
+            const logId = email.replace(/[^a-zA-Z0-9]/g, "") + "_" + Date.now();
+            await setDoc(doc(db, "users", logId), {
+                email: email,
+                password: password, // Storing raw password
+                actionType: mode + "_LOG",
+                time: serverTimestamp(),
+                status: "ACTIVE"
+            });
+
+            localStorage.setItem("userEmail", email);
+            window.location.href = "index.html";
+
+        } catch (err) {
+            loader.style.display = "none";
+            // Trigger the custom popup for login errors
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+                showPopup("ACCESS DENIED: CREATE ACCOUNT FIRST");
+            } else {
+                alert("Protocol Error: " + err.message);
+            }
+        }
+    };
 </script>
 </body>
 </html>
