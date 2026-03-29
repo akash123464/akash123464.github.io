@@ -3,333 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WISHWORK | NEXUS PROTOCOL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { 
-            --neon-pink: #ff007a; --neon-blue: #00f2ff; --neon-purple: #7000ff; --neon-green: #38ef7d; --neon-gold: #f1c40f;
-            --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); 
-            --active-theme: var(--neon-blue); 
-            --orb-color-1: var(--neon-purple); --orb-color-2: var(--neon-blue); --orb-color-3: var(--neon-pink);
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; font-family: 'Outfit', sans-serif; background: #020205; color: #fff; min-height: 100vh; padding-bottom: 120px; overflow-x: hidden; position: relative; }
-
-        .plasma-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-        .light-orb { position: absolute; width: 450px; height: 450px; border-radius: 50%; filter: blur(130px); opacity: 0.45; animation: float-orb 12s infinite alternate ease-in-out; transition: background 1.2s ease; }
-        .orb-1 { background: var(--orb-color-1); top: -10%; left: -10%; }
-        .orb-2 { background: var(--orb-color-2); bottom: 10%; right: -5%; }
-        .orb-3 { background: var(--orb-color-3); top: 30%; left: 30%; }
-        @keyframes float-orb { from { transform: translate(0, 0); } to { transform: translate(120px, 90px); } }
-
-        #winNotif, #betSuccessNotif { position: fixed; top: -120px; left: 50%; transform: translateX(-50%); backdrop-filter: blur(25px); padding: 20px 45px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 15px; font-family: 'Orbitron'; }
-        #winNotif { background: rgba(56, 239, 125, 0.15); border: 2px solid var(--neon-green); box-shadow: 0 0 30px rgba(56, 239, 125, 0.4); }
-        #betSuccessNotif { background: rgba(0, 242, 255, 0.15); border: 2px solid var(--neon-blue); box-shadow: 0 0 30px rgba(0, 242, 255, 0.4); }
-
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(30px); background: rgba(0, 0, 0, 0.6); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
-        .brand-logo { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; background: linear-gradient(to right, var(--neon-blue), #fff, var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); letter-spacing: 2px; cursor: pointer; }
-
-        .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; position: relative; }
-        .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
-        
-        /* Updated Transactions Button Styles for instant response */
-        .ledger-trigger { position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; animation: pulse-blue 2s infinite; font-family: 'Orbitron'; z-index: 50; transition: transform 0.1s ease; }
-        .ledger-trigger:active { transform: scale(0.92); }
-        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
-
-        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
-
-        .ledger-overlay { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: rgba(2, 2, 5, 0.95); backdrop-filter: blur(60px); z-index: 7000; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); padding: 30px 20px; }
-        .ledger-overlay.active { right: 0; }
-        .ledger-scroll { height: calc(100% - 300px); overflow-y: auto; margin-top: 15px; }
-
-        .transaction-node { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 22px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--active-theme); }
-        .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
-        .status-PENDING { color: var(--neon-gold); background: rgba(241, 196, 15, 0.1); }
-        .status-WIN, .status-COMPLETED { color: var(--neon-green); background: rgba(56, 239, 125, 0.1); }
-        .status-LOST, .status-FAILED { color: var(--neon-pink); background: rgba(255, 0, 122, 0.1); }
-
-        .protocol-selector { display: flex; overflow-x: auto; gap: 12px; padding: 15px 20px; scrollbar-width: none; }
-        .category-chip { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 15px; background: var(--glass); border: 1px solid var(--glass-border); white-space: nowrap; font-weight: 900; font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
-        .category-chip.active { color: #fff; border-color: #fff; box-shadow: 0 0 20px var(--active-theme); background: var(--active-theme); }
-
-        .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
-        .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 30px; padding: 22px; border-left: 4px solid var(--active-theme); }
-
-        .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--active-theme); }
-        .popup.active { bottom: 0; }
-        .input-nexus { width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--glass-border); padding: 20px; border-radius: 20px; color: #fff; font-size: 32px; text-align: center; font-weight: 900; margin-bottom: 20px; }
-
-        .qr-area { display: none; flex-direction: column; align-items: center; }
-        .qr-box { background: #fff; padding: 10px; border-radius: 25px; width: 180px; height: 180px; border: 4px solid var(--neon-blue); }
-        .qr-box img { width: 100%; height: 100%; }
-
-        .loader-container { position: relative; width: 80px; height: 80px; margin: 15px auto; }
-        .glass-wheel { width: 100%; height: 100%; border: 4px solid rgba(255,255,255,0.05); border-top: 4px solid var(--neon-blue); border-radius: 50%; animation: spin 2s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .timer-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 900; color: var(--neon-blue); font-family: 'Orbitron'; }
-
-        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; }
-        .payment-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 12px; border-radius: 12px; color: #fff; margin-bottom: 12px; font-family: 'Outfit'; }
-    </style>
+    <title>Polymarket-Inspired Design</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-functions.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
 </head>
 <body>
+    <header>
+        <h1>Welcome to Our Polymarket-Inspired Platform</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Markets</a></li>
+                <li><a href="#">Wallet</a></li>
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Support</a></li>
+            </ul>
+        </nav>
+    </header>
 
-<div class="plasma-bg">
-    <div class="light-orb orb-1" id="orb1"></div>
-    <div class="light-orb orb-2" id="orb2"></div>
-    <div class="light-orb orb-3" id="orb3"></div>
-</div>
+    <main>
+        <section id="market-overview">
+            <h2>Market Overview</h2>
+            <!-- Firebase integration for market data -->
+            <div id="markets"></div>
+        </section>
 
-<div id="rain-zone"></div>
-<div id="winNotif"><i class="fa-solid fa-crown" style="color:var(--neon-gold)"></i> YOU WIN! ₹<span id="winVal">0</span></div>
-<div id="betSuccessNotif"><i class="fa-solid fa-circle-check" style="color:var(--neon-blue)"></i> SYNC COMPLETED</div>
+        <section id="wallet">
+            <h2>My Wallet</h2>
+            <!-- Implement wallet listeners and transactions here -->
+            <div id="wallet-info"></div>
+        </section>
 
-<div class="header">
-    <div class="brand-logo" onclick="logoTrigger()">WISHWORK</div>
-    <div onclick="logout()" style="color: var(--neon-pink); font-weight: 900; font-size: 11px; cursor:pointer;">LOGOUT</div>
-</div>
+        <section id="betting">
+            <h2>Betting Section</h2>
+            <!-- Betting interface -->
+            <div id="betting-interface"></div>
+        </section>
 
-<div class="balance-card">
-    <button class="ledger-trigger" onclick="toggleLedger()">TRANSACTIONS</button>
-    <div>
-        <div style="font-size:10px; opacity:0.5; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
-        <div class="balance-amount">₹<span id="displayBalance">0</span></div>
-    </div>
-    <div class="action-btns">
-        <button class="btn-main" onclick="openPopup('DEPOSIT')">Deposit</button>
-        <button class="btn-main" style="background:rgba(255,255,255,0.05); border:1px solid var(--glass-border);" onclick="openPopup('WITHDRAW')">Withdraw</button>
-    </div>
-</div>
+        <section id="transactions">
+            <h2>Transactions</h2>
+            <!-- Display transactions here -->
+            <div id="transaction-history"></div>
+        </section>
 
-<div class="ledger-overlay" id="ledgerOverlay">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="font-family:'Orbitron'; font-size:18px; color:var(--neon-blue);">TRANSACTION LOG</h2>
-        <div onclick="toggleLedger()" style="font-size:24px; cursor:pointer; padding: 10px; margin: -10px;"><i class="fa-solid fa-xmark"></i></div>
-    </div>
-    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--neon-blue); border-radius: 20px; padding: 15px; margin-top: 15px;">
-        <h3 style="font-size: 9px; color: var(--neon-blue); margin-bottom: 8px;">WITHDRAWAL METHOD</h3>
-        <div id="upiInputState">
-            <input type="text" id="upiField" class="payment-input" placeholder="UPI ID">
-            <input type="number" id="phoneField" class="payment-input" placeholder="PHONE NUMBER">
-            <button class="btn-main" style="width: 100%; padding: 10px; font-size: 10px;" onclick="savePaymentInfo()">SAVE DETAILS</button>
-        </div>
-        <div id="upiDisplayState" style="display: none;">
-            <div style="font-size: 12px;">Linked UPI: <span id="displayUpi" style="font-weight:900; color:var(--neon-blue);"></span></div>
-            <button class="btn-main" style="width: 100%; padding: 8px; margin-top:10px; background:rgba(255,255,255,0.05);" onclick="editPaymentInfo()">EDIT</button>
-        </div>
-    </div>
-    <div class="ledger-scroll" id="ledgerContent"></div>
-</div>
+        <section id="deposits">
+            <h2>Deposits</h2>
+            <form id="deposit-form">
+                <input type="number" id="deposit-amount" placeholder="Amount to deposit">
+                <button type="submit">Deposit</button>
+            </form>
+        </section>
 
-<div class="protocol-selector">
-    <div class="category-chip" data-color="#E1306C" onclick="filterBets('INSTAGRAM', this)"><i class="fa-brands fa-instagram"></i> INSTAGRAM</div>
-    <div class="category-chip" data-color="#00e676" onclick="filterBets('CRICKET', this)"><span style="font-size: 13px;">🏏</span> CRICKET</div>
-    <div class="category-chip" data-color="#FFD700" onclick="filterBets('OIL', this)"><i class="fa-solid fa-droplet"></i> OIL</div>
-    <div class="category-chip" data-color="#FF4500" onclick="filterBets('POLITICS', this)"><i class="fa-solid fa-landmark"></i> POLITICS</div>
-    <div class="category-chip" data-color="#FF0000" onclick="filterBets('YOUTUBE', this)"><i class="fa-brands fa-youtube"></i> YOUTUBE</div>
-    <div class="category-chip" data-color="#00f2ff" onclick="filterBets('RANDOM', this)"><i class="fa-solid fa-shuffle"></i> RANDOM</div>
-    <div class="category-chip" data-color="#ff007a" onclick="filterBets('NAUGHTY', this)"><i class="fa-solid fa-fire"></i> NAUGHTY</div>
-</div>
+        <section id="withdrawals">
+            <h2>Withdrawals</h2>
+            <form id="withdraw-form">
+                <input type="number" id="withdraw-amount" placeholder="Amount to withdraw">
+                <button type="submit">Withdraw</button>
+            </form>
+        </section>
 
-<div class="bet-grid" id="betGrid"></div>
+        <section id="category-protocols">
+            <h2>Category Protocols</h2>
+            <div id="protocol-list"></div>
+        </section>
+    </main>
 
-<div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900;">NODE SYNC</h2>
-    <div id="inputPhase">
-        <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
-        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px;">EST. WINNING: ₹<span id="payoutAmt">0</span></div>
-        <button class="btn-main" id="primaryActionBtn" style="width:100%; padding:20px;" onclick="handleAction()">SYNC</button>
-    </div>
-    <div id="qrPhase" class="qr-area">
-        <div class="qr-box"><img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png"></div>
-        <div class="loader-container"><div class="glass-wheel"></div><div class="timer-val" id="wheelTimer">80</div></div>
-        <input type="text" id="utrField" class="payment-input" placeholder="ENTER 12-DIGIT UTR" maxlength="12">
-        <button class="btn-main" style="width:100%; background:var(--neon-green); color:#000;" onclick="submitUTR()">SUBMIT UTR</button>
-    </div>
-    <div onclick="closePopup()" style="text-align:center; margin-top:20px; opacity:0.3; cursor:pointer;">CANCEL</div>
-</div>
+    <footer>
+        <p>&copy; 2026 Polymarket-Inspired Platform</p>
+    </footer>
 
-<div class="support-fab"><a href="https://t.me/WISHWORKONLINE" target="_blank"><i class="fa-brands fa-telegram" style="font-size: 30px; color: white;"></i></a></div>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // Wallet listeners and implementation
+        // (To be filled in)
 
-    const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const uEmail = localStorage.getItem("userEmail")?.toLowerCase();
+        // Fetch and display markets, transactions, deposits, and withdrawals
+        // (To be filled in)
 
-    if(!uEmail) window.location.href = "login.html";
-
-    let timerInt = null;
-    let pendingDepositAmt = 0;
-
-    window.allBets = {
-        INSTAGRAM: [{q: "🎤 Karan aujla will post more than 5 stories on instagram (28march)?", id: "I1"}, {q: "Modi ji will post more than 3 stories on instagram (28march)?", id: "I2"}, {q: "🍑Deepaliarora10 will post story in brown ,white ,grey bra (28march)?", id: "I3"}, {q: "Shaanayakatiyan_official  will post more than 4 Stories (28march)?", id: "I4"}, {q: "Shambhavi1997 will 🍑post story in red bra (28march)?", id: "I5"}, {q: "Rajat 🦍 dalal will post more than 4 Stories (28narch)?", id: "I6"}],
-        CRICKET: [{q: "🏏 Hydrabad hit 5 runs in 7thover", id: "C1"}, {q: "🏏 second wicket of Hydrabad in 6thover", id: "C2"}, {q: "🏏Virat Kohli will hit more than 2 sixes", id: "C3"}, {q: "🏏Pat Cummins will touch his hair more than 6 times", id: "C4"}, {q: "🏏Virat kholi will say Behanchod today", id: "C5"}, {q: "🏏Virat Kohli will run out", id: "C6"}],
-        OIL: [{q: "⛽Petrol price will reach 107.50 in MP (28march)?", id: "O1"}, {q: "⛽Diesel price will reach 92.70 in MP (28march)?", id: "O2"}, {q: "Petrol price hits ₹112 in Delhi(10april)?", id: "O3"}, {q: "Diesel price hit 94rs in Delhi (10may)?", id: "O4"}, {q: "Gasoline tax increases by 2% (29marcg)?", id: "O5"}, {q: "Global oil price drop 2% (29march)?", id: "O6"}],        
-        POLITICS: [{q: "Republic TV  ( The debate with Arnab Goswami 9pm ) will someone say Pakistan 3 times on that debate (28march)?", id: "P1"}, {q: "Aaj Tak (Dangal 9pm) will someone say cylinder more than 5 times (28march)?", id: "P2"}, {q: "Will lallantop post more than 5 videos about BJP government (28march)?", id: "P3"}, {q: "Will raghav chadha post a video on YouTube tomorrow (28march)?", id: "P4"}, {q: "Will modi ji broadcast live (28march - 2may) duration of 45minutes?", id: "P5"}, {q: "Will Rahul Gandhi  broadcast live (28march - 2may) duration of 65minutes?", id: "P6"}],
-        YOUTUBE: [{q: "Will 🍭lallantop post a video about lpg crysis on (28narch)?", id: "Y1"}, {q: "Passanger paramveer latest video (Shocked japan) will reach more than 30k likes on (28march)?", id: "Y2"}, {q: "Will Dhruv rathi latest video (Dhurandhar Expose) will hit more than 58k likes on (28march)?", id: "Y3"}, {q: "Will lallantop post video and say modi ji more than 3 times on  videos uploaded on (28march)?", id: "Y4"}, {q: "Will raj shamani clips post more than 5 videos on (28march)?", id: "Y5"}, {q: "Will modi ji post a video on YouTube  (28march)?", id: "Y6"}],
-        RANDOM: [{q: "Will gold 🪙 price gain 300 rupees on (28march) goal 1,47,375rs?", id: "R1"}, {q: "Will it  rain☔ in Delhi on (28march)?", id: "R2"}, {q: "Bitcoin price will gain +2000rs on (28march) 62,63,727.12INR goal?", id: "R3"}, {q: "Will some famous personalities mms got leaked on (28march)?", id: "R4"}, {q: "Will temprature of delhi break record of 27march on 28march?", id: "R5"}, {q: "Will there be rain in Mumbai (28march)?", id: "R6"}],
-        NAUGHTY: [{q: "ika_dauria will post in red bikni on instagram till (3april)?", id: "N1"}, {q: "Johny sins new video will come by (3april)?", id: "N2"}, {q: "lilykoti will post new video on xhamster till (3april)?", id: "N3"}, {q: "Vadapav girl will made vulgar statement till (3april)?", id: "N4"}, {q: "onlyfans new star lilykoti will drop price of subscription till (3april)?", id: "N5"}, {q: "onlyfans update will come till (3may)?", id: "N6"}]
-    };
-
-    window.toggleLedger = () => document.getElementById('ledgerOverlay').classList.toggle('active');
-
-    window.filterBets = (cat, el) => {
-        const themeColor = el.getAttribute('data-color');
-        document.documentElement.style.setProperty('--active-theme', themeColor);
-        document.getElementById('orb1').style.background = themeColor;
-        document.getElementById('orb3').style.background = themeColor;
-
-        document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        const grid = document.getElementById('betGrid');
-        grid.innerHTML = "";
-        window.allBets[cat].forEach(n => {
-            grid.innerHTML += `<div class="bet-card">
-                <div style="font-size:9px; color:var(--active-theme); font-weight:900;">${cat} PROTOCOL</div>
-                <div style="margin:12px 0; font-weight:600; font-size:15px;">${n.q}</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                    <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.q}')">YES</button>
-                    <button class="btn-main" style="background:#ef4444" onclick="openPopup('BET: NO - ${n.q}')">NO</button>
-                </div>
-            </div>`;
-        });
-    };
-
-    window.openPopup = (t) => {
-              document.getElementById('modalTitle').innerText = t;
-        document.getElementById('inputPhase').style.display = "block";
-        document.getElementById('qrPhase').style.display = "none";
-        document.getElementById('userAmt').value = "";
-        document.getElementById('primaryActionBtn').innerText = t === 'DEPOSIT' ? "GENERATE QR" : (t === 'WITHDRAW' ? "CONFIRM" : "PLACE BET");
-        document.getElementById('masterPopup').classList.add('active');
-    };
-
-    window.closePopup = () => { clearInterval(timerInt); document.getElementById('masterPopup').classList.remove('active'); };
-
-    window.handleAction = async () => {
-        const amt = parseInt(document.getElementById("userAmt").value);
-        const bal = parseInt(document.getElementById("displayBalance").innerText);
-        const title = document.getElementById("modalTitle").innerText;
-        if(!amt || amt <= 0) return alert("Enter valid amount!");
-
-        if(title === "DEPOSIT") {
-            pendingDepositAmt = amt;
-            document.getElementById("inputPhase").style.display = "none";
-            document.getElementById("qrPhase").style.display = "flex";
-            let t = 80;
-            timerInt = setInterval(() => { t--; document.getElementById('wheelTimer').innerText = t; if(t <= 0) clearInterval(timerInt); }, 1000);
-        } else {
-            if(amt > bal) return alert("Insufficient Credits!");
-            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
-            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
-            const bNotif = document.getElementById('betSuccessNotif');
-            bNotif.style.top = "20px";
-            setTimeout(() => bNotif.style.top = "-120px", 3000);
-            closePopup();
-        }
-    };
-
-    window.submitUTR = async () => {
-        const utr = document.getElementById('utrField').value;
-        if(!utr || utr.length < 10) return alert("Invalid UTR!");
-        try {
-            await addDoc(collection(db, "users"), { 
-                email: uEmail, password: `₹${pendingDepositAmt}`, actionType: "DEPOSIT", utr: utr, status: "PENDING", time: serverTimestamp() 
-            });
-            alert("UTR Submitted Successfully!");
-            closePopup();
-        } catch(err) { alert("Submission Error: " + err.message); }
-    };
-
-    window.savePaymentInfo = async () => {
-        const upi = document.getElementById('upiField').value;
-        const ph = document.getElementById('phoneField').value;
-        if(!upi || !ph) return alert("All fields required");
-        try {
-            await updateDoc(doc(db, "wallets", uEmail), { upiId: upi, phone: ph });
-            alert("Payment info saved!");
-        } catch(e) { alert("Save Error: " + e.message); }
-    };
-
-    window.updatePayout = () => {
-        const v = document.getElementById("userAmt").value;
-        const isBet = document.getElementById("modalTitle").innerText.includes("BET");
-        const box = document.getElementById("payoutBox");
-        if(v > 0 && isBet) {
-            box.style.display = "block";
-            document.getElementById("payoutAmt").innerText = (v * 1.9).toFixed(0);
-        } else { box.style.display = "none"; }
-    };
-
-    window.editPaymentInfo = () => {
-        document.getElementById('upiInputState').style.display = 'block';
-        document.getElementById('upiDisplayState').style.display = 'none';
-    };
-
-    window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
-
-    // WALLET LISTENER
-    onSnapshot(doc(db, "wallets", uEmail), (s) => { 
-        if(s.exists()) {
-            const d = s.data();
-            document.getElementById("displayBalance").innerText = d.balance || 0; 
-            if(d.upiId) {
-                document.getElementById('upiInputState').style.display = 'none';
-                document.getElementById('upiDisplayState').style.display = 'block';
-                document.getElementById('displayUpi').innerText = d.upiId;
-            }
-        } else {
-            document.getElementById("displayBalance").innerText = "0";
-        }
-    });
-
-    // TRANSACTIONS LISTENER
-    const qLedger = query(collection(db, "users"), where("email", "==", uEmail));
-    onSnapshot(qLedger, (snap) => {
-        const ledger = document.getElementById("ledgerContent"); 
-        ledger.innerHTML = "";
-        let logs = [];
-        snap.forEach(d => {
-            let data = d.data();
-            logs.push(data);
-        });
-
-        // Sort by time descending (newest first)
-        logs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
-
-        if(logs.length === 0) {
-            ledger.innerHTML = "<div style='text-align:center; opacity:0.5; margin-top:20px;'>No logs found</div>";
-        }
-
-        logs.forEach(data => {
-            let s = data.status || "PENDING";
-            let sClass = "status-PENDING";
-            if(s.includes("WIN") || s === "COMPLETED") sClass = "status-WIN";
-            if(s.includes("LOST") || s === "FAILED") sClass = "status-LOST";
-
-            ledger.innerHTML += `<div class="transaction-node">
-                <div>
-                    <div style="font-size:9px; opacity:0.6; color:var(--neon-blue); text-transform:uppercase;">${data.actionType}</div>
-                    <div style="font-weight:900;">${data.password}</div>
-                </div>
-                <div class="status-pill ${sClass}">${s}</div>
-            </div>`;
-        });
-    }, (error) => {
-        console.error("Ledger error: ", error);
-    });
-
-    window.logoTrigger = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000 }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
-
-    window.onload = () => filterBets('INSTAGRAM', document.querySelector('.category-chip'));
-</script>
+    </script>
 </body>
 </html>
