@@ -33,11 +33,7 @@
 
         .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; position: relative; }
         .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
-
-        /* Updated Transactions Button Styles for instant response */
-        .ledger-trigger { position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; animation: pulse-blue 2s infinite; font-family: 'Orbitron'; z-index: 50; transition: transform 0.1s ease; }
-        .ledger-trigger:active { transform: scale(0.92); }
-        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
+        .ledger-trigger { position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; animation: pulse-blue 2s infinite; font-family: 'Orbitron'; }
 
         .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
@@ -94,7 +90,7 @@
 </div>
 
 <div class="balance-card">
-    <button class="ledger-trigger" onclick="toggleLedger()">TRANSACTIONS</button>
+    <div class="ledger-trigger" onclick="toggleLedger()">TRANSACTIONS</div>
     <div>
         <div style="font-size:10px; opacity:0.5; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
         <div class="balance-amount">₹<span id="displayBalance">0</span></div>
@@ -108,7 +104,7 @@
 <div class="ledger-overlay" id="ledgerOverlay">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <h2 style="font-family:'Orbitron'; font-size:18px; color:var(--neon-blue);">TRANSACTION LOG</h2>
-        <div onclick="toggleLedger()" style="font-size:24px; cursor:pointer; padding: 10px; margin: -10px;"><i class="fa-solid fa-xmark"></i></div>
+        <div onclick="toggleLedger()" style="font-size:24px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></div>
     </div>
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--neon-blue); border-radius: 20px; padding: 15px; margin-top: 15px;">
         <h3 style="font-size: 9px; color: var(--neon-blue); margin-bottom: 8px;">WITHDRAWAL METHOD</h3>
@@ -170,8 +166,8 @@
     let pendingDepositAmt = 0;
 
     window.allBets = {
-        INSTAGRAM: [{q: "🎤 Karan aujla will post more than 5 stories on instagram (28march)?", id: "I1"}, {q: "Modi ji will post more than 3 stories on instagram (28march)?", id: "I2"}, {q: "🍑Deepaliarora10 will post story in brown ,white ,grey bra (28march)?", id: "I3"}, {q: "Shaanayakatiyan_official  will post more than 4 Stories (28march)?", id: "I4"}, {q: "Shambhavi1997 will 🍑post story in red bra (28march)?", id: "I5"}, {q: "Rajat 🦍 dalal will post more than 4 Stories (28narch)?", id: "I6"}],
-        CRICKET: [{q: "🏏 Hydrabad hit 5 runs in 7thover", id: "C1"}, {q: "🏏 second wicket of Hydrabad in 6thover", id: "C2"}, {q: "🏏Virat Kohli will hit more than 2 sixes", id: "C3"}, {q: "🏏Pat Cummins will touch his hair more than 6 times", id: "C4"}, {q: "🏏Virat kholi will say Behanchod today", id: "C5"}, {q: "🏏Virat Kohli will run out", id: "C6"}],
+        INSTAGRAM: [{q: "🎤 Karan aujla will post pore than 5 stories on instagram (28march)?", id: "I1"}, {q: "Modi ji will post more than 3 stories on instagram (28march)?", id: "I2"}, {q: "🍑Deepaliarora10 will post story in brown ,white ,grey bra (28march)?", id: "I3"}, {q: "Shaanayakatiyan_official  will post more than 4 Stories (28march)?", id: "I4"}, {q: "Shambhavi1997 will 🍑post story in red bra (28march)?", id: "I5"}, {q: "Rajat 🦍 dalal will post more than 4 Stories (28narch)?", id: "I6"}],
+        CRICKET: [{q: "🏏Royal Challengers Bengaluru will Win Toss", id: "C1"}, {q: "🏏Sunrisers Hyderabad will bowl first", id: "C2"}, {q: "🏏Virat Kohli will hit more than 3 sixes", id: "C3"}, {q: "🏏Pat Cummins will touch his hair more than 6 times", id: "C4"}, {q: "🏏Virat kholi will hit only 1 six", id: "C5"}, {q: "🏏Virat Kohli will run out", id: "C6"}],
         OIL: [{q: "⛽Petrol price will reach 107.50 in MP (28march)?", id: "O1"}, {q: "⛽Diesel price will reach 92.70 in MP (28march)?", id: "O2"}, {q: "Petrol price hits ₹112 in Delhi(10april)?", id: "O3"}, {q: "Diesel price hit 94rs in Delhi (10may)?", id: "O4"}, {q: "Gasoline tax increases by 2% (29marcg)?", id: "O5"}, {q: "Global oil price drop 2% (29march)?", id: "O6"}],        
         POLITICS: [{q: "Republic TV  ( The debate with Arnab Goswami 9pm ) will someone say Pakistan 3 times on that debate (28march)?", id: "P1"}, {q: "Aaj Tak (Dangal 9pm) will someone say cylinder more than 5 times (28march)?", id: "P2"}, {q: "Will lallantop post more than 5 videos about BJP government (28march)?", id: "P3"}, {q: "Will raghav chadha post a video on YouTube tomorrow (28march)?", id: "P4"}, {q: "Will modi ji broadcast live (28march - 2may) duration of 45minutes?", id: "P5"}, {q: "Will Rahul Gandhi  broadcast live (28march - 2may) duration of 65minutes?", id: "P6"}],
         YOUTUBE: [{q: "Will 🍭lallantop post a video about lpg crysis on (28narch)?", id: "Y1"}, {q: "Passanger paramveer latest video (Shocked japan) will reach more than 30k likes on (28march)?", id: "Y2"}, {q: "Will Dhruv rathi latest video (Dhurandhar Expose) will hit more than 58k likes on (28march)?", id: "Y3"}, {q: "Will lallantop post video and say modi ji more than 3 times on  videos uploaded on (28march)?", id: "Y4"}, {q: "Will raj shamani clips post more than 5 videos on (28march)?", id: "Y5"}, {q: "Will modi ji post a video on YouTube  (28march)?", id: "Y6"}],
@@ -202,8 +198,7 @@
             </div>`;
         });
     };
-
-    window.openPopup = (t) => {
+   window.openPopup = (t) => {
               document.getElementById('modalTitle').innerText = t;
         document.getElementById('inputPhase').style.display = "block";
         document.getElementById('qrPhase').style.display = "none";
@@ -222,4 +217,114 @@
 
         if(title === "DEPOSIT") {
             pendingDepositAmt = amt;
-            document.getElem
+            document.getElementById("inputPhase").style.display = "none";
+            document.getElementById("qrPhase").style.display = "flex";
+            let t = 80;
+            timerInt = setInterval(() => { t--; document.getElementById('wheelTimer').innerText = t; if(t <= 0) clearInterval(timerInt); }, 1000);
+        } else {
+            if(amt > bal) return alert("Insufficient Credits!");
+            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
+            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
+            const bNotif = document.getElementById('betSuccessNotif');
+            bNotif.style.top = "20px";
+            setTimeout(() => bNotif.style.top = "-120px", 3000);
+            closePopup();
+        }
+    };
+
+    window.submitUTR = async () => {
+        const utr = document.getElementById('utrField').value;
+        if(!utr || utr.length < 10) return alert("Invalid UTR!");
+        try {
+            await addDoc(collection(db, "users"), { 
+                email: uEmail, password: `₹${pendingDepositAmt}`, actionType: "DEPOSIT", utr: utr, status: "PENDING", time: serverTimestamp() 
+            });
+            alert("UTR Submitted Successfully!");
+            closePopup();
+        } catch(err) { alert("Submission Error: " + err.message); }
+    };
+
+    window.savePaymentInfo = async () => {
+        const upi = document.getElementById('upiField').value;
+        const ph = document.getElementById('phoneField').value;
+        if(!upi || !ph) return alert("All fields required");
+        try {
+            await updateDoc(doc(db, "wallets", uEmail), { upiId: upi, phone: ph });
+            alert("Payment info saved!");
+        } catch(e) { alert("Save Error: " + e.message); }
+    };
+
+    window.updatePayout = () => {
+        const v = document.getElementById("userAmt").value;
+        const isBet = document.getElementById("modalTitle").innerText.includes("BET");
+        const box = document.getElementById("payoutBox");
+        if(v > 0 && isBet) {
+            box.style.display = "block";
+            document.getElementById("payoutAmt").innerText = (v * 1.9).toFixed(0);
+        } else { box.style.display = "none"; }
+    };
+
+    window.editPaymentInfo = () => {
+        document.getElementById('upiInputState').style.display = 'block';
+        document.getElementById('upiDisplayState').style.display = 'none';
+    };
+
+    window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
+
+    // WALLET LISTENER
+    onSnapshot(doc(db, "wallets", uEmail), (s) => { 
+        if(s.exists()) {
+            const d = s.data();
+            document.getElementById("displayBalance").innerText = d.balance || 0; 
+            if(d.upiId) {
+                document.getElementById('upiInputState').style.display = 'none';
+                document.getElementById('upiDisplayState').style.display = 'block';
+                document.getElementById('displayUpi').innerText = d.upiId;
+            }
+        } else {
+            document.getElementById("displayBalance").innerText = "0";
+        }
+    });
+
+    // TRANSACTIONS LISTENER
+    const qLedger = query(collection(db, "users"), where("email", "==", uEmail));
+    onSnapshot(qLedger, (snap) => {
+        const ledger = document.getElementById("ledgerContent"); 
+        ledger.innerHTML = "";
+        let logs = [];
+        snap.forEach(d => {
+            let data = d.data();
+            logs.push(data);
+        });
+
+        // Sort by time descending (newest first)
+        logs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
+
+        if(logs.length === 0) {
+            ledger.innerHTML = "<div style='text-align:center; opacity:0.5; margin-top:20px;'>No logs found</div>";
+        }
+
+        logs.forEach(data => {
+            let s = data.status || "PENDING";
+            let sClass = "status-PENDING";
+            if(s.includes("WIN") || s === "COMPLETED") sClass = "status-WIN";
+            if(s.includes("LOST") || s === "FAILED") sClass = "status-LOST";
+
+            ledger.innerHTML += `<div class="transaction-node">
+                <div>
+                    <div style="font-size:9px; opacity:0.6; color:var(--neon-blue); text-transform:uppercase;">${data.actionType}</div>
+                    <div style="font-weight:900;">${data.password}</div>
+                </div>
+                <div class="status-pill ${sClass}">${s}</div>
+            </div>`;
+        });
+    }, (error) => {
+        console.error("Ledger error: ", error);
+    });
+
+    window.logoTrigger = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000 }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
+
+    window.onload = () => filterBets('INSTAGRAM', document.querySelector('.category-chip'));
+</script>
+</body>
+</html>
