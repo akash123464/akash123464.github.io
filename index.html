@@ -1,637 +1,334 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WISHWORK | Prediction Markets</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --sky:#00C2FF;--sky-d:rgba(0,194,255,0.13);--sky-b:rgba(0,194,255,0.28);
-  --gold:#FFB800;--gold-d:rgba(255,184,0,0.13);
-  --bg:#080B12;--bg2:#0D1120;--bg3:#111827;
-  --sur:rgba(255,255,255,0.04);--bor:rgba(255,255,255,0.09);--bsk:rgba(0,194,255,0.22);
-  --txt:#F0F4FF;--dim:rgba(240,244,255,0.42);
-  --grn:#00E676;--red:#FF3B6B;
-  --grn-d:rgba(0,230,118,0.13);--red-d:rgba(255,59,107,0.13);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;padding-bottom:90px;overflow-x:hidden;}
-.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,194,255,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,194,255,0.035) 1px,transparent 1px);background-size:48px 48px;}
-.bg-glow{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 55% 40% at 0% 0%,rgba(0,194,255,0.08) 0%,transparent 70%),radial-gradient(ellipse 45% 35% at 100% 100%,rgba(255,184,0,0.07) 0%,transparent 70%);}
-#winNotif,#syncNotif{position:fixed;top:-110px;left:50%;transform:translateX(-50%);padding:14px 32px;border-radius:100px;font-weight:700;z-index:9999;transition:.7s cubic-bezier(.175,.885,.32,1.275);display:flex;align-items:center;gap:10px;white-space:nowrap;font-family:'JetBrains Mono';font-size:12px;letter-spacing:1px;backdrop-filter:blur(20px);}
-#winNotif{background:rgba(0,230,118,.1);border:1px solid var(--grn);color:var(--grn);box-shadow:0 0 30px rgba(0,230,118,.25);}
-#syncNotif{background:rgba(0,194,255,.1);border:1px solid var(--sky);color:var(--sky);box-shadow:0 0 30px rgba(0,194,255,.25);}
-.hdr{position:sticky;top:0;z-index:2000;height:58px;background:rgba(8,11,18,.88);backdrop-filter:blur(30px);border-bottom:1px solid var(--bor);display:flex;align-items:center;justify-content:space-between;padding:0 16px;}
-.logo{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;letter-spacing:3px;cursor:pointer;background:linear-gradient(90deg,var(--sky),#fff,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px rgba(0,194,255,.4));}
-.hdr-bal{background:var(--sky-d);border:1px solid var(--bsk);padding:6px 14px;border-radius:9px;font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:var(--sky);}
-.hdr-right{display:flex;align-items:center;gap:12px;}
-.logout-x{color:var(--dim);font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid transparent;transition:.2s;text-transform:uppercase;}
-.logout-x:hover{border-color:var(--bor);color:var(--txt);}
-.wallet{position:relative;z-index:1;margin:16px;background:var(--bg2);border:1px solid var(--bor);border-radius:20px;padding:22px;overflow:hidden;}
-.wallet::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--sky),transparent);}
-.w-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;}
-.w-lbl{font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;}
-.w-amt{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:#fff;line-height:1;}
-.w-amt em{color:var(--sky);font-style:normal;}
-.txn-btn{background:var(--sky-d);border:1px solid var(--bsk);color:var(--sky);padding:8px 14px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'JetBrains Mono';display:flex;align-items:center;gap:7px;transition:.2s;white-space:nowrap;}
-.txn-btn:hover{background:rgba(0,194,255,.2);}
-.dot{width:6px;height:6px;background:var(--sky);border-radius:50%;animation:blink 1.5s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.w-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.wb{padding:13px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;letter-spacing:.5px;text-transform:uppercase;transition:.2s;display:flex;align-items:center;justify-content:center;gap:7px;}
-.wb.dep{background:linear-gradient(135deg,var(--sky),#0097CC);color:#000;box-shadow:0 4px 18px rgba(0,194,255,.3);}
-.wb.dep:hover{box-shadow:0 4px 28px rgba(0,194,255,.5);transform:translateY(-1px);}
-.wb.wit{background:var(--sur);border:1px solid var(--bor);color:var(--txt);}
-.wb.wit:hover{border-color:var(--bsk);}
-.stats{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:0 16px;}
-.scard{background:var(--bg2);border:1px solid var(--bor);border-radius:13px;padding:13px 10px;text-align:center;}
-.sv{font-family:'JetBrains Mono';font-size:15px;font-weight:700;}
-.sv.s{color:var(--sky)}.sv.g{color:var(--gold)}.sv.gr{color:var(--grn)}
-.sl{font-size:9px;color:var(--dim);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;}
-.cats-section{position:relative;z-index:1;margin-top:20px;}
-.cats-lbl{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--dim);text-transform:uppercase;padding:0 16px 9px;}
-.cats-row{display:flex;gap:8px;padding:0 16px 4px;overflow-x:auto;scrollbar-width:none;}
-.cats-row::-webkit-scrollbar{display:none;}
-.cpill{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;border:1px solid var(--bor);background:var(--sur);font-size:12px;font-weight:700;color:var(--dim);cursor:pointer;white-space:nowrap;transition:.22s;flex-shrink:0;}
-.cpill.active{background:var(--sky-d);border-color:var(--sky);color:#fff;box-shadow:0 0 18px rgba(0,194,255,.15);}
-.cpill:hover:not(.active){border-color:rgba(255,255,255,.18);color:var(--txt);}
-.cico{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;}
-.ic-ig{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);}
-.ic-cr{background:linear-gradient(135deg,#00c853,#1b5e20);}
-.ic-oi{background:linear-gradient(135deg,#ff8f00,#e65100);}
-.ic-po{background:linear-gradient(135deg,#1565c0,#283593);}
-.ic-yt{background:#ff0000;}
-.ic-ra{background:linear-gradient(135deg,#6200ea,#aa00ff);}
-.ic-na{background:linear-gradient(135deg,#c62828,#ad1457);}
-.mhdr{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:18px 16px 10px;}
-.mtitle{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;}
-.mcnt{font-family:'JetBrains Mono';font-size:10px;color:var(--sky);background:var(--sky-d);padding:4px 10px;border-radius:6px;border:1px solid var(--bsk);}
-.bgrid{position:relative;z-index:1;display:grid;gap:10px;padding:0 16px;}
-.mcard{background:var(--bg2);border:1px solid var(--bor);border-radius:16px;padding:17px;transition:.22s;position:relative;overflow:hidden;}
-.mcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ca,#00C2FF);border-radius:3px 0 0 3px;}
-.mcard:hover{border-color:rgba(0,194,255,.22);box-shadow:0 6px 28px rgba(0,0,0,.3);transform:translateY(-1px);}
-.ctop{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
-.cbadge{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:var(--sky-d);color:var(--sky);border:1px solid var(--bsk);font-family:'JetBrains Mono';}
-.codds{font-size:10px;font-weight:700;color:var(--gold);background:var(--gold-d);border:1px solid rgba(255,184,0,.25);padding:3px 9px;border-radius:6px;font-family:'JetBrains Mono';}
-.cq{font-size:14px;font-weight:600;line-height:1.45;color:var(--txt);margin-bottom:13px;}
-.cbar-wrap{margin-bottom:13px;}
-.cbar-lbls{display:flex;justify-content:space-between;font-size:10px;font-weight:700;margin-bottom:5px;}
-.byl{color:var(--grn)}.bnl{color:var(--red)}
-.cbar-track{height:5px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;}
-.cbar-fill{height:100%;background:linear-gradient(90deg,var(--grn),#00b894);border-radius:100px;}
-.cbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.cbtn{padding:11px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:.2s;display:flex;align-items:center;justify-content:center;gap:5px;}
-.cbtn.yes{background:var(--grn-d);color:var(--grn);border:1px solid rgba(0,230,118,.25);}
-.cbtn.yes:hover{background:rgba(0,230,118,.2);box-shadow:0 0 14px rgba(0,230,118,.2);}
-.cbtn.no{background:var(--red-d);color:var(--red);border:1px solid rgba(255,59,107,.25);}
-.cbtn.no:hover{background:rgba(255,59,107,.2);box-shadow:0 0 14px rgba(255,59,107,.2);}
-.cmeta{display:flex;gap:14px;margin-top:11px;padding-top:11px;border-top:1px solid var(--bor);}
-.cmi{font-size:10px;color:var(--dim);display:flex;align-items:center;gap:4px;}
-.ledger{position:fixed;top:0;right:-100%;width:100%;height:100%;background:rgba(8,11,18,.97);backdrop-filter:blur(40px);z-index:7000;transition:.5s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;}
-.ledger.open{right:0;}
-.ledger-hdr{padding:18px 16px;border-bottom:1px solid var(--bor);background:var(--bg2);display:flex;justify-content:space-between;align-items:center;}
-.ledger-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--sky);}
-.lclose{width:34px;height:34px;border-radius:9px;background:var(--sur);border:1px solid var(--bor);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:.2s;line-height:1;}
-.lclose:hover{background:rgba(255,255,255,.08);}
-.ledger-body{flex:1;overflow-y:auto;padding:14px;}
-.pcard{background:var(--bg3);border:1px solid var(--bor);border-radius:13px;padding:15px;margin-bottom:14px;}
-.pcard-lbl{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--sky);text-transform:uppercase;margin-bottom:11px;font-family:'JetBrains Mono';}
-.pinput{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--bor);border-radius:9px;padding:11px 13px;color:var(--txt);font-family:'Space Grotesk';font-size:14px;margin-bottom:9px;transition:.2s;}
-.pinput:focus{outline:none;border-color:var(--bsk);box-shadow:0 0 0 3px rgba(0,194,255,.08);}
-.pinput::placeholder{color:var(--dim);}
-.sbtn{width:100%;padding:11px;background:var(--sky-d);border:1px solid var(--bsk);color:var(--sky);border-radius:9px;font-weight:700;font-size:12px;letter-spacing:1px;cursor:pointer;transition:.2s;text-transform:uppercase;}
-.sbtn:hover{background:rgba(0,194,255,.2);}
-.hdr-lbl2{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;font-family:'JetBrains Mono';}
-.tnode{background:var(--bg3);border:1px solid var(--bor);border-radius:11px;padding:13px 15px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
-.ttype{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:3px;font-family:'JetBrains Mono';}
-.tamt{font-family:'JetBrains Mono';font-size:15px;font-weight:700;}
-.spill{padding:4px 11px;border-radius:6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono';}
-.sp-P{color:var(--gold);background:var(--gold-d);border:1px solid rgba(255,184,0,.2);}
-.sp-W{color:var(--grn);background:var(--grn-d);border:1px solid rgba(0,230,118,.2);}
-.sp-L{color:var(--red);background:var(--red-d);border:1px solid rgba(255,59,107,.2);}
-.popup{position:fixed;bottom:-110%;left:0;width:100%;background:var(--bg2);border-top:1px solid var(--bsk);border-radius:22px 22px 0 0;padding:24px 20px 34px;transition:.55s cubic-bezier(.16,1,.3,1);z-index:6000;box-shadow:0 -18px 50px rgba(0,0,0,.6);}
-.popup.open{bottom:0;}
-.handle{width:38px;height:4px;background:var(--bor);border-radius:2px;margin:0 auto 18px;}
-.ptitle{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;text-align:center;margin-bottom:18px;}
-.ainput{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--bor);border-radius:13px;padding:17px;color:#fff;font-family:'JetBrains Mono';font-size:26px;text-align:center;font-weight:700;margin-bottom:10px;transition:.2s;}
-.ainput:focus{outline:none;border-color:var(--bsk);box-shadow:0 0 0 4px rgba(0,194,255,.08);}
-.ainput::placeholder{color:var(--dim);font-size:18px;}
-.payout-box{display:none;text-align:center;padding:10px;background:var(--grn-d);border:1px solid rgba(0,230,118,.2);border-radius:10px;margin-bottom:13px;}
-.payout-lbl{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;}
-.payout-val{font-family:'JetBrains Mono';font-size:22px;font-weight:700;color:var(--grn);}
-.pbtn{width:100%;padding:16px;border-radius:13px;border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:1px;cursor:pointer;transition:.2s;text-transform:uppercase;background:linear-gradient(135deg,var(--sky),#0097CC);color:#000;box-shadow:0 4px 22px rgba(0,194,255,.35);}
-.pbtn:hover{box-shadow:0 4px 32px rgba(0,194,255,.55);transform:translateY(-1px);}
-.canbtn{text-align:center;margin-top:13px;color:var(--dim);font-size:12px;cursor:pointer;padding:7px;}
-.qrphase{display:none;flex-direction:column;align-items:center;gap:14px;}
-.qr-wrap{background:#fff;padding:11px;border-radius:16px;border:2px solid var(--sky);box-shadow:0 0 28px rgba(0,194,255,.3);}
-.qr-wrap img{width:155px;height:155px;display:block;border-radius:7px;}
-.qr-note{font-size:12px;color:var(--dim);text-align:center;max-width:250px;line-height:1.6;}
-.tring{position:relative;width:62px;height:62px;}
-.tring svg{transform:rotate(-90deg);}
-.ttrack{fill:none;stroke:var(--bor);stroke-width:4;}
-.tfill{fill:none;stroke:var(--sky);stroke-width:4;stroke-linecap:round;stroke-dasharray:163;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear;}
-.ttext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:15px;font-weight:700;color:var(--sky);}
-.utrinput{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--bor);border-radius:9px;padding:12px 15px;color:var(--txt);font-family:'JetBrains Mono';font-size:14px;letter-spacing:2px;text-align:center;}
-.utrinput:focus{outline:none;border-color:var(--bsk);}
-.utrinput::placeholder{letter-spacing:1px;font-size:11px;color:var(--dim);}
-.usubmit{width:100%;padding:13px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--grn),#00b894);color:#000;font-weight:800;font-size:14px;letter-spacing:1px;cursor:pointer;transition:.2s;}
-.usubmit:hover{box-shadow:0 4px 18px rgba(0,230,118,.35);}
-.bnav{position:fixed;bottom:0;left:0;right:0;z-index:1500;height:66px;background:rgba(8,11,18,.93);backdrop-filter:blur(30px);border-top:1px solid var(--bor);display:flex;justify-content:space-around;align-items:center;padding:0 8px;}
-.ni{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:8px 12px;border-radius:11px;transition:.2s;color:var(--dim);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-.ni svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.ni.active{color:var(--sky);}
-.tg-lbl{position:fixed;bottom:136px;right:12px;z-index:5000;background:rgba(8,11,18,.92);border:1px solid rgba(42,171,238,.3);color:#2AABEE;font-size:8px;font-weight:700;letter-spacing:1.5px;padding:4px 9px;border-radius:6px;font-family:'JetBrains Mono';pointer-events:none;white-space:nowrap;}
-.tg{position:fixed;bottom:78px;right:16px;z-index:5000;width:54px;height:54px;border-radius:50%;background:linear-gradient(145deg,#2AABEE,#229ED9);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 22px rgba(42,171,238,.55);transition:.2s;text-decoration:none;}
-.tg:hover{transform:scale(1.08);box-shadow:0 6px 30px rgba(42,171,238,.75);}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WISHWORK | NEXUS PROTOCOL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --neon-pink: #ff007a; --neon-blue: #00f2ff; --neon-purple: #7000ff; --neon-green: #38ef7d; --neon-gold: #f1c40f;
+            --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); 
+            --active-theme: var(--neon-blue); 
+            --orb-color-1: var(--neon-purple); --orb-color-2: var(--neon-blue); --orb-color-3: var(--neon-pink);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { margin: 0; font-family: 'Outfit', sans-serif; background: #020205; color: #fff; min-height: 100vh; padding-bottom: 120px; overflow-x: hidden; position: relative; }
+
+        .plasma-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .light-orb { position: absolute; width: 450px; height: 450px; border-radius: 50%; filter: blur(130px); opacity: 0.45; animation: float-orb 12s infinite alternate ease-in-out; transition: background 1.2s ease; }
+        .orb-1 { background: var(--orb-color-1); top: -10%; left: -10%; }
+        .orb-2 { background: var(--orb-color-2); bottom: 10%; right: -5%; }
+        .orb-3 { background: var(--orb-color-3); top: 30%; left: 30%; }
+        @keyframes float-orb { from { transform: translate(0, 0); } to { transform: translate(120px, 90px); } }
+
+        #winNotif, #betSuccessNotif { position: fixed; top: -120px; left: 50%; transform: translateX(-50%); backdrop-filter: blur(25px); padding: 20px 45px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 15px; font-family: 'Orbitron'; }
+        #winNotif { background: rgba(56, 239, 125, 0.15); border: 2px solid var(--neon-green); box-shadow: 0 0 30px rgba(56, 239, 125, 0.4); }
+        #betSuccessNotif { background: rgba(0, 242, 255, 0.15); border: 2px solid var(--neon-blue); box-shadow: 0 0 30px rgba(0, 242, 255, 0.4); }
+
+        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(30px); background: rgba(0, 0, 0, 0.6); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
+        .brand-logo { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; background: linear-gradient(to right, var(--neon-blue), #fff, var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); letter-spacing: 2px; cursor: pointer; }
+
+        .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; position: relative; }
+        .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
+
+        /* Updated Transactions Button Styles for instant response */
+        .ledger-trigger { position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; animation: pulse-blue 2s infinite; font-family: 'Orbitron'; z-index: 50; transition: transform 0.1s ease; }
+        .ledger-trigger:active { transform: scale(0.92); }
+        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
+
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+
+        .ledger-overlay { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: rgba(2, 2, 5, 0.95); backdrop-filter: blur(60px); z-index: 7000; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); padding: 30px 20px; }
+        .ledger-overlay.active { right: 0; }
+        .ledger-scroll { height: calc(100% - 300px); overflow-y: auto; margin-top: 15px; }
+
+        .transaction-node { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 22px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--active-theme); }
+        .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+        .status-PENDING { color: var(--neon-gold); background: rgba(241, 196, 15, 0.1); }
+        .status-WIN, .status-COMPLETED { color: var(--neon-green); background: rgba(56, 239, 125, 0.1); }
+        .status-LOST, .status-FAILED { color: var(--neon-pink); background: rgba(255, 0, 122, 0.1); }
+
+        .protocol-selector { display: flex; overflow-x: auto; gap: 12px; padding: 15px 20px; scrollbar-width: none; }
+        .category-chip { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 15px; background: var(--glass); border: 1px solid var(--glass-border); white-space: nowrap; font-weight: 900; font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
+        .category-chip.active { color: #fff; border-color: #fff; box-shadow: 0 0 20px var(--active-theme); background: var(--active-theme); }
+
+        .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
+        .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 30px; padding: 22px; border-left: 4px solid var(--active-theme); }
+
+        .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--active-theme); }
+        .popup.active { bottom: 0; }
+        .input-nexus { width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--glass-border); padding: 20px; border-radius: 20px; color: #fff; font-size: 32px; text-align: center; font-weight: 900; margin-bottom: 20px; }
+
+        .qr-area { display: none; flex-direction: column; align-items: center; }
+        .qr-box { background: #fff; padding: 10px; border-radius: 25px; width: 180px; height: 180px; border: 4px solid var(--neon-blue); }
+        .qr-box img { width: 100%; height: 100%; }
+
+        .loader-container { position: relative; width: 80px; height: 80px; margin: 15px auto; }
+        .glass-wheel { width: 100%; height: 100%; border: 4px solid rgba(255,255,255,0.05); border-top: 4px solid var(--neon-blue); border-radius: 50%; animation: spin 2s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .timer-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 900; color: var(--neon-blue); font-family: 'Orbitron'; }
+
+        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; }
+        .payment-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 12px; border-radius: 12px; color: #fff; margin-bottom: 12px; font-family: 'Outfit'; }
+    </style>
 </head>
 <body>
 
-<div class="bg-grid"></div>
-<div class="bg-glow"></div>
-<div id="rainzone" style="position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden;"></div>
-<div id="winNotif">&#x1F451; YOU WIN! &#x20B9;<span id="winVal">0</span></div>
-<div id="syncNotif">&#x2705; BET PLACED SUCCESSFULLY</div>
-
-<!-- HEADER -->
-<div class="hdr">
-  <div class="logo" onclick="logoTrigger()">WISHWORK</div>
-  <div class="hdr-right">
-    <div class="hdr-bal">&#x20B9;<span id="headerBal">0</span></div>
-    <div class="logout-x" onclick="doLogout()">LOGOUT</div>
-  </div>
+<div class="plasma-bg">
+    <div class="light-orb orb-1" id="orb1"></div>
+    <div class="light-orb orb-2" id="orb2"></div>
+    <div class="light-orb orb-3" id="orb3"></div>
 </div>
 
-<!-- WALLET -->
-<div class="wallet">
-  <div class="w-top">
+<div id="rain-zone"></div>
+<div id="winNotif"><i class="fa-solid fa-crown" style="color:var(--neon-gold)"></i> YOU WIN! ₹<span id="winVal">0</span></div>
+<div id="betSuccessNotif"><i class="fa-solid fa-circle-check" style="color:var(--neon-blue)"></i> SYNC COMPLETED</div>
+
+<div class="header">
+    <div class="brand-logo" onclick="logoTrigger()">WISHWORK</div>
+    <div onclick="logout()" style="color: var(--neon-pink); font-weight: 900; font-size: 11px; cursor:pointer;">LOGOUT</div>
+</div>
+
+<div class="balance-card">
+    <button class="ledger-trigger" onclick="toggleLedger()">TRANSACTIONS</button>
     <div>
-      <div class="w-lbl">Available Balance</div>
-      <div class="w-amt"><em>&#x20B9;</em><span id="displayBalance">0</span></div>
+        <div style="font-size:10px; opacity:0.5; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
+        <div class="balance-amount">₹<span id="displayBalance">0</span></div>
     </div>
-    <button class="txn-btn" onclick="toggleLedger()"><span class="dot"></span> Transactions</button>
-  </div>
-  <div class="w-btns">
-    <button class="wb dep" onclick="openPopup('DEPOSIT')">+ Deposit</button>
-    <button class="wb wit" onclick="openPopup('WITHDRAW')">&#8593; Withdraw</button>
-  </div>
+    <div class="action-btns">
+        <button class="btn-main" onclick="openPopup('DEPOSIT')">Deposit</button>
+        <button class="btn-main" style="background:rgba(255,255,255,0.05); border:1px solid var(--glass-border);" onclick="openPopup('WITHDRAW')">Withdraw</button>
+    </div>
 </div>
 
-<!-- STATS -->
-<div class="stats" style="margin-top:10px;">
-  <div class="scard"><div class="sv s" id="statBets">6</div><div class="sl">Markets</div></div>
-  <div class="scard"><div class="sv g">1.9x</div><div class="sl">Multiplier</div></div>
-  <div class="scard"><div class="sv gr">LIVE</div><div class="sl">Status</div></div>
+<div class="ledger-overlay" id="ledgerOverlay">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-family:'Orbitron'; font-size:18px; color:var(--neon-blue);">TRANSACTION LOG</h2>
+        <div onclick="toggleLedger()" style="font-size:24px; cursor:pointer; padding: 10px; margin: -10px;"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--neon-blue); border-radius: 20px; padding: 15px; margin-top: 15px;">
+        <h3 style="font-size: 9px; color: var(--neon-blue); margin-bottom: 8px;">WITHDRAWAL METHOD</h3>
+        <div id="upiInputState">
+            <input type="text" id="upiField" class="payment-input" placeholder="UPI ID">
+            <input type="number" id="phoneField" class="payment-input" placeholder="PHONE NUMBER">
+            <button class="btn-main" style="width: 100%; padding: 10px; font-size: 10px;" onclick="savePaymentInfo()">SAVE DETAILS</button>
+        </div>
+        <div id="upiDisplayState" style="display: none;">
+            <div style="font-size: 12px;">Linked UPI: <span id="displayUpi" style="font-weight:900; color:var(--neon-blue);"></span></div>
+            <button class="btn-main" style="width: 100%; padding: 8px; margin-top:10px; background:rgba(255,255,255,0.05);" onclick="editPaymentInfo()">EDIT</button>
+        </div>
+    </div>
+    <div class="ledger-scroll" id="ledgerContent"></div>
 </div>
 
-<!-- CATEGORIES -->
-<div class="cats-section">
-  <div class="cats-lbl">Markets</div>
-  <div class="cats-row">
-    <div class="cpill active" onclick="filterBets('INSTAGRAM',this)">
-      <div class="cico ic-ig">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="white" style="display:block"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-      </div>Instagram
-    </div>
-    <div class="cpill" onclick="filterBets('CRICKET',this)">
-      <div class="cico ic-cr">&#x1F3CF;</div>Cricket
-    </div>
-    <div class="cpill" onclick="filterBets('OIL',this)">
-      <div class="cico ic-oi">&#x26FD;</div>Oil
-    </div>
-    <div class="cpill" onclick="filterBets('POLITICS',this)">
-      <div class="cico ic-po">&#x1F3DB;</div>Politics
-    </div>
-    <div class="cpill" onclick="filterBets('YOUTUBE',this)">
-      <div class="cico ic-yt">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="white" style="display:block"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-      </div>YouTube
-    </div>
-    <div class="cpill" onclick="filterBets('RANDOM',this)">
-      <div class="cico ic-ra">&#x1F500;</div>Random
-    </div>
-    <div class="cpill" onclick="filterBets('NAUGHTY',this)">
-      <div class="cico ic-na">&#x1F525;</div>Naughty
-    </div>
-  </div>
+<div class="protocol-selector">
+    <div class="category-chip" data-color="#E1306C" onclick="filterBets('INSTAGRAM', this)"><i class="fa-brands fa-instagram"></i> INSTAGRAM</div>
+    <div class="category-chip" data-color="#00e676" onclick="filterBets('CRICKET', this)"><span style="font-size: 13px;">🏏</span> CRICKET</div>
+    <div class="category-chip" data-color="#FFD700" onclick="filterBets('OIL', this)"><i class="fa-solid fa-droplet"></i> OIL</div>
+    <div class="category-chip" data-color="#FF4500" onclick="filterBets('POLITICS', this)"><i class="fa-solid fa-landmark"></i> POLITICS</div>
+    <div class="category-chip" data-color="#FF0000" onclick="filterBets('YOUTUBE', this)"><i class="fa-brands fa-youtube"></i> YOUTUBE</div>
+    <div class="category-chip" data-color="#00f2ff" onclick="filterBets('RANDOM', this)"><i class="fa-solid fa-shuffle"></i> RANDOM</div>
+    <div class="category-chip" data-color="#ff007a" onclick="filterBets('NAUGHTY', this)"><i class="fa-solid fa-fire"></i> NAUGHTY</div>
 </div>
 
-<!-- MARKETS HEADER -->
-<div class="mhdr">
-  <div class="mtitle">Live Markets</div>
-  <div class="mcnt" id="marketsCount">6 OPEN</div>
-</div>
-<div class="bgrid" id="betGrid"></div>
+<div class="bet-grid" id="betGrid"></div>
 
-<!-- LEDGER -->
-<div class="ledger" id="ledgerPanel">
-  <div class="ledger-hdr">
-    <div class="ledger-title">Transactions</div>
-    <div class="lclose" onclick="toggleLedger()">&#x2715;</div>
-  </div>
-  <div class="ledger-body">
-    <div class="pcard">
-      <div class="pcard-lbl">Withdrawal Method</div>
-      <div id="upiInputState">
-        <input type="text" id="upiField" class="pinput" placeholder="UPI ID (e.g. name@upi)">
-        <input type="number" id="phoneField" class="pinput" placeholder="Phone Number">
-        <button class="sbtn" onclick="savePaymentInfo()">Save Details</button>
-      </div>
-      <div id="upiDisplayState" style="display:none;">
-        <div style="font-size:12px;color:var(--dim);">Linked UPI</div>
-        <div style="font-weight:700;color:var(--sky);font-family:'JetBrains Mono';margin:5px 0 11px;" id="displayUpi"></div>
-        <button class="sbtn" onclick="editPaymentInfo()">Edit Details</button>
-      </div>
+<div class="popup" id="masterPopup">
+    <h2 id="modalTitle" style="text-align:center; font-weight:900;">NODE SYNC</h2>
+    <div id="inputPhase">
+        <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
+        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px;">EST. WINNING: ₹<span id="payoutAmt">0</span></div>
+        <button class="btn-main" id="primaryActionBtn" style="width:100%; padding:20px;" onclick="handleAction()">SYNC</button>
     </div>
-    <div class="hdr-lbl2">History</div>
-    <div id="ledgerContent"><div style="text-align:center;padding:28px 0;color:var(--dim);font-size:13px;">No transactions yet</div></div>
-  </div>
-</div>
-
-<!-- POPUP -->
-<div class="popup" id="masterPopup" data-action="">
-  <div class="handle"></div>
-  <div class="ptitle" id="modalTitle">Place Bet</div>
-  <div id="inputPhase">
-    <input type="number" id="userAmt" class="ainput" placeholder="&#x20B9; Enter Amount" oninput="updatePayout()">
-    <div class="payout-box" id="payoutBox">
-      <div class="payout-lbl">Estimated Winning</div>
-      <div class="payout-val">&#x20B9;<span id="payoutAmt">0</span></div>
+    <div id="qrPhase" class="qr-area">
+        <div class="qr-box"><img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png"></div>
+        <div class="loader-container"><div class="glass-wheel"></div><div class="timer-val" id="wheelTimer">80</div></div>
+        <input type="text" id="utrField" class="payment-input" placeholder="ENTER 12-DIGIT UTR" maxlength="12">
+        <button class="btn-main" style="width:100%; background:var(--neon-green); color:#000;" onclick="submitUTR()">SUBMIT UTR</button>
     </div>
-    <button class="pbtn" id="primaryBtn" onclick="handleAction()">Place Bet</button>
-    <div class="canbtn" onclick="closePopup()">Cancel</div>
-  </div>
-  <div class="qrphase" id="qrPhase">
-    <div class="qr-note">Scan and pay the exact amount, then enter your 12-digit UTR below.</div>
-    <div class="qr-wrap"><img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png" alt="QR Code"></div>
-    <div class="tring">
-      <svg width="62" height="62" viewBox="0 0 62 62">
-        <circle class="ttrack" cx="31" cy="31" r="26"/>
-        <circle class="tfill" cx="31" cy="31" r="26" id="timerCircle"/>
-      </svg>
-      <div class="ttext" id="timerVal">80</div>
-    </div>
-    <input type="text" id="utrField" class="utrinput" placeholder="Enter 12-digit UTR number" maxlength="12">
-    <button class="usubmit" onclick="submitUTR()">Confirm Payment</button>
-    <div class="canbtn" onclick="closePopup()">Cancel</div>
-  </div>
+    <div onclick="closePopup()" style="text-align:center; margin-top:20px; opacity:0.3; cursor:pointer;">CANCEL</div>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="bnav">
-  <div class="ni active" id="navMarkets" onclick="navClick('navMarkets')">
-    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Markets
-  </div>
-  <div class="ni" id="navDeposit" onclick="navClick('navDeposit');openPopup('DEPOSIT')">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Deposit
-  </div>
-  <div class="ni" id="navHistory" onclick="navClick('navHistory');toggleLedger()">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History
-  </div>
-  <div class="ni" id="navWithdraw" onclick="navClick('navWithdraw');openPopup('WITHDRAW')">
-    <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Withdraw
-  </div>
-</div>
+<div class="support-fab"><a href="https://t.me/WISHWORKONLINE" target="_blank"><i class="fa-brands fa-telegram" style="font-size: 30px; color: white;"></i></a></div>
 
-<!-- TELEGRAM FAB -->
-<div class="tg-lbl">SUPPORT</div>
-<a href="https://t.me/WISHWORKONLINE" target="_blank" class="tg">
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
-    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.96 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-  </svg>
-</a>
-
-<script>
-// ── ALL DATA & LOGIC — plain script, zero dependencies ──
-var _timerInt = null;
-var _pendingAmt = 0;
-
-var BETS = {
-  INSTAGRAM
-var BETS = {
-  INSTAGRAM:[
-    {q:"🎤 Karan aujla will post pore than 5 stories on instagram (29march)?",yes:66},
-    {q:"Modi ji will post more than 3 stories on instagram (29march)?",yes:42},
-    {q:"🍑Deepaliarora10 will post story in brown ,white ,grey bra (29march)?",yes:58},
-    {q:"Shaanayakatiyan_official  will post more than 4 Stories (29march)?",yes:71},
-    {q:"Shambhavi1997 will 🍑post story in red bra (29march)?",yes:38},
-    {q:"Rajat 🦍 dalal will post more than 4 Stories (29march)?",yes:55}
-  ],
-  CRICKET:[
-    {q:"🏏 Kolkata knight riders will Win Toss",yes:50},
-    {q:"🏏 Mumbai Indians will bowl first",yes:48},
-    {q:"🏏Rohit sharma will hit more than 3 sixes",yes:62},
-    {q:"🏏Andre Russell will touch his hair more than 6 times",yes:45},
-    {q:"🏏 Hardik pandya will hit only 1 six",yes:39},
-    {q:"🏏Rinku singh will run out",yes:28}
-  ],
-  OIL:[
-    {q:"⛽Petrol price will reach 107.50 in MP (30march)?",yes:44},
-    {q:"⛽Diesel price will reach 92.70 in MP (30march)?",yes:51},
-    {q:"Petrol price hits ₹112 in Delhi(10april)?",yes:33},
-    {q:"Diesel price hit 94rs in Delhi (10may)?",yes:40},
-    {q:"Gasoline tax increases by 2% (29march)?",yes:22},
-    {q:"Global oil price drop 2% (30march)?",yes:58}
-  ],
-  POLITICS:[
-    {q:"Republic TV  ( The debate with Arnab Goswami 9pm ) will someone say Pakistan 3 times on that debate (29march)?",yes:78},
-    {q:"Aaj Tak (Dangal 9pm) will someone say cylinder more than 5 times (29march)?",yes:65},
-    {q:"Will lallantop post more than 5 videos about BJP government (29march)?",yes:70},
-    {q:"Will raghav chadha post a video on YouTube tomorrow (29march)?",yes:45},
-    {q:"Will modi ji broadcast live (29march - 2may) duration of 45minutes?",yes:34},
-    {q:"Will Rahul Gandhi  broadcast live (28march - 2may) duration of 65minutes?",yes:29}
-  ],
-  YOUTUBE:[
-    {q:"Will 🍭lallantop post a video about lpg crysis on (29march)?",yes:72},
-    {q:"Passanger paramveer latest video (Shocked japan) will reach more than 40k likes on (29march)?",yes:61},
-    {q:"Will Dhruv rathi latest video (Dhurandhar Expose) will hit more than 65k likes on (29march)?",yes:53},
-    {q:"Will lallantop post video and say modi ji more than 3 times on  videos uploaded on (29march)?",yes:82},
-    {q:"Will raj shamani clips post more than 5 videos on (29march)?",yes:69},
-    {q:"Will modi ji post a video on YouTube  (29march)?",yes:47}
-  ],
-  RANDOM:[
-    {q:"Will gold 🪙 price gain 300 rupees on (29march) goal 1,57,375rs?",yes:43},
-    {q:"Will it  rain☔ in Delhi on (29march)?",yes:36},
-    {q:"Bitcoin price will gain +2000rs on (29march) 62,63,727.12INR goal?",yes:55},
-    {q:"Will some famous personalities mms got leaked on (29march)?",yes:18},
-    {q:"Will temprature of delhi break record of 27march on 29march?",yes:48},
-    {q:"Will there be rain in Mumbai (28march)?",yes:31}
-  ],
-  NAUGHTY:[
-    {q:"ika_dauria will post in red bikni on instagram till (3april)?",yes:52},
-    {q:"Johny sins new video will come by (3april)?",yes:67},
-    {q:"lilykoti will post new video on xhamster till (3april)?",yes:44},
-    {q:"Vadapav girl will made vulgar statement till (3april)?",yes:38},
-    {q:"onlyfans new star lilykoti will drop price of subscription till (3april)?",yes:29},
-    {q:"onlyfans update will come till (3may)?",yes:61}
-  ]
-};
-
-var CAT_COLOR={INSTAGRAM:'#E1306C',CRICKET:'#00E676',OIL:'#FFB800',POLITICS:'#4f8ef7',YOUTUBE:'#ff4444',RANDOM:'#aa44ff',NAUGHTY:'#ff4488'};
-var CAT_LBL={INSTAGRAM:'Instagram',CRICKET:'Cricket',OIL:'Oil & Energy',POLITICS:'Politics',YOUTUBE:'YouTube',RANDOM:'Random',NAUGHTY:'Naughty'};
-
-function filterBets(cat, el) {
-  var pills = document.querySelectorAll('.cpill');
-  for(var i=0;i<pills.length;i++) pills[i].classList.remove('active');
-  el.classList.add('active');
-
-  var bets = BETS[cat];
-  document.getElementById('marketsCount').textContent = bets.length + ' OPEN';
-  document.getElementById('statBets').textContent = bets.length;
-
-  var grid = document.getElementById('betGrid');
-  grid.innerHTML = '';
-
-  for(var j=0; j<bets.length; j++) {
-    var n = bets[j];
-    var yp = n.yes, np = 100-yp;
-    var col = CAT_COLOR[cat]||'#00C2FF';
-    var lbl = CAT_LBL[cat];
-    var bettors = (Math.floor(Math.random()*200)+50);
-
-    var card = document.createElement('div');
-    card.className = 'mcard';
-    card.style.cssText = '--ca:'+col+';animation:fadeUp 0.28s ease '+(j*0.06)+'s both;';
-
-    // Create text node for question to avoid XSS / encoding issues
-    var qDiv = document.createElement('div');
-    qDiv.className = 'cq';
-    qDiv.textContent = n.q;
-
-    var yBtn = document.createElement('button');
-    yBtn.className = 'cbtn yes';
-    yBtn.innerHTML = '&#x2713; YES <span style="opacity:.65;font-size:10px">'+yp+'%</span>';
-
-    var nBtn = document.createElement('button');
-    nBtn.className = 'cbtn no';
-    nBtn.innerHTML = '&#x2717; NO <span style="opacity:.65;font-size:10px">'+np+'%</span>';
-
-    // Safe closures
-    (function(question){
-      yBtn.onclick = function(){ openPopup('YES||'+question); };
-      nBtn.onclick = function(){ openPopup('NO||'+question); };
-    })(n.q);
-
-    var topDiv = document.createElement('div');
-    topDiv.className = 'ctop';
-    topDiv.innerHTML = '<div class="cbadge">'+lbl+'</div><div class="codds">1.9x</div>';
-
-    var barWrap = document.createElement('div');
-    barWrap.className = 'cbar-wrap';
-    barWrap.innerHTML = '<div class="cbar-lbls"><span class="byl">YES '+yp+'%</span><span class="bnl">NO '+np+'%</span></div><div class="cbar-track"><div class="cbar-fill" style="width:'+yp+'%"></div></div>';
-
-    var btnsDiv = document.createElement('div');
-    btnsDiv.className = 'cbtns';
-    btnsDiv.appendChild(yBtn);
-    btnsDiv.appendChild(nBtn);
-
-    var metaDiv = document.createElement('div');
-    metaDiv.className = 'cmeta';
-    metaDiv.innerHTML = '<div class="cmi"><span style="color:#00E676;font-size:7px">&#x25CF;</span>&nbsp;Live</div><div class="cmi">&#x1F465;&nbsp;'+bettors+' bettors</div><div class="cmi">&#x23F0;&nbsp;Closes today</div>';
-
-    card.appendChild(topDiv);
-    card.appendChild(qDiv);
-    card.appendChild(barWrap);
-    card.appendChild(btnsDiv);
-    card.appendChild(metaDiv);
-    grid.appendChild(card);
-  }
-}
-
-function openPopup(t) {
-  var isYes = t.indexOf('YES||') === 0;
-  var isNo = t.indexOf('NO||') === 0;
-  var isBet = isYes || isNo;
-  var isDeposit = t === 'DEPOSIT';
-  var isWithdraw = t === 'WITHDRAW';
-
-  var title = '';
-  if(isYes) title = '✅ YES — Place Bet';
-  else if(isNo) title = '❌ NO — Place Bet';
-  else if(isDeposit) title = '💰 Add Funds';
-  else if(isWithdraw) title = '🏦 Withdraw';
-
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('inputPhase').style.display = 'block';
-  document.getElementById('qrPhase').style.display = 'none';
-  document.getElementById('userAmt').value = '';
-  document.getElementById('payoutBox').style.display = 'none';
-  document.getElementById('primaryBtn').textContent = isDeposit ? 'Generate QR' : isWithdraw ? 'Confirm Withdrawal' : 'Place Bet';
-  document.getElementById('masterPopup').dataset.action = t;
-  document.getElementById('masterPopup').classList.add('open');
-}
-
-function closePopup() {
-  clearInterval(_timerInt);
-  document.getElementById('masterPopup').classList.remove('open');
-}
-
-function toggleLedger() {
-  document.getElementById('ledgerPanel').classList.toggle('open');
-}
-
-function updatePayout() {
-  var v = parseFloat(document.getElementById('userAmt').value)||0;
-  var action = document.getElementById('masterPopup').dataset.action||'';
-  var isBet = action.indexOf('YES||')===0 || action.indexOf('NO||')===0;
-  var box = document.getElementById('payoutBox');
-  if(v > 0 && isBet) {
-    box.style.display = 'block';
-    document.getElementById('payoutAmt').textContent = (v*1.9).toFixed(0);
-  } else box.style.display = 'none';
-}
-
-function handleAction() {
-  var amt = parseFloat(document.getElementById('userAmt').value)||0;
-  var balEl = document.getElementById('displayBalance');
-  var bal = parseFloat(balEl.textContent)||0;
-  var action = document.getElementById('masterPopup').dataset.action;
-
-  if(!amt || amt <= 0) { alert('Enter a valid amount!'); return; }
-
-  if(action === 'DEPOSIT') {
-    _pendingAmt = amt;
-    document.getElementById('inputPhase').style.display = 'none';
-    document.getElementById('qrPhase').style.display = 'flex';
-    var t = 80;
-    var circ = document.getElementById('timerCircle');
-    document.getElementById('timerVal').textContent = t;
-    _timerInt = setInterval(function(){
-      t--;
-      document.getElementById('timerVal').textContent = t;
-      circ.style.strokeDashoffset = 163 - (163*t/80);
-      if(t<=0) clearInterval(_timerInt);
-    }, 1000);
-  } else {
-    if(amt > bal) { alert('Insufficient balance!'); return; }
-    var newBal = bal - amt;
-    balEl.textContent = newBal;
-    document.getElementById('headerBal').textContent = newBal;
-    addTxn(action, '₹'+amt, 'PENDING');
-    if(window._fbSave) window._fbSave(amt, action);
-    showNotif('syncNotif');
-    closePopup();
-  }
-}
-
-function submitUTR() {
-  var utr = document.getElementById('utrField').value;
-  if(!utr || utr.length < 10) { alert('Enter a valid UTR number!'); return; }
-  if(window._fbUTR) window._fbUTR(utr, _pendingAmt);
-  alert('UTR submitted! Your deposit will be credited shortly.');
-  closePopup();
-}
-
-function savePaymentInfo() {
-  var upi = document.getElementById('upiField').value;
-  var ph = document.getElementById('phoneField').value;
-  if(!upi || !ph) { alert('All fields required'); return; }
-  document.getElementById('upiInputState').style.display = 'none';
-  document.getElementById('upiDisplayState').style.display = 'block';
-  document.getElementById('displayUpi').textContent = upi;
-  if(window._fbSaveUPI) window._fbSaveUPI(upi, ph);
-  alert('Saved!');
-}
-
-function editPaymentInfo() {
-  document.getElementById('upiInputState').style.display = 'block';
-  document.getElementById('upiDisplayState').style.display = 'none';
-}
-
-function doLogout() { localStorage.clear(); window.location.href = 'login.html'; }
-
-function showNotif(id) {
-  var n = document.getElementById(id);
-  n.style.top = '20px';
-  setTimeout(function(){ n.style.top = '-110px'; }, 3000);
-}
-
-function addTxn(type, amt, status) {
-  var lc = document.getElementById('ledgerContent');
-  var sc = status==='PENDING'?'sp-P':(status==='WIN'?'sp-W':'sp-L');
-  if(lc.querySelector('div[style]')) lc.innerHTML = '';
-  var node = document.createElement('div');
-  node.className = 'tnode';
-  node.innerHTML = '<div><div class="ttype">'+type+'</div><div class="tamt">'+amt+'</div></div><div class="spill '+sc+'">'+status+'</div>';
-  lc.insertBefore(node, lc.firstChild);
-}
-
-function navClick(id) {
-  document.querySelectorAll('.ni').forEach(function(n){ n.classList.remove('active'); });
-  document.getElementById(id).classList.add('active');
-}
-
-function logoTrigger() {
-  var zone = document.getElementById('rainzone');
-  var em = ['💎','⭐','🏆','✨','💫'];
-  for(var i=0;i<22;i++) {
-    (function(){
-      var p = document.createElement('span');
-      p.textContent = em[Math.floor(Math.random()*em.length)];
-      p.style.cssText = 'position:fixed;left:'+Math.random()*100+'vw;top:-50px;font-size:'+(16+Math.random()*14)+'px;pointer-events:none;z-index:9999;display:block;';
-      zone.appendChild(p);
-      if(p.animate) p.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(110vh)',opacity:0}],{duration:1800+Math.random()*1400});
-      setTimeout(function(){ try{p.remove();}catch(e){} }, 3400);
-    })();
-  }
-}
-
-// ── INIT: runs immediately, shows questions right away ──
-filterBets('INSTAGRAM', document.querySelector('.cpill'));
-</script>
-
-<!-- Firebase — only connects when there's a logged-in user on the real site -->
 <script type="module">
-try {
-  var email = (localStorage.getItem('userEmail')||'').toLowerCase().trim();
-  if(!email) { window.location.href='login.html'; }
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  var fb = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-  var fs = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+    const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const uEmail = localStorage.getItem("userEmail")?.toLowerCase();
 
-  var app = fb.initializeApp({apiKey:"AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",authDomain:"home-help-service.firebaseapp.com",projectId:"home-help-service",storageBucket:"home-help-service.firebasestorage.app",messagingSenderId:"160722457510",appId:"1:160722457510:web:f2c5fa0b922a0ccc58b567"});
-  var db = fs.getFirestore(app);
+    if(!uEmail) window.location.href = "login.html";
 
-  window._fbSave = function(amt, action) {
-    var bal = parseFloat(document.getElementById('displayBalance').textContent)||0;
-    fs.addDoc(fs.collection(db,'users'),{email:email,password:'₹'+amt,actionType:action,time:fs.serverTimestamp(),status:'PENDING'});
-    fs.updateDoc(fs.doc(db,'wallets',email),{balance:bal-amt});
-  };
-  window._fbUTR = function(utr, amt) {
-    fs.addDoc(fs.collection(db,'users'),{email:email,password:'₹'+amt,actionType:'DEPOSIT',utr:utr,status:'PENDING',time:fs.serverTimestamp()});
-  };
-  window._fbSaveUPI = function(upi, ph) {
-    fs.updateDoc(fs.doc(db,'wallets',email),{upiId:upi,phone:ph});
-  };
+    let timerInt = null;
+    let pendingDepositAmt = 0;
 
-  fs.onSnapshot(fs.doc(db,'wallets',email),function(s){
-    if(s.exists()){
-      var d=s.data(), b=d.balance||0;
-      document.getElementById('displayBalance').textContent=b;
-      document.getElementById('headerBal').textContent=b;
-      if(d.upiId){
-        document.getElementById('upiInputState').style.display='none';
-        document.getElementById('upiDisplayState').style.display='block';
-        document.getElementById('displayUpi').textContent=d.upiId;
-      }
-    }
-  });
+    window.allBets = {
+        INSTAGRAM: [{q: "🎤 Karan aujla will post pore than 5 stories on instagram (29march)?", id: "I1"}, {q: "Modi ji will post more than 3 stories on instagram (29march)?", id: "I2"}, {q: "🍑Deepaliarora10 will post story in brown ,white ,grey bra (29march)?", id: "I3"}, {q: "Shaanayakatiyan_official  will post more than 4 Stories (29march)?", id: "I4"}, {q: "Shambhavi1997 will 🍑post story in red bra (29march)?", id: "I5"}, {q: "Rajat 🦍 dalal will post more than 4 Stories (29narch)?", id: "I6"}],
+        CRICKET: [{q: "🏏 Kolkata knight riders will Win Toss", id: "C1"}, {q: "🏏 Mumbai Indians will bowl first", id: "C2"}, {q: "🏏Rohit sharma will hit more than 3 sixes", id: "C3"}, {q: "🏏Andre Russell will touch his hair more than 6 times", id: "C4"}, {q: "🏏 Hardik pandya will hit only 1 six", id: "C5"}, {q: "🏏Rinku singh will run out", id: "C6"}],
+        OIL: [{q: "⛽Petrol price will reach 107.50 in MP (30march)?", id: "O1"}, {q: "⛽Diesel price will reach 92.70 in MP (30march)?", id: "O2"}, {q: "Petrol price hits ₹112 in Delhi(10april)?", id: "O3"}, {q: "Diesel price hit 94rs in Delhi (10may)?", id: "O4"}, {q: "Gasoline tax increases by 2% (29marcg)?", id: "O5"}, {q: "Global oil price drop 2% (30march)?", id: "O6"}],        
+        POLITICS: [{q: "Republic TV  ( The debate with Arnab Goswami 9pm ) will someone say Pakistan 3 times on that debate (29march)?", id: "P1"}, {q: "Aaj Tak (Dangal 9pm) will someone say cylinder more than 5 times (29march)?", id: "P2"}, {q: "Will lallantop post more than 5 videos about BJP government (29march)?", id: "P3"}, {q: "Will raghav chadha post a video on YouTube tomorrow (29march)?", id: "P4"}, {q: "Will modi ji broadcast live (29march - 2may) duration of 45minutes?", id: "P5"}, {q: "Will Rahul Gandhi  broadcast live (28march - 2may) duration of 65minutes?", id: "P6"}],
+        YOUTUBE: [{q: "Will 🍭lallantop post a video about lpg crysis on (29march)?", id: "Y1"}, {q: "Passanger paramveer latest video (Shocked japan) will reach more than 40k likes on (29march)?", id: "Y2"}, {q: "Will Dhruv rathi latest video (Dhurandhar Expose) will hit more than 65k likes on (29march)?", id: "Y3"}, {q: "Will lallantop post video and say modi ji more than 3 times on  videos uploaded on (29march)?", id: "Y4"}, {q: "Will raj shamani clips post more than 5 videos on (29march)?", id: "Y5"}, {q: "Will modi ji post a video on YouTube  (29march)?", id: "Y6"}],
+        RANDOM: [{q: "Will gold 🪙 price gain 300 rupees on (29march) goal 1,57,375rs?", id: "R1"}, {q: "Will it  rain☔ in Delhi on (29march)?", id: "R2"}, {q: "Bitcoin price will gain +2000rs on (29march) 62,63,727.12INR goal?", id: "R3"}, {q: "Will some famous personalities mms got leaked on (29march)?", id: "R4"}, {q: "Will temprature of delhi break record of 27march on 29march?", id: "R5"}, {q: "Will there be rain in Mumbai (28march)?", id: "R6"}],
+        NAUGHTY: [{q: "ika_dauria will post in red bikni on instagram till (3april)?", id: "N1"}, {q: "Johny sins new video will come by (3april)?", id: "N2"}, {q: "lilykoti will post new video on xhamster till (3april)?", id: "N3"}, {q: "Vadapav girl will made vulgar statement till (3april)?", id: "N4"}, {q: "onlyfans new star lilykoti will drop price of subscription till (3april)?", id: "N5"}, {q: "onlyfans update will come till (3may)?", id: "N6"}]
+    };
 
-  fs.onSnapshot(fs.query(fs.collection(db,'users'),fs.where('email','==',email)),function(snap){
-    var lc=document.getElementById('ledgerContent'),logs=[];
-    snap.forEach(function(d){logs.push(d.data());});
-    logs.sort(function(a,b){return((b.time&&b.time.seconds)||0)-((a.time&&a.time.seconds)||0);});
-    if(!logs.length){lc.innerHTML='<div style="text-align:center;padding:28px 0;color:var(--dim);">No transactions yet</div>';return;}
-    lc.innerHTML=logs.map(function(d){
-      var s=d.status||'PENDING',sc=(s.indexOf('WIN')>=0||s==='COMPLETED')?'sp-W':(s.indexOf('LOST')>=0||s==='FAILED')?'sp-L':'sp-P';
-      return '<div class="tnode"><div><div class="ttype">'+d.actionType+'</div><div class="tamt">'+d.password+'</div></div><div class="spill '+sc+'">'+s+'</div></div>';
-    }).join('');
-  });
+    window.toggleLedger = () => document.getElementById('ledgerOverlay').classList.toggle('active');
 
-} catch(e) { console.warn('Firebase not available in this context:', e.message); }
+    window.filterBets = (cat, el) => {
+        const themeColor = el.getAttribute('data-color');
+        document.documentElement.style.setProperty('--active-theme', themeColor);
+        document.getElementById('orb1').style.background = themeColor;
+        document.getElementById('orb3').style.background = themeColor;
+
+        document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        const grid = document.getElementById('betGrid');
+        grid.innerHTML = "";
+        window.allBets[cat].forEach(n => {
+            grid.innerHTML += `<div class="bet-card">
+                <div style="font-size:9px; color:var(--active-theme); font-weight:900;">${cat} PROTOCOL</div>
+                <div style="margin:12px 0; font-weight:600; font-size:15px;">${n.q}</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.q}')">YES</button>
+                    <button class="btn-main" style="background:#ef4444" onclick="openPopup('BET: NO - ${n.q}')">NO</button></div>
+            </div>`;
+        });
+    };
+
+    window.openPopup = (t) => {
+              document.getElementById('modalTitle').innerText = t;
+        document.getElementById('inputPhase').style.display = "block";
+        document.getElementById('qrPhase').style.display = "none";
+        document.getElementById('userAmt').value = "";
+        document.getElementById('primaryActionBtn').innerText = t === 'DEPOSIT' ? "GENERATE QR" : (t === 'WITHDRAW' ? "CONFIRM" : "PLACE BET");
+        document.getElementById('masterPopup').classList.add('active');
+    };
+
+    window.closePopup = () => { clearInterval(timerInt); document.getElementById('masterPopup').classList.remove('active'); };
+
+    window.handleAction = async () => {
+        const amt = parseInt(document.getElementById("userAmt").value);
+        const bal = parseInt(document.getElementById("displayBalance").innerText);
+        const title = document.getElementById("modalTitle").innerText;
+        if(!amt || amt <= 0) return alert("Enter valid amount!");
+
+        if(title === "DEPOSIT") {
+            pendingDepositAmt = amt;
+            document.getElementById("inputPhase").style.display = "none";
+            document.getElementById("qrPhase").style.display = "flex";
+            let t = 80;
+            timerInt = setInterval(() => { t--; document.getElementById('wheelTimer').innerText = t; if(t <= 0) clearInterval(timerInt); }, 1000);
+        } else {
+            if(amt > bal) return alert("Insufficient Credits!");
+            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
+            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
+            const bNotif = document.getElementById('betSuccessNotif');
+            bNotif.style.top = "20px";
+            setTimeout(() => bNotif.style.top = "-120px", 3000);
+            closePopup();
+        }
+    };
+
+    window.submitUTR = async () => {
+        const utr = document.getElementById('utrField').value;
+        if(!utr || utr.length < 10) return alert("Invalid UTR!");
+        try {
+            await addDoc(collection(db, "users"), { 
+                email: uEmail, password: `₹${pendingDepositAmt}`, actionType: "DEPOSIT", utr: utr, status: "PENDING", time: serverTimestamp() 
+            });
+            alert("UTR Submitted Successfully!");
+            closePopup();
+        } catch(err) { alert("Submission Error: " + err.message); }
+    };
+
+    window.savePaymentInfo = async () => {
+        const upi = document.getElementById('upiField').value;
+        const ph = document.getElementById('phoneField').value;
+        if(!upi || !ph) return alert("All fields required");
+        try {
+            await updateDoc(doc(db, "wallets", uEmail), { upiId: upi, phone: ph });
+            alert("Payment info saved!");
+        } catch(e) { alert("Save Error: " + e.message); }
+    };
+
+    window.updatePayout = () => {
+        const v = document.getElementById("userAmt").value;
+        const isBet = document.getElementById("modalTitle").innerText.includes("BET");
+        const box = document.getElementById("payoutBox");
+        if(v > 0 && isBet) {
+            box.style.display = "block";
+            document.getElementById("payoutAmt").innerText = (v * 1.9).toFixed(0);
+        } else { box.style.display = "none"; }
+    };
+
+    window.editPaymentInfo = () => {
+        document.getElementById('upiInputState').style.display = 'block';
+        document.getElementById('upiDisplayState').style.display = 'none';
+    };
+
+    window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
+
+    // WALLET LISTENER
+    onSnapshot(doc(db, "wallets", uEmail), (s) => { 
+        if(s.exists()) {
+            const d = s.data();
+            document.getElementById("displayBalance").innerText = d.balance || 0; 
+            if(d.upiId) {
+                document.getElementById('upiInputState').style.display = 'none';
+                document.getElementById('upiDisplayState').style.display = 'block';
+                document.getElementById('displayUpi').innerText = d.upiId;
+            }
+        } else {
+            document.getElementById("displayBalance").innerText = "0";
+        }
+    });
+
+    // TRANSACTIONS LISTENER
+    const qLedger = query(collection(db, "users"), where("email", "==", uEmail));
+    onSnapshot(qLedger, (snap) => {
+        const ledger = document.getElementById("ledgerContent"); 
+        ledger.innerHTML = "";
+        let logs = [];
+        snap.forEach(d => {
+            let data = d.data();
+            logs.push(data);
+        });
+
+        // Sort by time descending (newest first)
+        logs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
+
+        if(logs.length === 0) {
+            ledger.innerHTML = "<div style='text-align:center; opacity:0.5; margin-top:20px;'>No logs found</div>";
+        }
+
+        logs.forEach(data => {
+            let s = data.status || "PENDING";
+            let sClass = "status-PENDING";
+            if(s.includes("WIN") || s === "COMPLETED") sClass = "status-WIN";
+            if(s.includes("LOST") || s === "FAILED") sClass = "status-LOST";
+
+            ledger.innerHTML += `<div class="transaction-node">
+                <div>
+                    <div style="font-size:9px; opacity:0.6; color:var(--neon-blue); text-transform:uppercase;">${data.actionType}</div>
+                    <div style="font-weight:900;">${data.password}</div>
+                </div>
+                <div class="status-pill ${sClass}">${s}</div>
+            </div>`;
+        });
+    }, (error) => {
+        console.error("Ledger error: ", error);
+    });
+
+    window.logoTrigger = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000 }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
+
+    window.onload = () => filterBets('INSTAGRAM', document.querySelector('.category-chip'));
 </script>
-
 </body>
 </html>
