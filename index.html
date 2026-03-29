@@ -3,81 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket-Inspired Design</title>
+    <title>Polymarket Style Design</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-functions.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+        .market-card {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px;
+        }
+        .wallet {
+            margin-top: 20px;
+        }
+        button { 
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to Our Polymarket-Inspired Platform</h1>
-        <nav>
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Markets</a></li>
-                <li><a href="#">Wallet</a></li>
-                <li><a href="#">Profile</a></li>
-                <li><a href="#">Support</a></li>
-            </ul>
-        </nav>
+        <h1>Welcome to the Polymarket</h1>
     </header>
-
     <main>
-        <section id="market-overview">
-            <h2>Market Overview</h2>
-            <!-- Firebase integration for market data -->
-            <div id="markets"></div>
-        </section>
-
-        <section id="wallet">
-            <h2>My Wallet</h2>
-            <!-- Implement wallet listeners and transactions here -->
-            <div id="wallet-info"></div>
-        </section>
-
-        <section id="betting">
-            <h2>Betting Section</h2>
-            <!-- Betting interface -->
-            <div id="betting-interface"></div>
-        </section>
-
-        <section id="transactions">
-            <h2>Transactions</h2>
-            <!-- Display transactions here -->
-            <div id="transaction-history"></div>
-        </section>
-
-        <section id="deposits">
-            <h2>Deposits</h2>
-            <form id="deposit-form">
-                <input type="number" id="deposit-amount" placeholder="Amount to deposit">
-                <button type="submit">Deposit</button>
-            </form>
-        </section>
-
-        <section id="withdrawals">
-            <h2>Withdrawals</h2>
-            <form id="withdraw-form">
-                <input type="number" id="withdraw-amount" placeholder="Amount to withdraw">
-                <button type="submit">Withdraw</button>
-            </form>
-        </section>
-
-        <section id="category-protocols">
-            <h2>Category Protocols</h2>
-            <div id="protocol-list"></div>
-        </section>
+        <div class="market-card">
+            <h2>Market Card Title</h2>
+            <p>Market details go here...</p>
+        </div>
+        <div class="market-card">
+            <h2>Market Card Title</h2>
+            <p>Market details go here...</p>
+        </div>
     </main>
-
-    <footer>
-        <p>&copy; 2026 Polymarket-Inspired Platform</p>
-    </footer>
-
+    <div class="wallet">
+        <button id="connectWallet">Connect Wallet</button>
+    </div>
     <script>
-        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -86,14 +62,14 @@
             messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
             appId: "YOUR_APP_ID"
         };
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
-        // Wallet listeners and implementation
-        // (To be filled in)
-
-        // Fetch and display markets, transactions, deposits, and withdrawals
-        // (To be filled in)
-
+        // Wallet integration logic goes here
+        document.getElementById('connectWallet').addEventListener('click', () => {
+            // Connect wallet logic
+            console.log('Wallet connected');
+        });
     </script>
 </body>
 </html>
