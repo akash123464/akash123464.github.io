@@ -34,7 +34,6 @@
         .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; position: relative; }
         .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
 
-        /* Updated Transactions Button Styles for instant response */
         .ledger-trigger { position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; animation: pulse-blue 2s infinite; font-family: 'Orbitron'; z-index: 50; transition: transform 0.1s ease; }
         .ledger-trigger:active { transform: scale(0.92); }
         @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
@@ -145,7 +144,7 @@
         <button class="btn-main" id="primaryActionBtn" style="width:100%; padding:20px;" onclick="handleAction()">SYNC</button>
     </div>
     <div id="qrPhase" class="qr-area">
-        <div class="qr-box"><img src="https://raw.githubusercontent.com/akash123464/akash123464.github.io/main/qr.png"></div>
+        <div class="qr-box"><img src="1000142365.png" alt="Payment QR Code"></div>
         <div class="loader-container"><div class="glass-wheel"></div><div class="timer-val" id="wheelTimer">80</div></div>
         <input type="text" id="utrField" class="payment-input" placeholder="ENTER 12-DIGIT UTR" maxlength="12">
         <button class="btn-main" style="width:100%; background:var(--neon-green); color:#000;" onclick="submitUTR()">SUBMIT UTR</button>
