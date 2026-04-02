@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neumorphism Login & Signup</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -33,6 +33,7 @@
             align-items: center;
             min-height: 100vh;
             color: var(--text-main);
+            overflow-x: hidden;
         }
 
         /* Main Container setup for the slider */
@@ -45,7 +46,7 @@
             overflow: hidden;
             width: 768px;
             max-width: 100%;
-            min-height: 520px; /* Increased height for signup fields */
+            min-height: 520px;
             margin: 20px;
         }
 
@@ -280,7 +281,6 @@
             outline: none;
         }
 
-        /* Inverted Button for Overlay */
         .btn.ghost {
             background-color: transparent;
             border: 1px solid var(--white);
@@ -356,25 +356,32 @@
             opacity: 1;
         }
 
-        /* Responsive */
+        /* IMPORTANT: Default mobile toggle to hidden for desktop */
+        .mobile-toggle {
+            display: none;
+        }
+
+        /* Responsive / Mobile Fixes */
         @media (max-width: 768px) {
             .container {
-                width: 100%;
-                min-height: 600px;
-                max-width: 400px;
+                width: 90%; /* Makes it fill almost the whole screen width */
+                min-height: 85vh; /* Makes it tall enough to feel like a full app */
+                max-width: 500px;
                 overflow: visible;
                 display: flex;
                 flex-direction: column;
+                margin: 5vh auto;
             }
 
             .form-container {
                 position: relative;
                 width: 100%;
-                height: auto;
+                height: 100%;
                 opacity: 1;
                 transform: none !important;
                 left: auto;
                 top: auto;
+                padding: 30px 20px;
             }
 
             .sign-up-container {
@@ -391,23 +398,29 @@
             }
 
             .overlay-container {
-                display: none; /* Hide complex slider on mobile */
+                display: none; 
             }
             
-            /* Mobile Toggle Button (Only visible on mobile) */
+            /* Show the toggle switch on mobile! */
             .mobile-toggle {
-                display: block;
-                margin-top: 20px;
+                display: inline-block;
+                margin-top: 25px;
+                padding: 12px 25px;
                 color: var(--accent-color);
                 cursor: pointer;
                 font-weight: bold;
+                font-size: 13px;
+                border-radius: 20px;
+                box-shadow: 4px 4px 8px var(--shadow-dark), 
+                           -4px -4px 8px var(--shadow-light);
+                transition: all 0.2s ease;
+            }
+
+            .mobile-toggle:active {
+                box-shadow: inset 4px 4px 8px var(--shadow-dark), 
+                            inset -4px -4px 8px var(--shadow-light);
             }
         }
-        
-        .mobile-toggle {
-            display: none;
-        }
-
     </style>
 </head>
 <body>
