@@ -1,333 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WISHWORK | NEXUS PROTOCOL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { 
-            --neon-pink: #ff007a; --neon-blue: #00f2ff; --neon-purple: #7000ff; --neon-green: #38ef7d; --neon-gold: #f1c40f;
-            --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); 
-            --active-theme: var(--neon-blue); 
-            --orb-color-1: var(--neon-purple); --orb-color-2: var(--neon-blue); --orb-color-3: var(--neon-pink);
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>WISHWORK – Prediction Market</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; font-family: 'Outfit', sans-serif; background: #020205; color: #fff; min-height: 100vh; padding-bottom: 120px; overflow-x: hidden; position: relative; }
-
-        .plasma-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-        .light-orb { position: absolute; width: 450px; height: 450px; border-radius: 50%; filter: blur(130px); opacity: 0.45; animation: float-orb 12s infinite alternate ease-in-out; transition: background 1.2s ease; }
-        .orb-1 { background: var(--orb-color-1); top: -10%; left: -10%; }
-        .orb-2 { background: var(--orb-color-2); bottom: 10%; right: -5%; }
-        .orb-3 { background: var(--orb-color-3); top: 30%; left: 30%; }
-        @keyframes float-orb { from { transform: translate(0, 0); } to { transform: translate(120px, 90px); } }
-
-        #winNotif, #betSuccessNotif { position: fixed; top: -120px; left: 50%; transform: translateX(-50%); backdrop-filter: blur(25px); padding: 20px 45px; border-radius: 50px; font-weight: 900; z-index: 9999; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 15px; font-family: 'Orbitron'; }
-        #winNotif { background: rgba(56, 239, 125, 0.15); border: 2px solid var(--neon-green); box-shadow: 0 0 30px rgba(56, 239, 125, 0.4); }
-        #betSuccessNotif { background: rgba(0, 242, 255, 0.15); border: 2px solid var(--neon-blue); box-shadow: 0 0 30px rgba(0, 242, 255, 0.4); }
-
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(30px); background: rgba(0, 0, 0, 0.6); position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
-        .brand-logo { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; background: linear-gradient(to right, var(--neon-blue), #fff, var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); letter-spacing: 2px; cursor: pointer; }
-
-        .balance-card { background: var(--glass); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 25px; margin: 20px; display: flex; flex-direction: column; gap: 20px; position: relative; }
-        .balance-amount { font-size: 42px; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
-
-        .ledger-trigger { position: absolute; top: 20px; right: 20px; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 8px 15px; border-radius: 12px; font-size: 10px; font-weight: 900; cursor: pointer; animation: pulse-blue 2s infinite; font-family: 'Orbitron'; z-index: 50; transition: transform 0.1s ease; }
-        .ledger-trigger:active { transform: scale(0.92); }
-        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
-
-        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn-main { background: linear-gradient(135deg, var(--neon-purple), #4158D0); color: #fff; border: none; padding: 15px; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
-
-        .ledger-overlay { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: rgba(2, 2, 5, 0.95); backdrop-filter: blur(60px); z-index: 7000; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); padding: 30px 20px; }
-        .ledger-overlay.active { right: 0; }
-        .ledger-scroll { height: calc(100% - 300px); overflow-y: auto; margin-top: 15px; }
-
-        .transaction-node { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 22px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--active-theme); }
-        .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
-        .status-PENDING { color: var(--neon-gold); background: rgba(241, 196, 15, 0.1); }
-        .status-WIN, .status-COMPLETED { color: var(--neon-green); background: rgba(56, 239, 125, 0.1); }
-        .status-LOST, .status-FAILED { color: var(--neon-pink); background: rgba(255, 0, 122, 0.1); }
-
-        .protocol-selector { display: flex; overflow-x: auto; gap: 12px; padding: 15px 20px; scrollbar-width: none; }
-        .category-chip { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 15px; background: var(--glass); border: 1px solid var(--glass-border); white-space: nowrap; font-weight: 900; font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
-        .category-chip.active { color: #fff; border-color: #fff; box-shadow: 0 0 20px var(--active-theme); background: var(--active-theme); }
-
-        .bet-grid { display: grid; gap: 15px; padding: 0 20px; }
-        .bet-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 30px; padding: 22px; border-left: 4px solid var(--active-theme); }
-
-        .popup { position: fixed; bottom: -110%; left: 0; width: 100%; background: #050508; padding: 40px 30px; border-radius: 45px 45px 0 0; transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); z-index: 6000; border-top: 4px solid var(--active-theme); }
-        .popup.active { bottom: 0; }
-        .input-nexus { width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--glass-border); padding: 20px; border-radius: 20px; color: #fff; font-size: 32px; text-align: center; font-weight: 900; margin-bottom: 20px; }
-
-        .qr-area { display: none; flex-direction: column; align-items: center; }
-        .qr-box { background: #fff; padding: 10px; border-radius: 25px; width: 180px; height: 180px; border: 4px solid var(--neon-blue); }
-        .qr-box img { width: 100%; height: 100%; }
-
-        .loader-container { position: relative; width: 80px; height: 80px; margin: 15px auto; }
-        .glass-wheel { width: 100%; height: 100%; border: 4px solid rgba(255,255,255,0.05); border-top: 4px solid var(--neon-blue); border-radius: 50%; animation: spin 2s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .timer-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 900; color: var(--neon-blue); font-family: 'Orbitron'; }
-
-        .support-fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5000; }
-        .payment-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 12px; border-radius: 12px; color: #fff; margin-bottom: 12px; font-family: 'Outfit'; }
-    </style>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  body{font-family:'Space Grotesk',sans-serif;background:#060810;color:#f1f5f9;min-height:100vh;overscroll-behavior:none}
+  .hidden { display: none; }
+  .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+  .neon-text { text-shadow: 0 0 10px rgba(34, 211, 238, 0.5); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader { border: 3px solid rgba(255,255,255,0.1); border-top-color: #22d3ee; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; }
+</style>
 </head>
-<body>
 
-<div class="plasma-bg">
-    <div class="light-orb orb-1" id="orb1"></div>
-    <div class="light-orb orb-2" id="orb2"></div>
-    <div class="light-orb orb-3" id="orb3"></div>
-</div>
+<body class="pb-24">
 
-<div id="rain-zone"></div>
-<div id="winNotif"><i class="fa-solid fa-crown" style="color:var(--neon-gold)"></i> YOU WIN! ₹<span id="winVal">0</span></div>
-<div id="betSuccessNotif"><i class="fa-solid fa-circle-check" style="color:var(--neon-blue)"></i> SYNC COMPLETED</div>
-
-<div class="header">
-    <div class="brand-logo" onclick="logoTrigger()">WISHWORK</div>
-    <div onclick="logout()" style="color: var(--neon-pink); font-weight: 900; font-size: 11px; cursor:pointer;">LOGOUT</div>
-</div>
-
-<div class="balance-card">
-    <button class="ledger-trigger" onclick="toggleLedger()">TRANSACTIONS</button>
-    <div>
-        <div style="font-size:10px; opacity:0.5; font-weight:900; letter-spacing:2px;">LIQUID CREDITS</div>
-        <div class="balance-amount">₹<span id="displayBalance">0</span></div>
+  <nav class="flex justify-between items-center px-6 py-5 sticky top-0 z-40 glass">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+        <i class="fa-solid fa-bolt text-black text-xl"></i>
+      </div>
+      <span class="font-bold tracking-tighter text-xl italic uppercase">Wishwork</span>
     </div>
-    <div class="action-btns">
-        <button class="btn-main" onclick="openPopup('DEPOSIT')">Deposit</button>
-        <button class="btn-main" style="background:rgba(255,255,255,0.05); border:1px solid var(--glass-border);" onclick="openPopup('WITHDRAW')">Withdraw</button>
+    <div class="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+      <i class="fa-solid fa-wallet text-cyan-400"></i>
+      <span class="font-bold text-sm" id="navBal">0</span>
     </div>
-</div>
+  </nav>
 
-<div class="ledger-overlay" id="ledgerOverlay">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="font-family:'Orbitron'; font-size:18px; color:var(--neon-blue);">TRANSACTION LOG</h2>
-        <div onclick="toggleLedger()" style="font-size:24px; cursor:pointer; padding: 10px; margin: -10px;"><i class="fa-solid fa-xmark"></i></div>
-    </div>
-    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--neon-blue); border-radius: 20px; padding: 15px; margin-top: 15px;">
-        <h3 style="font-size: 9px; color: var(--neon-blue); margin-bottom: 8px;">WITHDRAWAL METHOD</h3>
-        <div id="upiInputState">
-            <input type="text" id="upiField" class="payment-input" placeholder="UPI ID">
-            <input type="number" id="phoneField" class="payment-input" placeholder="PHONE NUMBER">
-            <button class="btn-main" style="width: 100%; padding: 10px; font-size: 10px;" onclick="savePaymentInfo()">SAVE DETAILS</button>
+  <main class="p-6 max-w-md mx-auto space-y-8">
+    <div class="relative overflow-hidden p-8 rounded-[2rem] bg-gradient-to-br from-cyan-600 to-blue-700 shadow-2xl shadow-cyan-900/20">
+      <div class="relative z-10">
+        <p class="text-cyan-100/70 text-xs font-bold uppercase tracking-widest mb-1">Available Credits</p>
+        <h1 class="text-5xl font-black mb-6 tracking-tighter">₹<span id="balNum">0</span></h1>
+        <div class="flex gap-3">
+          <button onclick="openDeposit()" class="flex-1 bg-white text-black font-bold py-4 rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus-circle"></i> DEPOSIT
+          </button>
+          <button onclick="openWithdraw()" class="flex-1 bg-black/20 hover:bg-black/30 backdrop-blur-md text-white font-bold py-4 rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2 border border-white/10">
+            <i class="fa-solid fa-arrow-up-from-bracket"></i> WITHDRAW
+          </button>
         </div>
-        <div id="upiDisplayState" style="display: none;">
-            <div style="font-size: 12px;">Linked UPI: <span id="displayUpi" style="font-weight:900; color:var(--neon-blue);"></span></div>
-            <button class="btn-main" style="width: 100%; padding: 8px; margin-top:10px; background:rgba(255,255,255,0.05);" onclick="editPaymentInfo()">EDIT</button>
-        </div>
+      </div>
     </div>
-    <div class="ledger-scroll" id="ledgerContent"></div>
-</div>
 
-<div class="protocol-selector">
-    <div class="category-chip" data-color="#E1306C" onclick="filterBets('INSTAGRAM', this)"><i class="fa-brands fa-instagram"></i> INSTAGRAM</div>
-    <div class="category-chip" data-color="#00e676" onclick="filterBets('CRICKET', this)"><span style="font-size: 13px;">🏏</span> CRICKET</div>
-    <div class="category-chip" data-color="#FFD700" onclick="filterBets('OIL', this)"><i class="fa-solid fa-droplet"></i> OIL</div>
-    <div class="category-chip" data-color="#FF4500" onclick="filterBets('POLITICS', this)"><i class="fa-solid fa-landmark"></i> POLITICS</div>
-    <div class="category-chip" data-color="#FF0000" onclick="filterBets('YOUTUBE', this)"><i class="fa-brands fa-youtube"></i> YOUTUBE</div>
-    <div class="category-chip" data-color="#00f2ff" onclick="filterBets('RANDOM', this)"><i class="fa-solid fa-shuffle"></i> RANDOM</div>
-    <div class="category-chip" data-color="#ff007a" onclick="filterBets('NAUGHTY', this)"><i class="fa-solid fa-fire"></i> NAUGHTY</div>
-</div>
-
-<div class="bet-grid" id="betGrid"></div>
-
-<div class="popup" id="masterPopup">
-    <h2 id="modalTitle" style="text-align:center; font-weight:900;">NODE SYNC</h2>
-    <div id="inputPhase">
-        <input type="number" id="userAmt" class="input-nexus" placeholder="₹ 0.00" oninput="updatePayout()">
-        <div id="payoutBox" style="display:none; text-align:center; color:var(--neon-green); font-weight:900; margin-bottom:20px;">EST. WINNING: ₹<span id="payoutAmt">0</span></div>
-        <button class="btn-main" id="primaryActionBtn" style="width:100%; padding:20px;" onclick="handleAction()">SYNC</button>
+    <div class="glass p-6 rounded-3xl border border-white/10">
+        <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-line text-cyan-400"></i> ACTIVE SIGNALS</h3>
+        <p class="text-gray-400 text-sm italic">Connect to Telegram for live trade signals...</p>
+        <button onclick="window.open('https://t.me/WISHWORKONLINE','_blank')" class="w-full mt-4 bg-[#24A1DE] py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+            <i class="fa-brands fa-telegram"></i> JOIN TELEGRAM
+        </button>
     </div>
-    <div id="qrPhase" class="qr-area">
-        <div class="qr-box"><img src="1000142365.png" alt="Payment QR Code"></div>
-        <div class="loader-container"><div class="glass-wheel"></div><div class="timer-val" id="wheelTimer">80</div></div>
-        <input type="text" id="utrField" class="payment-input" placeholder="ENTER 12-DIGIT UTR" maxlength="12">
-        <button class="btn-main" style="width:100%; background:var(--neon-green); color:#000;" onclick="submitUTR()">SUBMIT UTR</button>
+  </main>
+
+  <div id="backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden" onclick="closeAll()"></div>
+  <div id="depSheet" class="fixed bottom-0 left-0 right-0 glass rounded-t-[3rem] z-[60] p-8 transform translate-y-full transition-transform duration-500 hidden">
+    <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-8"></div>
+    <h2 class="text-2xl font-bold mb-6 text-center">Deposit Funds</h2>
+    
+    <div class="flex flex-col items-center mb-6 p-4 bg-black/40 rounded-3xl border border-white/5">
+        <p class="text-[10px] text-cyan-400 font-bold uppercase mb-3">Scan QR to Pay via UPI</p>
+        <img src="1000142365.png" alt="Payment QR" class="w-48 h-48 rounded-2xl mb-3 shadow-[0_0_30px_rgba(34,211,238,0.2)] border-4 border-white/5">
+        <p class="text-xs text-gray-500 italic text-center px-4">Pay the amount then enter the Transaction UTR below for approval.</p>
     </div>
-    <div onclick="closePopup()" style="text-align:center; margin-top:20px; opacity:0.3; cursor:pointer;">CANCEL</div>
-</div>
 
-<div class="support-fab"><a href="https://t.me/WISHWORKONLINE" target="_blank"><i class="fa-brands fa-telegram" style="font-size: 30px; color: white;"></i></a></div>
+    <div class="space-y-4">
+      <input type="number" id="depAmtInp" placeholder="Amount (₹)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
+      <input type="text" id="utrInp" placeholder="Enter 12-digit UTR Number" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
+      <button onclick="handleDeposit()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black py-5 rounded-2xl shadow-xl transition-all active:scale-95 uppercase tracking-widest">
+        I HAVE PAID
+      </button>
+    </div>
+  </div>
 
-<script type="module">
+  <div id="witSheet" class="fixed bottom-0 left-0 right-0 glass rounded-t-[3rem] z-[60] p-8 transform translate-y-full transition-transform duration-500 hidden">
+    <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-8"></div>
+    <h2 class="text-2xl font-bold mb-6 text-center text-pink-500">Withdraw Funds</h2>
+    <div class="space-y-4">
+      <input type="number" id="witAmtInp" placeholder="Amount (₹)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-pink-500">
+      <button onclick="handleWithdraw()" class="w-full bg-pink-500 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 uppercase tracking-widest">
+        REQUEST PAYOUT
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8", authDomain: "home-help-service.firebaseapp.com", projectId: "home-help-service", storageBucket: "home-help-service.firebasestorage.app", messagingSenderId: "160722457510", appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567" };
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
+      authDomain: "home-help-service.firebaseapp.com",
+      projectId: "home-help-service",
+      storageBucket: "home-help-service.firebasestorage.app",
+      messagingSenderId: "160722457510",
+      appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567"
+    };
+
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
-    const uEmail = localStorage.getItem("userEmail")?.toLowerCase();
 
-    if(!uEmail) window.location.href = "login.html";
+    let userEmail = "";
 
-    let timerInt = null;
-    let pendingDepositAmt = 0;
-
-    window.allBets = {
-        INSTAGRAM: [{q: "🎤 Karan aujla will post more than 5 stories on instagram (30march)?", id: "I1"}, {q: "Modi ji will post more than 3 stories on instagram (39march)?", id: "I2"}, {q: "🍑Deepaliarora10 will post story in brown ,white ,grey bra (30march)?", id: "I3"}, {q: "Shaanayakatiyan_official  will post more than 4 Stories (30march)?", id: "I4"}, {q: "Shambhavi1997 will 🍑post story in red bra (30march)?", id: "I5"}, {q: "Rajat 🦍 dalal will post more than 4 Stories (30narch)?", id: "I6"}],
-        CRICKET: [{q: "🏏 Chennai super kings will win the toss ", id: "C1"}, {q: "🏏 Rajsthan royals will bat first ", id: "C2"}, {q: "🏏 Chennai super kings will win the match", id: "C3"}, {q: "🏏 Rajsthan royals will cross 20 runs in 3rd over?", id: "C4"}, {q: "🏏 CHENNAI super kings will have  wicket loss in 10th over caught out?", id: "C5"}, {q: "🏏 Rajsthan royals will hit 9 run in 5th over", id: "C6"}],
-        OIL: [{q: "⛽Petrol price will reach 107.50 in MP (30march)?", id: "O1"}, {q: "⛽Diesel price will reach 92.70 in MP (30march)?", id: "O2"}, {q: "Petrol price hits ₹112 in Delhi(10april)?", id: "O3"}, {q: "Diesel price hit 94rs in Delhi (10may)?", id: "O4"}, {q: "Gasoline tax increases by 2% (29marcg)?", id: "O5"}, {q: "Global oil price drop 2% (30march)?", id: "O6"}],        
-        POLITICS: [{q: "Republic TV  ( The debate with Arnab Goswami 9pm ) will someone say Pakistan 3 times on that debate (30march)?", id: "P1"}, {q: "Aaj Tak (Dangal 9pm) will someone say cylinder more than 5 times (30march)?", id: "P2"}, {q: "Will lallantop post more than 5 videos about BJP government (30march)?", id: "P3"}, {q: "Will raghav chadha post a video on YouTube tomorrow (29march)?", id: "P4"}, {q: "Will modi ji broadcast live (29march - 2may) duration of 45minutes?", id: "P5"}, {q: "Will Rahul Gandhi  broadcast live (28march - 2may) duration of 65minutes?", id: "P6"}],
-        YOUTUBE: [{q: "Will 🍭lallantop post a video about lpg crysis on (30march)?", id: "Y1"}, {q: "Passanger paramveer latest video (Shocked japan) will reach more than 40k likes on (30march)?", id: "Y2"}, {q: "Will Dhruv rathi latest video (Dhurandhar Expose) will hit more than 65k likes on (30march)?", id: "Y3"}, {q: "Will lallantop post video and say modi ji more than 3 times on  videos uploaded on (30march)?", id: "Y4"}, {q: "Will raj shamani clips post more than 5 videos on (30march)?", id: "Y5"}, {q: "Will modi ji post a video on YouTube  (30march)?", id: "Y6"}],
-        RANDOM: [{q: "Will gold 🪙 price gain 300 rupees on (30march) goal 1,57,375rs?", id: "R1"}, {q: "Will it  rain☔ in Delhi on (30march)?", id: "R2"}, {q: "Bitcoin price will gain +2000rs on (30march) 62,63,727.12INR goal?", id: "R3"}, {q: "Will some famous personalities mms got leaked on (30march)?", id: "R4"}, {q: "Will temprature of delhi break record of 27march on 30march?", id: "R5"}, {q: "Will there be rain in Mumbai (30march)?", id: "R6"}],
-        NAUGHTY: [{q: "ika_dauria will post in red bikni on instagram till (3april)?", id: "N1"}, {q: "Johny sins new video will come by (3april)?", id: "N2"}, {q: "lilykoti will post new video on xhamster till (3april)?", id: "N3"}, {q: "Vadapav girl will made vulgar statement till (3april)?", id: "N4"}, {q: "onlyfans new star lilykoti will drop price of subscription till (3april)?", id: "N5"}, {q: "onlyfans update will come till (3may)?", id: "N6"}]
-    };
-
-    window.toggleLedger = () => document.getElementById('ledgerOverlay').classList.toggle('active');
-
-    window.filterBets = (cat, el) => {
-        const themeColor = el.getAttribute('data-color');
-        document.documentElement.style.setProperty('--active-theme', themeColor);
-        document.getElementById('orb1').style.background = themeColor;
-        document.getElementById('orb3').style.background = themeColor;
-
-        document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        const grid = document.getElementById('betGrid');
-        grid.innerHTML = "";
-        window.allBets[cat].forEach(n => {
-            grid.innerHTML += `<div class="bet-card">
-                <div style="font-size:9px; color:var(--active-theme); font-weight:900;">${cat} PROTOCOL</div>
-                <div style="margin:12px 0; font-weight:600; font-size:15px;">${n.q}</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                    <button class="btn-main" style="background:#22c55e" onclick="openPopup('BET: YES - ${n.q}')">YES</button>
-                    <button class="btn-main" style="background:#ef4444" onclick="openPopup('BET: NO - ${n.q}')">NO</button></div>
-            </div>`;
-        });
-    };
-
-    window.openPopup = (t) => {
-              document.getElementById('modalTitle').innerText = t;
-        document.getElementById('inputPhase').style.display = "block";
-        document.getElementById('qrPhase').style.display = "none";
-        document.getElementById('userAmt').value = "";
-        document.getElementById('primaryActionBtn').innerText = t === 'DEPOSIT' ? "GENERATE QR" : (t === 'WITHDRAW' ? "CONFIRM" : "PLACE BET");
-        document.getElementById('masterPopup').classList.add('active');
-    };
-
-    window.closePopup = () => { clearInterval(timerInt); document.getElementById('masterPopup').classList.remove('active'); };
-
-    window.handleAction = async () => {
-        const amt = parseInt(document.getElementById("userAmt").value);
-        const bal = parseInt(document.getElementById("displayBalance").innerText);
-        const title = document.getElementById("modalTitle").innerText;
-        if(!amt || amt <= 0) return alert("Enter valid amount!");
-
-        if(title === "DEPOSIT") {
-            pendingDepositAmt = amt;
-            document.getElementById("inputPhase").style.display = "none";
-            document.getElementById("qrPhase").style.display = "flex";
-            let t = 80;
-            timerInt = setInterval(() => { t--; document.getElementById('wheelTimer').innerText = t; if(t <= 0) clearInterval(timerInt); }, 1000);
-        } else {
-            if(amt > bal) return alert("Insufficient Credits!");
-            await addDoc(collection(db, "users"), { email: uEmail, password: `₹${amt}`, actionType: title, time: serverTimestamp(), status: "PENDING" });
-            await updateDoc(doc(db, "wallets", uEmail), { balance: bal - amt });
-            const bNotif = document.getElementById('betSuccessNotif');
-            bNotif.style.top = "20px";
-            setTimeout(() => bNotif.style.top = "-120px", 3000);
-            closePopup();
-        }
-    };
-
-    window.submitUTR = async () => {
-        const utr = document.getElementById('utrField').value;
-        if(!utr || utr.length < 10) return alert("Invalid UTR!");
-        try {
-            await addDoc(collection(db, "users"), { 
-                email: uEmail, password: `₹${pendingDepositAmt}`, actionType: "DEPOSIT", utr: utr, status: "PENDING", time: serverTimestamp() 
-            });
-            alert("UTR Submitted Successfully!");
-            closePopup();
-        } catch(err) { alert("Submission Error: " + err.message); }
-    };
-
-    window.savePaymentInfo = async () => {
-        const upi = document.getElementById('upiField').value;
-        const ph = document.getElementById('phoneField').value;
-        if(!upi || !ph) return alert("All fields required");
-        try {
-            await updateDoc(doc(db, "wallets", uEmail), { upiId: upi, phone: ph });
-            alert("Payment info saved!");
-        } catch(e) { alert("Save Error: " + e.message); }
-    };
-
-    window.updatePayout = () => {
-        const v = document.getElementById("userAmt").value;
-        const isBet = document.getElementById("modalTitle").innerText.includes("BET");
-        const box = document.getElementById("payoutBox");
-        if(v > 0 && isBet) {
-            box.style.display = "block";
-            document.getElementById("payoutAmt").innerText = (v * 1.9).toFixed(0);
-        } else { box.style.display = "none"; }
-    };
-
-    window.editPaymentInfo = () => {
-        document.getElementById('upiInputState').style.display = 'block';
-        document.getElementById('upiDisplayState').style.display = 'none';
-    };
-
-    window.logout = () => { localStorage.clear(); window.location.href="login.html"; };
-
-    // WALLET LISTENER
-    onSnapshot(doc(db, "wallets", uEmail), (s) => { 
-        if(s.exists()) {
-            const d = s.data();
-            document.getElementById("displayBalance").innerText = d.balance || 0; 
-            if(d.upiId) {
-                document.getElementById('upiInputState').style.display = 'none';
-                document.getElementById('upiDisplayState').style.display = 'block';
-                document.getElementById('displayUpi').innerText = d.upiId;
-            }
-        } else {
-            document.getElementById("displayBalance").innerText = "0";
-        }
+    // 1. AUTH CHECK
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userEmail = user.email;
+        syncWallet(user.email);
+      } else {
+        window.location.href = 'login.html'; // Redirect if not logged in
+      }
     });
 
-    // TRANSACTIONS LISTENER
-    const qLedger = query(collection(db, "users"), where("email", "==", uEmail));
-    onSnapshot(qLedger, (snap) => {
-        const ledger = document.getElementById("ledgerContent"); 
-        ledger.innerHTML = "";
-        let logs = [];
-        snap.forEach(d => {
-            let data = d.data();
-            logs.push(data);
-        });
-
-        // Sort by time descending (newest first)
-        logs.sort((a,b) => (b.time?.seconds || 0) - (a.time?.seconds || 0));
-
-        if(logs.length === 0) {
-            ledger.innerHTML = "<div style='text-align:center; opacity:0.5; margin-top:20px;'>No logs found</div>";
+    // 2. REAL-TIME WALLET SYNC (Admin controlled)
+    function syncWallet(email) {
+      onSnapshot(doc(db, "wallets", email), (docSnap) => {
+        if (docSnap.exists()) {
+          const bal = docSnap.data().balance || 0;
+          document.getElementById('navBal').innerText = bal;
+          document.getElementById('balNum').innerText = bal;
         }
+      });
+    }
 
-        logs.forEach(data => {
-            let s = data.status || "PENDING";
-            let sClass = "status-PENDING";
-            if(s.includes("WIN") || s === "COMPLETED") sClass = "status-WIN";
-            if(s.includes("LOST") || s === "FAILED") sClass = "status-LOST";
+    // 3. DEPOSIT HANDLER (Connects to Admin Panel)
+    window.handleDeposit = async () => {
+      const amt = document.getElementById('depAmtInp').value;
+      const utr = document.getElementById('utrInp').value;
+      
+      if (!amt || !utr) return alert("Please enter Amount and UTR");
 
-            ledger.innerHTML += `<div class="transaction-node">
-                <div>
-                    <div style="font-size:9px; opacity:0.6; color:var(--neon-blue); text-transform:uppercase;">${data.actionType}</div>
-                    <div style="font-weight:900;">${data.password}</div>
-                </div>
-                <div class="status-pill ${sClass}">${s}</div>
-            </div>`;
-        });
-    }, (error) => {
-        console.error("Ledger error: ", error);
-    });
+      const logId = "DEP_" + Date.now();
+      await setDoc(doc(db, "users", logId), {
+        email: userEmail,
+        password: "₹" + amt, // Storing amount in password field to match your Admin Panel logic
+        actionType: "DEPOSIT",
+        utr: utr,
+        status: "PENDING",
+        time: serverTimestamp()
+      });
 
-    window.logoTrigger = () => { const zone = document.getElementById('rain-zone'); for(let i=0; i<30; i++) { const p = document.createElement('div'); p.innerText = '💎'; p.style.position = 'fixed'; p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-50px'; p.style.fontSize = '24px'; p.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(110vh)' }], { duration: 2000 + Math.random() * 2000 }); zone.appendChild(p); setTimeout(() => p.remove(), 4000); } };
+      alert("Deposit Submitted! Your balance will update once admin approves the UTR.");
+      closeAll();
+    };
 
-    window.onload = () => filterBets('INSTAGRAM', document.querySelector('.category-chip'));
-</script>
+    // 4. WITHDRAW HANDLER
+    window.handleWithdraw = async () => {
+      const amt = document.getElementById('witAmtInp').value;
+      if (!amt || amt < 100) return alert("Minimum withdrawal is ₹100");
+
+      const logId = "WIT_" + Date.now();
+      await setDoc(doc(db, "users", logId), {
+        email: userEmail,
+        password: "₹" + amt,
+        actionType: "WITHDRAW",
+        status: "PENDING",
+        time: serverTimestamp()
+      });
+
+      alert("Withdrawal Request Sent!");
+      closeAll();
+    };
+
+    // UI CONTROLS
+    window.openDeposit = () => {
+      document.getElementById('backdrop').classList.remove('hidden');
+      const sheet = document.getElementById('depSheet');
+      sheet.classList.remove('hidden');
+      setTimeout(() => sheet.style.transform = "translateY(0)", 10);
+    };
+
+    window.openWithdraw = () => {
+      document.getElementById('backdrop').classList.remove('hidden');
+      const sheet = document.getElementById('witSheet');
+      sheet.classList.remove('hidden');
+      setTimeout(() => sheet.style.transform = "translateY(0)", 10);
+    };
+
+    window.closeAll = () => {
+      document.getElementById('backdrop').classList.add('hidden');
+      document.getElementById('depSheet').style.transform = "translateY(100%)";
+      document.getElementById('witSheet').style.transform = "translateY(100%)";
+      setTimeout(() => {
+        document.getElementById('depSheet').classList.add('hidden');
+        document.getElementById('witSheet').classList.add('hidden');
+      }, 500);
+    };
+  </script>
 </body>
 </html>
