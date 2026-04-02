@@ -6,195 +6,442 @@
 <title>WISHWORK – Prediction Market</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
 <style>
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-  body{font-family:'Space Grotesk',sans-serif;background:#060810;color:#f1f5f9;min-height:100vh;overscroll-behavior:none}
-  .hidden { display: none; }
-  .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
-  .neon-text { text-shadow: 0 0 10px rgba(34, 211, 238, 0.5); }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loader { border: 3px solid rgba(255,255,255,0.1); border-top-color: #22d3ee; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; }
+/* ── RESET & BASE ── */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{font-family:'Space Grotesk',sans-serif;background:#060810;color:#f1f5f9;min-height:100vh;overscroll-behavior:none}
+input{font-family:'Space Grotesk',sans-serif}
+::-webkit-scrollbar{display:none}
+button{font-family:'Space Grotesk',sans-serif;cursor:pointer}
+
+/* ── KEYFRAMES ── */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinY{0%,100%{transform:rotateY(0deg)}50%{transform:rotateY(180deg)}}
+@keyframes swing{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+@keyframes drip{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.15) translateY(-2px)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.8}}
+@keyframes flicker{0%{transform:scale(1) rotate(-2deg)}100%{transform:scale(1.06) rotate(2deg)}}
+@keyframes ldot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+@keyframes twinkle{0%,100%{transform:scale(1) rotate(0deg);opacity:1}50%{transform:scale(1.3) rotate(20deg);opacity:.7}}
+@keyframes bounceUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(3deg)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 20px #00d4ff}50%{box-shadow:0 0 40px #00d4ff,0 0 60px #00d4ff}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes hotpulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes scanline{0%{top:-10%}100%{top:110%}}
+@keyframes neonFlick{0%,98%,100%{opacity:1}99%{opacity:.7}}
+@keyframes borderGlow{0%,100%{box-shadow:0 0 8px #00d4ff33,inset 0 0 8px #00d4ff08}50%{box-shadow:0 0 28px #00d4ff88,0 0 50px #00d4ff33,inset 0 0 20px #00d4ff18}}
+@keyframes shimmerSlide{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes neonBorderPulse{0%,100%{border-color:rgba(0,212,255,0.25)}50%{border-color:rgba(0,212,255,0.75)}}
+@keyframes glowBreathe{0%,100%{opacity:.07}50%{opacity:.2}}
+@keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes innerGlow{0%,100%{box-shadow:inset 0 0 20px rgba(0,212,255,0.04),0 8px 32px rgba(0,0,0,0.5)}50%{box-shadow:inset 0 0 40px rgba(0,212,255,0.1),0 8px 32px rgba(0,0,0,0.5)}}
+@keyframes badgePop{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes neonTextPulse{0%,100%{text-shadow:0 0 10px #00d4ff,0 0 20px #00d4ff44}50%{text-shadow:0 0 22px #00d4ff,0 0 44px #00d4ffaa,0 0 66px #00d4ff33}}
+@keyframes goldTextPulse{0%,100%{text-shadow:0 0 8px #ffd700,0 0 16px #ffd70044}50%{text-shadow:0 0 20px #ffd700,0 0 40px #ffd700aa}}
+@keyframes skeuShine{0%{left:-100%}60%,100%{left:220%}}
+@keyframes particleDrift{0%{transform:translateY(0) scale(1);opacity:.8}100%{transform:translateY(-40px) scale(0);opacity:0}}
+@keyframes cardPop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes rupeeGlow{0%,100%{text-shadow:0 0 8px #22c55e}50%{text-shadow:0 0 20px #22c55e,0 0 40px rgba(34,197,94,.5)}}
+@keyframes slideUp{0%{transform:translateY(100%);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes slideInRight{0%{transform:translateX(100%);opacity:0}100%{transform:translateX(0);opacity:1}}
+@keyframes backdropIn{0%{opacity:0;backdrop-filter:blur(0px)}100%{opacity:1;backdrop-filter:blur(14px)}}
+@keyframes neonRingPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0.4)}70%{box-shadow:0 0 0 8px rgba(0,212,255,0)}}
+@keyframes goldRingPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,0.4)}70%{box-shadow:0 0 0 8px rgba(255,215,0,0)}}
+@keyframes liquidWave{0%,100%{border-radius:24px}25%{border-radius:28px 20px 26px 22px}50%{border-radius:22px 26px 20px 28px}75%{border-radius:26px 22px 28px 20px}}
+@keyframes neonSweep{0%{left:-100%;opacity:0}20%{opacity:1}80%{opacity:.8}100%{left:200%;opacity:0}}
+@keyframes depthPop{0%{box-shadow:0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08)}50%{box-shadow:0 8px 32px rgba(0,212,255,.18),inset 0 1px 0 rgba(255,255,255,.15)}100%{box-shadow:0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08)}}
+
+/* ── UTILITY CLASSES ── */
+.skeuo-card{position:relative;overflow:hidden}
+.skeuo-card::before{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,0.07),rgba(0,212,255,0.04),transparent);animation:skeuShine 4.5s ease-in-out infinite;pointer-events:none;z-index:10}
+.skeuo-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),rgba(0,212,255,0.12),transparent);pointer-events:none;z-index:10}
+.neon-border-anim{animation:neonBorderPulse 2.5s ease-in-out infinite}
+.glow-breathe{animation:glowBreathe 3s ease-in-out infinite}
+.glass-deep{background:linear-gradient(145deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03),rgba(0,212,255,0.03));backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.12);box-shadow:0 20px 60px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.18),inset 0 -1px 0 rgba(0,0,0,0.3),inset 1px 0 0 rgba(255,255,255,0.06),0 0 0 1px rgba(0,212,255,0.06)}
+.sheet-enter{animation:slideUp .45s cubic-bezier(0.16,1,0.3,1) forwards}
+.card-hover:hover{transform:translateY(-2px) scale(1.005);box-shadow:0 12px 40px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.12)!important;transition:all .25s cubic-bezier(0.34,1.56,0.64,1)}
+.neon-cyan-btn{background:linear-gradient(145deg,rgba(0,212,255,0.18),rgba(0,212,255,0.06),rgba(0,212,255,0.12));border:1.5px solid rgba(0,212,255,0.6);color:#00d4ff;font-weight:800;text-shadow:0 0 12px #00d4ff,0 0 24px rgba(0,212,255,0.4);box-shadow:0 0 28px rgba(0,212,255,0.4),0 0 56px rgba(0,212,255,0.15),inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.25);animation:depthPop 3s ease-in-out infinite}
+.neon-gold-btn{background:linear-gradient(145deg,rgba(255,215,0,0.18),rgba(255,215,0,0.06),rgba(255,215,0,0.12));border:1.5px solid rgba(255,215,0,0.6);color:#ffd700;font-weight:800;text-shadow:0 0 12px #ffd700,0 0 24px rgba(255,215,0,0.4);box-shadow:0 0 28px rgba(255,215,0,0.35),0 0 56px rgba(255,215,0,0.12),inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.25)}
+.neon-green-btn{background:linear-gradient(145deg,rgba(34,197,94,0.18),rgba(34,197,94,0.06),rgba(34,197,94,0.12));border:1.5px solid rgba(34,197,94,0.6);color:#22c55e;font-weight:800;text-shadow:0 0 12px #22c55e,0 0 24px rgba(34,197,94,0.4);box-shadow:0 0 28px rgba(34,197,94,0.35),0 0 56px rgba(34,197,94,0.12),inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.25)}
+.neon-red-btn{background:linear-gradient(145deg,rgba(239,68,68,0.18),rgba(239,68,68,0.06),rgba(239,68,68,0.12));border:1.5px solid rgba(239,68,68,0.6);color:#ef4444;font-weight:800;text-shadow:0 0 12px #ef4444,0 0 24px rgba(239,68,68,0.4);box-shadow:0 0 28px rgba(239,68,68,0.35),0 0 56px rgba(239,68,68,0.12),inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.25)}
+
+/* ── LAYOUT ── */
+#app{min-height:100vh;padding-bottom:80px;overflow-x:hidden;position:relative}
+
+/* BG BLOBS */
+.blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+#blob1{width:600px;height:600px;filter:blur(150px);opacity:0.13;background:#00d4ff;top:-200px;left:-200px;transition:background 1.2s;animation:float 15s ease-in-out infinite}
+#blob2{width:500px;height:500px;filter:blur(130px);opacity:0.09;background:#00d4ff;bottom:-150px;right:-150px;transition:background 1.2s;animation:float 18s ease-in-out infinite reverse}
+#blob3{width:280px;height:280px;filter:blur(90px);opacity:0.07;background:#ffd700;top:40%;left:50%;animation:float 12s ease-in-out infinite}
+#blob4{width:200px;height:200px;filter:blur(80px);opacity:0.05;background:#00d4ff;top:20%;right:10%;animation:float 20s ease-in-out infinite}
+#scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.44),transparent);animation:scanline 8s linear infinite;pointer-events:none;z-index:1}
+
+/* NAV */
+#topnav{position:sticky;top:0;z-index:500;backdrop-filter:blur(50px);-webkit-backdrop-filter:blur(50px);background:linear-gradient(180deg,rgba(4,6,16,0.96),rgba(6,8,20,0.92));border-bottom:1px solid rgba(0,212,255,0.15);padding:0 14px;display:flex;align-items:center;justify-content:space-between;height:62px;box-shadow:0 1px 0 rgba(0,212,255,0.1),0 4px 24px rgba(0,0,0,0.5),0 0 0 1px rgba(0,212,255,0.04)}
+.nav-logo-wrap{display:flex;align-items:center;gap:10px;cursor:pointer}
+.nav-brand{display:flex;flex-direction:column;line-height:1}
+.brand-text-wrap{position:relative;display:inline-block}
+.brand-glass-bg{position:absolute;inset:-3px -8px;background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(255,215,0,0.05),rgba(255,255,255,0.06));backdrop-filter:blur(8px);border-radius:8px;border:1px solid rgba(0,212,255,0.15);box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.2),0 0 20px rgba(0,212,255,0.1);z-index:0}
+.brand-shine{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);animation:skeuShine 3s ease-in-out infinite;z-index:1;border-radius:8px;pointer-events:none}
+.brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:2.5px;font-style:italic;transform:skewX(-5deg);background:linear-gradient(105deg,#00d4ff 0%,#7dd3fc 25%,#ffffff 45%,#fbbf24 70%,#ffd700 100%);background-size:250% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmerSlide 2.5s linear infinite;display:inline-block;position:relative;z-index:2;filter:drop-shadow(0 0 10px rgba(0,212,255,0.8)) drop-shadow(0 2px 0 rgba(0,0,0,0.5))}
+.brand-sub{font-size:7px;letter-spacing:4px;color:rgba(0,212,255,0.6);font-weight:700;text-transform:uppercase;padding-left:4px;margin-top:1px;position:relative;z-index:2;text-shadow:0 0 8px rgba(0,212,255,0.5)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-bal{background:linear-gradient(145deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04),rgba(0,212,255,0.03));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1.5px solid rgba(34,197,94,0.35);border-radius:12px;padding:7px 14px;display:flex;align-items:center;gap:5px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.15),0 0 20px rgba(34,197,94,0.2),0 0 40px rgba(34,197,94,0.08)}
+.nav-rupee{font-size:12px;color:#22c55e;font-weight:800;animation:rupeeGlow 2s ease-in-out infinite}
+.nav-bal-num{font-weight:800;font-size:14px;color:#22c55e;text-shadow:0 0 12px rgba(34,197,94,.6)}
+.nav-btn{background:linear-gradient(145deg,rgba(0,212,255,0.06),rgba(0,212,255,0.02),rgba(255,255,255,0.03));border:1px solid rgba(0,212,255,0.2);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 0 10px rgba(0,212,255,0.1);backdrop-filter:blur(10px)}
+
+/* TABS */
+#tabsWrap{position:sticky;top:62px;z-index:400;backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);background:rgba(6,8,16,0.92);border-bottom:1px solid rgba(255,255,255,0.05)}
+#tabsRow{display:flex;overflow-x:auto;padding:0 6px;scrollbar-width:none}
+.tab{display:flex;align-items:center;gap:7px;padding:12px 13px;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;transition:all .25s;position:relative}
+.tab.active{color:#f1f5f9;border-bottom-color:var(--cc)}
+.tab-glow{position:absolute;bottom:0;left:0;right:0;height:2px;filter:blur(4px);opacity:.8;background:var(--cc)}
+.tab svg{transition:transform .3s}
+
+/* BALANCE CARD */
+#balCard{margin:12px 14px 0;border-radius:24px;padding:22px;position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(255,255,255,0.09) 0%,rgba(0,212,255,0.05) 40%,rgba(255,255,255,0.02) 70%,rgba(255,215,0,0.04) 100%);backdrop-filter:blur(50px);-webkit-backdrop-filter:blur(50px);border:1px solid rgba(255,255,255,0.14);box-shadow:0 28px 90px rgba(0,0,0,0.65),inset 0 1px 0 rgba(255,255,255,0.22),inset 0 -1px 0 rgba(0,0,0,0.35),inset 1px 0 0 rgba(255,255,255,0.09),inset -1px 0 0 rgba(0,0,0,0.1),0 0 0 1px rgba(0,212,255,0.08);animation:liquidWave 8s ease-in-out infinite}
+.bal-label{font-size:10px;color:rgba(0,212,255,0.7);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.bal-amount{display:flex;align-items:baseline;gap:4px}
+.bal-rupee{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#22c55e;animation:rupeeGlow 2.5s ease-in-out infinite;line-height:1;text-shadow:0 0 20px #22c55e,0 0 40px rgba(34,197,94,0.5)}
+.bal-num{font-family:'Syne',sans-serif;font-weight:800;font-size:38px;color:#22c55e;text-shadow:0 0 30px rgba(34,197,94,.6),0 0 60px rgba(34,197,94,.3);letter-spacing:-1px}
+.bal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.dep-btn{padding:15px;border-radius:14px;border:1.5px solid var(--cc);font-weight:800;font-size:13px;cursor:pointer;color:var(--cc);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;gap:7px;text-shadow:0 0 14px var(--cc);letter-spacing:.3px;position:relative;overflow:hidden;transition:all .3s}
+.wit-btn{padding:15px;border-radius:14px;border:1.5px solid rgba(0,212,255,0.3);font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(145deg,rgba(0,212,255,0.08),rgba(0,212,255,0.03),rgba(255,255,255,0.04));color:#00d4ff;backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;gap:7px;text-shadow:0 0 8px rgba(0,212,255,0.5);letter-spacing:.3px;position:relative;overflow:hidden}
+
+/* MARKET CARDS */
+.market-card{margin:0 14px 12px;border-radius:20px;padding:18px;background:linear-gradient(145deg,rgba(255,255,255,0.07) 0%,rgba(255,255,255,0.02) 50%,rgba(0,212,255,0.025) 80%,rgba(255,215,0,0.01) 100%);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.1);box-shadow:0 6px 32px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.12),inset 0 -1px 0 rgba(0,0,0,0.18),inset 1px 0 0 rgba(255,255,255,0.05);transition:all .3s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden;animation:cardPop .45s cubic-bezier(0.34,1.56,0.64,1) forwards}
+.market-card:hover{transform:translateY(-2px) scale(1.005)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;text-transform:uppercase}
+.hot-badge{font-size:9px;background:rgba(255,215,0,.12);color:#ffd700;border:1px solid rgba(255,215,0,.35);padding:3px 8px;border-radius:6px;font-weight:800;animation:hotpulse 2s infinite;display:inline-flex;align-items:center;gap:3px;box-shadow:0 0 10px rgba(255,215,0,.2);text-shadow:0 0 6px #ffd700}
+.live-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;color:#00d4ff;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.3);border-radius:6px;padding:3px 8px;box-shadow:0 0 10px rgba(0,212,255,.2);animation:neonBorderPulse 2s infinite;text-shadow:0 0 6px #00d4ff}
+.live-dot{width:5px;height:5px;border-radius:50%;background:#00d4ff;display:inline-block;animation:ldot 1.2s infinite;box-shadow:0 0 6px #00d4ff}
+.vol-badge{font-size:10px;color:#475569;margin-left:auto;background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:6px}
+.card-badge-row{display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap;padding-left:6px}
+.card-q{font-size:14px;font-weight:600;color:#e2e8f0;line-height:1.45;margin:10px 0 14px;padding-left:6px}
+.odds-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-left:6px}
+.odds-num{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;min-width:54px}
+.odds-bar-wrap{flex:1;height:7px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.4),inset 0 -1px 0 rgba(255,255,255,0.03)}
+.odds-bar-fill{height:100%;border-radius:6px;transition:background 1.2s}
+.odds-label{font-size:10px;color:#475569;min-width:38px;text-align:right}
+.bet-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-left:6px}
+.bet-btn{padding:13px 12px;border-radius:13px;font-size:12px;cursor:pointer;backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:5px;position:relative;overflow:hidden}
+
+/* SECTION HEAD */
+.section-head{display:flex;align-items:center;justify-content:space-between;padding:18px 14px 10px}
+.section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
+.section-count{font-size:11px;color:#64748b;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:4px 11px;border-radius:9px}
+
+/* BOTTOM NAV */
+#bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(4,6,14,0.97);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:500;box-shadow:0 -1px 0 rgba(0,212,255,0.06),0 -4px 20px rgba(0,0,0,0.5)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;gap:3px;cursor:pointer;border:none;background:none;color:#475569;text-decoration:none;transition:color .3s;position:relative}
+.bnav-item.active{color:var(--cc);text-shadow:0 0 10px var(--cc)}
+.bnav-pip{position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--cc),#ffd700);box-shadow:0 0 12px var(--cc),0 0 24px rgba(0,212,255,0.66)}
+.bnav-label{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+
+/* BACKDROP */
+.backdrop{position:fixed;inset:0;background:rgba(0,5,18,0.85);z-index:600;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);animation:backdropIn .3s ease forwards}
+
+/* SHEET */
+.sheet{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,rgba(6,9,20,0.97) 0%,rgba(3,5,12,0.99) 100%);backdrop-filter:blur(60px);-webkit-backdrop-filter:blur(60px);border-radius:28px 28px 0 0;padding:22px;z-index:700;max-height:88vh;overflow-y:auto;border:1px solid rgba(255,255,255,0.12);border-bottom:none;border-top:1.5px solid rgba(0,212,255,0.2);box-shadow:0 -24px 80px rgba(0,0,0,0.8),0 -4px 40px rgba(0,212,255,0.08),inset 0 1px 0 rgba(255,255,255,0.14),inset 0 0 40px rgba(0,212,255,0.03);animation:slideUp .45s cubic-bezier(0.16,1,0.3,1) forwards}
+.handle{width:48px;height:4px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.7),rgba(255,215,0,0.4),transparent);border-radius:2px;margin:0 auto 22px;box-shadow:0 0 12px rgba(0,212,255,0.5),0 0 24px rgba(0,212,255,0.2)}
+.sheet-title{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;margin-bottom:4px;line-height:1.35}
+.sheet-sub{font-size:12px;color:#64748b;margin-bottom:18px;display:flex;align-items:center;gap:6px}
+.amt-chips{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.amt-chip{padding:8px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;color:#94a3b8}
+.amt-chip.active{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);color:#f1f5f9}
+.amt-inp{width:100%;background:linear-gradient(145deg,rgba(0,0,0,0.6),rgba(0,10,30,0.5));border-radius:16px;padding:16px;color:#f1f5f9;font-size:28px;font-weight:700;text-align:center;outline:none;margin-bottom:10px;backdrop-filter:blur(16px);box-shadow:inset 0 2px 10px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.08)}
+.payout-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:12px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.06)}
+.neon-btn{width:100%;padding:16px 20px;border-radius:14px;font-weight:800;font-size:13px;cursor:pointer;position:relative;overflow:hidden;transition:all .22s cubic-bezier(0.34,1.56,0.64,1);letter-spacing:.6px}
+.sheet-cancel{text-align:center;margin-top:14px;color:#475569;font-size:13px;cursor:pointer;padding:8px}
+
+/* GLASS CARD */
+.glass{background:linear-gradient(145deg,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.04) 40%,rgba(0,212,255,0.03) 70%,rgba(255,215,0,0.02) 100%);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.13);box-shadow:0 12px 40px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.18),inset 0 -1px 0 rgba(0,0,0,0.25),inset 1px 0 0 rgba(255,255,255,0.07),inset -1px 0 0 rgba(0,0,0,0.1),0 0 0 1px rgba(0,212,255,0.05);border-radius:20px;position:relative;overflow:hidden}
+
+/* TOAST */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:13px 24px;border-radius:16px;font-weight:800;font-size:13px;z-index:999;white-space:nowrap;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);animation:cardPop .3s ease;display:none}
+.toast.show{display:block}
+
+/* PORTFOLIO SIDEBAR */
+#portfolio{position:fixed;top:0;right:0;width:min(100%,400px);height:100%;background:linear-gradient(180deg,rgba(5,8,20,0.98),rgba(3,5,12,0.99));backdrop-filter:blur(60px);-webkit-backdrop-filter:blur(60px);z-index:800;overflow-y:auto;border-left:1.5px solid rgba(0,212,255,0.15);box-shadow:-12px 0 60px rgba(0,0,0,0.6),-2px 0 20px rgba(0,212,255,0.06);animation:slideInRight .42s cubic-bezier(0.16,1,0.3,1) forwards}
+.port-header{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(6,8,16,0.95);backdrop-filter:blur(20px);z-index:1}
+.port-close{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#94a3b8}
+.port-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:14px 14px 0}
+.port-stat{border-radius:12px;padding:12px;text-align:center}
+.port-stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:16px}
+.port-stat-lbl{font-size:10px;color:#64748b;margin-top:2px}
+.tx-empty{text-align:center;color:#475569;font-size:13px;padding:30px}
+.tx-emoji{font-size:32px;margin-bottom:8px;animation:pulse 2s infinite}
+
+/* INPUT */
+.text-inp{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px 14px;color:#f1f5f9;font-size:13px;outline:none;font-family:inherit}
+.text-inp::placeholder{color:#475569}
+
+/* Utility */
+.hidden{display:none!important}
+.page-content{padding:0}
 </style>
 </head>
+<body>
+<div id="app">
+  <div id="blob1" class="blob"></div>
+  <div id="blob2" class="blob"></div>
+  <div id="blob3" class="blob"></div>
+  <div id="blob4" class="blob"></div>
+  <div id="scanline"></div>
 
-<body class="pb-24">
+  <div id="toast" class="toast"></div>
 
-  <nav class="flex justify-between items-center px-6 py-5 sticky top-0 z-40 glass">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)]">
-        <i class="fa-solid fa-bolt text-black text-xl"></i>
-      </div>
-      <span class="font-bold tracking-tighter text-xl italic uppercase">Wishwork</span>
-    </div>
-    <div class="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-      <i class="fa-solid fa-wallet text-cyan-400"></i>
-      <span class="font-bold text-sm" id="navBal">0</span>
-    </div>
-  </nav>
-
-  <main class="p-6 max-w-md mx-auto space-y-8">
-    <div class="relative overflow-hidden p-8 rounded-[2rem] bg-gradient-to-br from-cyan-600 to-blue-700 shadow-2xl shadow-cyan-900/20">
-      <div class="relative z-10">
-        <p class="text-cyan-100/70 text-xs font-bold uppercase tracking-widest mb-1">Available Credits</p>
-        <h1 class="text-5xl font-black mb-6 tracking-tighter">₹<span id="balNum">0</span></h1>
-        <div class="flex gap-3">
-          <button onclick="openDeposit()" class="flex-1 bg-white text-black font-bold py-4 rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2">
-            <i class="fa-solid fa-plus-circle"></i> DEPOSIT
-          </button>
-          <button onclick="openWithdraw()" class="flex-1 bg-black/20 hover:bg-black/30 backdrop-blur-md text-white font-bold py-4 rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2 border border-white/10">
-            <i class="fa-solid fa-arrow-up-from-bracket"></i> WITHDRAW
-          </button>
+  <nav id="topnav">
+    <div class="nav-logo-wrap">
+      <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="11" fill="rgba(0,212,255,0.1)"/>
+        <polyline points="6,29 12,19 18,24 25,12 32,16" stroke="#00d4ff" stroke-width="2.5" fill="none"/>
+      </svg>
+      <div class="nav-brand">
+        <div class="brand-text-wrap">
+          <div class="brand-name">WISHWORK</div>
+          <div class="brand-sub">PREDICTION MARKET</div>
         </div>
       </div>
     </div>
-
-    <div class="glass p-6 rounded-3xl border border-white/10">
-        <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-line text-cyan-400"></i> ACTIVE SIGNALS</h3>
-        <p class="text-gray-400 text-sm italic">Connect to Telegram for live trade signals...</p>
-        <button onclick="window.open('https://t.me/WISHWORKONLINE','_blank')" class="w-full mt-4 bg-[#24A1DE] py-3 rounded-xl font-bold flex items-center justify-center gap-2">
-            <i class="fa-brands fa-telegram"></i> JOIN TELEGRAM
-        </button>
+    <div class="nav-right">
+      <div class="nav-bal">
+        <span class="nav-rupee">₹</span>
+        <span class="nav-bal-num" id="navBal">500</span>
+      </div>
     </div>
-  </main>
+  </nav>
 
-  <div id="backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden" onclick="closeAll()"></div>
-  <div id="depSheet" class="fixed bottom-0 left-0 right-0 glass rounded-t-[3rem] z-[60] p-8 transform translate-y-full transition-transform duration-500 hidden">
-    <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-8"></div>
-    <h2 class="text-2xl font-bold mb-6 text-center">Deposit Funds</h2>
-    
-    <div class="flex flex-col items-center mb-6 p-4 bg-black/40 rounded-3xl border border-white/5">
-        <p class="text-[10px] text-cyan-400 font-bold uppercase mb-3">Scan QR to Pay via UPI</p>
-        <img src="1000142365.png" alt="Payment QR" class="w-48 h-48 rounded-2xl mb-3 shadow-[0_0_30px_rgba(34,211,238,0.2)] border-4 border-white/5">
-        <p class="text-xs text-gray-500 italic text-center px-4">Pay the amount then enter the Transaction UTR below for approval.</p>
-    </div>
-
-    <div class="space-y-4">
-      <input type="number" id="depAmtInp" placeholder="Amount (₹)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
-      <input type="text" id="utrInp" placeholder="Enter 12-digit UTR Number" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
-      <button onclick="handleDeposit()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black py-5 rounded-2xl shadow-xl transition-all active:scale-95 uppercase tracking-widest">
-        I HAVE PAID
-      </button>
-    </div>
+  <div id="tabsWrap">
+    <div id="tabsRow"></div>
   </div>
 
-  <div id="witSheet" class="fixed bottom-0 left-0 right-0 glass rounded-t-[3rem] z-[60] p-8 transform translate-y-full transition-transform duration-500 hidden">
-    <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-8"></div>
-    <h2 class="text-2xl font-bold mb-6 text-center text-pink-500">Withdraw Funds</h2>
-    <div class="space-y-4">
-      <input type="number" id="witAmtInp" placeholder="Amount (₹)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-pink-500">
-      <button onclick="handleWithdraw()" class="w-full bg-pink-500 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 uppercase tracking-widest">
-        REQUEST PAYOUT
-      </button>
-    </div>
+  <div id="pageMarkets" class="page-content"></div>
+  <div id="pageSupport" class="page-content hidden"></div>
+  <div id="pageAccount" class="page-content hidden"></div>
+
+  <div id="bnav">
+    <button class="bnav-item active" id="bnav-markets" onclick="setPage('markets')">
+      <div class="bnav-pip" id="pip-markets"></div>
+      <div class="bnav-label">Markets</div>
+    </button>
+    <button class="bnav-item" id="bnav-portfolio" onclick="openPortfolio()">
+      <div class="bnav-label">Portfolio</div>
+    </button>
+    <button class="bnav-item" id="bnav-support" onclick="setPage('support')">
+      <div class="bnav-label">Support</div>
+    </button>
+    <button class="bnav-item" id="bnav-account" onclick="setPage('account')">
+      <div class="bnav-label">Account</div>
+    </button>
   </div>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, onSnapshot, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<div id="backdrop" class="backdrop hidden" onclick="closeAll()"></div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
-      authDomain: "home-help-service.firebaseapp.com",
-      projectId: "home-help-service",
-      storageBucket: "home-help-service.firebasestorage.app",
-      messagingSenderId: "160722457510",
-      appId: "1:160722457510:web:f2c5fa0b922a0ccc58b567"
+<div id="portfolio" class="hidden">
+  <div class="port-header">
+    <div>Portfolio</div>
+    <div class="port-close" onclick="closeAll()">✕</div>
+  </div>
+  <div class="port-stats" id="portStats"></div>
+  <div style="padding:0 14px 80px" id="txList"></div>
+</div>
+
+<div id="betSheet" class="sheet hidden">
+  <div class="handle"></div>
+  <div class="sheet-title" id="betQ"></div>
+  <input class="amt-inp" id="betAmtInp" type="number" placeholder="₹ 0" oninput="updateBetAmt(this.value)"/>
+  <div class="payout-row">
+    <span>Potential return</span>
+    <span id="payoutAmt">₹ 0.00</span>
+  </div>
+  <button class="neon-btn skeuo-card neon-cyan-btn" id="placeBetBtn" onclick="placeBet()">Place Order</button>
+  <div class="sheet-cancel" onclick="closeAll()">Cancel</div>
+</div>
+
+<script>
+/* ── STATE ── */
+const state = {
+  bal: 500,
+  tab: 'ALL',
+  page: 'markets',
+  txList: [],
+  selectedBet: null,
+  orderSide: 'YES'
+};
+
+const CATEGORIES = [
+  {id:'ALL',label:'All Markets',cc:'#00d4ff'},
+  {id:'CRICKET',label:'Cricket',cc:'#ffd700'},
+  {id:'CRYPTO',label:'Crypto',cc:'#22c55e'},
+  {id:'POLITICS',label:'Politics',cc:'#ef4444'}
+];
+
+const MARKETS = [
+  {id:1,cat:'CRICKET',q:'India to win the Champions Trophy 2025?',yes:65,no:35,vol:'1.2M'},
+  {id:2,cat:'CRYPTO',q:'Bitcoin to hit $100k by end of April?',yes:42,no:58,vol:'840K'},
+  {id:3,cat:'POLITICS',q:'Stock Market to reach new high this week?',yes:78,no:22,vol:'500K'}
+];
+
+/* ── UI HELPERS ── */
+function showToast(msg,type='info'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function closeAll(){
+  document.getElementById('backdrop').classList.add('hidden');
+  document.getElementById('portfolio').classList.add('hidden');
+  document.getElementById('betSheet').classList.add('hidden');
+}
+
+function setPage(p){
+  state.page = p;
+  document.querySelectorAll('.page-content').forEach(el=>el.classList.add('hidden'));
+  document.querySelectorAll('.bnav-item').forEach(el=>el.classList.remove('active'));
+  
+  if(p==='markets'){
+    document.getElementById('pageMarkets').classList.remove('hidden');
+    document.getElementById('bnav-markets').classList.add('active');
+    renderMarkets();
+  } else if(p==='support'){
+    document.getElementById('pageSupport').classList.remove('hidden');
+    document.getElementById('bnav-support').classList.add('active');
+    document.getElementById('pageSupport').innerHTML = '<div style="padding:40px;text-align:center">Support Center Coming Soon</div>';
+  } else if(p==='account'){
+    document.getElementById('pageAccount').classList.remove('hidden');
+    document.getElementById('bnav-account').classList.add('active');
+    document.getElementById('pageAccount').innerHTML = '<div style="padding:40px;text-align:center">Account Settings Coming Soon</div>';
+  }
+}
+
+/* ── MARKETS ── */
+function renderMarkets(){
+  const container = document.getElementById('pageMarkets');
+  container.innerHTML = `
+    <div id="balCard">
+      <div class="bal-label">AVAILABLE BALANCE</div>
+      <div class="bal-amount">
+        <span class="bal-rupee">₹</span>
+        <span class="bal-num" id="balNum">${state.bal}</span>
+      </div>
+    </div>
+    <div class="section-head"><div class="section-title">Trending Markets</div></div>
+  `;
+
+  const list = MARKETS.filter(m => state.tab==='ALL' || m.cat===state.tab);
+  list.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'market-card';
+    card.innerHTML = `
+      <div class="card-badge-row">
+        <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+        <span class="vol-badge">₹${m.vol} vol</span>
+      </div>
+      <div class="card-q">${m.q}</div>
+      <div class="bet-btns">
+        <button class="bet-btn neon-cyan-btn" onclick="openBet(${m.id},'YES')">Yes ₹${m.yes}</button>
+        <button class="bet-btn neon-red-btn" onclick="openBet(${m.id},'NO')">No ₹${m.no}</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function openBet(id,side){
+  const m = MARKETS.find(x=>x.id===id);
+  state.selectedBet = m;
+  state.orderSide = side;
+  document.getElementById('betQ').textContent = m.q;
+  document.getElementById('betAmtInp').value = '';
+  document.getElementById('payoutAmt').textContent = '₹ 0.00';
+  document.getElementById('backdrop').classList.remove('hidden');
+  document.getElementById('betSheet').classList.remove('hidden');
+}
+
+function updateBetAmt(val){
+  const amt = parseFloat(val) || 0;
+  const price = state.orderSide === 'YES' ? state.selectedBet.yes : state.selectedBet.no;
+  const payout = (amt / price) * 100;
+  document.getElementById('payoutAmt').textContent = '₹ ' + payout.toFixed(2);
+}
+
+function placeBet(){
+  const amt = parseFloat(document.getElementById('betAmtInp').value);
+  if(!amt || amt <= 0) return showToast('Enter valid amount');
+  if(amt > state.bal) return showToast('Insufficient balance');
+  
+  state.bal -= amt;
+  state.txList.unshift({
+    id: Date.now(),
+    type: 'BET',
+    q: state.selectedBet.q,
+    amt: '₹' + amt,
+    status: 'ACTIVE',
+    time: new Date().toLocaleTimeString()
+  });
+  
+  updateBal();
+  closeAll();
+  showToast('Order Placed Successfully!');
+  if(state.page === 'markets') renderMarkets();
+}
+
+function updateBal(){
+  document.getElementById('navBal').textContent = state.bal;
+  const bn = document.getElementById('balNum');
+  if(bn) bn.textContent = state.bal;
+}
+
+/* ── PORTFOLIO ── */
+function openPortfolio(){
+  document.getElementById('backdrop').classList.remove('hidden');
+  document.getElementById('portfolio').classList.remove('hidden');
+  renderTx();
+}
+
+function renderTx(){
+  const cont = document.getElementById('txList');
+  if(state.txList.length === 0){
+    cont.innerHTML = '<div class="tx-empty">No orders yet</div>';
+    return;
+  }
+  cont.innerHTML = state.txList.map(tx => `
+    <div class="glass" style="margin-bottom:10px;padding:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span style="font-weight:700">${tx.type}</span>
+        <span style="color:#22c55e">${tx.amt}</span>
+      </div>
+      <div style="font-size:11px;color:#94a3b8">${tx.q}</div>
+    </div>
+  `).join('');
+}
+
+/* ── INITIALIZE ── */
+function init(){
+  const row = document.getElementById('tabsRow');
+  CATEGORIES.forEach(c => {
+    const btn = document.createElement('div');
+    btn.className = `tab ${state.tab===c.id?'active':''}`;
+    btn.textContent = c.label;
+    btn.onclick = () => {
+      state.tab = c.id;
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      btn.classList.add('active');
+      renderMarkets();
     };
+    row.appendChild(btn);
+  });
+  renderMarkets();
+}
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    let userEmail = "";
-
-    // 1. AUTH CHECK
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        userEmail = user.email;
-        syncWallet(user.email);
-      } else {
-        window.location.href = 'login.html'; // Redirect if not logged in
-      }
-    });
-
-    // 2. REAL-TIME WALLET SYNC (Admin controlled)
-    function syncWallet(email) {
-      onSnapshot(doc(db, "wallets", email), (docSnap) => {
-        if (docSnap.exists()) {
-          const bal = docSnap.data().balance || 0;
-          document.getElementById('navBal').innerText = bal;
-          document.getElementById('balNum').innerText = bal;
-        }
-      });
-    }
-
-    // 3. DEPOSIT HANDLER (Connects to Admin Panel)
-    window.handleDeposit = async () => {
-      const amt = document.getElementById('depAmtInp').value;
-      const utr = document.getElementById('utrInp').value;
-      
-      if (!amt || !utr) return alert("Please enter Amount and UTR");
-
-      const logId = "DEP_" + Date.now();
-      await setDoc(doc(db, "users", logId), {
-        email: userEmail,
-        password: "₹" + amt, // Storing amount in password field to match your Admin Panel logic
-        actionType: "DEPOSIT",
-        utr: utr,
-        status: "PENDING",
-        time: serverTimestamp()
-      });
-
-      alert("Deposit Submitted! Your balance will update once admin approves the UTR.");
-      closeAll();
-    };
-
-    // 4. WITHDRAW HANDLER
-    window.handleWithdraw = async () => {
-      const amt = document.getElementById('witAmtInp').value;
-      if (!amt || amt < 100) return alert("Minimum withdrawal is ₹100");
-
-      const logId = "WIT_" + Date.now();
-      await setDoc(doc(db, "users", logId), {
-        email: userEmail,
-        password: "₹" + amt,
-        actionType: "WITHDRAW",
-        status: "PENDING",
-        time: serverTimestamp()
-      });
-
-      alert("Withdrawal Request Sent!");
-      closeAll();
-    };
-
-    // UI CONTROLS
-    window.openDeposit = () => {
-      document.getElementById('backdrop').classList.remove('hidden');
-      const sheet = document.getElementById('depSheet');
-      sheet.classList.remove('hidden');
-      setTimeout(() => sheet.style.transform = "translateY(0)", 10);
-    };
-
-    window.openWithdraw = () => {
-      document.getElementById('backdrop').classList.remove('hidden');
-      const sheet = document.getElementById('witSheet');
-      sheet.classList.remove('hidden');
-      setTimeout(() => sheet.style.transform = "translateY(0)", 10);
-    };
-
-    window.closeAll = () => {
-      document.getElementById('backdrop').classList.add('hidden');
-      document.getElementById('depSheet').style.transform = "translateY(100%)";
-      document.getElementById('witSheet').style.transform = "translateY(100%)";
-      setTimeout(() => {
-        document.getElementById('depSheet').classList.add('hidden');
-        document.getElementById('witSheet').classList.add('hidden');
-      }, 500);
-    };
-  </script>
+init();
+</script>
 </body>
 </html>
