@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
 <title>WISHWORK – Prediction Market</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&family=Oswald:wght@600;700&display=swap" rel="stylesheet"/>
 <style>
 /* ── RESET & BASE ── */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
@@ -51,6 +51,18 @@ button{font-family:'Space Grotesk',sans-serif;cursor:pointer}
 @keyframes goldRingPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,0.4)}70%{box-shadow:0 0 0 8px rgba(255,215,0,0)}}
 @keyframes liquidWave{0%,100%{border-radius:24px}25%{border-radius:28px 20px 26px 22px}50%{border-radius:22px 26px 20px 28px}75%{border-radius:26px 22px 28px 20px}}
 @keyframes neonSweep{0%{left:-100%;opacity:0}20%{opacity:1}80%{opacity:.8}100%{left:200%;opacity:0}}
+@keyframes trendScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes trendPulseGlow{0%,100%{box-shadow:0 0 18px var(--cc),0 0 36px var(--cc)44,inset 0 1px 0 rgba(255,255,255,0.15)}50%{box-shadow:0 0 32px var(--cc),0 0 64px var(--cc)88,0 0 96px var(--cc)33,inset 0 1px 0 rgba(255,255,255,0.25)}}
+@keyframes tabIconGlow{0%,100%{filter:brightness(1.2) saturate(1.3)}50%{filter:brightness(1.8) saturate(1.8) drop-shadow(0 0 6px currentColor)}}
+@keyframes trendingPill{0%,100%{box-shadow:0 0 10px #fff,0 0 20px var(--cc),0 0 40px var(--cc);letter-spacing:.5px}50%{box-shadow:0 0 20px #fff,0 0 40px var(--cc),0 0 80px var(--cc),0 0 120px var(--cc)44;letter-spacing:1.5px}}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes goldBarPulse{0%,100%{box-shadow:0 0 20px #ffd70066,0 0 40px #ffd70033,inset 0 1px 0 rgba(255,255,255,0.25),inset 0 0 20px rgba(255,215,0,0.06)}50%{box-shadow:0 0 40px #ffd700aa,0 0 80px #ffd70055,0 0 120px #ffd70022,inset 0 1px 0 rgba(255,255,255,0.35),inset 0 0 40px rgba(255,215,0,0.12)}}
+@keyframes goldBorderPulse{0%,100%{border-color:rgba(255,215,0,0.5)}50%{border-color:rgba(255,215,0,1)}}
+@keyframes goldShine{0%{left:-120%}55%,100%{left:220%}}
+@keyframes goldCountPulse{0%,100%{text-shadow:0 0 8px #ffd700,0 0 16px #ffd70066;color:#ffd700}50%{text-shadow:0 0 18px #ffd700,0 0 36px #ffd700aa,0 0 54px #ffd70044;color:#ffe44d}}
+@keyframes volGlow{0%,100%{opacity:0.8}50%{opacity:1;text-shadow:0 0 8px #ffd70099}}
+@keyframes sectionHeadFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px)}}
+@keyframes orangeBarPulse{0%,100%{box-shadow:0 0 24px rgba(255,106,0,0.60),0 0 48px rgba(255,106,0,0.28),inset 0 1px 0 rgba(255,180,80,0.40);border-color:rgba(255,106,0,0.75)}50%{box-shadow:0 0 40px rgba(255,106,0,0.90),0 0 80px rgba(255,106,0,0.50),0 0 120px rgba(255,80,0,0.22),inset 0 1px 0 rgba(255,200,100,0.55);border-color:rgba(255,140,40,1)}}
 @keyframes depthPop{0%{box-shadow:0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08)}50%{box-shadow:0 8px 32px rgba(0,212,255,.18),inset 0 1px 0 rgba(255,255,255,.15)}100%{box-shadow:0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08)}}
 
 /* ── UTILITY CLASSES ── */
@@ -89,24 +101,24 @@ button{font-family:'Space Grotesk',sans-serif;cursor:pointer}
 .brand-sub{font-size:7px;letter-spacing:4px;color:rgba(0,212,255,0.6);font-weight:700;text-transform:uppercase;padding-left:4px;margin-top:1px;position:relative;z-index:2;text-shadow:0 0 8px rgba(0,212,255,0.5)}
 .nav-right{display:flex;align-items:center;gap:8px}
 .nav-bal{background:linear-gradient(145deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04),rgba(0,212,255,0.03));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1.5px solid rgba(34,197,94,0.35);border-radius:12px;padding:7px 14px;display:flex;align-items:center;gap:5px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.15),0 0 20px rgba(34,197,94,0.2),0 0 40px rgba(34,197,94,0.08)}
-.nav-rupee{font-size:12px;color:#22c55e;font-weight:800;animation:rupeeGlow 2s ease-in-out infinite}
-.nav-bal-num{font-weight:800;font-size:14px;color:#22c55e;text-shadow:0 0 12px rgba(34,197,94,.6)}
+.nav-rupee{font-family:'Oswald',sans-serif;font-size:14px;color:#22c55e;font-weight:700;animation:rupeeGlow 2s ease-in-out infinite}
+.nav-bal-num{font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#22c55e;text-shadow:0 0 12px rgba(34,197,94,.6);letter-spacing:.5px}
 .nav-btn{background:linear-gradient(145deg,rgba(0,212,255,0.06),rgba(0,212,255,0.02),rgba(255,255,255,0.03));border:1px solid rgba(0,212,255,0.2);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 0 10px rgba(0,212,255,0.1);backdrop-filter:blur(10px)}
 
 /* TABS */
-#tabsWrap{position:sticky;top:62px;z-index:400;backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);background:rgba(6,8,16,0.92);border-bottom:1px solid rgba(255,255,255,0.05)}
-#tabsRow{display:flex;overflow-x:auto;padding:0 6px;scrollbar-width:none}
-.tab{display:flex;align-items:center;gap:7px;padding:12px 13px;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;transition:all .25s;position:relative}
-.tab.active{color:#f1f5f9;border-bottom-color:var(--cc)}
+#tabsWrap{position:sticky;top:62px;z-index:400;backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);background:linear-gradient(180deg,rgba(4,6,18,0.98),rgba(6,8,22,0.95));border-bottom:2px solid rgba(255,255,255,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.6),0 1px 0 rgba(0,212,255,0.08)}
+#tabsRow{display:flex;overflow-x:auto;padding:0 4px;scrollbar-width:none;gap:2px}
+.tab{display:flex;align-items:center;gap:8px;padding:14px 16px;font-size:13px;font-weight:700;color:#4a5568;white-space:nowrap;cursor:pointer;border-bottom:3px solid transparent;transition:all .3s cubic-bezier(0.34,1.56,0.64,1);position:relative;letter-spacing:.3px}
+.tab.active{color:#ffffff;border-bottom-color:var(--cc);text-shadow:0 0 12px var(--cc),0 0 24px var(--cc)66;background:linear-gradient(180deg,rgba(255,255,255,0.04),transparent);border-radius:8px 8px 0 0}
 .tab-glow{position:absolute;bottom:0;left:0;right:0;height:2px;filter:blur(4px);opacity:.8;background:var(--cc)}
-.tab svg{transition:transform .3s}
+.tab svg{transition:all .3s;filter:brightness(1.1) saturate(1.2)}.tab.active svg{filter:brightness(2.2) saturate(2) drop-shadow(0 0 5px currentColor);animation:tabIconGlow 2s ease-in-out infinite}
 
 /* BALANCE CARD */
 #balCard{margin:12px 14px 0;border-radius:24px;padding:22px;position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(255,255,255,0.09) 0%,rgba(0,212,255,0.05) 40%,rgba(255,255,255,0.02) 70%,rgba(255,215,0,0.04) 100%);backdrop-filter:blur(50px);-webkit-backdrop-filter:blur(50px);border:1px solid rgba(255,255,255,0.14);box-shadow:0 28px 90px rgba(0,0,0,0.65),inset 0 1px 0 rgba(255,255,255,0.22),inset 0 -1px 0 rgba(0,0,0,0.35),inset 1px 0 0 rgba(255,255,255,0.09),inset -1px 0 0 rgba(0,0,0,0.1),0 0 0 1px rgba(0,212,255,0.08);animation:liquidWave 8s ease-in-out infinite}
 .bal-label{font-size:10px;color:rgba(0,212,255,0.7);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .bal-amount{display:flex;align-items:baseline;gap:4px}
-.bal-rupee{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#22c55e;animation:rupeeGlow 2.5s ease-in-out infinite;line-height:1;text-shadow:0 0 20px #22c55e,0 0 40px rgba(34,197,94,0.5)}
-.bal-num{font-family:'Syne',sans-serif;font-weight:800;font-size:38px;color:#22c55e;text-shadow:0 0 30px rgba(34,197,94,.6),0 0 60px rgba(34,197,94,.3);letter-spacing:-1px}
+.bal-rupee{font-family:'Oswald',sans-serif;font-weight:700;font-size:32px;color:#22c55e;animation:rupeeGlow 2.5s ease-in-out infinite;line-height:1;text-shadow:0 0 20px #22c55e,0 0 40px rgba(34,197,94,0.5);letter-spacing:0px}
+.bal-num{font-family:'Oswald',sans-serif;font-weight:700;font-size:44px;color:#22c55e;text-shadow:0 0 30px rgba(34,197,94,.6),0 0 60px rgba(34,197,94,.3),0 0 90px rgba(34,197,94,.15);letter-spacing:2px;line-height:1}
 .bal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
 .dep-btn{padding:15px;border-radius:14px;border:1.5px solid var(--cc);font-weight:800;font-size:13px;cursor:pointer;color:var(--cc);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;gap:7px;text-shadow:0 0 14px var(--cc);letter-spacing:.3px;position:relative;overflow:hidden;transition:all .3s}
 .wit-btn{padding:15px;border-radius:14px;border:1.5px solid rgba(0,212,255,0.3);font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(145deg,rgba(0,212,255,0.08),rgba(0,212,255,0.03),rgba(255,255,255,0.04));color:#00d4ff;backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;gap:7px;text-shadow:0 0 8px rgba(0,212,255,0.5);letter-spacing:.3px;position:relative;overflow:hidden}
@@ -121,11 +133,11 @@ button{font-family:'Space Grotesk',sans-serif;cursor:pointer}
 .hot-badge{font-size:9px;background:rgba(255,215,0,.12);color:#ffd700;border:1px solid rgba(255,215,0,.35);padding:3px 8px;border-radius:6px;font-weight:800;animation:hotpulse 2s infinite;display:inline-flex;align-items:center;gap:3px;box-shadow:0 0 10px rgba(255,215,0,.2);text-shadow:0 0 6px #ffd700}
 .live-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;color:#00d4ff;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.3);border-radius:6px;padding:3px 8px;box-shadow:0 0 10px rgba(0,212,255,.2);animation:neonBorderPulse 2s infinite;text-shadow:0 0 6px #00d4ff}
 .live-dot{width:5px;height:5px;border-radius:50%;background:#00d4ff;display:inline-block;animation:ldot 1.2s infinite;box-shadow:0 0 6px #00d4ff}
-.vol-badge{font-size:10px;color:#475569;margin-left:auto;background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:6px}
+.vol-badge{font-size:11px;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:.8px;color:#ffd700;margin-left:auto;background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,165,0,0.06));padding:4px 10px;border-radius:8px;border:1px solid rgba(255,215,0,0.3);text-shadow:0 0 8px #ffd70088;animation:volGlow 2s ease-in-out infinite;box-shadow:0 0 8px rgba(255,215,0,0.15)}
 .card-badge-row{display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap;padding-left:6px}
 .card-q{font-size:14px;font-weight:600;color:#e2e8f0;line-height:1.45;margin:10px 0 14px;padding-left:6px}
 .odds-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-left:6px}
-.odds-num{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;min-width:54px}
+.odds-num{font-family:'Oswald',sans-serif;font-weight:700;font-size:26px;min-width:54px;letter-spacing:1px;line-height:1}
 .odds-bar-wrap{flex:1;height:7px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.4),inset 0 -1px 0 rgba(255,255,255,0.03)}
 .odds-bar-fill{height:100%;border-radius:6px;transition:background 1.2s}
 .odds-label{font-size:10px;color:#475569;min-width:38px;text-align:right}
@@ -133,13 +145,13 @@ button{font-family:'Space Grotesk',sans-serif;cursor:pointer}
 .bet-btn{padding:13px 12px;border-radius:13px;font-size:12px;cursor:pointer;backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:5px;position:relative;overflow:hidden}
 
 /* SECTION HEAD */
-.section-head{display:flex;align-items:center;justify-content:space-between;padding:18px 14px 10px}
-.section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
-.section-count{font-size:11px;color:#64748b;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:4px 11px;border-radius:9px}
+.section-head{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 12px;margin:0 0 4px}
+.section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;display:flex;align-items:center;gap:10px;color:#fff;text-shadow:0 0 16px currentColor;animation:sectionHeadFloat 3s ease-in-out infinite}
+.section-count{font-size:12px;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;color:#ffd700;background:linear-gradient(145deg,rgba(255,215,0,0.15),rgba(255,215,0,0.06),rgba(255,165,0,0.1));border:1.5px solid rgba(255,215,0,0.6);padding:6px 14px;border-radius:20px;text-shadow:0 0 10px #ffd700,0 0 20px #ffd70066;box-shadow:0 0 16px rgba(255,215,0,0.3),0 0 32px rgba(255,215,0,0.1),inset 0 1px 0 rgba(255,255,255,0.2);animation:goldCountPulse 2.5s ease-in-out infinite;backdrop-filter:blur(12px)}
 
 /* TREND STRIP */
-.trend-strip{margin:12px 14px 0;border-radius:14px;padding:10px 16px;display:flex;align-items:center;gap:10px;transition:all 1.2s;backdrop-filter:blur(16px)}
-.trend-pill{font-size:10px;background:var(--cc);color:white;padding:4px 10px;border-radius:8px;font-weight:800;letter-spacing:.5px;white-space:nowrap;animation:neonFlick 4s ease-in-out infinite;text-shadow:0 0 8px white}
+.trend-strip{margin:12px 14px 0;border-radius:16px;padding:0;display:flex;align-items:center;gap:0;transition:all 1.2s;backdrop-filter:blur(20px);overflow:hidden;border:1.5px solid var(--cc);animation:trendPulseGlow 2.5s ease-in-out infinite;min-height:44px}
+.trend-pill{font-size:11px;background:var(--cc);color:#000;padding:12px 14px;border-radius:0;font-weight:900;letter-spacing:1px;white-space:nowrap;animation:trendingPill 2s ease-in-out infinite;text-shadow:none;flex-shrink:0;display:flex;align-items:center;gap:5px}
 
 /* BOTTOM NAV */
 #bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(4,6,14,0.97);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:500;box-shadow:0 -1px 0 rgba(0,212,255,0.06),0 -4px 20px rgba(0,0,0,0.5)}
@@ -159,7 +171,7 @@ button{font-family:'Space Grotesk',sans-serif;cursor:pointer}
 .amt-chips{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
 .amt-chip{padding:8px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;color:#94a3b8}
 .amt-chip.active{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);color:#f1f5f9}
-.amt-inp{width:100%;background:linear-gradient(145deg,rgba(0,0,0,0.6),rgba(0,10,30,0.5));border-radius:16px;padding:16px;color:#f1f5f9;font-size:28px;font-weight:700;text-align:center;outline:none;margin-bottom:10px;backdrop-filter:blur(16px);box-shadow:inset 0 2px 10px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.08)}
+.amt-inp{width:100%;background:linear-gradient(145deg,rgba(0,0,0,0.6),rgba(0,10,30,0.5));border-radius:16px;padding:16px;color:#f1f5f9;font-size:32px;font-weight:700;text-align:center;outline:none;margin-bottom:10px;backdrop-filter:blur(16px);box-shadow:inset 0 2px 10px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.08);font-family:'Oswald',sans-serif;letter-spacing:2px}
 .payout-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:12px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.06)}
 .neon-btn{width:100%;padding:16px 20px;border-radius:14px;font-weight:800;font-size:13px;cursor:pointer;position:relative;overflow:hidden;transition:all .22s cubic-bezier(0.34,1.56,0.64,1);letter-spacing:.6px}
 .sheet-cancel{text-align:center;margin-top:14px;color:#475569;font-size:13px;cursor:pointer;padding:8px}
@@ -177,7 +189,7 @@ button{font-family:'Space Grotesk',sans-serif;cursor:pointer}
 .port-close{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#94a3b8}
 .port-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:14px 14px 0}
 .port-stat{border-radius:12px;padding:12px;text-align:center}
-.port-stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:16px}
+.port-stat-val{font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;letter-spacing:.5px}
 .port-stat-lbl{font-size:10px;color:#64748b;margin-top:2px}
 .tx-empty{text-align:center;color:#475569;font-size:13px;padding:30px}
 .tx-emoji{font-size:32px;margin-bottom:8px;animation:pulse 2s infinite}
@@ -502,13 +514,13 @@ const BETS = {
 };
 
 const META = {
-  INSTAGRAM:{color:"#00d4ff",label:"Instagram",trend:"Karan Aujla stories — 47% YES",icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#ig)" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="4" stroke="url(#ig)" stroke-width="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.2" fill="url(#ig)"/></svg>`},
-  CRICKET:  {color:"#22c55e",label:"Cricket",  trend:"Virat Kohli sixes — 67% YES",icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><line x1="4" y1="20" x2="16" y2="4" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/><rect x="14" y="2" width="6" height="4" rx="1" fill="#22c55e" opacity="0.8"/><circle cx="19" cy="17" r="3" fill="#22c55e" opacity="0.9"/><circle cx="19" cy="17" r="1.5" fill="none" stroke="#fff" stroke-width="1"/></svg>`},
-  OIL:      {color:"#ffd700",label:"Oil & Gas",trend:"Brent crude ₹7,500/barrel — massive volume",icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2 C12 2 6 10 6 15 a6 6 0 0 0 12 0 C18 10 12 2 12 2z" fill="#f59e0b" opacity="0.9"/><path d="M12 8 C12 8 9 13 9 15.5 a3 3 0 0 0 6 0 C15 13 12 8 12 8z" fill="#fbbf24" opacity="0.7"/><line x1="8" y1="3" x2="16" y2="3" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg>`},
-  POLITICS: {color:"#00d4ff",label:"Politics", trend:"Arnab debate — 88% YES",icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 21 L12 4 L21 21 Z" stroke="#00d4ff" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M6 21 L6 14 L18 14 L18 21" stroke="#00d4ff" stroke-width="2" stroke-linejoin="round" fill="none"/><line x1="2" y1="21" x2="22" y2="21" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/></svg>`},
-  YOUTUBE:  {color:"#ff4444",label:"YouTube",  trend:"T-Series new song — 81% YES",icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="4" fill="#ff0000" opacity="0.9"/><polygon points="10,9 10,15 16,12" fill="white"/></svg>`},
-  RANDOM:   {color:"#00d4ff",label:"Random",   trend:"Bitcoin +₹2K market trending",icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="9" height="9" rx="2" stroke="#00d4ff" stroke-width="2" fill="none"/><rect x="13" y="2" width="9" height="9" rx="2" stroke="#00d4ff" stroke-width="2" fill="none"/><rect x="2" y="13" width="9" height="9" rx="2" stroke="#00d4ff" stroke-width="2" fill="none"/><rect x="13" y="13" width="9" height="9" rx="2" stroke="#00d4ff" stroke-width="2" fill="none"/></svg>`},
-  NAUGHTY:  {color:"#ffd700",label:"Naughty",  trend:"Bollywood bikini market — 84% YES",icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><defs><linearGradient id="fire" x1="50%" y1="100%" x2="50%" y2="0%"><stop offset="0%" stop-color="#ef4444"/><stop offset="50%" stop-color="#f97316"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient></defs><path d="M12 2 C12 2 8 7 8 11 C8 11 10 9 11 9 C11 9 7 14 7 17 C7 20.3 9.2 22 12 22 C14.8 22 17 20.3 17 17 C17 14 13 9 13 9 C14 9 16 11 16 11 C16 7 12 2 12 2Z" fill="url(#fire)"/></svg>`}
+  INSTAGRAM:{color:"#00d4ff",label:"Instagram",trend:"Karan Aujla stories — 47% YES",icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#ig)" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="4" stroke="url(#ig)" stroke-width="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.2" fill="url(#ig)"/></svg>`},
+  CRICKET:  {color:"#22c55e",label:"Cricket",  trend:"Virat Kohli sixes — 67% YES",icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><line x1="4" y1="20" x2="16" y2="4" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/><rect x="14" y="2" width="6" height="4" rx="1" fill="#22c55e" opacity="0.8"/><circle cx="19" cy="17" r="3" fill="#22c55e" opacity="0.9"/><circle cx="19" cy="17" r="1.5" fill="none" stroke="#fff" stroke-width="1"/></svg>`},
+  OIL:      {color:"#ffd700",label:"Oil & Gas",trend:"Brent crude ₹7,500/barrel — massive volume",icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2 C12 2 6 10 6 15 a6 6 0 0 0 12 0 C18 10 12 2 12 2z" fill="#f59e0b" opacity="0.9"/><path d="M12 8 C12 8 9 13 9 15.5 a3 3 0 0 0 6 0 C15 13 12 8 12 8z" fill="#fbbf24" opacity="0.7"/><line x1="8" y1="3" x2="16" y2="3" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg>`},
+  POLITICS: {color:"#00d4ff",label:"Politics", trend:"Arnab debate — 88% YES",icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 21 L12 4 L21 21 Z" stroke="#00d4ff" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M6 21 L6 14 L18 14 L18 21" stroke="#00d4ff" stroke-width="2" stroke-linejoin="round" fill="none"/><line x1="2" y1="21" x2="22" y2="21" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/></svg>`},
+  YOUTUBE:  {color:"#ff4444",label:"YouTube",  trend:"T-Series new song — 81% YES",icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="4" fill="#ff0000" opacity="0.9"/><polygon points="10,9 10,15 16,12" fill="white"/></svg>`},
+  RANDOM:   {color:"#00d4ff",label:"Random",   trend:"Bitcoin +₹2K market trending",icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="9" height="9" rx="2" stroke="#00d4ff" stroke-width="2" fill="none"/><rect x="13" y="2" width="9" height="9" rx="2" stroke="#00d4ff" stroke-width="2" fill="none"/><rect x="2" y="13" width="9" height="9" rx="2" stroke="#00d4ff" stroke-width="2" fill="none"/><rect x="13" y="13" width="9" height="9" rx="2" stroke="#00d4ff" stroke-width="2" fill="none"/></svg>`},
+  NAUGHTY:  {color:"#ffd700",label:"Naughty",  trend:"Bollywood bikini market — 84% YES",icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><defs><linearGradient id="fire" x1="50%" y1="100%" x2="50%" y2="0%"><stop offset="0%" stop-color="#ef4444"/><stop offset="50%" stop-color="#f97316"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient></defs><path d="M12 2 C12 2 8 7 8 11 C8 11 10 9 11 9 C11 9 7 14 7 17 C7 20.3 9.2 22 12 22 C14.8 22 17 20.3 17 17 C17 14 13 9 13 9 C14 9 16 11 16 11 C16 7 12 2 12 2Z" fill="url(#fire)"/></svg>`}
 };
 
 const BADGE_COLORS = {
@@ -609,11 +621,135 @@ function renderMarkets(){
   const color = m.color;
   const container = document.getElementById('pageMarkets');
 
-  // trend strip
-  let html = `<div class="trend-strip skeuo-card" style="border:1px solid ${color}44;background:linear-gradient(135deg,${color}0a,rgba(255,215,0,0.04));box-shadow:0 0 20px ${color}18,inset 0 1px 0 rgba(255,255,255,0.07)">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="animation:bounceUp 1.5s infinite;flex-shrink:0"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16,7 22,7 22,13" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span style="font-size:11px;font-weight:600;color:#94a3b8;flex:1"><b style="color:#f1f5f9">${m.trend}</b></span>
-    <div style="font-size:10px;background:${color};color:white;padding:4px 10px;border-radius:8px;font-weight:800;letter-spacing:.5px;white-space:nowrap;box-shadow:0 0 14px ${color}88,inset 0 1px 0 rgba(255,255,255,0.2);animation:neonFlick 4s ease-in-out infinite;text-shadow:0 0 8px white">TRENDING</div>
+  // ── TRENDING BAR — neon orange futuristic skeuomorphic ──
+  const OG = '#ff6a00'; // neon orange
+  const OG2 = '#ff9a3c'; // lighter orange
+  const trendItems = [m.trend, '🔥 ' + BETS[state.cat].filter(b=>b.hot).map(b=>b.q.slice(0,30)+'…').join(' · '), '⚡ BET NOW · WIN BIG · WISHWORK', '📈 LIVE PREDICTION MARKET'];
+  const trendText = trendItems.join('   ✦   ');
+
+  let html = `
+  <div style="
+    margin:12px 14px 0;
+    position:relative;
+    overflow:hidden;
+    border-radius:16px;
+    height:48px;
+    background:
+      linear-gradient(135deg,
+        rgba(255,106,0,0.28) 0%,
+        rgba(20,12,4,0.92) 30%,
+        rgba(10,8,4,0.95) 60%,
+        rgba(255,106,0,0.18) 100%);
+    backdrop-filter:blur(30px);
+    -webkit-backdrop-filter:blur(30px);
+    border:1.5px solid rgba(255,106,0,0.75);
+    box-shadow:
+      0 0 0 1px rgba(255,106,0,0.12),
+      0 0 24px rgba(255,106,0,0.60),
+      0 0 48px rgba(255,106,0,0.28),
+      0 0 80px rgba(255,80,0,0.12),
+      inset 0 1px 0 rgba(255,180,80,0.40),
+      inset 0 -1px 0 rgba(0,0,0,0.50),
+      inset 0 0 40px rgba(255,106,0,0.06);
+    animation:orangeBarPulse 2.5s ease-in-out infinite;
+    display:flex;align-items:center;">
+
+    <!-- TOP SPECULAR HIGHLIGHT -->
+    <div style="position:absolute;top:0;left:0;right:0;height:50%;
+      background:linear-gradient(180deg,rgba(255,180,80,0.22) 0%,rgba(255,106,0,0.04) 70%,transparent 100%);
+      border-radius:15px 15px 80% 80%;pointer-events:none;z-index:0"></div>
+
+    <!-- TOP NEON LINE -->
+    <div style="position:absolute;top:0;left:0;right:0;height:1.5px;
+      background:linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,106,0,0.5) 10%,
+        rgba(255,180,80,1) 35%,
+        rgba(255,255,200,0.95) 50%,
+        rgba(255,180,80,1) 65%,
+        rgba(255,106,0,0.5) 90%,
+        transparent 100%);
+      box-shadow:0 0 14px ${OG},0 0 28px rgba(255,106,0,0.5);z-index:2"></div>
+
+    <!-- BOTTOM LINE -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,106,0,0.5),transparent);
+      z-index:2"></div>
+
+    <!-- ORANGE SHINE SWEEP -->
+    <div style="position:absolute;top:0;left:-130%;width:55%;height:100%;
+      background:linear-gradient(105deg,transparent 0%,rgba(255,180,80,0.12) 40%,rgba(255,255,150,0.06) 55%,transparent 100%);
+      animation:goldShine 3s ease-in-out infinite;pointer-events:none;z-index:1"></div>
+
+    <!-- LEFT: TRENDING pill -->
+    <div style="
+      position:relative;z-index:3;
+      flex-shrink:0;
+      display:flex;align-items:center;gap:6px;
+      height:100%;
+      padding:0 16px;
+      background:linear-gradient(160deg,rgba(255,106,0,0.70),rgba(255,60,0,0.85),rgba(180,50,0,0.90));
+      border-right:1.5px solid rgba(255,140,40,0.60);
+      box-shadow:4px 0 20px rgba(255,106,0,0.40),inset -1px 0 0 rgba(255,200,100,0.20),inset 0 1px 0 rgba(255,200,100,0.25);">
+
+      <!-- pulsing orange dot -->
+      <span style="
+        width:8px;height:8px;border-radius:50%;
+        background:radial-gradient(circle,#fff9 30%,${OG} 100%);
+        animation:ldot 1s ease-in-out infinite;
+        box-shadow:0 0 10px #fff,0 0 20px ${OG},0 0 32px rgba(255,106,0,0.6);
+        flex-shrink:0;display:inline-block"></span>
+
+      <span style="
+        font-family:'Oswald',sans-serif;font-weight:700;
+        font-size:12px;letter-spacing:2.5px;
+        color:#fff;
+        text-shadow:0 0 12px rgba(255,200,80,0.9),0 1px 0 rgba(0,0,0,0.5);">
+        TRENDING
+      </span>
+    </div>
+
+    <!-- MIDDLE: scrolling marquee -->
+    <div style="position:relative;z-index:3;flex:1;overflow:hidden;height:100%;display:flex;align-items:center;">
+
+      <!-- left fade -->
+      <div style="position:absolute;left:0;top:0;bottom:0;width:28px;
+        background:linear-gradient(90deg,rgba(14,8,2,0.95),transparent);z-index:2;pointer-events:none"></div>
+      <!-- right fade -->
+      <div style="position:absolute;right:0;top:0;bottom:0;width:28px;
+        background:linear-gradient(270deg,rgba(14,8,2,0.95),transparent);z-index:2;pointer-events:none"></div>
+
+      <div style="display:flex;animation:marquee 22s linear infinite;white-space:nowrap;will-change:transform;padding-left:16px;">
+        <span style="display:inline-block;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;">
+          <span style="color:rgba(255,200,120,0.55);letter-spacing:3px;font-size:9px;font-family:'Oswald',sans-serif;">▶&nbsp;</span><span style="color:#fff;text-shadow:0 0 8px rgba(255,160,60,0.6)">${trendText}</span>
+          &nbsp;&nbsp;&nbsp;<span style="color:${OG};opacity:0.6">✦</span>&nbsp;&nbsp;&nbsp;
+          <span style="color:#fff;text-shadow:0 0 8px rgba(255,160,60,0.6)">${trendText}</span>
+          &nbsp;&nbsp;&nbsp;<span style="color:${OG};opacity:0.6">✦</span>&nbsp;&nbsp;&nbsp;
+        </span>
+      </div>
+    </div>
+
+    <!-- RIGHT: HOT count badge -->
+    <div style="
+      position:relative;z-index:3;
+      flex-shrink:0;
+      display:flex;align-items:center;gap:5px;
+      padding:0 14px;
+      height:100%;
+      border-left:1.5px solid rgba(255,106,0,0.45);
+      background:linear-gradient(160deg,rgba(255,106,0,0.14),rgba(0,0,0,0.3));
+      box-shadow:inset 1px 0 0 rgba(255,200,100,0.12);">
+      <span style="font-size:14px;line-height:1">🔥</span>
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;line-height:1;
+          color:${OG2};text-shadow:0 0 12px ${OG},0 0 24px rgba(255,106,0,0.5);">
+          ${BETS[state.cat].filter(b=>b.hot).length}
+        </div>
+        <div style="font-family:'Oswald',sans-serif;font-size:7px;font-weight:600;letter-spacing:1.5px;
+          color:rgba(255,160,60,0.65);line-height:1;margin-top:1px">HOT</div>
+      </div>
+    </div>
+
   </div>`;
 
   // balance card
@@ -643,10 +779,170 @@ function renderMarkets(){
     </div>
   </div>`;
 
-  // section head
-  html += `<div class="section-head">
-    <div class="section-title" style="text-shadow:0 0 12px ${color}66">${m.icon} ${m.label} Markets</div>
-    <div class="section-count" style="border-color:${color}33;box-shadow:0 0 8px ${color}18">${BETS[state.cat].length} markets</div>
+  // ── LIVE MARKETS BAR — neon gold skeuomorphic ──
+  html += `
+  <div style="
+    margin:16px 14px 10px;
+    position:relative;
+    overflow:hidden;
+    border-radius:20px;
+    background:
+      linear-gradient(160deg,
+        rgba(255,215,0,0.22) 0%,
+        rgba(255,185,0,0.12) 25%,
+        rgba(20,20,40,0.85) 55%,
+        rgba(255,165,0,0.10) 100%);
+    backdrop-filter:blur(40px);
+    -webkit-backdrop-filter:blur(40px);
+    border:2px solid rgba(255,215,0,0.75);
+    box-shadow:
+      0 0 0 1px rgba(255,215,0,0.15),
+      0 0 32px rgba(255,215,0,0.55),
+      0 0 64px rgba(255,215,0,0.25),
+      0 0 100px rgba(255,165,0,0.10),
+      inset 0 2px 0 rgba(255,255,255,0.30),
+      inset 0 -2px 0 rgba(0,0,0,0.40),
+      inset 2px 0 0 rgba(255,215,0,0.20),
+      inset -2px 0 0 rgba(255,215,0,0.10),
+      inset 0 0 60px rgba(255,215,0,0.06);
+    animation:goldBarPulse 2.8s ease-in-out infinite;
+  ">
+
+    <!-- TOP SPECULAR HIGHLIGHT — thick glassy ridge -->
+    <div style="position:absolute;top:0;left:0;right:0;height:48%;
+      background:linear-gradient(180deg,rgba(255,255,255,0.18) 0%,rgba(255,215,0,0.06) 60%,transparent 100%);
+      border-radius:20px 20px 60% 60%;pointer-events:none;z-index:0"></div>
+
+    <!-- TOP NEON GOLD LINE -->
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent 0%,rgba(255,215,0,0.4) 15%,rgba(255,255,255,0.95) 40%,rgba(255,215,0,1) 60%,rgba(255,255,255,0.8) 80%,transparent 100%);
+      box-shadow:0 0 16px #ffd700,0 0 32px rgba(255,215,0,0.6);z-index:2"></div>
+
+    <!-- BOTTOM GOLD LINE -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,215,0,0.6),transparent);
+      box-shadow:0 0 8px rgba(255,215,0,0.4);z-index:2"></div>
+
+    <!-- LEFT ACCENT PILLAR -->
+    <div style="position:absolute;left:0;top:0;bottom:0;width:4px;
+      background:linear-gradient(180deg,rgba(255,215,0,0.3),#ffd700,#ffaa00,rgba(255,215,0,0.3));
+      box-shadow:3px 0 20px #ffd700aa,6px 0 40px rgba(255,215,0,0.3);z-index:2"></div>
+
+    <!-- SHINE SWEEP -->
+    <div style="position:absolute;top:0;left:-130%;width:60%;height:100%;
+      background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,0.10) 40%,rgba(255,215,0,0.08) 55%,transparent 100%);
+      animation:goldShine 3.5s ease-in-out infinite;pointer-events:none;z-index:1"></div>
+
+    <!-- CONTENT -->
+    <div style="position:relative;z-index:3;padding:14px 16px 14px 20px;">
+
+      <!-- ROW 1: label + count -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+
+        <!-- LEFT LABEL -->
+        <div style="display:flex;align-items:center;gap:10px">
+          <!-- Icon box -->
+          <div style="
+            width:40px;height:40px;border-radius:12px;flex-shrink:0;
+            background:linear-gradient(145deg,rgba(255,215,0,0.30),rgba(255,165,0,0.14),rgba(20,20,50,0.6));
+            border:1.5px solid rgba(255,215,0,0.70);
+            display:flex;align-items:center;justify-content:center;
+            box-shadow:0 0 18px rgba(255,215,0,0.50),inset 0 1px 0 rgba(255,255,255,0.35),inset 0 -1px 0 rgba(0,0,0,0.3);
+            filter:brightness(2.0) saturate(2.0) drop-shadow(0 0 6px #ffd700);">
+            ${m.icon}
+          </div>
+          <!-- Title stack -->
+          <div>
+            <div style="
+              font-family:'Syne',sans-serif;font-weight:800;font-size:18px;
+              color:#ffffff;letter-spacing:0.5px;line-height:1.1;
+              text-shadow:0 0 20px rgba(255,215,0,0.5),0 2px 4px rgba(0,0,0,0.8);">
+              ${m.label}
+              <span style="
+                color:#ffd700;
+                text-shadow:0 0 14px #ffd700,0 0 28px rgba(255,215,0,0.7),0 0 56px rgba(255,215,0,0.3);">
+                Markets
+              </span>
+            </div>
+            <div style="
+              font-family:'Oswald',sans-serif;font-size:8px;font-weight:600;
+              letter-spacing:4px;text-transform:uppercase;margin-top:3px;
+              color:rgba(255,215,0,0.65);
+              text-shadow:0 0 8px rgba(255,215,0,0.5);">
+              ◆ PREDICTION EXCHANGE ◆
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: count pill -->
+        <div style="
+          font-family:'Oswald',sans-serif;font-weight:700;
+          font-size:15px;letter-spacing:1px;
+          color:#ffd700;
+          background:linear-gradient(145deg,rgba(255,215,0,0.22),rgba(255,165,0,0.10),rgba(0,0,0,0.3));
+          border:2px solid rgba(255,215,0,0.80);
+          padding:7px 16px;border-radius:50px;
+          text-shadow:0 0 12px #ffd700,0 0 24px rgba(255,215,0,0.6);
+          box-shadow:
+            0 0 22px rgba(255,215,0,0.50),
+            0 0 44px rgba(255,215,0,0.20),
+            inset 0 1px 0 rgba(255,255,255,0.30),
+            inset 0 -1px 0 rgba(0,0,0,0.3);
+          animation:goldCountPulse 2.5s ease-in-out infinite;
+          white-space:nowrap;">
+          ${BETS[state.cat].length}
+          <span style="font-size:11px;font-weight:600;opacity:0.85;letter-spacing:2px"> MARKETS</span>
+        </div>
+      </div>
+
+      <!-- ROW 2: LIVE pill + volume chip -->
+      <div style="display:flex;align-items:center;gap:8px">
+
+        <!-- LIVE indicator -->
+        <div style="
+          display:inline-flex;align-items:center;gap:6px;
+          padding:5px 12px;border-radius:50px;
+          background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(239,68,68,0.10));
+          border:1.5px solid rgba(239,68,68,0.70);
+          box-shadow:0 0 14px rgba(239,68,68,0.45),0 0 28px rgba(239,68,68,0.20),inset 0 1px 0 rgba(255,255,255,0.15);">
+          <span style="width:7px;height:7px;border-radius:50%;background:#ef4444;
+            animation:ldot 1s ease-in-out infinite;
+            box-shadow:0 0 10px #ef4444,0 0 20px rgba(239,68,68,0.6);display:inline-block;flex-shrink:0"></span>
+          <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;
+            letter-spacing:2px;color:#ff6b6b;
+            text-shadow:0 0 8px #ef4444,0 0 16px rgba(239,68,68,0.5);">LIVE</span>
+        </div>
+
+        <!-- Volume display -->
+        <div style="
+          display:inline-flex;align-items:center;gap:5px;
+          padding:5px 12px;border-radius:50px;
+          background:linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,165,0,0.08),rgba(0,0,0,0.25));
+          border:1.5px solid rgba(255,215,0,0.55);
+          box-shadow:0 0 12px rgba(255,215,0,0.30),inset 0 1px 0 rgba(255,255,255,0.18);">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;
+            letter-spacing:1px;color:#ffd700;
+            text-shadow:0 0 10px #ffd700,0 0 20px rgba(255,215,0,0.5);">24H VOL</span>
+          <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;
+            color:#fff;text-shadow:0 0 8px rgba(255,255,255,0.6);letter-spacing:.5px">₹4.2L+</span>
+        </div>
+
+        <!-- Hot count chip -->
+        <div style="
+          display:inline-flex;align-items:center;gap:4px;
+          padding:5px 10px;border-radius:50px;
+          background:linear-gradient(135deg,rgba(255,165,0,0.18),rgba(255,100,0,0.08));
+          border:1.5px solid rgba(255,140,0,0.55);
+          box-shadow:0 0 12px rgba(255,140,0,0.30),inset 0 1px 0 rgba(255,255,255,0.15);">
+          <span style="font-size:11px">🔥</span>
+          <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;
+            color:#ffa500;letter-spacing:1px;
+            text-shadow:0 0 8px rgba(255,140,0,0.7);">${BETS[state.cat].filter(b=>b.hot).length} HOT</span>
+        </div>
+      </div>
+
+    </div>
   </div>`;
 
   // market cards
@@ -663,9 +959,19 @@ function renderMarkets(){
       <div class="card-glow-bottom" style="background:linear-gradient(90deg,transparent,${color}33,transparent)"></div>
       <div class="card-glow-left" style="background:linear-gradient(180deg,${color},${color}88,transparent);box-shadow:2px 0 12px ${color}66"></div>
       <div class="card-badge-row">
-        <span class="badge" style="background:${bc.bg};color:${bc.color};border:${bc.border}">${m.icon} ${m.label}</span>
+        <span class="badge" style="background:${bc.bg};color:${bc.color};border:${bc.border};box-shadow:0 0 12px ${bc.color}44;font-size:11px;padding:5px 12px">${m.icon} ${m.label}</span>
         ${hotEl}${liveEl}
-        <span class="vol-badge">₹${VOLS[i%11]} vol</span>
+        <span style="margin-left:auto;display:inline-flex;align-items:center;gap:4px;
+          font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;
+          color:#ffd700;
+          background:linear-gradient(135deg,rgba(255,215,0,0.20),rgba(255,165,0,0.10),rgba(0,0,0,0.2));
+          border:1.5px solid rgba(255,215,0,0.65);
+          padding:5px 11px;border-radius:50px;
+          text-shadow:0 0 12px #ffd700,0 0 24px rgba(255,215,0,0.5);
+          box-shadow:0 0 14px rgba(255,215,0,0.35),0 0 28px rgba(255,215,0,0.12),inset 0 1px 0 rgba(255,255,255,0.25);">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17" stroke="#ffd700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          ₹${VOLS[i%11]} VOL
+        </span>
       </div>
       <div class="card-q">${b.q}</div>
       <div class="odds-row">
