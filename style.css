@@ -1,7 +1,6 @@
 /* ═══════════════════════════
    WISHWORK – style.css
-   Glassmorphism + subtle skeuomorphism
-   Smooth, bright, user-friendly
+   Glassmorphism + Jelly Slider
 ═══════════════════════════ */
 
 /* ── RESET ── */
@@ -21,7 +20,7 @@ button{cursor:pointer;border:none}
 @keyframes slideUp{0%{transform:translateY(100%);opacity:0}100%{transform:translateY(0);opacity:1}}
 @keyframes slideInRight{0%{transform:translateX(100%);opacity:0}100%{transform:translateX(0);opacity:1}}
 @keyframes backdropIn{from{opacity:0}to{opacity:1}}
-@keyframes hotBlink{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes hotBlink{0%,100%{opacity:1}50%{opacity:.5}}
 @keyframes liveDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.5)}}
 @keyframes twinkle{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.6}}
 @keyframes rupeeGlow{0%,100%{text-shadow:0 0 5px rgba(34,197,94,.4)}50%{text-shadow:0 0 12px rgba(34,197,94,.7),0 0 24px rgba(34,197,94,.25)}}
@@ -30,10 +29,11 @@ button{cursor:pointer;border:none}
 @keyframes waveRadius{0%,100%{border-radius:20px}33%{border-radius:24px 16px 22px 18px}66%{border-radius:18px 22px 16px 24px}}
 @keyframes subtleGlow{0%,100%{opacity:.05}50%{opacity:.13}}
 @keyframes orangePulse{0%,100%{box-shadow:0 0 16px rgba(255,106,0,.4),0 0 32px rgba(255,106,0,.16),inset 0 1px 0 rgba(255,180,80,.28)}50%{box-shadow:0 0 26px rgba(255,106,0,.58),0 0 48px rgba(255,106,0,.24),inset 0 1px 0 rgba(255,200,100,.38)}}
-@keyframes liveBarPulse{0%,100%{box-shadow:0 0 14px rgba(0,200,255,.28),0 0 28px rgba(160,0,255,.12),inset 0 1px 0 rgba(255,255,255,.14)}50%{box-shadow:0 0 24px rgba(0,200,255,.42),0 0 48px rgba(160,0,255,.22),inset 0 1px 0 rgba(255,255,255,.22)}}
-@keyframes liveCountPulse{0%,100%{color:#00c8ff}50%{color:#a855f7}}
 @keyframes goldCountPulse{0%,100%{color:#ffd700}50%{color:#ffe54d}}
-@keyframes depthPop{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,.28)}50%{box-shadow:0 5px 20px rgba(0,200,255,.12)}}
+
+/* ── JELLY SLIDER KEYFRAMES ── */
+@keyframes jellyPop{0%{transform:scale(1)}30%{transform:scale(1.08,0.93)}60%{transform:scale(0.96,1.04)}100%{transform:scale(1)}}
+@keyframes trackGlow{0%,100%{box-shadow:0 0 0 1px rgba(0,180,255,.1),inset 0 2px 6px rgba(0,0,0,.4)}50%{box-shadow:0 0 12px rgba(0,180,255,.18),0 0 24px rgba(0,180,255,.08),inset 0 2px 6px rgba(0,0,0,.4)}}
 
 /* ── CSS VARIABLES ── */
 :root{--cc:#00d4ff}
@@ -42,14 +42,8 @@ button{cursor:pointer;border:none}
 .hidden{display:none!important}
 .page-content{padding:0}
 
-/* Subtle shine overlay */
 .shine-card{position:relative;overflow:hidden}
-.shine-card::before{
-  content:'';position:absolute;top:0;left:-110%;width:45%;height:100%;
-  background:linear-gradient(105deg,transparent,rgba(255,255,255,.05),transparent);
-  animation:shineSwipe 5.5s ease-in-out infinite;
-  pointer-events:none;z-index:5
-}
+.shine-card::before{content:'';position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.05),transparent);animation:shineSwipe 5.5s ease-in-out infinite;pointer-events:none;z-index:5}
 
 /* ── LAYOUT ── */
 #app{min-height:100vh;padding-bottom:72px;overflow-x:hidden;position:relative}
@@ -86,7 +80,7 @@ button{cursor:pointer;border:none}
 .tab svg{transition:all .25s}
 .tab.active svg{filter:brightness(1.7) saturate(1.4) drop-shadow(0 0 4px currentColor)}
 
-/* ── GLASS CARD (base) ── */
+/* ── GLASS CARD ── */
 .glass{background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025),rgba(0,212,255,.02));backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.09);box-shadow:0 6px 24px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.1);border-radius:16px;position:relative;overflow:hidden}
 
 /* ── BALANCE CARD ── */
@@ -99,12 +93,91 @@ button{cursor:pointer;border:none}
 .dep-btn{padding:13px;border-radius:12px;border:1.5px solid var(--cc);font-weight:700;font-size:12px;cursor:pointer;color:var(--cc);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.3px;position:relative;overflow:hidden;transition:all .22s}
 .wit-btn{padding:13px;border-radius:12px;border:1px solid rgba(0,212,255,.2);font-weight:600;font-size:12px;cursor:pointer;background:rgba(0,212,255,.05);color:rgba(0,212,255,.8);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:6px;position:relative;overflow:hidden;transition:all .22s}
 
+/* ── JELLY SLIDER SECTION ── */
+.jelly-section{
+  margin:14px 14px 0;
+  position:relative
+}
+.jelly-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;padding:12px 14px;
+  background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(0,212,255,.025),rgba(8,8,28,.88));
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 4px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.1)
+}
+.jelly-icon-box{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2)
+}
+.jelly-chips{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+.chip-live{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:50px;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.38)}
+.chip-vol{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:50px;background:rgba(0,200,255,.09);border:1px solid rgba(0,200,255,.28)}
+.chip-hot{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:50px;background:rgba(255,165,0,.09);border:1px solid rgba(255,165,0,.25)}
+.chip-text{font-family:'Oswald',sans-serif;font-weight:700;font-size:10px;letter-spacing:1.5px}
+.count-pill{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:.8px;color:rgba(0,200,255,.9);
+  border:1px solid rgba(0,200,255,.35);
+  padding:5px 12px;border-radius:50px;
+  background:rgba(0,200,255,.07);
+  white-space:nowrap;flex-shrink:0
+}
+
+/* ── JELLY CANVAS TRACK WRAPPER ── */
+.jelly-track-wrap{
+  position:relative;
+  height:62px;
+  border-radius:50px;
+  background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(10,14,30,.7),rgba(20,26,48,.6));
+  border:1px solid rgba(255,255,255,.07);
+  box-shadow:
+    inset 0 3px 8px rgba(0,0,0,.5),
+    inset 0 -1px 0 rgba(255,255,255,.04),
+    0 2px 12px rgba(0,0,0,.4),
+    0 0 0 1px rgba(0,180,255,.06);
+  animation:trackGlow 4s ease-in-out infinite;
+  overflow:hidden;
+  cursor:grab
+}
+.jelly-track-wrap:active{cursor:grabbing}
+.jelly-track-wrap canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  border-radius:50px
+}
+/* scroll hint labels */
+.jelly-hints{
+  display:flex;justify-content:space-between;
+  padding:4px 16px 0;pointer-events:none
+}
+.jelly-hint{
+  font-size:9px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;
+  color:rgba(255,255,255,.2)
+}
+
+/* ── BETS SCROLLABLE CONTAINER ── */
+#betsContainer{
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  /* height set dynamically via JS */
+  padding-bottom:16px
+}
+#betsContainer::-webkit-scrollbar{display:none}
+
 /* ── MARKET CARDS ── */
-.market-card{margin:0 14px 10px;border-radius:16px;padding:16px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.018),rgba(0,212,255,.018));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);transition:transform .2s ease,box-shadow .2s ease;position:relative;overflow:hidden;animation:cardIn .32s ease forwards}
+.market-card{margin:0 0 10px;border-radius:16px;padding:16px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.018),rgba(0,212,255,.018));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);transition:transform .2s ease,box-shadow .2s ease;position:relative;overflow:hidden;animation:cardIn .32s ease forwards}
 .market-card:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.12)}
 .card-glow-top{position:absolute;top:0;left:0;right:0;height:1px}
 .card-glow-left{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:16px 0 0 16px}
-.card-glow-bottom{position:absolute;bottom:0;left:0;right:0;height:1px}
 .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:7px;font-size:10px;font-weight:700;text-transform:uppercase}
 .hot-badge{font-size:9px;background:rgba(255,215,0,.09);color:#ffd700;border:1px solid rgba(255,215,0,.25);padding:3px 7px;border-radius:6px;font-weight:800;animation:hotBlink 2.2s infinite;display:inline-flex;align-items:center;gap:3px}
 .live-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;color:#00d4ff;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);border-radius:6px;padding:3px 7px}
@@ -163,8 +236,6 @@ button{cursor:pointer;border:none}
 .port-stat{border-radius:11px;padding:10px;text-align:center}
 .port-stat-val{font-family:'Oswald',sans-serif;font-weight:700;font-size:17px;letter-spacing:.5px}
 .port-stat-lbl{font-size:10px;color:#64748b;margin-top:2px;font-weight:600}
-
-/* TX cards */
 .tx-card{background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px;margin-bottom:7px;transition:transform .16s}
 .tx-card:hover{transform:translateX(-2px)}
 .tx-type{font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:2px;letter-spacing:.5px}
@@ -176,24 +247,10 @@ button{cursor:pointer;border:none}
 .tx-badge.pending{background:rgba(245,158,11,.09);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
 .tx-empty{text-align:center;color:#475569;font-size:13px;padding:30px}
 .tx-emoji{font-size:28px;margin-bottom:8px}
-
-/* ── UPI SECTION ── */
 .upi-linked-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(0,212,255,.05);border-radius:11px;border:1px solid rgba(0,212,255,.16)}
-
-/* ── INPUTS ── */
 .text-inp{width:100%;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:11px 14px;color:#e8edf5;font-size:13px;outline:none;font-family:inherit;transition:border-color .18s,box-shadow .18s}
 .text-inp::placeholder{color:#475569}
 .text-inp:focus{border-color:rgba(0,212,255,.28);box-shadow:0 0 0 3px rgba(0,212,255,.06)}
-
-/* ── ACCOUNT TABS ── */
 .acc-tabs{display:flex;gap:5px;margin-bottom:18px;background:rgba(255,255,255,.04);border-radius:11px;padding:4px;border:1px solid rgba(255,255,255,.06)}
 .acc-tab{flex:1;padding:8px;border-radius:8px;border:none;font-weight:700;font-size:12px;cursor:pointer;color:#64748b;background:transparent;transition:all .18s}
 .acc-tab.active{background:rgba(255,215,0,.09);color:#ffd700}
-
-/* ── SECTION HEAD ── */
-.section-head{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}
-.section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;display:flex;align-items:center;gap:9px;color:#e8edf5}
-.section-count{font-size:11px;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;color:#ffd700;background:rgba(255,215,0,.09);border:1px solid rgba(255,215,0,.25);padding:5px 12px;border-radius:16px;animation:goldCountPulse 3s ease-in-out infinite}
-
-/* ── TREND STRIP ── */
-.trend-strip{margin:12px 14px 0;border-radius:14px;padding:0;display:flex;align-items:center;transition:all 1.2s;backdrop-filter:blur(18px);overflow:hidden;border:1.5px solid var(--cc);min-height:42px}
