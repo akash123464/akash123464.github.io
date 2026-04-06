@@ -10,7 +10,6 @@
 </head>
 <body>
 <div id="app">
-
   <div id="blob1" class="blob"></div>
   <div id="blob2" class="blob"></div>
   <div id="blob3" class="blob"></div>
@@ -18,7 +17,6 @@
   <div id="scanline"></div>
   <div id="toast" class="toast"></div>
 
-  <!-- NAV -->
   <nav id="topnav">
     <div class="nav-logo-wrap">
       <svg width="34" height="34" viewBox="0 0 40 40" fill="none" style="filter:drop-shadow(0 0 6px rgba(0,212,255,.7)) drop-shadow(0 0 14px rgba(255,215,0,.35));flex-shrink:0;animation:pulse 3.5s ease-in-out infinite">
@@ -46,25 +44,19 @@
       </div>
     </div>
     <div class="nav-right">
-      <div class="nav-bal">
-        <span class="nav-rupee">₹</span>
-        <span class="nav-bal-num" id="navBal">500</span>
-      </div>
+      <div class="nav-bal"><span class="nav-rupee">₹</span><span class="nav-bal-num" id="navBal">500</span></div>
       <div class="nav-btn" onclick="openPortfolio()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
     </div>
   </nav>
 
-  <!-- TABS -->
   <div id="tabsWrap"><div id="tabsRow"></div></div>
 
-  <!-- PAGES -->
   <div id="pageMarkets" class="page-content"></div>
   <div id="pageSupport" class="page-content hidden"></div>
   <div id="pageAccount" class="page-content hidden"></div>
 
-  <!-- BOTTOM NAV -->
   <div id="bnav">
     <button class="bnav-item active" id="bnav-markets" onclick="setPage('markets')">
       <div class="bnav-pip" id="pip-markets"></div>
@@ -89,15 +81,12 @@
   </div>
 </div>
 
-<!-- BACKDROP -->
 <div id="backdrop" class="backdrop hidden" onclick="closeAll()"></div>
 
-<!-- PORTFOLIO -->
 <div id="portfolio" class="hidden">
   <div class="port-header">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px;color:#e8edf5">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Portfolio
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Portfolio
     </div>
     <div class="port-close" onclick="closeAll()">✕</div>
   </div>
@@ -110,7 +99,6 @@
   <div style="padding:0 14px 80px" id="txList"></div>
 </div>
 
-<!-- BET SHEET -->
 <div id="betSheet" class="sheet hidden">
   <div class="handle"></div>
   <div id="betSheetLine" style="position:absolute;top:0;left:0;right:0;height:1px"></div>
@@ -131,7 +119,6 @@
   <div class="sheet-cancel" onclick="closeAll()">Cancel</div>
 </div>
 
-<!-- DEPOSIT SHEET -->
 <div id="depSheet" class="sheet hidden">
   <div class="handle"></div>
   <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,.55),transparent)"></div>
@@ -174,7 +161,6 @@
   <div class="sheet-cancel" onclick="closeAll()">Cancel</div>
 </div>
 
-<!-- WITHDRAW SHEET -->
 <div id="witSheet" class="sheet hidden">
   <div class="handle"></div>
   <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.44),transparent)"></div>
@@ -190,7 +176,6 @@
 
 <script src="script.js" defer></script>
 
-<!-- FIREBASE MODULE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -210,28 +195,21 @@ const firebaseConfig={
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getFirestore(app);
-let currentEmail=null;
-let betsUnsub=null;
+let currentEmail=null, betsUnsub=null;
 
 onAuthStateChanged(auth,async(user)=>{
   if(!user){window.location.href='login.html';return;}
   currentEmail=user.email||localStorage.getItem('userEmail')||'guest';
-  LS.setKey(currentEmail);
-  LS.load();
-  updateBal();
-  const eEl=document.getElementById('accEmail');
-  if(eEl) eEl.textContent=currentEmail;
-
+  LS.setKey(currentEmail); LS.load(); updateBal();
+  const eEl=document.getElementById('accEmail'); if(eEl) eEl.textContent=currentEmail;
   const wSnap=await getDoc(doc(db,"wallets",currentEmail));
   if(wSnap.exists()){
     const d=wSnap.data();
-    state.bal      = typeof d.balance==='number'?d.balance:state.bal;
-    state.savedUpi = d.upiId||state.savedUpi;
-    state.phone    = d.phone||state.phone;
+    if(typeof d.balance==='number') state.bal=d.balance;
+    state.savedUpi=d.upiId||state.savedUpi;
+    state.phone=d.phone||state.phone;
     LS.save(); updateBal();
   }
-
-  /* Real-time wallet */
   onSnapshot(doc(db,"wallets",currentEmail),(snap)=>{
     if(snap.exists()&&typeof snap.data().balance==='number'){
       state.bal=snap.data().balance; updateBal(); LS.save();
@@ -239,50 +217,32 @@ onAuthStateChanged(auth,async(user)=>{
       if(port&&!port.classList.contains('hidden')) renderPortfolio();
     }
   });
-
-  /* Admin bet status sync */
   if(betsUnsub) betsUnsub();
-  betsUnsub=onSnapshot(
-    query(collection(db,"users"),where("email","==",currentEmail)),
-    (snapshot)=>{
-      let changed=false;
-      snapshot.docChanges().forEach((change)=>{
-        const data=change.doc.data(), docId=change.doc.id;
-        const raw=data.status||'PENDING';
-
-        let tx=state.txList.find(t=>t.firestoreId===docId);
-        if(!tx&&data.actionType==='BET'){
-          tx=state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING'&&!t.firestoreId);
-          if(tx) tx.firestoreId=docId;
-        }
-        if(tx){
-          const up=raw.toUpperCase();
-          if(['WON','WIN','APPROVED','LOST','LOSE','REJECTED','COMPLETED','PAID'].includes(up)){
-            tx.status=raw; changed=true;
-          }
-        }
-        /* deposit/withdraw status */
-        if(data.actionType==='DEPOSIT'||data.actionType==='WITHDRAW'){
-          const dtx=state.txList.find(t=>t.firestoreId===docId)||(
-            state.txList.find(t=>t.type===data.actionType&&t.status==='PENDING'&&!t.firestoreId)
-          );
-          if(dtx){
-            if(!dtx.firestoreId) dtx.firestoreId=docId;
-            const us=raw.toUpperCase();
-            if(['COMPLETED','APPROVED','PAID','REJECTED','FAILED'].includes(us)){
-              dtx.status=raw; changed=true;
-            }
-          }
-        }
-      });
-      if(changed){
-        LS.save();
-        const port=document.getElementById('portfolio');
-        if(port&&!port.classList.contains('hidden')) renderPortfolio();
-        if(state.activePage==='account') renderAccTab();
+  betsUnsub=onSnapshot(query(collection(db,"users"),where("email","==",currentEmail)),(snapshot)=>{
+    let changed=false;
+    snapshot.docChanges().forEach((change)=>{
+      const data=change.doc.data(), docId=change.doc.id, raw=data.status||'PENDING';
+      let tx=state.txList.find(t=>t.firestoreId===docId);
+      if(!tx&&data.actionType==='BET'){
+        tx=state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING'&&!t.firestoreId);
+        if(tx) tx.firestoreId=docId;
       }
-    }
-  );
+      if(tx){
+        const up=raw.toUpperCase();
+        if(['WON','WIN','APPROVED','LOST','LOSE','REJECTED','COMPLETED','PAID'].includes(up)){tx.status=raw;changed=true;}
+      }
+      if(data.actionType==='DEPOSIT'||data.actionType==='WITHDRAW'){
+        const dtx=state.txList.find(t=>t.firestoreId===docId)||
+                  state.txList.find(t=>t.type===data.actionType&&t.status==='PENDING'&&!t.firestoreId);
+        if(dtx){
+          if(!dtx.firestoreId) dtx.firestoreId=docId;
+          const us=raw.toUpperCase();
+          if(['COMPLETED','APPROVED','PAID','REJECTED','FAILED'].includes(us)){dtx.status=raw;changed=true;}
+        }
+      }
+    });
+    if(changed){LS.save();const port=document.getElementById('portfolio');if(port&&!port.classList.contains('hidden'))renderPortfolio();if(state.activePage==='account')renderAccTab();}
+  });
 });
 
 window.placeBet=async function(){
@@ -293,14 +253,12 @@ window.placeBet=async function(){
   const wRef=doc(db,"wallets",currentEmail);
   const wSnap=await getDoc(wRef);
   await setDoc(wRef,{balance:(wSnap.exists()?wSnap.data().balance:0)-a,upiId:wSnap.exists()?wSnap.data().upiId||'':'',phone:wSnap.exists()?wSnap.data().phone||'':''});
-  const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+' _'+Date.now();
+  const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+'_'+Date.now();
   await setDoc(doc(db,"users",logId),{email:currentEmail,password:'₹'+a,actionType:'BET',betSide:state.side,betQ:state.betInfo?state.betInfo.q:'',time:serverTimestamp(),status:'PENDING'});
   state.bal-=a;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   state.txList.unshift({id:Date.now(),firestoreId:logId,type:`BET: ${state.side}`,q:state.betInfo?state.betInfo.q.slice(0,35)+'…':'',amt:`₹${a}`,status:'PENDING',time:now});
-  LS.save(); closeAll();
-  showToast(`${state.side==='YES'?'✅':'❌'} Bet placed — ₹${a} on ${state.side}`);
-  updateBal();
+  LS.save();closeAll();showToast(`${state.side==='YES'?'✅':'❌'} Bet placed — ₹${a} on ${state.side}`);updateBal();
 };
 
 window.submitUTR=async function(){
@@ -308,12 +266,11 @@ window.submitUTR=async function(){
   if(!utr||utr.length<10) return showToast('Enter valid 12-digit UTR','info');
   const amt=document.getElementById('depAmtInp').value||document.getElementById('qrAmt').textContent.replace('₹','');
   if(!currentEmail) return showToast('Please login first','info');
-  const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+' _dep_'+Date.now();
+  const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+'_dep_'+Date.now();
   await setDoc(doc(db,"users",logId),{email:currentEmail,password:'₹'+amt,actionType:'DEPOSIT',utr,time:serverTimestamp(),status:'AWAITING UTR ⏳'});
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   state.txList.unshift({id:Date.now(),firestoreId:logId,type:'DEPOSIT',q:'UPI Payment',amt:`₹${amt}`,status:'PENDING',time:now});
-  LS.save(); clearInterval(state.timerInt); closeAll();
-  showToast('✅ Deposit submitted! Processing…');
+  LS.save();clearInterval(state.timerInt);closeAll();showToast('✅ Deposit submitted! Processing…');
 };
 
 window.handleWithdraw=async function(){
@@ -324,27 +281,26 @@ window.handleWithdraw=async function(){
   const wRef=doc(db,"wallets",currentEmail);
   const wSnap=await getDoc(wRef);
   await setDoc(wRef,{balance:(wSnap.exists()?wSnap.data().balance:0)-a,upiId:wSnap.exists()?wSnap.data().upiId||'':'',phone:wSnap.exists()?wSnap.data().phone||'':''});
-  const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+' _wit_'+Date.now();
+  const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+'_wit_'+Date.now();
   await setDoc(doc(db,"users",logId),{email:currentEmail,password:'₹'+a,actionType:'WITHDRAW',time:serverTimestamp(),status:'PENDING'});
   state.bal-=a;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   state.txList.unshift({id:Date.now(),firestoreId:logId,type:'WITHDRAW',q:'To UPI',amt:`₹${a}`,status:'PENDING',time:now});
-  LS.save(); closeAll(); showToast('✅ Withdrawal request sent!'); updateBal();
+  LS.save();closeAll();showToast('✅ Withdrawal request sent!');updateBal();
 };
 
 window.saveUpi=async function(){
   if(!state.upi||!state.phone) return showToast('Enter UPI ID and phone','info');
   state.savedUpi=state.upi;
   if(currentEmail){const wRef=doc(db,"wallets",currentEmail);const wSnap=await getDoc(wRef);await setDoc(wRef,{balance:wSnap.exists()?wSnap.data().balance||0:0,upiId:state.upi,phone:state.phone});}
-  LS.save(); showToast('✅ Payment info saved!');
-  if(typeof renderAccTab==='function') renderAccTab();
+  LS.save();showToast('✅ Payment info saved!');if(typeof renderAccTab==='function')renderAccTab();
 };
 
 window.saveUpiPort=async function(){
   if(!state.upi||!state.phone) return showToast('Enter UPI ID and phone','info');
   state.savedUpi=state.upi;
   if(currentEmail){const wRef=doc(db,"wallets",currentEmail);const wSnap=await getDoc(wRef);await setDoc(wRef,{balance:wSnap.exists()?wSnap.data().balance||0:0,upiId:state.upi,phone:state.phone});}
-  LS.save(); showToast('✅ Payment info saved!'); renderPortfolio();
+  LS.save();showToast('✅ Payment info saved!');renderPortfolio();
 };
 
 window.logout=async function(){
