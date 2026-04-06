@@ -1,34 +1,23 @@
 /* ═══════════════════════════════════════
    WISHWORK – script.js
-   Fixes:
-   1. Per-user localStorage (keyed by email)
-   2. Admin bet approval → portfolio WON/LOST
-      via Firestore onSnapshot listener
-   3. Real-time sync via storage event
-   4. Clean glassmorphism UI rendering
+   Jelly Slider: replaces live markets bar
+   Controls bet card scroll (left↑ right↓)
+   Per-user localStorage, admin Firestore sync
 ═══════════════════════════════════════ */
 
-/* ── PER-USER localStorage ──
-   Key is ww_<sanitized_email> so each user
-   has their own isolated saved data.       */
+/* ── PER-USER localStorage ── */
 let LS_KEY = 'ww_guest';
-
 const LS = {
   setKey(email){ LS_KEY = 'ww_' + (email||'guest').replace(/[^a-z0-9]/gi,'_'); },
   save(){
     localStorage.setItem(LS_KEY, JSON.stringify({
-      bal:      state.bal,
-      txList:   state.txList,
-      savedUpi: state.savedUpi,
-      upi:      state.upi,
-      phone:    state.phone
+      bal:state.bal, txList:state.txList,
+      savedUpi:state.savedUpi, upi:state.upi, phone:state.phone
     }));
   },
   load(){
     try{
-      const raw = localStorage.getItem(LS_KEY);
-      if(!raw) return;
-      const d = JSON.parse(raw);
+      const d = JSON.parse(localStorage.getItem(LS_KEY)||'{}');
       if(typeof d.bal==='number')  state.bal      = d.bal;
       if(Array.isArray(d.txList)) state.txList   = d.txList;
       if(d.savedUpi!==undefined)  state.savedUpi = d.savedUpi;
@@ -45,6 +34,9 @@ let state = {
   txList:[], upi:'', phone:'', savedUpi:'',
   timer:80, timerInt:null, accountTab:'profile'
 };
+
+/* ── JELLY SLIDER STATE ── */
+let jellyRAF = null;
 
 /* ── DATA ── */
 const BETS = {
@@ -163,17 +155,13 @@ const BADGE_COLORS = {
 
 const VOLS=["2.4K","5.1K","11.8K","3.2K","7.6K","18.4K","9.1K","4.3K","22.1K","1.8K","6.7K"];
 
-/* ── Live market colours ── */
-const LB='#00c8ff', LP='#a855f7';
-
-/* ── STATUS NORMALIZER ──
-   Maps whatever admin sets → display label + badge class */
+/* ── STATUS NORMALIZER ── */
 function normalizeStatus(raw){
-  const s = (raw||'').toString().toUpperCase().trim();
-  if(s==='WON'||s==='WIN'||s==='APPROVED'||s==='WIN ✅'||s==='WON ✅') return {label:'WON 🏆', cls:'won'};
-  if(s==='LOST'||s==='LOSE'||s==='REJECTED'||s==='LOST ❌')           return {label:'LOST ❌', cls:'lost'};
-  if(s==='COMPLETED'||s==='PAID'||s==='SUCCESS')                       return {label:'COMPLETED ✓',cls:'completed'};
-  return {label:'PENDING', cls:'pending'};
+  const s=(raw||'').toString().toUpperCase().trim();
+  if(s==='WON'||s==='WIN'||s==='APPROVED'||s.includes('WIN'))  return {label:'WON 🏆',cls:'won'};
+  if(s==='LOST'||s==='LOSE'||s==='REJECTED'||s.includes('LOST')) return {label:'LOST ❌',cls:'lost'};
+  if(s==='COMPLETED'||s==='PAID'||s==='SUCCESS')                return {label:'COMPLETED ✓',cls:'completed'};
+  return {label:'PENDING',cls:'pending'};
 }
 
 /* ── CSS VAR HELPER ── */
@@ -184,7 +172,7 @@ function setCC(c){ document.documentElement.style.setProperty('--cc',c); }
 let toastTimer;
 function showToast(msg,type='success'){
   const el=document.getElementById('toast');
-  el.textContent=msg;el.className='toast show';
+  el.textContent=msg; el.className='toast show';
   if(type==='success'){
     el.style.cssText='background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(34,197,94,.07));border:1.5px solid rgba(34,197,94,.38);color:#22c55e;box-shadow:0 0 22px rgba(34,197,94,.2),inset 0 1px 0 rgba(255,255,255,.1);display:block';
   } else {
@@ -241,29 +229,293 @@ function updateBlobs(){
   document.getElementById('scanline').style.background=`linear-gradient(90deg,transparent,${c}22,transparent)`;
 }
 
+/* ═══════════════════════════════════════
+   JELLY SLIDER — canvas-based 3D liquid
+   Left = scroll up, Right = scroll down
+═══════════════════════════════════════ */
+function initJellySlider(){
+  if(jellyRAF){ cancelAnimationFrame(jellyRAF); jellyRAF=null; }
+
+  const wrap   = document.getElementById('jellyTrackWrap');
+  const canvas = document.getElementById('jellyCanvas');
+  const betsEl = document.getElementById('betsContainer');
+  if(!wrap||!canvas||!betsEl) return;
+
+  /* High-DPI setup */
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  const W_CSS = wrap.offsetWidth;
+  const H_CSS = wrap.offsetHeight;
+  canvas.width  = W_CSS * dpr;
+  canvas.height = H_CSS * dpr;
+  canvas.style.width  = W_CSS + 'px';
+  canvas.style.height = H_CSS + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const W = W_CSS, H = H_CSS;
+  const PAD     = 9;           // padding from canvas edge to track
+  const TR      = (H - PAD*2) / 2; // track corner radius = half track height
+  const RANGE   = W - PAD*2 - TR*2; // pixels the blob centre can travel
+  const BASE_R  = TR - 3;     // blob base radius
+
+  /* Physics state */
+  let targetPos   = 0;   // 0…1, set by drag
+  let displayPos  = 0;   // 0…1, follows target with spring
+  let springVel   = 0;   // spring velocity
+  let pointerVel  = 0;   // smoothed pointer velocity for stretch
+  let isDragging  = false;
+  let dragStartX  = 0;
+  let dragStartPos= 0;
+
+  /* Convert normalised pos → canvas x of blob centre */
+  const posToX = p => PAD + TR + p * RANGE;
+
+  /* Helpers */
+  function pillPath(x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.arcTo(x+w, y, x+w, y+r, r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+    ctx.lineTo(x+r, y+h);
+    ctx.arcTo(x, y+h, x, y+h-r, r);
+    ctx.lineTo(x, y+r);
+    ctx.arcTo(x, y, x+r, y, r);
+    ctx.closePath();
+  }
+
+  /* ── DRAW TRACK ── */
+  function drawTrack(){
+    const TX=PAD, TY=PAD, TW=W-PAD*2, TH=H-PAD*2;
+
+    /* Track fill — dark concave look */
+    pillPath(TX, TY, TW, TH, TR);
+    const tg = ctx.createLinearGradient(TX, TY, TX, TY+TH);
+    tg.addColorStop(0,   'rgba(0,0,0,.58)');
+    tg.addColorStop(.45, 'rgba(8,14,32,.72)');
+    tg.addColorStop(1,   'rgba(18,26,52,.62)');
+    ctx.fillStyle = tg;
+    ctx.shadowColor='rgba(0,0,0,.6)'; ctx.shadowBlur=8; ctx.shadowOffsetY=3;
+    ctx.fill();
+    ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+
+    /* Top inner shadow (concave effect) */
+    pillPath(TX, TY, TW, TH*0.5, TR);
+    const is = ctx.createLinearGradient(TX, TY, TX, TY+TH*0.5);
+    is.addColorStop(0, 'rgba(0,0,0,.35)');
+    is.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = is; ctx.fill();
+
+    /* Bottom edge rim shine */
+    pillPath(TX+1, TY+TH*.72, TW-2, TH*.28, TR*.5);
+    const bs = ctx.createLinearGradient(TX, TY+TH*.72, TX, TY+TH);
+    bs.addColorStop(0, 'rgba(255,255,255,0)');
+    bs.addColorStop(1, 'rgba(255,255,255,.055)');
+    ctx.fillStyle = bs; ctx.fill();
+
+    /* Track border */
+    pillPath(TX, TY, TW, TH, TR);
+    ctx.strokeStyle='rgba(255,255,255,.07)';
+    ctx.lineWidth=1; ctx.stroke();
+  }
+
+  /* ── DRAW JELLY BLOB ── */
+  function drawJelly(cx, pv){
+    const cy = H / 2;
+
+    /* pv = smoothed pointer velocity for deformation */
+    const stretch  = Math.min(Math.abs(pv) * 0.85, BASE_R * 0.75);
+    const dir      = pv >= 0 ? 1 : -1;
+    const rx       = BASE_R + stretch * 0.6;   /* horizontal radius */
+    const ry       = BASE_R - stretch * 0.22;  /* vertical radius (squish) */
+    const shiftX   = dir * stretch * 0.22;     /* blob drifts slightly forward */
+    const bx       = cx + shiftX;
+
+    ctx.save();
+
+    /* Clip to track interior so blob never overflows */
+    pillPath(PAD+1, PAD+1, W-PAD*2-2, H-PAD*2-2, TR-1);
+    ctx.clip();
+
+    /* Outer glow halo */
+    const glowRad = rx + 14;
+    const glow = ctx.createRadialGradient(bx, cy, ry*.3, bx, cy, glowRad);
+    glow.addColorStop(0,   'rgba(0,160,255,0)');
+    glow.addColorStop(.55, 'rgba(0,120,255,.18)');
+    glow.addColorStop(1,   'rgba(0,70,200,0)');
+    ctx.beginPath();
+    ctx.ellipse(bx, cy, glowRad, glowRad, 0, 0, Math.PI*2);
+    ctx.fillStyle = glow; ctx.fill();
+
+    /* Drop shadow (3-D depth under blob) */
+    ctx.shadowColor='rgba(0,0,0,.45)';
+    ctx.shadowBlur=10; ctx.shadowOffsetY=5;
+
+    /* Main body gradient — cyan top-left → deep blue bottom-right */
+    const body = ctx.createLinearGradient(bx-rx, cy-ry, bx+rx*.7, cy+ry);
+    body.addColorStop(0,   '#78e8ff');
+    body.addColorStop(.22, '#30c0f8');
+    body.addColorStop(.6,  '#0285d0');
+    body.addColorStop(1,   '#01579b');
+    ctx.beginPath();
+    ctx.ellipse(bx, cy, rx, ry, 0, 0, Math.PI*2);
+    ctx.fillStyle = body; ctx.fill();
+
+    ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+
+    /* ── PRIMARY SPECULAR — large glossy teardrop (upper-left) ── */
+    const spX = bx - rx*.23;
+    const spY = cy - ry*.32;
+    const spW = rx * .55;
+    const spH = ry * .44;
+    const spec = ctx.createRadialGradient(spX-2, spY-2, 0, spX+2, spY+4, Math.min(spW,spH)*1.5);
+    spec.addColorStop(0,   'rgba(255,255,255,.97)');
+    spec.addColorStop(.2,  'rgba(255,255,255,.88)');
+    spec.addColorStop(.55, 'rgba(255,255,255,.32)');
+    spec.addColorStop(1,   'rgba(255,255,255,0)');
+    ctx.beginPath();
+    ctx.ellipse(spX, spY, spW, spH, -0.32, 0, Math.PI*2);
+    ctx.fillStyle = spec; ctx.fill();
+
+    /* ── SECONDARY RIM LIGHT — small bottom-right ── */
+    const rimX = bx + rx*.3;
+    const rimY = cy + ry*.36;
+    const rim = ctx.createRadialGradient(rimX, rimY, 0, rimX, rimY, rx*.22);
+    rim.addColorStop(0, 'rgba(255,255,255,.38)');
+    rim.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.beginPath();
+    ctx.ellipse(rimX, rimY, rx*.2, ry*.14, .4, 0, Math.PI*2);
+    ctx.fillStyle = rim; ctx.fill();
+
+    /* ── INNER DEPTH — dark arc at very bottom of blob ── */
+    const depthG = ctx.createRadialGradient(bx, cy+ry*.6, 0, bx, cy+ry*.8, rx*.5);
+    depthG.addColorStop(0, 'rgba(0,20,60,.3)');
+    depthG.addColorStop(1, 'rgba(0,20,60,0)');
+    ctx.beginPath();
+    ctx.ellipse(bx, cy+ry*.55, rx*.48, ry*.28, 0, 0, Math.PI*2);
+    ctx.fillStyle = depthG; ctx.fill();
+
+    ctx.restore();
+  }
+
+  /* ── DRAW SCROLL PROGRESS TICKS ── */
+  function drawTicks(){
+    ctx.save();
+    ctx.font = '700 8.5px "Space Grotesk", sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,.22)';
+    ctx.textAlign = 'left';
+    ctx.fillText('▲ TOP', PAD+TR+4, H-PAD-3);
+    ctx.textAlign = 'right';
+    ctx.fillText('BOTTOM ▼', W-PAD-TR-4, H-PAD-3);
+    ctx.restore();
+  }
+
+  /* ── ANIMATION LOOP ── */
+  function loop(){
+    /* Spring physics */
+    const diff = targetPos - displayPos;
+    springVel = springVel * .72 + diff * .22;
+    displayPos += springVel;
+    if(Math.abs(diff)<.0005 && Math.abs(springVel)<.0005){
+      displayPos=targetPos; springVel=0;
+    }
+
+    /* Smooth pointer velocity decay when not dragging */
+    if(!isDragging) pointerVel *= .78;
+
+    ctx.clearRect(0, 0, W, H);
+    drawTrack();
+    drawJelly(posToX(displayPos), pointerVel);
+    drawTicks();
+
+    jellyRAF = requestAnimationFrame(loop);
+  }
+
+  /* ── POINTER EVENTS ── */
+  function getLocalX(e){
+    const r = canvas.getBoundingClientRect();
+    return (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+  }
+
+  let lastMoveX = 0;
+
+  function onStart(e){
+    isDragging = true;
+    dragStartX   = getLocalX(e);
+    dragStartPos = targetPos;
+    lastMoveX    = dragStartX;
+    pointerVel   = 0;
+    if(e.cancelable) e.preventDefault();
+  }
+
+  function onMove(e){
+    if(!isDragging) return;
+    const x = getLocalX(e);
+    pointerVel = (x - lastMoveX) * 1.1;  // amplify slightly for visual
+    lastMoveX  = x;
+    const raw  = dragStartPos + (x - dragStartX) / RANGE;
+    targetPos  = Math.max(0, Math.min(1, raw));
+
+    /* Scroll the bets container */
+    const maxS = betsEl.scrollHeight - betsEl.clientHeight;
+    if(maxS > 0) betsEl.scrollTop = targetPos * maxS;
+  }
+
+  function onEnd(){
+    isDragging = false;
+  }
+
+  canvas.addEventListener('mousedown',  onStart, {passive:false});
+  canvas.addEventListener('touchstart', onStart, {passive:false});
+  window.addEventListener('mousemove',  onMove);
+  window.addEventListener('touchmove', (e)=>{
+    if(!isDragging) return;
+    onMove(e);
+  }, {passive:true});
+  window.addEventListener('mouseup',   onEnd);
+  window.addEventListener('touchend',  onEnd);
+
+  /* Keep slider in sync when user manually scrolls bets */
+  betsEl.addEventListener('scroll', ()=>{
+    if(isDragging) return;
+    const maxS = betsEl.scrollHeight - betsEl.clientHeight;
+    if(maxS>0) targetPos = betsEl.scrollTop / maxS;
+  }, {passive:true});
+
+  loop();
+}
+
+/* Set bets container height so it fills remaining viewport */
+function setBetsHeight(){
+  const betsEl = document.getElementById('betsContainer');
+  if(!betsEl) return;
+  const top  = betsEl.getBoundingClientRect().top;
+  const avail= window.innerHeight - top - 72; // 72 = bottom nav
+  betsEl.style.height = Math.max(260, avail) + 'px';
+}
+
 /* ── MARKETS PAGE ── */
 function renderMarkets(){
   const m=META[state.cat], color=m.color;
   const container=document.getElementById('pageMarkets');
   const OG='#ff6a00';
-  const trendItems=[m.trend,'🔥 '+BETS[state.cat].filter(b=>b.hot).map(b=>b.q.slice(0,28)+'…').join(' · '),'⚡ BET NOW · WIN BIG','📈 LIVE PREDICTION MARKET'];
+  const trendItems=[m.trend,'🔥 '+BETS[state.cat].filter(b=>b.hot).map(b=>b.q.slice(0,28)+'…').join(' · '),'⚡ BET NOW · WIN BIG','📈 LIVE PREDICTION'];
   const trendText=trendItems.join('   ✦   ');
 
-  /* ── TRENDING TICKER ── */
+  /* TRENDING TICKER */
   let html=`
   <div style="margin:12px 14px 0;position:relative;overflow:hidden;border-radius:14px;height:44px;
     background:linear-gradient(135deg,rgba(255,106,0,.22),rgba(14,8,4,.92),rgba(255,106,0,.14));
     backdrop-filter:blur(22px);border:1.5px solid rgba(255,106,0,.6);
-    box-shadow:0 0 18px rgba(255,106,0,.35),0 0 36px rgba(255,106,0,.15),inset 0 1px 0 rgba(255,180,80,.28);
+    box-shadow:0 0 16px rgba(255,106,0,.35),inset 0 1px 0 rgba(255,180,80,.28);
     animation:orangePulse 3s ease-in-out infinite;display:flex;align-items:center;">
     <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,200,80,.9),rgba(255,255,180,.8),rgba(255,200,80,.9),transparent)"></div>
     <div style="position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,180,80,.1),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1"></div>
-    <!-- TRENDING label -->
     <div style="position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:6px;height:100%;padding:0 14px;background:linear-gradient(160deg,rgba(255,106,0,.65),rgba(200,50,0,.75));border-right:1px solid rgba(255,140,40,.45);">
       <span style="width:7px;height:7px;border-radius:50%;background:#fff;opacity:.9;animation:liveDot 1.1s infinite;flex-shrink:0"></span>
       <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:#fff">TRENDING</span>
     </div>
-    <!-- scrolling text -->
     <div style="position:relative;z-index:3;flex:1;overflow:hidden;height:100%;display:flex;align-items:center;">
       <div style="position:absolute;left:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,rgba(14,8,4,.95),transparent);z-index:2;pointer-events:none"></div>
       <div style="position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(270deg,rgba(14,8,4,.95),transparent);z-index:2;pointer-events:none"></div>
@@ -271,18 +523,17 @@ function renderMarkets(){
         <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:rgba(255,220,160,.88)">${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;</span>
       </div>
     </div>
-    <!-- hot count -->
     <div style="position:relative;z-index:3;flex-shrink:0;padding:0 12px;height:100%;display:flex;align-items:center;gap:4px;border-left:1px solid rgba(255,106,0,.35)">
       <span style="font-size:13px">🔥</span>
       <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#ff9a3c">${BETS[state.cat].filter(b=>b.hot).length}</span>
     </div>
   </div>`;
 
-  /* ── BALANCE CARD ── */
+  /* BALANCE CARD */
   html+=`<div id="balCard" class="shine-card" style="margin:12px 14px 0;border-radius:20px;padding:20px;position:relative;overflow:hidden;
     background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(0,212,255,.035),rgba(255,215,0,.025));
     backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.11);
-    box-shadow:0 14px 40px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.14),0 0 0 1px rgba(0,212,255,.04);
+    box-shadow:0 14px 40px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.14);
     animation:waveRadius 10s ease-in-out infinite">
     <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:${color};filter:blur(70px);opacity:.1;animation:subtleGlow 4s ease-in-out infinite"></div>
     <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${color}99,rgba(255,215,0,.35),transparent)"></div>
@@ -291,91 +542,72 @@ function renderMarkets(){
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M8 5H6C4.9 5 4 5.9 4 7V9C4 11.2 5.5 13 7.5 13.5" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/><path d="M16 5H18C19.1 5 20 5.9 20 7V9C20 11.2 18.5 13 16.5 13.5" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/><path d="M8 5C8 5 8 13 12 15C16 13 16 5 16 5H8Z" fill="#ffd700" opacity="0.85"/><line x1="12" y1="15" x2="12" y2="19" stroke="#ffd700" stroke-width="2"/><line x1="8" y1="19" x2="16" y2="19" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/></svg>
         Your Balance
       </div>
-      <div class="bal-amount">
-        <span class="bal-rupee">₹</span>
-        <span class="bal-num" id="balNum">${state.bal}</span>
-      </div>
+      <div class="bal-amount"><span class="bal-rupee">₹</span><span class="bal-num" id="balNum">${state.bal}</span></div>
       <div class="bal-btns">
         <button class="dep-btn shine-card" onclick="openDeposit()" style="background:linear-gradient(145deg,${color}28,${color}0f);box-shadow:0 0 22px ${color}38,inset 0 1px 0 rgba(255,255,255,.18)">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/></svg>
-          Deposit
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/></svg>Deposit
         </button>
         <button class="wit-btn shine-card" onclick="openWithdraw()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="19" x2="12" y2="5" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="8" x2="12" y2="5" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/><line x1="19" y1="8" x2="12" y2="5" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/></svg>
-          Withdraw
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="19" x2="12" y2="5" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="8" x2="12" y2="5" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/><line x1="19" y1="8" x2="12" y2="5" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/></svg>Withdraw
         </button>
       </div>
     </div>
   </div>`;
 
-  /* ── LIVE MARKETS BAR — neon blue + purple ── */
+  /* ═══════════════════════════════════
+     JELLY SLIDER SECTION
+     Replaces the old live markets bar
+  ═══════════════════════════════════ */
   html+=`
-  <div style="margin:14px 14px 10px;position:relative;overflow:hidden;border-radius:18px;
-    background:linear-gradient(160deg,rgba(0,200,255,.14),rgba(160,0,255,.08),rgba(8,8,28,.88),rgba(0,200,255,.1));
-    backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
-    border:1.5px solid rgba(0,200,255,.6);
-    box-shadow:0 0 0 1px rgba(0,200,255,.1),0 0 22px rgba(0,200,255,.35),0 0 44px rgba(160,0,255,.15),inset 0 1.5px 0 rgba(255,255,255,.22),inset 0 -1.5px 0 rgba(0,0,0,.3),inset 0 0 40px rgba(0,200,255,.04);
-    animation:liveBarPulse 3s ease-in-out infinite;">
-    <!-- top line gradient -->
-    <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,${LB}cc,rgba(255,255,255,.8),${LP}cc,transparent)"></div>
-    <!-- left accent -->
-    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,${LB},${LP});box-shadow:2px 0 14px ${LB}88"></div>
-    <!-- shine sweep -->
-    <div style="position:absolute;top:0;left:-110%;width:50%;height:100%;background:linear-gradient(105deg,transparent,rgba(0,200,255,.07),transparent);animation:shineSwipe 4.5s ease-in-out infinite;pointer-events:none;z-index:1"></div>
-    <!-- glass specular -->
-    <div style="position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);border-radius:18px 18px 60% 60%;pointer-events:none"></div>
-    <!-- CONTENT -->
-    <div style="position:relative;z-index:3;padding:13px 16px 13px 18px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <!-- icon box -->
-          <div style="width:38px;height:38px;border-radius:11px;flex-shrink:0;background:linear-gradient(145deg,rgba(0,200,255,.22),rgba(160,0,255,.12),rgba(8,8,28,.55));border:1px solid rgba(0,200,255,.55);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(0,200,255,.3),inset 0 1px 0 rgba(255,255,255,.28);filter:brightness(1.6) saturate(1.8)">
-            ${m.icon}
+  <div class="jelly-section">
+
+    <!-- Compact markets header row -->
+    <div class="jelly-header">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+        <div class="jelly-icon-box" style="filter:brightness(1.5) saturate(1.6)">${m.icon}</div>
+        <div style="min-width:0">
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${m.label} <span style="background:linear-gradient(90deg,#00c8ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Markets</span>
           </div>
-          <div>
-            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff;line-height:1.1">
-              ${m.label} <span style="background:linear-gradient(90deg,${LB},${LP});-webkit-background-clip:text;-webkit-text-fill-color:transparent">Markets</span>
+          <div class="jelly-chips">
+            <div class="chip-live">
+              <span style="width:5px;height:5px;border-radius:50%;background:#ef4444;animation:liveDot 1.1s infinite;display:inline-block;flex-shrink:0"></span>
+              <span class="chip-text" style="color:#ff6b6b;font-size:9px">LIVE</span>
             </div>
-            <div style="font-family:'Oswald',sans-serif;font-size:8px;font-weight:600;letter-spacing:3.5px;text-transform:uppercase;margin-top:2px;color:rgba(0,200,255,.55)">◆ PREDICTION EXCHANGE ◆</div>
+            <div class="chip-vol">
+              <span class="chip-text" style="color:#00c8ff;font-size:9px">₹4.2L+ VOL</span>
+            </div>
+            <div class="chip-hot">
+              <span style="font-size:10px">🔥</span>
+              <span class="chip-text" style="color:#ffa040;font-size:9px">${BETS[state.cat].filter(b=>b.hot).length} HOT</span>
+            </div>
           </div>
         </div>
-        <!-- count pill -->
-        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;
-          background:linear-gradient(90deg,${LB},${LP});-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-          border:1.5px solid rgba(0,200,255,.65);padding:6px 14px;border-radius:50px;
-          box-shadow:0 0 16px rgba(0,200,255,.3),inset 0 1px 0 rgba(255,255,255,.22);
-          animation:liveCountPulse 2.8s ease-in-out infinite;white-space:nowrap">
-          ${BETS[state.cat].length} <span style="font-size:10px;opacity:.8;letter-spacing:2px">MARKETS</span>
-        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
-        <!-- LIVE -->
-        <div style="display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:50px;background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.45);box-shadow:0 0 10px rgba(239,68,68,.25)">
-          <span style="width:6px;height:6px;border-radius:50%;background:#ef4444;animation:liveDot 1.1s infinite;display:inline-block;flex-shrink:0;box-shadow:0 0 6px #ef4444"></span>
-          <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:#ff6b6b">LIVE</span>
-        </div>
-        <!-- VOL -->
-        <div style="display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:50px;background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.35)">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17" stroke="${LB}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;color:${LB}">24H VOL</span>
-          <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;color:#fff;letter-spacing:.5px">₹4.2L+</span>
-        </div>
-        <!-- HOT -->
-        <div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;background:rgba(0,200,255,.08);border:1px solid rgba(0,200,255,.3)">
-          <span style="font-size:10px">🔥</span>
-          <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:10px;background:linear-gradient(90deg,${LB},${LP});-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">${BETS[state.cat].filter(b=>b.hot).length} HOT</span>
-        </div>
-      </div>
+      <div class="count-pill">${BETS[state.cat].length}<span style="font-size:9px;opacity:.75;letter-spacing:1.5px"> MKT</span></div>
+    </div>
+
+    <!-- Jelly track -->
+    <div class="jelly-track-wrap" id="jellyTrackWrap">
+      <canvas id="jellyCanvas"></canvas>
+    </div>
+
+    <!-- Scroll hints -->
+    <div class="jelly-hints">
+      <span class="jelly-hint">◀ SCROLL UP</span>
+      <span class="jelly-hint" style="color:rgba(255,255,255,.14);font-size:8px;align-self:center">DRAG TO NAVIGATE</span>
+      <span class="jelly-hint">SCROLL DOWN ▶</span>
     </div>
   </div>`;
 
-  /* ── MARKET CARDS ── */
+  /* BETS CONTAINER */
   const bc=BADGE_COLORS[state.cat];
+  let cardsHtml='';
   BETS[state.cat].forEach((b,i)=>{
     const barC=b.odds>65?"#22c55e":b.odds>40?color:"#ef4444";
     const numC=b.odds>65?"#22c55e":b.odds>40?"#d1d9e6":"#ef4444";
     const isLive=b.odds>70;
-    html+=`<div class="market-card shine-card" style="animation-delay:${i*.04}s">
+    cardsHtml+=`<div class="market-card shine-card" style="animation-delay:${i*.04}s">
       <div class="card-glow-top" style="background:linear-gradient(90deg,transparent,${color}bb,rgba(255,215,0,.2),transparent)"></div>
       <div class="card-glow-left" style="background:linear-gradient(180deg,${color},${color}66,transparent);box-shadow:2px 0 10px ${color}44"></div>
       <div class="card-badge-row">
@@ -392,19 +624,27 @@ function renderMarkets(){
       </div>
       <div class="bet-btns">
         <button class="bet-btn neon-green-btn" onclick="openBet(${i},'YES')">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          YES ₹${b.odds}
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>YES ₹${b.odds}
         </button>
         <button class="bet-btn neon-red-btn" onclick="openBet(${i},'NO')">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><polyline points="22,17 13.5,8.5 8.5,13.5 2,7" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          NO ₹${100-b.odds}
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><polyline points="22,17 13.5,8.5 8.5,13.5 2,7" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>NO ₹${100-b.odds}
         </button>
       </div>
     </div>`;
   });
 
+  html+=`<div id="betsContainer" style="padding:0 14px">${cardsHtml}</div>`;
+
   container.innerHTML=html;
   updateBal();
+
+  /* Init jelly after layout is ready */
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      setBetsHeight();
+      initJellySlider();
+    });
+  });
 }
 
 /* ── SUPPORT ── */
@@ -501,7 +741,7 @@ function renderAccTab(){
     el.innerHTML=settings.map(s=>`
       <div class="glass" style="border-radius:13px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
         <div><div style="font-weight:600;font-size:13px;color:#e8edf5">${s.label}</div><div style="font-size:11px;color:#64748b;margin-top:2px">${s.sub}</div></div>
-        <div style="width:42px;height:23px;border-radius:12px;background:${s.on?color:'rgba(255,255,255,.08)'};border:1px solid ${s.on?color:'rgba(255,255,255,.08)'};position:relative;cursor:pointer;transition:all .25s;box-shadow:${s.on?`0 0 10px ${color}44`:'none'}">
+        <div style="width:42px;height:23px;border-radius:12px;background:${s.on?cc():'rgba(255,255,255,.08)'};border:1px solid ${s.on?cc():'rgba(255,255,255,.08)'};position:relative;cursor:pointer;transition:all .25s">
           <div style="position:absolute;top:2.5px;left:${s.on?'20px':'2.5px'};width:18px;height:18px;border-radius:50%;background:white;transition:left .25s;box-shadow:0 2px 4px rgba(0,0,0,.3)"></div>
         </div>
       </div>`).join('');
@@ -518,22 +758,12 @@ function renderAccTab(){
 }
 
 function saveUpi(){
-  if(state.upi&&state.phone){
-    state.savedUpi=state.upi;
-    LS.save();
-    showToast('✅ Payment info saved!');
-    renderAccTab();
-  } else {
-    showToast('Enter UPI ID and phone','info');
-  }
+  if(state.upi&&state.phone){ state.savedUpi=state.upi; LS.save(); showToast('✅ Payment info saved!'); renderAccTab(); }
+  else showToast('Enter UPI ID and phone','info');
 }
-
 function logout(){
   state.bal=0;state.txList=[];state.savedUpi='';state.upi='';state.phone='';
-  LS.save();
-  showToast('Logged out','info');
-  renderAccTab();
-  updateBal();
+  LS.save(); showToast('Logged out','info'); renderAccTab(); updateBal();
 }
 
 /* ── PORTFOLIO ── */
@@ -546,7 +776,6 @@ function openPortfolio(){
 function renderPortfolio(){
   const color=cc();
   const wins=state.txList.filter(t=>normalizeStatus(t.status).cls==='won').length;
-
   document.getElementById('portStats').innerHTML=[
     {label:'Balance',val:`₹${state.bal}`,color:'#22c55e',bg:'rgba(34,197,94,.08)',border:'rgba(34,197,94,.18)'},
     {label:'Bets',val:state.txList.length,color:'#ffd700',bg:'rgba(255,215,0,.08)',border:'rgba(255,215,0,.18)'},
@@ -556,15 +785,12 @@ function renderPortfolio(){
     <div class="port-stat-lbl">${s.label}</div>
   </div>`).join('');
 
-  /* UPI section */
   const upiEl=document.getElementById('portUpiSection');
   if(state.savedUpi){
     upiEl.innerHTML=`<div class="upi-linked-row">
-      <div>
-        <div style="font-size:10px;color:#64748b;margin-bottom:2px">Linked UPI ID</div>
-        <div style="color:${color};font-weight:700;font-size:13px">${state.savedUpi}</div>
-        ${state.phone?`<div style="font-size:10px;color:#64748b;margin-top:1px">${state.phone}</div>`:''}
-      </div>
+      <div><div style="font-size:10px;color:#64748b;margin-bottom:2px">Linked UPI ID</div>
+      <div style="color:${color};font-weight:700;font-size:13px">${state.savedUpi}</div>
+      ${state.phone?`<div style="font-size:10px;color:#64748b;margin-top:1px">${state.phone}</div>`:''}</div>
       <button onclick="state.savedUpi='';LS.save();renderPortfolio()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#94a3b8;padding:6px 11px;font-size:11px;cursor:pointer;font-weight:600">Edit</button>
     </div>`;
   } else {
@@ -575,10 +801,9 @@ function renderPortfolio(){
     </div>`;
   }
 
-  /* TX list */
   const txEl=document.getElementById('txList');
   if(!state.txList.length){
-    txEl.innerHTML=`<div class="tx-empty"><div class="tx-emoji">📭</div><div>No transactions yet</div><div style="font-size:11px;margin-top:4px;color:#374151">Place a bet to get started</div></div>`;
+    txEl.innerHTML=`<div class="tx-empty"><div class="tx-emoji">📭</div><div>No transactions yet</div></div>`;
   } else {
     txEl.innerHTML=state.txList.map(tx=>{
       const {label,cls}=normalizeStatus(tx.status);
@@ -597,14 +822,8 @@ function renderPortfolio(){
 }
 
 function saveUpiPort(){
-  if(state.upi&&state.phone){
-    state.savedUpi=state.upi;
-    LS.save();
-    showToast('✅ Payment info saved!');
-    renderPortfolio();
-  } else {
-    showToast('Enter UPI ID and phone','info');
-  }
+  if(state.upi&&state.phone){ state.savedUpi=state.upi; LS.save(); showToast('✅ Payment info saved!'); renderPortfolio(); }
+  else showToast('Enter UPI ID and phone','info');
 }
 
 /* ── BET SHEET ── */
@@ -623,8 +842,8 @@ function openBet(idx,side){
   inp.style.border=`1px solid ${color}66`; inp.value='';
   document.getElementById('payoutAmt').textContent='₹ 0.00';
   const btn=document.getElementById('placeBetBtn');
-  btn.innerHTML=`${sideIcon.replace('11','14')} Buy ${side}`;
-  btn.style.cssText=`width:100%;padding:15px;border:1.5px solid ${color}88;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(145deg,${color}28,${color}0f);color:${color};backdrop-filter:blur(14px);box-shadow:0 0 22px ${color}33,inset 0 1px 0 rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;gap:8px;overflow:hidden;position:relative;letter-spacing:.5px`;
+  btn.innerHTML=`Buy ${side}`;
+  btn.style.cssText=`width:100%;padding:15px;border:1.5px solid ${color}88;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(145deg,${color}28,${color}0f);color:${color};backdrop-filter:blur(14px);box-shadow:0 0 22px ${color}33,inset 0 1px 0 rgba(255,255,255,.14);overflow:hidden;position:relative;letter-spacing:.5px`;
   document.getElementById('backdrop').classList.remove('hidden');
   document.getElementById('betSheet').classList.remove('hidden');
 }
@@ -635,22 +854,18 @@ function selectChip(v,color){
   document.querySelectorAll('.amt-chip').forEach(el=>el.classList.toggle('active',el.textContent===`₹${v>=1000?'1K':v}`));
   updateBetAmt(v);
 }
-
 function updateBetAmt(val){
   state.betAmt=val;
   document.getElementById('payoutAmt').textContent=`₹ ${val?(parseFloat(val)*1.9).toFixed(2):'0.00'}`;
 }
-
 function placeBet(){
   const a=parseInt(state.betAmt);
   if(!a||a<=0) return showToast('Enter a valid amount','info');
   if(a>state.bal) return showToast('Insufficient balance 💸','info');
   state.bal-=a;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  const txId=Date.now();
-  state.txList.unshift({id:txId,type:`BET: ${state.side}`,q:state.betInfo.q.slice(0,35)+'…',amt:`₹${a}`,status:'PENDING',time:now,firestoreId:null});
-  LS.save();
-  closeAll();
+  state.txList.unshift({id:Date.now(),firestoreId:null,type:`BET: ${state.side}`,q:state.betInfo.q.slice(0,35)+'…',amt:`₹${a}`,status:'PENDING',time:now});
+  LS.save(); closeAll();
   showToast(`${state.side==='YES'?'✅':'❌'} Bet placed — ₹${a} on ${state.side}`);
   updateBal();
 }
@@ -685,9 +900,7 @@ function submitUTR(){
   const amt=document.getElementById('depAmtInp').value||document.getElementById('qrAmt').textContent.replace('₹','');
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   state.txList.unshift({id:Date.now(),type:'DEPOSIT',q:'UPI Payment',amt:`₹${amt}`,status:'PENDING',time:now});
-  LS.save();
-  clearInterval(state.timerInt);
-  closeAll();
+  LS.save(); clearInterval(state.timerInt); closeAll();
   showToast('✅ Deposit submitted! Processing…');
 }
 
@@ -704,20 +917,16 @@ function handleWithdraw(){
   state.bal-=a;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   state.txList.unshift({id:Date.now(),type:'WITHDRAW',q:'To UPI',amt:`₹${a}`,status:'PENDING',time:now});
-  LS.save();
-  closeAll();
-  showToast('✅ Withdrawal request sent!');
-  updateBal();
+  LS.save(); closeAll(); showToast('✅ Withdrawal request sent!'); updateBal();
 }
 
 /* ── BALANCE ── */
 function updateBal(){
   document.getElementById('navBal').textContent=state.bal;
-  const b=document.getElementById('balNum');
-  if(b) b.textContent=state.bal;
+  const b=document.getElementById('balNum'); if(b) b.textContent=state.bal;
 }
 
-/* ── REAL-TIME via storage event (cross-tab admin sync) ── */
+/* ── STORAGE EVENT (cross-tab admin sync) ── */
 window.addEventListener('storage',(e)=>{
   if(e.key===LS_KEY){
     LS.load(); updateBal();
@@ -727,17 +936,10 @@ window.addEventListener('storage',(e)=>{
   }
 });
 
-/* ── ADMIN UPDATE HOOK (called by admin panel JS) ──
-   Admin panel should call: window.adminUpdateTx(firestoreDocId, newStatus)
-   This finds the matching tx by firestoreId or betQ similarity and updates it. */
-window.adminUpdateTx=function(firestoreDocId, newStatus, matchEmail){
-  // Find tx by firestoreId if stored, else match by pending bet
-  let tx=state.txList.find(t=>t.firestoreId===firestoreDocId);
-  if(!tx){
-    // fallback: update the first PENDING bet
-    tx=state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING');
-  }
-  if(tx){ tx.status=newStatus; LS.save(); }
+window.adminUpdateTx=function(docId,newStatus){
+  let tx=state.txList.find(t=>t.firestoreId===docId)||
+         state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING'&&!t.firestoreId);
+  if(tx){ if(!tx.firestoreId) tx.firestoreId=docId; tx.status=newStatus; LS.save(); }
   const port=document.getElementById('portfolio');
   if(port&&!port.classList.contains('hidden')) renderPortfolio();
 };
@@ -751,8 +953,7 @@ function init(){
   updateBal();
   updateBlobs();
   ['support','account'].forEach(p=>{
-    const pip=document.getElementById('pip-'+p);
-    if(pip) pip.style.display='none';
+    const pip=document.getElementById('pip-'+p); if(pip) pip.style.display='none';
   });
 }
 init();
