@@ -1,7 +1,11 @@
 /* ═══════════════════════════════════════
-   WISHWORK – script.js
-   Jelly Slider: elongated liquid fill style
-   (matches reference image – not a ball)
+   WISHWORK – script.js  v4
+   Changes:
+   · Balance card: maroon glass, UID=email
+   · Jelly tap animation on card click
+   · totalDeposit / totalWithdraw tracking
+   · Withdrawal only counted after admin OK
+   · All data persists via per-user LS
 ═══════════════════════════════════════ */
 
 /* ── PER-USER localStorage ── */
@@ -10,18 +14,27 @@ const LS = {
   setKey(email){ LS_KEY = 'ww_' + (email||'guest').replace(/[^a-z0-9]/gi,'_'); },
   save(){
     localStorage.setItem(LS_KEY, JSON.stringify({
-      bal:state.bal, txList:state.txList,
-      savedUpi:state.savedUpi, upi:state.upi, phone:state.phone
+      bal:          state.bal,
+      txList:       state.txList,
+      savedUpi:     state.savedUpi,
+      upi:          state.upi,
+      phone:        state.phone,
+      totalDeposit: state.totalDeposit,
+      totalWithdraw:state.totalWithdraw,
+      userEmail:    state.userEmail
     }));
   },
   load(){
     try{
       const d = JSON.parse(localStorage.getItem(LS_KEY)||'{}');
-      if(typeof d.bal==='number')  state.bal      = d.bal;
-      if(Array.isArray(d.txList)) state.txList   = d.txList;
-      if(d.savedUpi!==undefined)  state.savedUpi = d.savedUpi;
-      if(d.upi!==undefined)       state.upi      = d.upi;
-      if(d.phone!==undefined)     state.phone    = d.phone;
+      if(typeof d.bal==='number')          state.bal          = d.bal;
+      if(Array.isArray(d.txList))          state.txList       = d.txList;
+      if(d.savedUpi!==undefined)           state.savedUpi     = d.savedUpi;
+      if(d.upi!==undefined)                state.upi          = d.upi;
+      if(d.phone!==undefined)              state.phone        = d.phone;
+      if(typeof d.totalDeposit==='number') state.totalDeposit = d.totalDeposit;
+      if(typeof d.totalWithdraw==='number')state.totalWithdraw= d.totalWithdraw;
+      if(d.userEmail)                      state.userEmail    = d.userEmail;
     }catch(e){}
   }
 };
@@ -31,7 +44,10 @@ let state = {
   cat:'INSTAGRAM', bal:500, activePage:'markets',
   betInfo:null, side:'YES', betAmt:'',
   txList:[], upi:'', phone:'', savedUpi:'',
-  timer:80, timerInt:null, accountTab:'profile'
+  timer:80, timerInt:null, accountTab:'profile',
+  totalDeposit:  0,   /* cumulative deposits submitted */
+  totalWithdraw: 0,   /* cumulative withdrawals approved by admin */
+  userEmail:     ''   /* logged-in email shown as UID */
 };
 
 /* ── JELLY SLIDER RAF ── */
@@ -157,15 +173,29 @@ const VOLS=["2.4K","5.1K","11.8K","3.2K","7.6K","18.4K","9.1K","4.3K","22.1K","1
 /* ── STATUS NORMALIZER ── */
 function normalizeStatus(raw){
   const s=(raw||'').toString().toUpperCase().trim();
-  if(s==='WON'||s==='WIN'||s==='APPROVED'||s.includes('WIN'))  return {label:'WON 🏆',cls:'won'};
+  if(s==='WON'||s==='WIN'||s==='APPROVED'||s.includes('WIN'))    return {label:'WON 🏆',cls:'won'};
   if(s==='LOST'||s==='LOSE'||s==='REJECTED'||s.includes('LOST')) return {label:'LOST ❌',cls:'lost'};
-  if(s==='COMPLETED'||s==='PAID'||s==='SUCCESS')                return {label:'COMPLETED ✓',cls:'completed'};
+  if(s==='COMPLETED'||s==='PAID'||s==='SUCCESS')                  return {label:'COMPLETED ✓',cls:'completed'};
   return {label:'PENDING',cls:'pending'};
 }
 
 /* ── CSS VAR HELPER ── */
 function cc(){ return META[state.cat].color; }
 function setCC(c){ document.documentElement.style.setProperty('--cc',c); }
+
+/* ── JELLY TAP — elastic click animation on balance card ── */
+function jellyTapBalCard(){
+  const card = document.getElementById('balCard');
+  if(!card) return;
+  card.classList.remove('bal-jelly');
+  /* Force reflow so animation restarts even if clicked twice fast */
+  void card.offsetWidth;
+  card.classList.add('bal-jelly');
+  card.addEventListener('animationend', ()=> card.classList.remove('bal-jelly'), {once:true});
+}
+
+/* ── FORMAT CURRENCY ── */
+function fmtCur(n){ return '₹'+(Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 /* ── TOAST ── */
 let toastTimer;
@@ -228,351 +258,149 @@ function updateBlobs(){
   document.getElementById('scanline').style.background=`linear-gradient(90deg,transparent,${c}22,transparent)`;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   JELLY SLIDER — elongated liquid fill (matches Image 2)
-   The jelly fills from the LEFT edge to the current position
-   like liquid poured into a tray, with 3D gloss and specular
-═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   JELLY SLIDER (unchanged from v3)
+═══════════════════════════════════════ */
 function initJellySlider(){
   if(jellyRAF){ cancelAnimationFrame(jellyRAF); jellyRAF=null; }
-
-  const wrap   = document.getElementById('jellyTrackWrap');
-  const canvas = document.getElementById('jellyCanvas');
-  const betsEl = document.getElementById('betsContainer');
+  const wrap=document.getElementById('jellyTrackWrap');
+  const canvas=document.getElementById('jellyCanvas');
+  const betsEl=document.getElementById('betsContainer');
   if(!wrap||!canvas||!betsEl) return;
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const W_CSS=wrap.offsetWidth, H_CSS=wrap.offsetHeight;
+  canvas.width=W_CSS*dpr; canvas.height=H_CSS*dpr;
+  canvas.style.width=W_CSS+'px'; canvas.style.height=H_CSS+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const W=W_CSS,H=H_CSS,PAD=9,TR=(H-PAD*2)/2,RANGE=W-PAD*2-TR*2;
+  let targetPos=0,displayPos=0,springVel=0,pointerVel=0;
+  let isDragging=false,dragStartX=0,dragStartPos=0,lastMoveX=0;
+  const posToX=p=>PAD+TR+p*RANGE;
 
-  /* ── High-DPI setup ── */
-  const dpr   = Math.min(window.devicePixelRatio||1, 2);
-  const W_CSS = wrap.offsetWidth;
-  const H_CSS = wrap.offsetHeight;
-  canvas.width  = W_CSS * dpr;
-  canvas.height = H_CSS * dpr;
-  canvas.style.width  = W_CSS + 'px';
-  canvas.style.height = H_CSS + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-
-  const W = W_CSS, H = H_CSS;
-  const PAD  = 9;                          // padding from canvas edge to track
-  const TR   = (H - PAD * 2) / 2;         // track corner radius = half track height
-  const RANGE = W - PAD * 2 - TR * 2;     // pixels fill can travel
-
-  /* ── Physics state ── */
-  let targetPos  = 0;   // 0…1 – set by drag
-  let displayPos = 0;   // 0…1 – spring-follows targetPos
-  let springVel  = 0;
-  let pointerVel = 0;   // smoothed velocity → visual deformation
-  let isDragging = false;
-  let dragStartX = 0, dragStartPos = 0, lastMoveX = 0;
-
-  /* Convert normalised pos → canvas x of fill's RIGHT edge */
-  const posToX = p => PAD + TR + p * RANGE;
-
-  /* ── HELPER: pill path (track outline) ── */
-  function pillPath(x, y, w, h, r){
-    ctx.beginPath();
-    ctx.moveTo(x+r, y);
-    ctx.lineTo(x+w-r, y);
-    ctx.arcTo(x+w, y, x+w, y+r, r);
-    ctx.lineTo(x+w, y+h-r);
-    ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
-    ctx.lineTo(x+r, y+h);
-    ctx.arcTo(x, y+h, x, y+h-r, r);
-    ctx.lineTo(x, y+r);
-    ctx.arcTo(x, y, x+r, y, r);
-    ctx.closePath();
+  function pillPath(x,y,w,h,r){
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+    ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);
+    ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
   }
-
-  /* ── HELPER: jelly fill path ──
-     lx = left cap CENTER x
-     rx = right cap CENTER x  (= cx, the current position)
-     cy = vertical centre
-     r  = half-height radius
-     Both caps are full semicircles; straight lines connect them top and bottom.
-  ── */
-  function jellyFillPath(lx, rx, cy, r){
-    if(rx - lx < 2){
-      ctx.beginPath();
-      ctx.arc(lx, cy, Math.max(r, 3), 0, Math.PI * 2);
-      return;
-    }
-    ctx.beginPath();
-    ctx.moveTo(lx, cy - r);
-    ctx.lineTo(rx, cy - r);           // top straight edge
-    ctx.arc(rx, cy, r, -Math.PI/2, Math.PI/2);       // right cap (clockwise)
-    ctx.lineTo(lx, cy + r);           // bottom straight edge
-    ctx.arc(lx, cy, r, Math.PI/2, -Math.PI/2, true); // left cap (counter-clockwise)
-    ctx.closePath();
+  function jellyFillPath(lx,rx,cy,r){
+    if(rx-lx<2){ctx.beginPath();ctx.arc(lx,cy,Math.max(r,3),0,Math.PI*2);return;}
+    ctx.beginPath();ctx.moveTo(lx,cy-r);ctx.lineTo(rx,cy-r);
+    ctx.arc(rx,cy,r,-Math.PI/2,Math.PI/2);ctx.lineTo(lx,cy+r);
+    ctx.arc(lx,cy,r,Math.PI/2,-Math.PI/2,true);ctx.closePath();
   }
-
-  /* ── DRAW TRACK ── */
   function drawTrack(){
-    const TX=PAD, TY=PAD, TW=W-PAD*2, TH=H-PAD*2;
-
-    /* Track body — dark concave look */
-    pillPath(TX, TY, TW, TH, TR);
-    const tg = ctx.createLinearGradient(TX, TY, TX, TY+TH);
-    tg.addColorStop(0,   'rgba(0,0,0,.60)');
-    tg.addColorStop(.45, 'rgba(8,14,32,.74)');
-    tg.addColorStop(1,   'rgba(18,26,52,.64)');
-    ctx.fillStyle = tg;
-    ctx.shadowColor='rgba(0,0,0,.6)'; ctx.shadowBlur=8; ctx.shadowOffsetY=3;
-    ctx.fill();
-    ctx.shadowBlur=0; ctx.shadowOffsetY=0;
-
-    /* Top inner shadow — concave illusion */
-    pillPath(TX, TY, TW, TH*0.5, TR);
-    const is = ctx.createLinearGradient(TX, TY, TX, TY+TH*0.45);
-    is.addColorStop(0, 'rgba(0,0,0,.38)');
-    is.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = is; ctx.fill();
-
-    /* Bottom rim shine */
-    pillPath(TX+1, TY+TH*.74, TW-2, TH*.26, TR*.5);
-    const bs = ctx.createLinearGradient(TX, TY+TH*.74, TX, TY+TH);
-    bs.addColorStop(0, 'rgba(255,255,255,0)');
-    bs.addColorStop(1, 'rgba(255,255,255,.05)');
-    ctx.fillStyle = bs; ctx.fill();
-
-    /* Track border */
-    pillPath(TX, TY, TW, TH, TR);
-    ctx.strokeStyle='rgba(255,255,255,.07)';
-    ctx.lineWidth=1; ctx.stroke();
+    const TX=PAD,TY=PAD,TW=W-PAD*2,TH=H-PAD*2;
+    pillPath(TX,TY,TW,TH,TR);
+    const tg=ctx.createLinearGradient(TX,TY,TX,TY+TH);
+    tg.addColorStop(0,'rgba(0,0,0,.60)');tg.addColorStop(.45,'rgba(8,14,32,.74)');tg.addColorStop(1,'rgba(18,26,52,.64)');
+    ctx.fillStyle=tg;ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;ctx.fill();
+    ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+    pillPath(TX,TY,TW,TH*.5,TR);
+    const is=ctx.createLinearGradient(TX,TY,TX,TY+TH*.45);
+    is.addColorStop(0,'rgba(0,0,0,.38)');is.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=is;ctx.fill();
+    pillPath(TX+1,TY+TH*.74,TW-2,TH*.26,TR*.5);
+    const bs=ctx.createLinearGradient(TX,TY+TH*.74,TX,TY+TH);
+    bs.addColorStop(0,'rgba(255,255,255,0)');bs.addColorStop(1,'rgba(255,255,255,.05)');ctx.fillStyle=bs;ctx.fill();
+    pillPath(TX,TY,TW,TH,TR);ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;ctx.stroke();
   }
-
-  /* ═══════════════════════════════════════════════════════
-     DRAW JELLY — elongated liquid fill (the KEY change)
-     cx  = x of fill right edge (right cap centre)
-     pv  = smoothed pointer velocity for deformation
-  ═══════════════════════════════════════════════════════ */
-  function drawJelly(cx, pv){
-    const cy    = H / 2;
-    const lx    = PAD + TR;              // fixed left cap centre (left inner track edge)
-    const fillW = cx - lx;              // total width of the fill
-    if(fillW < 3) return;               // nothing meaningful to draw
-
-    /* Half-height: fill is nearly the full track height */
-    const trackH = H - PAD * 2;
-    const r = trackH / 2 - 2;          // jelly radius (≈ inner track radius minus 2px)
-    const topY = cy - r;
-    const botY = cy + r;
-
-    /* Velocity deformation:
-       - positive pv → moving right → leading edge (right) stretches forward
-       - negative pv → moving left  → leading edge retracts           */
-    const vel   = Math.max(-12, Math.min(12, pv));
-    const absPv = Math.abs(vel);
-
+  function drawJelly(cx,pv){
+    const cy=H/2,lx=PAD+TR,fillW=cx-lx;
+    if(fillW<3) return;
+    const trackH=H-PAD*2,r=trackH/2-2;
+    const topY=cy-r,botY=cy+r;
+    const vel=Math.max(-12,Math.min(12,pv));
+    const absPv=Math.abs(vel);
     ctx.save();
-
-    /* Clip everything to the track interior */
-    pillPath(PAD+1, PAD+1, W-PAD*2-2, H-PAD*2-2, TR-1);
-    ctx.clip();
-
-    /* ── 1. AMBIENT GLOW (soft halo behind fill) ── */
-    jellyFillPath(lx, cx, cy, r + 7);
-    const ambG = ctx.createLinearGradient(lx, cy, cx + r, cy);
-    ambG.addColorStop(0,   'rgba(0, 90,210,0.04)');
-    ambG.addColorStop(.65, 'rgba(0,140,255,0.12)');
-    ambG.addColorStop(1,   'rgba(0,200,255,0.18)');
-    ctx.fillStyle = ambG;
-    ctx.fill();
-
-    /* ── 2. MAIN BODY — with drop shadow for 3-D lift ── */
-    ctx.shadowColor   = 'rgba(0,0,0,0.58)';
-    ctx.shadowBlur    = 10;
-    ctx.shadowOffsetY = 5;
-
-    jellyFillPath(lx, cx, cy, r);
-
-    const bodyG = ctx.createLinearGradient(lx, topY, lx, botY);
-    bodyG.addColorStop(0,    '#7de8ff');   // bright ice-blue top highlight
-    bodyG.addColorStop(0.12, '#38c8f8');   // transition
-    bodyG.addColorStop(0.42, '#0890e8');   // mid blue
-    bodyG.addColorStop(0.76, '#055cc0');   // deeper blue
-    bodyG.addColorStop(1,    '#023c88');   // dark navy base
-    ctx.fillStyle = bodyG;
-    ctx.fill();
-
-    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-
-    /* ── 3. SURFACE EDGE LINE (tiny bright top line — surface tension) ── */
-    ctx.beginPath();
-    ctx.moveTo(lx + 3,  topY + 1.2);
-    ctx.lineTo(cx - 3,  topY + 1.2);
-    ctx.strokeStyle = 'rgba(180,242,255,0.55)';
-    ctx.lineWidth   = 1.5;
-    ctx.lineCap     = 'round';
-    ctx.stroke();
-
-    /* ── 4. PRIMARY SPECULAR — large elongated teardrop on upper-left ──
-       This is the main "glassy jelly" look that matches Image 2.
-       Position: left 55% of fill width, upper 30% of fill height.
-    ── */
-    const spFrac = Math.min(0.58, Math.max(0.2, fillW * 0.0035)); // scale with fill width
-    const spCX   = lx + fillW * 0.24;          // centre x (left-ish)
-    const spCY   = topY + r * 0.25;            // centre y (upper area)
-    const spRX   = fillW * spFrac;             // horizontal radius
-    const spRY   = r * 0.32;                   // vertical radius
-
-    ctx.beginPath();
-    ctx.ellipse(spCX, spCY, Math.max(spRX, 4), Math.max(spRY, 3), -0.06, 0, Math.PI * 2);
-
-    /* Radial gradient: pure white centre → transparent edge */
-    const specG = ctx.createRadialGradient(
-      spCX - spRX * 0.22, spCY - spRY * 0.28, 0,   // inner focus (offset = more realistic)
-      spCX, spCY, Math.max(spRX, spRY)
-    );
-    specG.addColorStop(0,    'rgba(255,255,255,0.97)');
-    specG.addColorStop(0.20, 'rgba(255,255,255,0.88)');
-    specG.addColorStop(0.52, 'rgba(255,255,255,0.42)');
-    specG.addColorStop(0.80, 'rgba(255,255,255,0.10)');
-    specG.addColorStop(1,    'rgba(255,255,255,0)');
-    ctx.fillStyle = specG;
-    ctx.fill();
-
-    /* ── 5. SECONDARY SPECULAR — small bright dot on leading dome ── */
-    const s2X = cx - r * 0.20;
-    const s2Y = cy - r * 0.42;
-    ctx.beginPath();
-    ctx.ellipse(s2X, s2Y, r * 0.13, r * 0.09, -0.22, 0, Math.PI * 2);
-    const s2G = ctx.createRadialGradient(s2X - r*.04, s2Y - r*.03, 0, s2X, s2Y, r*.14);
-    s2G.addColorStop(0, 'rgba(255,255,255,0.82)');
-    s2G.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = s2G;
-    ctx.fill();
-
-    /* ── 6. LEFT CAP SECONDARY HIGHLIGHT (subtle glow on left dome) ── */
-    const lgG = ctx.createRadialGradient(lx + r*0.22, cy - r*0.20, 0, lx + r*0.28, cy, r*0.58);
-    lgG.addColorStop(0, 'rgba(160,240,255,0.26)');
-    lgG.addColorStop(1, 'rgba(160,240,255,0)');
-    ctx.beginPath();
-    ctx.arc(lx, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle = lgG;
-    ctx.fill();
-
-    /* ── 7. BOTTOM DEPTH SHADOW (inner — makes it look concave at bottom) ── */
-    jellyFillPath(lx, cx, cy, r);
-    const depG = ctx.createLinearGradient(lx, cy + r * 0.32, lx, botY);
-    depG.addColorStop(0, 'rgba(0,12,42,0)');
-    depG.addColorStop(1, 'rgba(0,8,36,0.38)');
-    ctx.fillStyle = depG;
-    ctx.fill();
-
-    /* ── 8. VELOCITY DEFORMATION HIGHLIGHT ──
-       When moving fast, a bright streak appears on the leading edge
-       giving the "jelly stretching" impression.
-    ── */
-    if(absPv > 1.5){
-      const streakAlpha = Math.min(absPv / 14, 0.38);
-      const streakX = cx - r * 0.18;
-      const streakG = ctx.createRadialGradient(streakX, cy - r*0.28, 0, streakX, cy, r*0.55);
-      streakG.addColorStop(0, `rgba(140,230,255,${streakAlpha})`);
-      streakG.addColorStop(1, 'rgba(140,230,255,0)');
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = streakG;
-      ctx.fill();
+    pillPath(PAD+1,PAD+1,W-PAD*2-2,H-PAD*2-2,TR-1);ctx.clip();
+    jellyFillPath(lx,cx,cy,r+7);
+    const ambG=ctx.createLinearGradient(lx,cy,cx+r,cy);
+    ambG.addColorStop(0,'rgba(0,90,210,0.04)');ambG.addColorStop(.65,'rgba(0,140,255,0.12)');ambG.addColorStop(1,'rgba(0,200,255,0.18)');
+    ctx.fillStyle=ambG;ctx.fill();
+    ctx.shadowColor='rgba(0,0,0,0.58)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
+    jellyFillPath(lx,cx,cy,r);
+    const bodyG=ctx.createLinearGradient(lx,topY,lx,botY);
+    bodyG.addColorStop(0,'#7de8ff');bodyG.addColorStop(0.12,'#38c8f8');bodyG.addColorStop(0.42,'#0890e8');bodyG.addColorStop(0.76,'#055cc0');bodyG.addColorStop(1,'#023c88');
+    ctx.fillStyle=bodyG;ctx.fill();
+    ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+    ctx.beginPath();ctx.moveTo(lx+3,topY+1.2);ctx.lineTo(cx-3,topY+1.2);
+    ctx.strokeStyle='rgba(180,242,255,0.55)';ctx.lineWidth=1.5;ctx.lineCap='round';ctx.stroke();
+    const spFrac=Math.min(0.58,Math.max(0.2,fillW*0.0035));
+    const spCX=lx+fillW*0.24,spCY=topY+r*0.25,spRX=fillW*spFrac,spRY=r*0.32;
+    ctx.beginPath();ctx.ellipse(spCX,spCY,Math.max(spRX,4),Math.max(spRY,3),-0.06,0,Math.PI*2);
+    const specG=ctx.createRadialGradient(spCX-spRX*0.22,spCY-spRY*0.28,0,spCX,spCY,Math.max(spRX,spRY));
+    specG.addColorStop(0,'rgba(255,255,255,0.97)');specG.addColorStop(0.20,'rgba(255,255,255,0.88)');specG.addColorStop(0.52,'rgba(255,255,255,0.42)');specG.addColorStop(0.80,'rgba(255,255,255,0.10)');specG.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=specG;ctx.fill();
+    const s2X=cx-r*0.20,s2Y=cy-r*0.42;
+    ctx.beginPath();ctx.ellipse(s2X,s2Y,r*0.13,r*0.09,-0.22,0,Math.PI*2);
+    const s2G=ctx.createRadialGradient(s2X-r*.04,s2Y-r*.03,0,s2X,s2Y,r*.14);
+    s2G.addColorStop(0,'rgba(255,255,255,0.82)');s2G.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=s2G;ctx.fill();
+    const lgG=ctx.createRadialGradient(lx+r*0.22,cy-r*0.20,0,lx+r*0.28,cy,r*0.58);
+    lgG.addColorStop(0,'rgba(160,240,255,0.26)');lgG.addColorStop(1,'rgba(160,240,255,0)');
+    ctx.beginPath();ctx.arc(lx,cy,r,0,Math.PI*2);ctx.fillStyle=lgG;ctx.fill();
+    jellyFillPath(lx,cx,cy,r);
+    const depG=ctx.createLinearGradient(lx,cy+r*0.32,lx,botY);
+    depG.addColorStop(0,'rgba(0,12,42,0)');depG.addColorStop(1,'rgba(0,8,36,0.38)');ctx.fillStyle=depG;ctx.fill();
+    if(absPv>1.5){
+      const sA=Math.min(absPv/14,0.38),sX=cx-r*0.18;
+      const sG=ctx.createRadialGradient(sX,cy-r*0.28,0,sX,cy,r*0.55);
+      sG.addColorStop(0,`rgba(140,230,255,${sA})`);sG.addColorStop(1,'rgba(140,230,255,0)');
+      ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=sG;ctx.fill();
     }
-
     ctx.restore();
   }
-
-  /* ── DRAW POSITION TICKS ── */
   function drawTicks(){
-    ctx.save();
-    ctx.font      = '700 8.5px "Space Grotesk", sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,.22)';
-    ctx.textAlign = 'left';
-    ctx.fillText('▲ TOP',    PAD+TR+4, H-PAD-3);
-    ctx.textAlign = 'right';
-    ctx.fillText('BOTTOM ▼', W-PAD-TR-4, H-PAD-3);
-    ctx.restore();
+    ctx.save();ctx.font='700 8.5px "Space Grotesk", sans-serif';ctx.fillStyle='rgba(255,255,255,.22)';
+    ctx.textAlign='left';ctx.fillText('▲ TOP',PAD+TR+4,H-PAD-3);
+    ctx.textAlign='right';ctx.fillText('BOTTOM ▼',W-PAD-TR-4,H-PAD-3);ctx.restore();
   }
-
-  /* ── ANIMATION LOOP ── */
   function loop(){
-    /* Spring physics */
-    const diff = targetPos - displayPos;
-    springVel  = springVel * 0.72 + diff * 0.22;
-    displayPos += springVel;
-    if(Math.abs(diff) < .0004 && Math.abs(springVel) < .0004){
-      displayPos = targetPos; springVel = 0;
-    }
-    /* Velocity decay when not dragging */
-    if(!isDragging) pointerVel *= 0.76;
-
-    ctx.clearRect(0, 0, W, H);
-    drawTrack();
-    drawJelly(posToX(displayPos), pointerVel);
-    drawTicks();
-
-    jellyRAF = requestAnimationFrame(loop);
+    const diff=targetPos-displayPos;
+    springVel=springVel*0.72+diff*0.22;displayPos+=springVel;
+    if(Math.abs(diff)<.0004&&Math.abs(springVel)<.0004){displayPos=targetPos;springVel=0;}
+    if(!isDragging) pointerVel*=0.76;
+    ctx.clearRect(0,0,W,H);drawTrack();drawJelly(posToX(displayPos),pointerVel);drawTicks();
+    jellyRAF=requestAnimationFrame(loop);
   }
-
-  /* ── POINTER EVENTS ── */
-  function getLocalX(e){
-    const r = canvas.getBoundingClientRect();
-    return (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-  }
-
-  function onStart(e){
-    isDragging   = true;
-    dragStartX   = getLocalX(e);
-    dragStartPos = targetPos;
-    lastMoveX    = dragStartX;
-    pointerVel   = 0;
-    if(e.cancelable) e.preventDefault();
-  }
-
+  function getLocalX(e){const r=canvas.getBoundingClientRect();return(e.touches?e.touches[0].clientX:e.clientX)-r.left;}
+  function onStart(e){isDragging=true;dragStartX=getLocalX(e);dragStartPos=targetPos;lastMoveX=dragStartX;pointerVel=0;if(e.cancelable)e.preventDefault();}
   function onMove(e){
     if(!isDragging) return;
-    const x    = getLocalX(e);
-    pointerVel = (x - lastMoveX) * 1.15;
-    lastMoveX  = x;
-    const raw  = dragStartPos + (x - dragStartX) / RANGE;
-    targetPos  = Math.max(0, Math.min(1, raw));
-
-    /* Scroll bets */
-    const maxS = betsEl.scrollHeight - betsEl.clientHeight;
-    if(maxS > 0) betsEl.scrollTop = targetPos * maxS;
+    const x=getLocalX(e);pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
+    const raw=dragStartPos+(x-dragStartX)/RANGE;targetPos=Math.max(0,Math.min(1,raw));
+    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
+    if(maxS>0) betsEl.scrollTop=targetPos*maxS;
   }
-
-  function onEnd(){ isDragging = false; }
-
-  canvas.addEventListener('mousedown',  onStart, {passive:false});
-  canvas.addEventListener('touchstart', onStart, {passive:false});
-  window.addEventListener('mousemove',  onMove);
-  window.addEventListener('touchmove', (e)=>{ if(!isDragging) return; onMove(e); }, {passive:true});
-  window.addEventListener('mouseup',   onEnd);
-  window.addEventListener('touchend',  onEnd);
-
-  /* Sync slider when user scrolls bets manually */
-  betsEl.addEventListener('scroll', ()=>{
-    if(isDragging) return;
-    const maxS = betsEl.scrollHeight - betsEl.clientHeight;
-    if(maxS > 0) targetPos = betsEl.scrollTop / maxS;
-  }, {passive:true});
-
+  function onEnd(){isDragging=false;}
+  canvas.addEventListener('mousedown',onStart,{passive:false});
+  canvas.addEventListener('touchstart',onStart,{passive:false});
+  window.addEventListener('mousemove',onMove);
+  window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
+  window.addEventListener('mouseup',onEnd);window.addEventListener('touchend',onEnd);
+  betsEl.addEventListener('scroll',()=>{
+    if(isDragging)return;
+    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
+    if(maxS>0) targetPos=betsEl.scrollTop/maxS;
+  },{passive:true});
   loop();
 }
 
-/* ── Set bets container height dynamically ── */
 function setBetsHeight(){
-  const betsEl = document.getElementById('betsContainer');
+  const betsEl=document.getElementById('betsContainer');
   if(!betsEl) return;
-  const top  = betsEl.getBoundingClientRect().top;
-  const avail = window.innerHeight - top - 72;
-  betsEl.style.height = Math.max(260, avail) + 'px';
+  const top=betsEl.getBoundingClientRect().top;
+  const avail=window.innerHeight-top-72;
+  betsEl.style.height=Math.max(260,avail)+'px';
 }
 
-/* ── MARKETS PAGE ── */
+/* ═══════════════════════════════════════
+   MARKETS PAGE — with upgraded balance card
+═══════════════════════════════════════ */
 function renderMarkets(){
   const m=META[state.cat], color=m.color;
   const container=document.getElementById('pageMarkets');
-  const OG='#ff6a00';
   const trendItems=[m.trend,'🔥 '+BETS[state.cat].filter(b=>b.hot).map(b=>b.q.slice(0,28)+'…').join(' · '),'⚡ BET NOW · WIN BIG','📈 LIVE PREDICTION'];
   const trendText=trendItems.join('   ✦   ');
+  const OG='#ff6a00';
 
   /* TRENDING TICKER */
   let html=`
@@ -600,28 +428,62 @@ function renderMarkets(){
     </div>
   </div>`;
 
-  /* BALANCE CARD */
-  html+=`<div id="balCard" class="shine-card" style="margin:12px 14px 0;border-radius:20px;padding:20px;position:relative;overflow:hidden;
-    background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(0,212,255,.035),rgba(255,215,0,.025));
-    backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.11);
-    box-shadow:0 14px 40px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.14);
-    animation:waveRadius 10s ease-in-out infinite">
-    <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:${color};filter:blur(70px);opacity:.1;animation:subtleGlow 4s ease-in-out infinite"></div>
-    <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${color}99,rgba(255,215,0,.35),transparent)"></div>
-    <div style="position:relative;z-index:1">
-      <div class="bal-label">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M8 5H6C4.9 5 4 5.9 4 7V9C4 11.2 5.5 13 7.5 13.5" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/><path d="M16 5H18C19.1 5 20 5.9 20 7V9C20 11.2 18.5 13 16.5 13.5" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/><path d="M8 5C8 5 8 13 12 15C16 13 16 5 16 5H8Z" fill="#ffd700" opacity="0.85"/><line x1="12" y1="15" x2="12" y2="19" stroke="#ffd700" stroke-width="2"/><line x1="8" y1="19" x2="16" y2="19" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/></svg>
-        Your Balance
+  /* ══════════════════════════════════════
+     BALANCE CARD — Deep Maroon Glassmorphism
+     All data-binding IDs kept for updateBal()
+  ══════════════════════════════════════ */
+  const uidDisplay = state.userEmail || 'Login required';
+  html+=`
+  <div id="balCard" onclick="jellyTapBalCard()" style="position:relative">
+    <!-- decorative layers (z-index 0-2) -->
+    <div class="bc-sweep"></div>
+    <div class="bc-topline"></div>
+
+    <!-- CONTENT z-index 3+ -->
+    <div style="position:relative;z-index:3">
+
+      <!-- Row 1: Total Balance label + UID chip + View button -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
+          <span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap">Total Balance</span>
+          <span class="bal-uid-chip" id="balUidChip" title="${uidDisplay}">${uidDisplay}</span>
+        </div>
+        <button class="bal-view-btn" onclick="event.stopPropagation();openPortfolio()">
+          View &rsaquo;
+        </button>
       </div>
-      <div class="bal-amount"><span class="bal-rupee">₹</span><span class="bal-num" id="balNum">${state.bal}</span></div>
+
+      <!-- Row 2: Large amount -->
+      <div class="bal-main-row">
+        <span class="bal-rupee-lg">₹</span>
+        <span class="bal-num-lg" id="balNum">${state.bal}</span>
+        <span class="bal-inr">INR</span>
+      </div>
+
+      <!-- Row 3: Deposit / Withdraw buttons -->
       <div class="bal-btns">
-        <button class="dep-btn shine-card" onclick="openDeposit()" style="background:linear-gradient(145deg,${color}28,${color}0f);box-shadow:0 0 22px ${color}38,inset 0 1px 0 rgba(255,255,255,.18)">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/></svg>Deposit
+        <button class="dep-btn" onclick="event.stopPropagation();openDeposit()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          + Deposit
         </button>
-        <button class="wit-btn shine-card" onclick="openWithdraw()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="19" x2="12" y2="5" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="8" x2="12" y2="5" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/><line x1="19" y1="8" x2="12" y2="5" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/></svg>Withdraw
+        <button class="wit-btn" onclick="event.stopPropagation();openWithdraw()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12L12 5L19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          ↑ Withdraw
         </button>
       </div>
+
+      <!-- Row 4: Total Deposit | Total Withdrawal -->
+      <div class="bal-stats-row">
+        <div class="bal-stat-box">
+          <div class="bal-stat-lbl">Total Deposit</div>
+          <div class="bal-stat-val" id="totalDepositEl">${fmtCur(state.totalDeposit)}</div>
+        </div>
+        <div class="bal-stat-box" style="border-left:1px solid rgba(255,255,255,.1)">
+          <div class="bal-stat-lbl">Total Withdrawal</div>
+          <div class="bal-stat-val" id="totalWithdrawEl">${fmtCur(state.totalWithdraw)}</div>
+        </div>
+      </div>
+
     </div>
   </div>`;
 
@@ -660,7 +522,7 @@ function renderMarkets(){
     </div>
   </div>`;
 
-  /* BETS CONTAINER */
+  /* BETS */
   const bc=BADGE_COLORS[state.cat];
   let cardsHtml='';
   BETS[state.cat].forEach((b,i)=>{
@@ -692,17 +554,10 @@ function renderMarkets(){
       </div>
     </div>`;
   });
-
   html+=`<div id="betsContainer" style="padding:0 14px">${cardsHtml}</div>`;
-
   container.innerHTML=html;
   updateBal();
-
-  /* Init jelly after two frames (layout settled) */
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    setBetsHeight();
-    initJellySlider();
-  }));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ setBetsHeight(); initJellySlider(); }));
 }
 
 /* ── SUPPORT ── */
@@ -783,7 +638,7 @@ function renderAccTab(){
       <div class="glass" style="border-radius:16px;padding:18px;margin-bottom:12px;text-align:center">
         <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,${color},#ffd700);margin:0 auto 11px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 22px ${color}44;border:2.5px solid rgba(255,255,255,.12)">👤</div>
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#e8edf5">User</div>
-        <div style="font-size:12px;color:#64748b;margin-top:2px" id="accEmail">user@example.com</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px" id="accEmail">${state.userEmail||'user@example.com'}</div>
         <div style="margin-top:12px;display:flex;justify-content:center;gap:10px">
           <div style="text-align:center;padding:9px 14px;background:rgba(255,255,255,.04);border-radius:11px;border:1px solid rgba(255,255,255,.07)"><div style="font-weight:800;font-size:17px;color:#22c55e">₹${state.bal}</div><div style="font-size:10px;color:#64748b;margin-top:2px">Balance</div></div>
           <div style="text-align:center;padding:9px 14px;background:rgba(255,255,255,.04);border-radius:11px;border:1px solid rgba(255,255,255,.07)"><div style="font-weight:800;font-size:17px;color:#ffd700">${state.txList.length}</div><div style="font-size:10px;color:#64748b;margin-top:2px">Bets</div></div>
@@ -821,6 +676,7 @@ function saveUpi(){
 }
 function logout(){
   state.bal=0;state.txList=[];state.savedUpi='';state.upi='';state.phone='';
+  state.totalDeposit=0;state.totalWithdraw=0;state.userEmail='';
   LS.save(); showToast('Logged out','info'); renderAccTab(); updateBal();
 }
 
@@ -949,14 +805,19 @@ function updateTimerCircle(){
   document.getElementById('timerNum').textContent=state.timer;
   document.getElementById('timerCircle').style.strokeDashoffset=150.8*(1-state.timer/80);
 }
+/* submitUTR — local fallback; Firebase override adds to totalDeposit */
 function submitUTR(){
   const utr=document.getElementById('utrInp').value;
   if(!utr||utr.length<10) return showToast('Enter valid 12-digit UTR','info');
-  const amt=document.getElementById('depAmtInp').value||document.getElementById('qrAmt').textContent.replace('₹','');
+  const rawAmt=document.getElementById('depAmtInp').value||document.getElementById('qrAmt').textContent.replace('₹','');
+  const a=parseFloat(rawAmt)||0;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  state.txList.unshift({id:Date.now(),type:'DEPOSIT',q:'UPI Payment',amt:`₹${amt}`,status:'PENDING',time:now});
+  state.txList.unshift({id:Date.now(),type:'DEPOSIT',q:'UPI Payment',amt:`₹${a}`,status:'PENDING',time:now});
+  /* Increment totalDeposit immediately on submission */
+  state.totalDeposit += a;
   LS.save(); clearInterval(state.timerInt); closeAll();
   showToast('✅ Deposit submitted! Processing…');
+  updateBal();
 }
 
 /* ── WITHDRAW ── */
@@ -971,14 +832,30 @@ function handleWithdraw(){
   if(a>state.bal) return showToast('Insufficient balance 💸','info');
   state.bal-=a;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  state.txList.unshift({id:Date.now(),type:'WITHDRAW',q:'To UPI',amt:`₹${a}`,status:'PENDING',time:now});
+  state.txList.unshift({id:Date.now(),type:'WITHDRAW',q:'To UPI',amt:`₹${a}`,status:'PENDING',time:now,withdrawAmt:a});
+  /* NOTE: totalWithdraw is NOT incremented here — only after admin approval */
   LS.save(); closeAll(); showToast('✅ Withdrawal request sent!'); updateBal();
 }
 
-/* ── BALANCE ── */
+/* ── UPDATE BALANCE + STATS ── */
 function updateBal(){
+  /* Nav balance */
   document.getElementById('navBal').textContent=state.bal;
-  const b=document.getElementById('balNum'); if(b) b.textContent=state.bal;
+  /* Balance card */
+  const balNum=document.getElementById('balNum');
+  if(balNum) balNum.textContent=state.bal;
+  /* UID chip */
+  const uidChip=document.getElementById('balUidChip');
+  if(uidChip){
+    const u=state.userEmail||'Login required';
+    uidChip.textContent=u;
+    uidChip.title=u;
+  }
+  /* Stats */
+  const depEl=document.getElementById('totalDepositEl');
+  const witEl=document.getElementById('totalWithdrawEl');
+  if(depEl) depEl.textContent=fmtCur(state.totalDeposit);
+  if(witEl) witEl.textContent=fmtCur(state.totalWithdraw);
 }
 
 /* ── CROSS-TAB SYNC ── */
@@ -991,10 +868,34 @@ window.addEventListener('storage',(e)=>{
   }
 });
 
-window.adminUpdateTx=function(docId,newStatus){
-  let tx=state.txList.find(t=>t.firestoreId===docId)||
-         state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING'&&!t.firestoreId);
-  if(tx){ if(!tx.firestoreId) tx.firestoreId=docId; tx.status=newStatus; LS.save(); }
+/* ── ADMIN UPDATE ──
+   Called by admin panel or Firebase onSnapshot.
+   For WITHDRAW COMPLETED: also increments totalWithdraw.
+*/
+window.adminUpdateTx=function(docId, newStatus, actionType, rawAmt){
+  let tx=state.txList.find(t=>t.firestoreId===docId);
+  if(!tx&&actionType==='BET'){
+    tx=state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING'&&!t.firestoreId);
+  }
+  if(!tx&&actionType==='WITHDRAW'){
+    tx=state.txList.find(t=>t.type==='WITHDRAW'&&t.status==='PENDING'&&!t.firestoreId);
+  }
+  if(tx){
+    if(!tx.firestoreId) tx.firestoreId=docId;
+    const prevStatus=tx.status;
+    tx.status=newStatus;
+    /* Increment totalWithdraw only when admin marks WITHDRAW as completed/approved */
+    const up=newStatus.toUpperCase();
+    if(tx.type==='WITHDRAW'&&(up==='COMPLETED'||up==='APPROVED'||up==='PAID')){
+      const wasAlreadyApproved=prevStatus.toUpperCase()==='COMPLETED'||prevStatus.toUpperCase()==='APPROVED'||prevStatus.toUpperCase()==='PAID';
+      if(!wasAlreadyApproved){
+        const amt=tx.withdrawAmt||parseFloat((tx.amt||'').replace('₹',''))||0;
+        state.totalWithdraw+=amt;
+      }
+    }
+    LS.save();
+  }
+  updateBal();
   const port=document.getElementById('portfolio');
   if(port&&!port.classList.contains('hidden')) renderPortfolio();
 };
