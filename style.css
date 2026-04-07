@@ -1,6 +1,6 @@
 /* ═══════════════════════════
    WISHWORK – style.css
-   Glassmorphism + Jelly Slider
+   v4 — Maroon Balance Card
 ═══════════════════════════ */
 
 /* ── RESET ── */
@@ -26,11 +26,28 @@ button{cursor:pointer;border:none}
 @keyframes rupeeGlow{0%,100%{text-shadow:0 0 5px rgba(34,197,94,.4)}50%{text-shadow:0 0 12px rgba(34,197,94,.7),0 0 24px rgba(34,197,94,.25)}}
 @keyframes shineSwipe{0%{left:-110%}60%,100%{left:210%}}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes waveRadius{0%,100%{border-radius:20px}33%{border-radius:24px 16px 22px 18px}66%{border-radius:18px 22px 16px 24px}}
 @keyframes subtleGlow{0%,100%{opacity:.05}50%{opacity:.13}}
 @keyframes orangePulse{0%,100%{box-shadow:0 0 16px rgba(255,106,0,.4),0 0 32px rgba(255,106,0,.16),inset 0 1px 0 rgba(255,180,80,.28)}50%{box-shadow:0 0 26px rgba(255,106,0,.58),0 0 48px rgba(255,106,0,.24),inset 0 1px 0 rgba(255,200,100,.38)}}
 @keyframes goldCountPulse{0%,100%{color:#ffd700}50%{color:#ffe54d}}
 @keyframes trackGlow{0%,100%{box-shadow:0 0 0 1px rgba(0,180,255,.1),inset 0 2px 6px rgba(0,0,0,.4)}50%{box-shadow:0 0 12px rgba(0,180,255,.18),0 0 24px rgba(0,180,255,.08),inset 0 2px 6px rgba(0,0,0,.4)}}
+
+/* ── BALANCE CARD — Maroon Animated Gradient ── */
+@keyframes balCardGrad{
+  0%  {background-position:0% 50%}
+  50% {background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+/* Jelly tap elastic animation */
+@keyframes jellyTap{
+  0%  {transform:scale(1) rotate(0deg)}
+  12% {transform:scale(1.04,.96) rotate(-.7deg)}
+  26% {transform:scale(.97,1.04) rotate(.7deg)}
+  42% {transform:scale(1.02,.98) rotate(-.35deg)}
+  58% {transform:scale(.99,1.01) rotate(.25deg)}
+  74% {transform:scale(1.01,.99) rotate(-.1deg)}
+  100%{transform:scale(1) rotate(0deg)}
+}
+.bal-jelly{animation:jellyTap .55s cubic-bezier(.34,1.56,.64,1) both}
 
 /* ── CSS VARIABLES ── */
 :root{--cc:#00d4ff}
@@ -38,7 +55,6 @@ button{cursor:pointer;border:none}
 /* ── UTILITY ── */
 .hidden{display:none!important}
 .page-content{padding:0}
-
 .shine-card{position:relative;overflow:hidden}
 .shine-card::before{content:'';position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.05),transparent);animation:shineSwipe 5.5s ease-in-out infinite;pointer-events:none;z-index:5}
 
@@ -80,15 +96,153 @@ button{cursor:pointer;border:none}
 /* ── GLASS CARD ── */
 .glass{background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025),rgba(0,212,255,.02));backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.09);box-shadow:0 6px 24px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.1);border-radius:16px;position:relative;overflow:hidden}
 
-/* ── BALANCE CARD ── */
-#balCard{margin:12px 14px 0;border-radius:20px;padding:20px;position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(0,212,255,.035),rgba(255,215,0,.025));backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,.11);box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.14),0 0 0 1px rgba(0,212,255,.04);animation:waveRadius 10s ease-in-out infinite}
-.bal-label{font-size:10px;color:rgba(0,212,255,.6);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:6px}
-.bal-amount{display:flex;align-items:baseline;gap:4px}
-.bal-rupee{font-family:'Oswald',sans-serif;font-weight:700;font-size:28px;color:#22c55e;animation:rupeeGlow 3s ease-in-out infinite;line-height:1}
-.bal-num{font-family:'Oswald',sans-serif;font-weight:700;font-size:40px;color:#22c55e;letter-spacing:2px;line-height:1;text-shadow:0 0 18px rgba(34,197,94,.3)}
+/* ══════════════════════════════════════════════
+   BALANCE CARD — Deep Maroon Glassmorphism
+══════════════════════════════════════════════ */
+#balCard{
+  margin:12px 14px 0;
+  border-radius:22px;
+  padding:20px 18px;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  /* Animated maroon→navy→purple→maroon gradient */
+  background:linear-gradient(
+    135deg,
+    #3a0018 0%,
+    #1a0535 25%,
+    #051228 50%,
+    #2a0640 75%,
+    #3a0018 100%
+  );
+  background-size:300% 300%;
+  animation:balCardGrad 7s ease infinite;
+  /* Heavy glassmorphism */
+  backdrop-filter:blur(32px);
+  -webkit-backdrop-filter:blur(32px);
+  border:1.5px solid rgba(180,60,120,.45);
+  box-shadow:
+    0 0 0 1px rgba(120,20,80,.3),
+    0 8px 40px rgba(80,0,40,.6),
+    0 0 60px rgba(160,40,100,.18),
+    0 0 100px rgba(0,180,255,.08),
+    inset 0 1px 0 rgba(255,180,220,.22),
+    inset 0 -1px 0 rgba(0,0,0,.4),
+    inset 0 0 40px rgba(120,0,80,.1);
+  /* Will-change for GPU compositing — no jank */
+  will-change:transform;
+  transition:box-shadow .25s ease;
+  -webkit-user-select:none;
+  user-select:none;
+}
+/* Glassy inner ridge at top */
+#balCard::after{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:40%;
+  background:linear-gradient(180deg,rgba(255,180,220,.12) 0%,rgba(120,40,160,.04) 60%,transparent 100%);
+  border-radius:22px 22px 60% 60%;
+  pointer-events:none;
+  z-index:0
+}
+/* Animated neon border sweep */
+#balCard .bc-sweep{
+  position:absolute;top:0;left:-110%;width:55%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(200,80,160,.12),rgba(0,200,255,.08),transparent);
+  animation:shineSwipe 4s ease-in-out infinite;
+  pointer-events:none;z-index:1
+}
+/* Top neon line */
+#balCard .bc-topline{
+  position:absolute;top:0;left:0;right:0;height:1.5px;
+  background:linear-gradient(90deg,transparent,rgba(200,80,140,.8),rgba(0,200,255,.6),rgba(200,80,140,.5),transparent);
+  box-shadow:0 0 12px rgba(200,80,160,.5);
+  z-index:2;pointer-events:none
+}
+
+/* UID chip */
+.bal-uid-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;
+  background:rgba(255,255,255,.1);
+  backdrop-filter:blur(8px);
+  border-radius:50px;
+  border:1px solid rgba(255,255,255,.18);
+  font-size:10px;font-weight:700;
+  color:rgba(255,255,255,.85);
+  letter-spacing:.5px;
+  max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+/* View button */
+.bal-view-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:6px 14px;
+  background:linear-gradient(135deg,rgba(120,0,200,.7),rgba(80,0,160,.8));
+  backdrop-filter:blur(8px);
+  border-radius:50px;
+  border:1px solid rgba(160,80,255,.45);
+  font-size:11px;font-weight:800;
+  color:#fff;letter-spacing:.5px;
+  box-shadow:0 0 14px rgba(120,0,200,.4),inset 0 1px 0 rgba(255,255,255,.2);
+  cursor:pointer;
+  flex-shrink:0;
+  transition:opacity .18s
+}
+.bal-view-btn:active{opacity:.8}
+
+/* Large balance number */
+.bal-main-row{display:flex;align-items:baseline;gap:6px;margin:14px 0 4px}
+.bal-rupee-lg{font-family:'Oswald',sans-serif;font-weight:700;font-size:32px;color:#fff;line-height:1;text-shadow:0 0 20px rgba(255,255,255,.4)}
+.bal-num-lg{font-family:'Oswald',sans-serif;font-weight:700;font-size:46px;color:#fff;line-height:1;letter-spacing:1px;text-shadow:0 2px 20px rgba(255,255,255,.3)}
+.bal-inr{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:2px;align-self:flex-end;margin-bottom:6px}
+
+/* Deposit/Withdraw buttons */
 .bal-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-.dep-btn{padding:13px;border-radius:12px;border:1.5px solid var(--cc);font-weight:700;font-size:12px;cursor:pointer;color:var(--cc);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.3px;position:relative;overflow:hidden;transition:all .22s}
-.wit-btn{padding:13px;border-radius:12px;border:1px solid rgba(0,212,255,.2);font-weight:600;font-size:12px;cursor:pointer;background:rgba(0,212,255,.05);color:rgba(0,212,255,.8);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:6px;position:relative;overflow:hidden;transition:all .22s}
+.dep-btn{
+  padding:13px;border-radius:50px;
+  border:2px solid var(--cc);
+  font-weight:800;font-size:12px;cursor:pointer;
+  color:var(--cc);
+  background:rgba(0,212,255,.06);
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  letter-spacing:.3px;position:relative;overflow:hidden;
+  transition:all .22s;
+  text-shadow:0 0 10px var(--cc);
+  box-shadow:0 0 18px rgba(0,212,255,.18),inset 0 1px 0 rgba(255,255,255,.12)
+}
+.wit-btn{
+  padding:13px;border-radius:50px;
+  border:1.5px solid rgba(0,212,255,.3);
+  font-weight:700;font-size:12px;cursor:pointer;
+  background:rgba(0,212,255,.05);
+  color:rgba(0,212,255,.85);
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  position:relative;overflow:hidden;transition:all .22s
+}
+
+/* Stats row — Total Deposit / Total Withdrawal */
+.bal-stats-row{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;margin-top:14px;
+  border-top:1px solid rgba(255,255,255,.1);
+  padding-top:14px
+}
+.bal-stat-box{text-align:center}
+.bal-stat-lbl{
+  font-size:10px;font-weight:700;
+  color:rgba(255,255,255,.5);
+  text-transform:uppercase;letter-spacing:.7px;
+  margin-bottom:4px
+}
+.bal-stat-val{
+  font-family:'Oswald',sans-serif;
+  font-weight:700;font-size:17px;
+  color:#fff;letter-spacing:.5px;
+  text-shadow:0 0 14px rgba(255,255,255,.3)
+}
 
 /* ── JELLY SLIDER SECTION ── */
 .jelly-section{margin:14px 14px 0;position:relative}
@@ -105,11 +259,10 @@ button{cursor:pointer;border:none}
 .jelly-track-wrap{position:relative;height:62px;border-radius:50px;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(10,14,30,.7),rgba(20,26,48,.6));border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 3px 8px rgba(0,0,0,.5),inset 0 -1px 0 rgba(255,255,255,.04),0 2px 12px rgba(0,0,0,.4),0 0 0 1px rgba(0,180,255,.06);animation:trackGlow 4s ease-in-out infinite;overflow:hidden;cursor:grab}
 .jelly-track-wrap:active{cursor:grabbing}
 .jelly-track-wrap canvas{display:block;width:100%;height:100%;border-radius:50px}
-
 .jelly-hints{display:flex;justify-content:space-between;padding:4px 16px 0;pointer-events:none}
 .jelly-hint{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.2)}
 
-/* ── BETS SCROLLABLE CONTAINER ── */
+/* ── BETS CONTAINER ── */
 #betsContainer{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:16px}
 #betsContainer::-webkit-scrollbar{display:none}
 
