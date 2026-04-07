@@ -255,10 +255,16 @@ function updateBlobs(){
   document.getElementById('scanline').style.background=`linear-gradient(90deg,transparent,${c}22,transparent)`;
 }
 
-/* ═══════════════════════════════════════════════════════
-   JELLY SLIDER v5 — 3D liquid blob with caustics & rim light
-   Inspired by Voicu Apostol's Dribbble jelly concept
-═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   JELLY SLIDER v6 — Exact Dribbble orange glowing liquid look
+   Matches: Voicu Apostol / tubik Dribbble jelly slider photo
+   · Warm silver-grey recessed track (matches light grey bg)
+   · Orange→amber liquid blob with Fresnel rim glow
+   · Cream/white top specular highlight
+   · Deep burnt-orange shadow beneath blob
+   · S-curve deformation tail on drag
+   · Warm orange outer glow halo
+═══════════════════════════════════════════════════════════════ */
 function initJellySlider(){
   if(jellyRAF){ cancelAnimationFrame(jellyRAF); jellyRAF=null; }
   const wrap=document.getElementById('jellyTrackWrap');
@@ -274,17 +280,17 @@ function initJellySlider(){
   ctx.scale(dpr,dpr);
 
   const W=W_CSS, H=H_CSS;
-  const PAD=8;
-  const TR=(H-PAD*2)/2;         // track radius
-  const RANGE=W-PAD*2-TR*2;     // drag range in px
+  const PAD=7;
+  const TR=(H-PAD*2)/2;
+  const RANGE=W-PAD*2-TR*2;
 
-  let targetPos=0, displayPos=0, springVel=0, pointerVel=0;
+  let targetPos=0.48, displayPos=0.48, springVel=0, pointerVel=0;
   let isDragging=false, dragStartX=0, dragStartPos=0, lastMoveX=0;
-  let t=0; // time counter for caustic animation
+  let t=0;
 
   const posToX = p => PAD+TR+p*RANGE;
 
-  /* ── helpers ── */
+  /* ── pill path utility ── */
   function pillPath(x,y,w,h,r){
     ctx.beginPath();
     ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
@@ -294,208 +300,244 @@ function initJellySlider(){
     ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
   }
 
-  /* Capsule fill path with optional squish at the leading edge */
-  function jellyCapPath(lx, rx, cy, r, squishAmt){
-    // squishAmt: -1..1, positive = bulge forward (leading edge squash), negative = stretch
-    const sq = Math.max(-0.85, Math.min(0.85, squishAmt));
-    const bulgeR  = r * (1 + Math.abs(sq)*0.55);  // leading-edge radius
-    const tailR   = r * (1 - Math.abs(sq)*0.28);  // tail radius
-    const fwdBias = sq * r * 0.45;               // horizontal push of leading edge
-
-    if(rx - lx < 2){
-      ctx.beginPath();
-      ctx.arc(lx, cy, Math.max(r,3), 0, Math.PI*2);
-      return;
-    }
-    // Tail cap (left, fixed)
-    const tailX = lx;
-    // Leading cap (right, moves with squish)
-    const leadX = rx + fwdBias;
-
+  /* ── jelly blob shape: capsule with squish/bulge deformation ──
+     sq > 0 = dragging right → leading edge bulges forward
+     sq < 0 = dragging left  → leading edge squashes back         */
+  function jellyBlobPath(lx, rx, cy, r, sq){
+    sq = Math.max(-0.9, Math.min(0.9, sq));
+    if(rx - lx < 1){ ctx.beginPath(); ctx.arc(lx,cy,Math.max(r,2),0,Math.PI*2); return; }
+    const leadBulge = r * (1 + Math.abs(sq)*0.62);
+    const tailShrink= r * (1 - Math.abs(sq)*0.32);
+    const push      = sq * r * 0.5;
+    const leadX     = rx + push;
     ctx.beginPath();
-    ctx.moveTo(tailX, cy - tailR);
-    ctx.lineTo(leadX, cy - bulgeR);
-    // Leading cap arc
-    ctx.arc(leadX, cy, bulgeR, -Math.PI/2, Math.PI/2);
-    ctx.lineTo(tailX, cy + tailR);
-    // Tail cap arc
-    ctx.arc(tailX, cy, tailR, Math.PI/2, -Math.PI/2, true);
+    ctx.moveTo(lx, cy - tailShrink);
+    ctx.lineTo(leadX, cy - leadBulge);
+    ctx.arc(leadX, cy, leadBulge, -Math.PI/2, Math.PI/2);
+    ctx.lineTo(lx, cy + tailShrink);
+    ctx.arc(lx, cy, tailShrink, Math.PI/2, -Math.PI/2, true);
     ctx.closePath();
   }
 
-  /* ── draw the dark pill track ── */
+  /* ══════════════════════════════════════════════════════
+     TRACK — deep recessed pill, dark interior, subtle rim
+     Matches the grey machined-metal look in the Dribbble shot
+  ══════════════════════════════════════════════════════ */
   function drawTrack(){
     const TX=PAD, TY=PAD, TW=W-PAD*2, TH=H-PAD*2;
 
-    // Outer track body
+    /* 1. Outer drop shadow beneath entire track */
+    ctx.save();
+    pillPath(TX,TY+3,TW,TH,TR);
+    ctx.fillStyle='rgba(0,0,0,0.38)';
+    ctx.filter='blur(5px)';
+    ctx.fill();
+    ctx.filter='none';
+    ctx.restore();
+
+    /* 2. Track body — very dark, slightly warm grey */
     pillPath(TX,TY,TW,TH,TR);
     const tg=ctx.createLinearGradient(TX,TY,TX,TY+TH);
-    tg.addColorStop(0,'rgba(2,6,18,.78)');
-    tg.addColorStop(0.5,'rgba(6,12,30,.82)');
-    tg.addColorStop(1,'rgba(14,22,50,.70)');
-    ctx.fillStyle=tg;
-    ctx.shadowColor='rgba(0,0,0,.65)'; ctx.shadowBlur=10; ctx.shadowOffsetY=4;
-    ctx.fill();
-    ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+    tg.addColorStop(0,   'rgba(18,14,12,.96)');
+    tg.addColorStop(0.35,'rgba(22,18,14,.98)');
+    tg.addColorStop(0.65,'rgba(28,22,16,.96)');
+    tg.addColorStop(1,   'rgba(38,30,22,.92)');
+    ctx.fillStyle=tg; ctx.fill();
 
-    // Top-inner shadow (depth illusion)
-    pillPath(TX,TY,TW,TH*.52,TR);
-    const is=ctx.createLinearGradient(TX,TY,TX,TY+TH*.5);
-    is.addColorStop(0,'rgba(0,0,0,.42)');
-    is.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=is; ctx.fill();
+    /* 3. Deep inner shadow — top pressed-in look */
+    pillPath(TX,TY,TW,TH*0.55,TR);
+    const inShadow=ctx.createLinearGradient(TX,TY,TX,TY+TH*0.55);
+    inShadow.addColorStop(0,'rgba(0,0,0,0.65)');
+    inShadow.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=inShadow; ctx.fill();
 
-    // Bottom subtle highlight
-    pillPath(TX+1,TY+TH*.72,TW-2,TH*.28,TR*.5);
-    const bs=ctx.createLinearGradient(TX,TY+TH*.72,TX,TY+TH);
-    bs.addColorStop(0,'rgba(255,255,255,0)');
-    bs.addColorStop(1,'rgba(255,255,255,.06)');
-    ctx.fillStyle=bs; ctx.fill();
+    /* 4. Warm floor reflection — bottom of track */
+    pillPath(TX+2,TY+TH*0.70,TW-4,TH*0.30,TR*0.5);
+    const floorG=ctx.createLinearGradient(TX,TY+TH*0.70,TX,TY+TH);
+    floorG.addColorStop(0,'rgba(255,120,20,0)');
+    floorG.addColorStop(1,'rgba(255,100,10,0.08)');
+    ctx.fillStyle=floorG; ctx.fill();
 
-    // Border
+    /* 5. Track border — faint warm rim */
     pillPath(TX,TY,TW,TH,TR);
-    ctx.strokeStyle='rgba(255,255,255,.07)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.strokeStyle='rgba(255,180,80,0.14)';
+    ctx.lineWidth=1; ctx.stroke();
+
+    /* 6. Top rim highlight — thin bright line at very top */
+    pillPath(TX,TY,TW,TH*0.08,TR);
+    const rimG=ctx.createLinearGradient(TX,TY,TX,TY+TH*0.08);
+    rimG.addColorStop(0,'rgba(255,255,255,0.18)');
+    rimG.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=rimG; ctx.fill();
   }
 
-  /* ── draw the liquid jelly blob ── */
+  /* ══════════════════════════════════════════════════════════════
+     JELLY BLOB — orange liquid, Fresnel rim, cream highlight,
+     deep shadow, warm caustic glow — exact Dribbble orange look
+  ══════════════════════════════════════════════════════════════ */
   function drawJelly(cx, pv, time){
-    const cy  = H/2;
-    const lx  = PAD + TR;
+    const cy    = H/2;
+    const lx    = PAD + TR;
     const fillW = cx - lx;
     if(fillW < 2) return;
 
     const trackH = H - PAD*2;
-    const r = trackH/2 - 1.5;
-    const topY = cy - r, botY = cy + r;
+    const r      = trackH/2 - 1;
+    const topY   = cy - r;
+    const botY   = cy + r;
 
-    const vel     = Math.max(-14, Math.min(14, pv));
-    const absPv   = Math.abs(vel);
-    // squish direction: positive velocity = dragging right = leading edge bulges
-    const squish  = vel / 16;
+    const vel    = Math.max(-16, Math.min(16, pv));
+    const absV   = Math.abs(vel);
+    const sq     = vel / 18;  // squish amount
 
     ctx.save();
-
-    // Clip to track interior
     pillPath(PAD+1, PAD+1, W-PAD*2-2, H-PAD*2-2, TR-1);
     ctx.clip();
 
-    /* ── 1. Ambient glow halo (wider than body) ── */
-    jellyCapPath(lx, cx, cy, r+10, squish);
-    const ambG = ctx.createLinearGradient(lx, cy, cx+r, cy);
-    ambG.addColorStop(0, 'rgba(0,100,220,0.04)');
-    ambG.addColorStop(0.6, 'rgba(0,160,255,0.10)');
-    ambG.addColorStop(1, 'rgba(0,220,255,0.18)');
-    ctx.fillStyle = ambG; ctx.fill();
+    /* ── A. Warm orange outer glow halo (bleeds outside blob, clipped to track) ── */
+    jellyBlobPath(lx, cx, cy, r+14, sq);
+    const haloG = ctx.createRadialGradient(lx+fillW*0.55, cy, 0, lx+fillW*0.55, cy, r+22);
+    haloG.addColorStop(0,   'rgba(255,100,0,0.0)');
+    haloG.addColorStop(0.55,'rgba(255,90,0,0.22)');
+    haloG.addColorStop(0.80,'rgba(255,70,0,0.12)');
+    haloG.addColorStop(1,   'rgba(255,50,0,0)');
+    ctx.fillStyle=haloG; ctx.fill();
 
-    /* ── 2. Main body ── */
-    ctx.shadowColor='rgba(0,0,0,0.55)'; ctx.shadowBlur=12; ctx.shadowOffsetY=6;
-    jellyCapPath(lx, cx, cy, r, squish);
+    /* ── B. Blob drop shadow — warm dark shadow below blob ── */
+    ctx.save();
+    jellyBlobPath(lx, cx, cy+r*0.28, r*0.55, sq*0.5);
+    ctx.fillStyle='rgba(120,30,0,0.38)';
+    ctx.filter='blur(6px)';
+    ctx.fill();
+    ctx.filter='none';
+    ctx.restore();
+
+    /* ── C. Main blob body — orange→amber→burnt gradient, top-lit ── */
+    ctx.shadowColor='rgba(180,50,0,0.55)';
+    ctx.shadowBlur=14;
+    ctx.shadowOffsetY=5;
+    jellyBlobPath(lx, cx, cy, r, sq);
     const bodyG = ctx.createLinearGradient(lx, topY, lx, botY);
-    bodyG.addColorStop(0,    '#a8f0ff');
-    bodyG.addColorStop(0.08, '#5cd8ff');
-    bodyG.addColorStop(0.30, '#10a8f0');
-    bodyG.addColorStop(0.60, '#0470d8');
-    bodyG.addColorStop(0.85, '#0348b0');
-    bodyG.addColorStop(1,    '#012880');
-    ctx.fillStyle = bodyG; ctx.fill();
+    bodyG.addColorStop(0,    '#ffe0a0');   // warm cream top
+    bodyG.addColorStop(0.06, '#ffb84a');   // bright amber upper
+    bodyG.addColorStop(0.20, '#ff8c00');   // pure orange
+    bodyG.addColorStop(0.42, '#f06000');   // deep orange mid
+    bodyG.addColorStop(0.68, '#c83c00');   // burnt orange
+    bodyG.addColorStop(0.88, '#8c2000');   // deep rust
+    bodyG.addColorStop(1,    '#4a0e00');   // near-black bottom
+    ctx.fillStyle=bodyG; ctx.fill();
     ctx.shadowBlur=0; ctx.shadowOffsetY=0;
 
-    /* ── 3. Depth shadow at bottom ── */
-    jellyCapPath(lx, cx, cy, r, squish);
-    const depG = ctx.createLinearGradient(lx, cy+r*0.4, lx, botY);
-    depG.addColorStop(0,'rgba(0,8,40,0)');
-    depG.addColorStop(1,'rgba(0,6,30,0.45)');
-    ctx.fillStyle = depG; ctx.fill();
+    /* ── D. Lateral Fresnel glow — orange rim on the sides ── */
+    jellyBlobPath(lx, cx, cy, r, sq);
+    const fresnelG = ctx.createLinearGradient(lx, cy, cx, cy);
+    fresnelG.addColorStop(0,   'rgba(255,140,0,0.22)');
+    fresnelG.addColorStop(0.3, 'rgba(255,100,0,0)');
+    fresnelG.addColorStop(0.7, 'rgba(255,100,0,0)');
+    fresnelG.addColorStop(1,   'rgba(255,140,0,0.28)');
+    ctx.fillStyle=fresnelG; ctx.fill();
 
-    /* ── 4. Rim light — bright edge at top ── */
+    /* ── E. Deep bottom shadow inside blob ── */
+    jellyBlobPath(lx, cx, cy, r, sq);
+    const depG = ctx.createLinearGradient(lx, cy+r*0.38, lx, botY);
+    depG.addColorStop(0,'rgba(60,10,0,0)');
+    depG.addColorStop(1,'rgba(20,4,0,0.62)');
+    ctx.fillStyle=depG; ctx.fill();
+
+    /* ── F. Top rim highlight — thin bright warm line ── */
+    ctx.save();
     ctx.beginPath();
-    ctx.moveTo(lx + tailRimOffset(squish), topY + 1.5);
-    ctx.lineTo(cx - 4, topY + 1.5);
-    ctx.strokeStyle = 'rgba(200,248,255,0.62)';
-    ctx.lineWidth = 1.8; ctx.lineCap='round'; ctx.stroke();
+    ctx.moveTo(lx + 5, topY + 1.8);
+    ctx.lineTo(cx - 6, topY + 1.8);
+    ctx.strokeStyle='rgba(255,240,200,0.72)';
+    ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke();
+    ctx.restore();
 
-    /* ── 5. Main primary specular highlight (large oval) ── */
-    const spFrac = Math.min(0.55, Math.max(0.18, fillW * 0.0032));
-    const spCX = lx + fillW * 0.22;
-    const spCY = topY + r * 0.22;
-    const spRX = Math.max(fillW * spFrac, 5);
-    const spRY = Math.max(r * 0.30, 4);
+    /* ── G. Primary specular — large cream/white oval, upper-left of blob ── */
+    const spFrac = Math.min(0.52, Math.max(0.16, fillW*0.003));
+    const spCX   = lx + fillW*0.20;
+    const spCY   = topY + r*0.20;
+    const spRX   = Math.max(fillW*spFrac, 6);
+    const spRY   = Math.max(r*0.28, 4);
     ctx.beginPath();
-    ctx.ellipse(spCX, spCY, spRX, spRY, -0.05, 0, Math.PI*2);
-    const specG = ctx.createRadialGradient(spCX-spRX*0.25, spCY-spRY*0.3, 0, spCX, spCY, Math.max(spRX,spRY));
-    specG.addColorStop(0,    'rgba(255,255,255,0.96)');
-    specG.addColorStop(0.18, 'rgba(255,255,255,0.86)');
-    specG.addColorStop(0.50, 'rgba(220,248,255,0.40)');
-    specG.addColorStop(0.80, 'rgba(180,240,255,0.10)');
-    specG.addColorStop(1,    'rgba(255,255,255,0)');
-    ctx.fillStyle = specG; ctx.fill();
+    ctx.ellipse(spCX, spCY, spRX, spRY, -0.06, 0, Math.PI*2);
+    const specG = ctx.createRadialGradient(spCX-spRX*0.28, spCY-spRY*0.32, 0, spCX, spCY, Math.max(spRX,spRY));
+    specG.addColorStop(0,    'rgba(255,255,248,0.98)');
+    specG.addColorStop(0.15, 'rgba(255,250,230,0.90)');
+    specG.addColorStop(0.45, 'rgba(255,220,160,0.42)');
+    specG.addColorStop(0.78, 'rgba(255,180,80,0.10)');
+    specG.addColorStop(1,    'rgba(255,160,40,0)');
+    ctx.fillStyle=specG; ctx.fill();
 
-    /* ── 6. Secondary small specular (near leading edge) ── */
-    const s2X = cx - r*0.22 + squish*r*0.3;
-    const s2Y = cy - r*0.40;
+    /* ── H. Secondary specular — tiny bright spot near leading cap ── */
+    const s2X = cx - r*0.24 + sq*r*0.28;
+    const s2Y = cy - r*0.38;
     ctx.beginPath();
-    ctx.ellipse(s2X, s2Y, r*0.14, r*0.10, -0.25, 0, Math.PI*2);
-    const s2G = ctx.createRadialGradient(s2X-r*.04, s2Y-r*.03, 0, s2X, s2Y, r*.16);
-    s2G.addColorStop(0,'rgba(255,255,255,0.85)');
-    s2G.addColorStop(1,'rgba(255,255,255,0)');
-    ctx.fillStyle = s2G; ctx.fill();
+    ctx.ellipse(s2X, s2Y, r*0.13, r*0.09, -0.2, 0, Math.PI*2);
+    const s2G = ctx.createRadialGradient(s2X, s2Y, 0, s2X, s2Y, r*0.15);
+    s2G.addColorStop(0,'rgba(255,255,240,0.88)');
+    s2G.addColorStop(1,'rgba(255,220,160,0)');
+    ctx.fillStyle=s2G; ctx.fill();
 
-    /* ── 7. Tail end cap glow ── */
-    const lgG = ctx.createRadialGradient(lx+r*0.18, cy-r*0.18, 0, lx+r*0.25, cy, r*0.6);
-    lgG.addColorStop(0,'rgba(180,250,255,0.28)');
-    lgG.addColorStop(1,'rgba(180,250,255,0)');
-    ctx.beginPath(); ctx.arc(lx, cy, r, 0, Math.PI*2);
-    ctx.fillStyle = lgG; ctx.fill();
+    /* ── I. Warm inner caustic light (animated) ── */
+    const causA = 0.07 + 0.04*Math.sin(time*0.035);
+    const cX1 = lx + fillW*0.38 + Math.sin(time*0.028)*fillW*0.05;
+    const cY1 = cy + Math.cos(time*0.024)*r*0.12;
+    const causG1 = ctx.createRadialGradient(cX1, cY1, 0, cX1, cY1, r*0.50);
+    causG1.addColorStop(0, `rgba(255,160,40,${causA*2.5})`);
+    causG1.addColorStop(0.5,`rgba(255,120,0,${causA})`);
+    causG1.addColorStop(1,  'rgba(255,80,0,0)');
+    jellyBlobPath(lx, cx, cy, r, sq);
+    ctx.fillStyle=causG1; ctx.fill();
 
-    /* ── 8. Animated caustic shimmer (light patterns inside) ── */
-    const causticAlpha = 0.06 + 0.04*Math.sin(time*0.04);
-    const cX1 = lx + fillW*0.35 + Math.sin(time*0.031)*fillW*0.06;
-    const cY1 = cy - r*0.08 + Math.cos(time*0.027)*r*0.14;
-    const causG1 = ctx.createRadialGradient(cX1, cY1, 0, cX1, cY1, r*0.55);
-    causG1.addColorStop(0, `rgba(160,240,255,${causticAlpha*2.2})`);
-    causG1.addColorStop(0.5,`rgba(80,200,255,${causticAlpha})`);
-    causG1.addColorStop(1,  'rgba(0,180,255,0)');
-    jellyCapPath(lx, cx, cy, r, squish);
-    ctx.fillStyle = causG1; ctx.fill();
+    const cX2 = lx + fillW*0.62 + Math.cos(time*0.033)*fillW*0.06;
+    const cY2 = cy - r*0.05 + Math.sin(time*0.030)*r*0.15;
+    const causG2 = ctx.createRadialGradient(cX2, cY2, 0, cX2, cY2, r*0.38);
+    causG2.addColorStop(0, `rgba(255,200,80,${causA*1.8})`);
+    causG2.addColorStop(1, 'rgba(255,140,0,0)');
+    jellyBlobPath(lx, cx, cy, r, sq);
+    ctx.fillStyle=causG2; ctx.fill();
 
-    const cX2 = lx + fillW*0.65 + Math.cos(time*0.038)*fillW*0.07;
-    const cY2 = cy + r*0.10 + Math.sin(time*0.033)*r*0.18;
-    const causG2 = ctx.createRadialGradient(cX2, cY2, 0, cX2, cY2, r*0.42);
-    causG2.addColorStop(0, `rgba(200,248,255,${causticAlpha*1.6})`);
-    causG2.addColorStop(1, 'rgba(100,220,255,0)');
-    jellyCapPath(lx, cx, cy, r, squish);
-    ctx.fillStyle = causG2; ctx.fill();
-
-    /* ── 9. Velocity streak when dragging fast ── */
-    if(absPv > 2.2){
-      const sA = Math.min(absPv/16, 0.38);
-      const sX = cx + squish*r*0.5;
-      const streakG = ctx.createRadialGradient(sX, cy-r*0.3, 0, sX, cy, r*0.52);
-      streakG.addColorStop(0, `rgba(160,240,255,${sA})`);
-      streakG.addColorStop(1, 'rgba(100,220,255,0)');
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
-      ctx.fillStyle = streakG; ctx.fill();
+    /* ── J. Velocity streak — warm orange flash on fast drag ── */
+    if(absV > 2.5){
+      const sA = Math.min(absV/18, 0.42);
+      const sX = cx + sq*r*0.45;
+      const streakG = ctx.createRadialGradient(sX, cy-r*0.25, 0, sX, cy, r*0.55);
+      streakG.addColorStop(0, `rgba(255,180,60,${sA})`);
+      streakG.addColorStop(1, 'rgba(255,100,0,0)');
+      ctx.beginPath(); ctx.arc(cx, cy, r*1.02, 0, Math.PI*2);
+      ctx.fillStyle=streakG; ctx.fill();
     }
 
-    /* ── 10. Surface sheen — thin overlay gradient on top half ── */
-    jellyCapPath(lx, cx, cy, r, squish);
+    /* ── K. Top-half surface sheen — semi-transparent warm overlay ── */
+    jellyBlobPath(lx, cx, cy, r, sq);
     const sheenG = ctx.createLinearGradient(lx, topY, lx, cy);
-    sheenG.addColorStop(0,   'rgba(255,255,255,0.09)');
-    sheenG.addColorStop(0.4, 'rgba(255,255,255,0.04)');
-    sheenG.addColorStop(1,   'rgba(255,255,255,0)');
-    ctx.fillStyle = sheenG; ctx.fill();
+    sheenG.addColorStop(0,   'rgba(255,220,140,0.13)');
+    sheenG.addColorStop(0.38,'rgba(255,160,40,0.06)');
+    sheenG.addColorStop(1,   'rgba(255,100,0,0)');
+    ctx.fillStyle=sheenG; ctx.fill();
+
+    /* ── L. Percentage text — "48%" style label on right side of blob ── */
+    if(fillW > 60){
+      const pct = Math.round(displayPos * 100);
+      const txtX = Math.min(cx - r - 4, W - PAD - TR - 32);
+      ctx.save();
+      ctx.font = `700 ${Math.max(9,r*0.52)}px "Oswald", "Space Grotesk", sans-serif`;
+      ctx.fillStyle = 'rgba(255,200,120,0.55)';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(pct+'%', Math.max(txtX, lx+fillW*0.5), cy);
+      ctx.restore();
+    }
 
     ctx.restore();
   }
-
-  // Helper: offset for tail rim start based on squish
-  function tailRimOffset(sq){ return 4 + Math.max(0,-sq)*8; }
 
   /* ── draw label ticks ── */
   function drawTicks(){
     ctx.save();
     ctx.font='700 8.5px "Space Grotesk", sans-serif';
-    ctx.fillStyle='rgba(255,255,255,.22)';
+    ctx.fillStyle='rgba(255,180,80,.28)';
     ctx.textAlign='left';
     ctx.fillText('▲ TOP', PAD+TR+4, H-PAD-3);
     ctx.textAlign='right';
