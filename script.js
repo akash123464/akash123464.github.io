@@ -1,11 +1,9 @@
 /* ═══════════════════════════════════════
-   WISHWORK – script.js  v4
+   WISHWORK – script.js  v5
    Changes:
-   · Balance card: maroon glass, UID=email
-   · Jelly tap animation on card click
-   · totalDeposit / totalWithdraw tracking
-   · Withdrawal only counted after admin OK
-   · All data persists via per-user LS
+   · Upgraded jelly slider: 3D liquid/blob look
+   · Caustics, rim-light, squish deformation
+   · All previous features preserved
 ═══════════════════════════════════════ */
 
 /* ── PER-USER localStorage ── */
@@ -45,9 +43,9 @@ let state = {
   betInfo:null, side:'YES', betAmt:'',
   txList:[], upi:'', phone:'', savedUpi:'',
   timer:80, timerInt:null, accountTab:'profile',
-  totalDeposit:  0,   /* cumulative deposits submitted */
-  totalWithdraw: 0,   /* cumulative withdrawals approved by admin */
-  userEmail:     ''   /* logged-in email shown as UID */
+  totalDeposit:  0,
+  totalWithdraw: 0,
+  userEmail:     ''
 };
 
 /* ── JELLY SLIDER RAF ── */
@@ -183,12 +181,11 @@ function normalizeStatus(raw){
 function cc(){ return META[state.cat].color; }
 function setCC(c){ document.documentElement.style.setProperty('--cc',c); }
 
-/* ── JELLY TAP — elastic click animation on balance card ── */
+/* ── JELLY TAP ── */
 function jellyTapBalCard(){
   const card = document.getElementById('balCard');
   if(!card) return;
   card.classList.remove('bal-jelly');
-  /* Force reflow so animation restarts even if clicked twice fast */
   void card.offsetWidth;
   card.classList.add('bal-jelly');
   card.addEventListener('animationend', ()=> card.classList.remove('bal-jelly'), {once:true});
@@ -258,129 +255,307 @@ function updateBlobs(){
   document.getElementById('scanline').style.background=`linear-gradient(90deg,transparent,${c}22,transparent)`;
 }
 
-/* ═══════════════════════════════════════
-   JELLY SLIDER (unchanged from v3)
-═══════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   JELLY SLIDER v5 — 3D liquid blob with caustics & rim light
+   Inspired by Voicu Apostol's Dribbble jelly concept
+═══════════════════════════════════════════════════════ */
 function initJellySlider(){
   if(jellyRAF){ cancelAnimationFrame(jellyRAF); jellyRAF=null; }
   const wrap=document.getElementById('jellyTrackWrap');
   const canvas=document.getElementById('jellyCanvas');
   const betsEl=document.getElementById('betsContainer');
   if(!wrap||!canvas||!betsEl) return;
+
   const dpr=Math.min(window.devicePixelRatio||1,2);
   const W_CSS=wrap.offsetWidth, H_CSS=wrap.offsetHeight;
   canvas.width=W_CSS*dpr; canvas.height=H_CSS*dpr;
   canvas.style.width=W_CSS+'px'; canvas.style.height=H_CSS+'px';
-  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
-  const W=W_CSS,H=H_CSS,PAD=9,TR=(H-PAD*2)/2,RANGE=W-PAD*2-TR*2;
-  let targetPos=0,displayPos=0,springVel=0,pointerVel=0;
-  let isDragging=false,dragStartX=0,dragStartPos=0,lastMoveX=0;
-  const posToX=p=>PAD+TR+p*RANGE;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
 
+  const W=W_CSS, H=H_CSS;
+  const PAD=8;
+  const TR=(H-PAD*2)/2;         // track radius
+  const RANGE=W-PAD*2-TR*2;     // drag range in px
+
+  let targetPos=0, displayPos=0, springVel=0, pointerVel=0;
+  let isDragging=false, dragStartX=0, dragStartPos=0, lastMoveX=0;
+  let t=0; // time counter for caustic animation
+
+  const posToX = p => PAD+TR+p*RANGE;
+
+  /* ── helpers ── */
   function pillPath(x,y,w,h,r){
-    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
-    ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);
-    ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+    ctx.arcTo(x+w,y,x+w,y+r,r); ctx.lineTo(x+w,y+h-r);
+    ctx.arcTo(x+w,y+h,x+w-r,y+h,r); ctx.lineTo(x+r,y+h);
+    ctx.arcTo(x,y+h,x,y+h-r,r); ctx.lineTo(x,y+r);
+    ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
   }
-  function jellyFillPath(lx,rx,cy,r){
-    if(rx-lx<2){ctx.beginPath();ctx.arc(lx,cy,Math.max(r,3),0,Math.PI*2);return;}
-    ctx.beginPath();ctx.moveTo(lx,cy-r);ctx.lineTo(rx,cy-r);
-    ctx.arc(rx,cy,r,-Math.PI/2,Math.PI/2);ctx.lineTo(lx,cy+r);
-    ctx.arc(lx,cy,r,Math.PI/2,-Math.PI/2,true);ctx.closePath();
+
+  /* Capsule fill path with optional squish at the leading edge */
+  function jellyCapPath(lx, rx, cy, r, squishAmt){
+    // squishAmt: -1..1, positive = bulge forward (leading edge squash), negative = stretch
+    const sq = Math.max(-0.85, Math.min(0.85, squishAmt));
+    const bulgeR  = r * (1 + Math.abs(sq)*0.55);  // leading-edge radius
+    const tailR   = r * (1 - Math.abs(sq)*0.28);  // tail radius
+    const fwdBias = sq * r * 0.45;               // horizontal push of leading edge
+
+    if(rx - lx < 2){
+      ctx.beginPath();
+      ctx.arc(lx, cy, Math.max(r,3), 0, Math.PI*2);
+      return;
+    }
+    // Tail cap (left, fixed)
+    const tailX = lx;
+    // Leading cap (right, moves with squish)
+    const leadX = rx + fwdBias;
+
+    ctx.beginPath();
+    ctx.moveTo(tailX, cy - tailR);
+    ctx.lineTo(leadX, cy - bulgeR);
+    // Leading cap arc
+    ctx.arc(leadX, cy, bulgeR, -Math.PI/2, Math.PI/2);
+    ctx.lineTo(tailX, cy + tailR);
+    // Tail cap arc
+    ctx.arc(tailX, cy, tailR, Math.PI/2, -Math.PI/2, true);
+    ctx.closePath();
   }
+
+  /* ── draw the dark pill track ── */
   function drawTrack(){
-    const TX=PAD,TY=PAD,TW=W-PAD*2,TH=H-PAD*2;
+    const TX=PAD, TY=PAD, TW=W-PAD*2, TH=H-PAD*2;
+
+    // Outer track body
     pillPath(TX,TY,TW,TH,TR);
     const tg=ctx.createLinearGradient(TX,TY,TX,TY+TH);
-    tg.addColorStop(0,'rgba(0,0,0,.60)');tg.addColorStop(.45,'rgba(8,14,32,.74)');tg.addColorStop(1,'rgba(18,26,52,.64)');
-    ctx.fillStyle=tg;ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;ctx.fill();
-    ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-    pillPath(TX,TY,TW,TH*.5,TR);
-    const is=ctx.createLinearGradient(TX,TY,TX,TY+TH*.45);
-    is.addColorStop(0,'rgba(0,0,0,.38)');is.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=is;ctx.fill();
-    pillPath(TX+1,TY+TH*.74,TW-2,TH*.26,TR*.5);
-    const bs=ctx.createLinearGradient(TX,TY+TH*.74,TX,TY+TH);
-    bs.addColorStop(0,'rgba(255,255,255,0)');bs.addColorStop(1,'rgba(255,255,255,.05)');ctx.fillStyle=bs;ctx.fill();
-    pillPath(TX,TY,TW,TH,TR);ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;ctx.stroke();
+    tg.addColorStop(0,'rgba(2,6,18,.78)');
+    tg.addColorStop(0.5,'rgba(6,12,30,.82)');
+    tg.addColorStop(1,'rgba(14,22,50,.70)');
+    ctx.fillStyle=tg;
+    ctx.shadowColor='rgba(0,0,0,.65)'; ctx.shadowBlur=10; ctx.shadowOffsetY=4;
+    ctx.fill();
+    ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+
+    // Top-inner shadow (depth illusion)
+    pillPath(TX,TY,TW,TH*.52,TR);
+    const is=ctx.createLinearGradient(TX,TY,TX,TY+TH*.5);
+    is.addColorStop(0,'rgba(0,0,0,.42)');
+    is.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=is; ctx.fill();
+
+    // Bottom subtle highlight
+    pillPath(TX+1,TY+TH*.72,TW-2,TH*.28,TR*.5);
+    const bs=ctx.createLinearGradient(TX,TY+TH*.72,TX,TY+TH);
+    bs.addColorStop(0,'rgba(255,255,255,0)');
+    bs.addColorStop(1,'rgba(255,255,255,.06)');
+    ctx.fillStyle=bs; ctx.fill();
+
+    // Border
+    pillPath(TX,TY,TW,TH,TR);
+    ctx.strokeStyle='rgba(255,255,255,.07)'; ctx.lineWidth=1; ctx.stroke();
   }
-  function drawJelly(cx,pv){
-    const cy=H/2,lx=PAD+TR,fillW=cx-lx;
-    if(fillW<3) return;
-    const trackH=H-PAD*2,r=trackH/2-2;
-    const topY=cy-r,botY=cy+r;
-    const vel=Math.max(-12,Math.min(12,pv));
-    const absPv=Math.abs(vel);
+
+  /* ── draw the liquid jelly blob ── */
+  function drawJelly(cx, pv, time){
+    const cy  = H/2;
+    const lx  = PAD + TR;
+    const fillW = cx - lx;
+    if(fillW < 2) return;
+
+    const trackH = H - PAD*2;
+    const r = trackH/2 - 1.5;
+    const topY = cy - r, botY = cy + r;
+
+    const vel     = Math.max(-14, Math.min(14, pv));
+    const absPv   = Math.abs(vel);
+    // squish direction: positive velocity = dragging right = leading edge bulges
+    const squish  = vel / 16;
+
     ctx.save();
-    pillPath(PAD+1,PAD+1,W-PAD*2-2,H-PAD*2-2,TR-1);ctx.clip();
-    jellyFillPath(lx,cx,cy,r+7);
-    const ambG=ctx.createLinearGradient(lx,cy,cx+r,cy);
-    ambG.addColorStop(0,'rgba(0,90,210,0.04)');ambG.addColorStop(.65,'rgba(0,140,255,0.12)');ambG.addColorStop(1,'rgba(0,200,255,0.18)');
-    ctx.fillStyle=ambG;ctx.fill();
-    ctx.shadowColor='rgba(0,0,0,0.58)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
-    jellyFillPath(lx,cx,cy,r);
-    const bodyG=ctx.createLinearGradient(lx,topY,lx,botY);
-    bodyG.addColorStop(0,'#7de8ff');bodyG.addColorStop(0.12,'#38c8f8');bodyG.addColorStop(0.42,'#0890e8');bodyG.addColorStop(0.76,'#055cc0');bodyG.addColorStop(1,'#023c88');
-    ctx.fillStyle=bodyG;ctx.fill();
-    ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-    ctx.beginPath();ctx.moveTo(lx+3,topY+1.2);ctx.lineTo(cx-3,topY+1.2);
-    ctx.strokeStyle='rgba(180,242,255,0.55)';ctx.lineWidth=1.5;ctx.lineCap='round';ctx.stroke();
-    const spFrac=Math.min(0.58,Math.max(0.2,fillW*0.0035));
-    const spCX=lx+fillW*0.24,spCY=topY+r*0.25,spRX=fillW*spFrac,spRY=r*0.32;
-    ctx.beginPath();ctx.ellipse(spCX,spCY,Math.max(spRX,4),Math.max(spRY,3),-0.06,0,Math.PI*2);
-    const specG=ctx.createRadialGradient(spCX-spRX*0.22,spCY-spRY*0.28,0,spCX,spCY,Math.max(spRX,spRY));
-    specG.addColorStop(0,'rgba(255,255,255,0.97)');specG.addColorStop(0.20,'rgba(255,255,255,0.88)');specG.addColorStop(0.52,'rgba(255,255,255,0.42)');specG.addColorStop(0.80,'rgba(255,255,255,0.10)');specG.addColorStop(1,'rgba(255,255,255,0)');
-    ctx.fillStyle=specG;ctx.fill();
-    const s2X=cx-r*0.20,s2Y=cy-r*0.42;
-    ctx.beginPath();ctx.ellipse(s2X,s2Y,r*0.13,r*0.09,-0.22,0,Math.PI*2);
-    const s2G=ctx.createRadialGradient(s2X-r*.04,s2Y-r*.03,0,s2X,s2Y,r*.14);
-    s2G.addColorStop(0,'rgba(255,255,255,0.82)');s2G.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=s2G;ctx.fill();
-    const lgG=ctx.createRadialGradient(lx+r*0.22,cy-r*0.20,0,lx+r*0.28,cy,r*0.58);
-    lgG.addColorStop(0,'rgba(160,240,255,0.26)');lgG.addColorStop(1,'rgba(160,240,255,0)');
-    ctx.beginPath();ctx.arc(lx,cy,r,0,Math.PI*2);ctx.fillStyle=lgG;ctx.fill();
-    jellyFillPath(lx,cx,cy,r);
-    const depG=ctx.createLinearGradient(lx,cy+r*0.32,lx,botY);
-    depG.addColorStop(0,'rgba(0,12,42,0)');depG.addColorStop(1,'rgba(0,8,36,0.38)');ctx.fillStyle=depG;ctx.fill();
-    if(absPv>1.5){
-      const sA=Math.min(absPv/14,0.38),sX=cx-r*0.18;
-      const sG=ctx.createRadialGradient(sX,cy-r*0.28,0,sX,cy,r*0.55);
-      sG.addColorStop(0,`rgba(140,230,255,${sA})`);sG.addColorStop(1,'rgba(140,230,255,0)');
-      ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=sG;ctx.fill();
+
+    // Clip to track interior
+    pillPath(PAD+1, PAD+1, W-PAD*2-2, H-PAD*2-2, TR-1);
+    ctx.clip();
+
+    /* ── 1. Ambient glow halo (wider than body) ── */
+    jellyCapPath(lx, cx, cy, r+10, squish);
+    const ambG = ctx.createLinearGradient(lx, cy, cx+r, cy);
+    ambG.addColorStop(0, 'rgba(0,100,220,0.04)');
+    ambG.addColorStop(0.6, 'rgba(0,160,255,0.10)');
+    ambG.addColorStop(1, 'rgba(0,220,255,0.18)');
+    ctx.fillStyle = ambG; ctx.fill();
+
+    /* ── 2. Main body ── */
+    ctx.shadowColor='rgba(0,0,0,0.55)'; ctx.shadowBlur=12; ctx.shadowOffsetY=6;
+    jellyCapPath(lx, cx, cy, r, squish);
+    const bodyG = ctx.createLinearGradient(lx, topY, lx, botY);
+    bodyG.addColorStop(0,    '#a8f0ff');
+    bodyG.addColorStop(0.08, '#5cd8ff');
+    bodyG.addColorStop(0.30, '#10a8f0');
+    bodyG.addColorStop(0.60, '#0470d8');
+    bodyG.addColorStop(0.85, '#0348b0');
+    bodyG.addColorStop(1,    '#012880');
+    ctx.fillStyle = bodyG; ctx.fill();
+    ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+
+    /* ── 3. Depth shadow at bottom ── */
+    jellyCapPath(lx, cx, cy, r, squish);
+    const depG = ctx.createLinearGradient(lx, cy+r*0.4, lx, botY);
+    depG.addColorStop(0,'rgba(0,8,40,0)');
+    depG.addColorStop(1,'rgba(0,6,30,0.45)');
+    ctx.fillStyle = depG; ctx.fill();
+
+    /* ── 4. Rim light — bright edge at top ── */
+    ctx.beginPath();
+    ctx.moveTo(lx + tailRimOffset(squish), topY + 1.5);
+    ctx.lineTo(cx - 4, topY + 1.5);
+    ctx.strokeStyle = 'rgba(200,248,255,0.62)';
+    ctx.lineWidth = 1.8; ctx.lineCap='round'; ctx.stroke();
+
+    /* ── 5. Main primary specular highlight (large oval) ── */
+    const spFrac = Math.min(0.55, Math.max(0.18, fillW * 0.0032));
+    const spCX = lx + fillW * 0.22;
+    const spCY = topY + r * 0.22;
+    const spRX = Math.max(fillW * spFrac, 5);
+    const spRY = Math.max(r * 0.30, 4);
+    ctx.beginPath();
+    ctx.ellipse(spCX, spCY, spRX, spRY, -0.05, 0, Math.PI*2);
+    const specG = ctx.createRadialGradient(spCX-spRX*0.25, spCY-spRY*0.3, 0, spCX, spCY, Math.max(spRX,spRY));
+    specG.addColorStop(0,    'rgba(255,255,255,0.96)');
+    specG.addColorStop(0.18, 'rgba(255,255,255,0.86)');
+    specG.addColorStop(0.50, 'rgba(220,248,255,0.40)');
+    specG.addColorStop(0.80, 'rgba(180,240,255,0.10)');
+    specG.addColorStop(1,    'rgba(255,255,255,0)');
+    ctx.fillStyle = specG; ctx.fill();
+
+    /* ── 6. Secondary small specular (near leading edge) ── */
+    const s2X = cx - r*0.22 + squish*r*0.3;
+    const s2Y = cy - r*0.40;
+    ctx.beginPath();
+    ctx.ellipse(s2X, s2Y, r*0.14, r*0.10, -0.25, 0, Math.PI*2);
+    const s2G = ctx.createRadialGradient(s2X-r*.04, s2Y-r*.03, 0, s2X, s2Y, r*.16);
+    s2G.addColorStop(0,'rgba(255,255,255,0.85)');
+    s2G.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle = s2G; ctx.fill();
+
+    /* ── 7. Tail end cap glow ── */
+    const lgG = ctx.createRadialGradient(lx+r*0.18, cy-r*0.18, 0, lx+r*0.25, cy, r*0.6);
+    lgG.addColorStop(0,'rgba(180,250,255,0.28)');
+    lgG.addColorStop(1,'rgba(180,250,255,0)');
+    ctx.beginPath(); ctx.arc(lx, cy, r, 0, Math.PI*2);
+    ctx.fillStyle = lgG; ctx.fill();
+
+    /* ── 8. Animated caustic shimmer (light patterns inside) ── */
+    const causticAlpha = 0.06 + 0.04*Math.sin(time*0.04);
+    const cX1 = lx + fillW*0.35 + Math.sin(time*0.031)*fillW*0.06;
+    const cY1 = cy - r*0.08 + Math.cos(time*0.027)*r*0.14;
+    const causG1 = ctx.createRadialGradient(cX1, cY1, 0, cX1, cY1, r*0.55);
+    causG1.addColorStop(0, `rgba(160,240,255,${causticAlpha*2.2})`);
+    causG1.addColorStop(0.5,`rgba(80,200,255,${causticAlpha})`);
+    causG1.addColorStop(1,  'rgba(0,180,255,0)');
+    jellyCapPath(lx, cx, cy, r, squish);
+    ctx.fillStyle = causG1; ctx.fill();
+
+    const cX2 = lx + fillW*0.65 + Math.cos(time*0.038)*fillW*0.07;
+    const cY2 = cy + r*0.10 + Math.sin(time*0.033)*r*0.18;
+    const causG2 = ctx.createRadialGradient(cX2, cY2, 0, cX2, cY2, r*0.42);
+    causG2.addColorStop(0, `rgba(200,248,255,${causticAlpha*1.6})`);
+    causG2.addColorStop(1, 'rgba(100,220,255,0)');
+    jellyCapPath(lx, cx, cy, r, squish);
+    ctx.fillStyle = causG2; ctx.fill();
+
+    /* ── 9. Velocity streak when dragging fast ── */
+    if(absPv > 2.2){
+      const sA = Math.min(absPv/16, 0.38);
+      const sX = cx + squish*r*0.5;
+      const streakG = ctx.createRadialGradient(sX, cy-r*0.3, 0, sX, cy, r*0.52);
+      streakG.addColorStop(0, `rgba(160,240,255,${sA})`);
+      streakG.addColorStop(1, 'rgba(100,220,255,0)');
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+      ctx.fillStyle = streakG; ctx.fill();
     }
+
+    /* ── 10. Surface sheen — thin overlay gradient on top half ── */
+    jellyCapPath(lx, cx, cy, r, squish);
+    const sheenG = ctx.createLinearGradient(lx, topY, lx, cy);
+    sheenG.addColorStop(0,   'rgba(255,255,255,0.09)');
+    sheenG.addColorStop(0.4, 'rgba(255,255,255,0.04)');
+    sheenG.addColorStop(1,   'rgba(255,255,255,0)');
+    ctx.fillStyle = sheenG; ctx.fill();
+
     ctx.restore();
   }
+
+  // Helper: offset for tail rim start based on squish
+  function tailRimOffset(sq){ return 4 + Math.max(0,-sq)*8; }
+
+  /* ── draw label ticks ── */
   function drawTicks(){
-    ctx.save();ctx.font='700 8.5px "Space Grotesk", sans-serif';ctx.fillStyle='rgba(255,255,255,.22)';
-    ctx.textAlign='left';ctx.fillText('▲ TOP',PAD+TR+4,H-PAD-3);
-    ctx.textAlign='right';ctx.fillText('BOTTOM ▼',W-PAD-TR-4,H-PAD-3);ctx.restore();
+    ctx.save();
+    ctx.font='700 8.5px "Space Grotesk", sans-serif';
+    ctx.fillStyle='rgba(255,255,255,.22)';
+    ctx.textAlign='left';
+    ctx.fillText('▲ TOP', PAD+TR+4, H-PAD-3);
+    ctx.textAlign='right';
+    ctx.fillText('BOTTOM ▼', W-PAD-TR-4, H-PAD-3);
+    ctx.restore();
   }
+
+  /* ── animation loop ── */
   function loop(){
-    const diff=targetPos-displayPos;
-    springVel=springVel*0.72+diff*0.22;displayPos+=springVel;
-    if(Math.abs(diff)<.0004&&Math.abs(springVel)<.0004){displayPos=targetPos;springVel=0;}
-    if(!isDragging) pointerVel*=0.76;
-    ctx.clearRect(0,0,W,H);drawTrack();drawJelly(posToX(displayPos),pointerVel);drawTicks();
-    jellyRAF=requestAnimationFrame(loop);
+    t++;
+    const diff = targetPos - displayPos;
+    springVel = springVel*0.70 + diff*0.24;
+    displayPos += springVel;
+    if(Math.abs(diff)<.0003 && Math.abs(springVel)<.0003){
+      displayPos=targetPos; springVel=0;
+    }
+    if(!isDragging) pointerVel *= 0.74;
+
+    ctx.clearRect(0,0,W,H);
+    drawTrack();
+    drawJelly(posToX(displayPos), pointerVel, t);
+    drawTicks();
+    jellyRAF = requestAnimationFrame(loop);
   }
-  function getLocalX(e){const r=canvas.getBoundingClientRect();return(e.touches?e.touches[0].clientX:e.clientX)-r.left;}
-  function onStart(e){isDragging=true;dragStartX=getLocalX(e);dragStartPos=targetPos;lastMoveX=dragStartX;pointerVel=0;if(e.cancelable)e.preventDefault();}
+
+  /* ── pointer helpers ── */
+  function getLocalX(e){
+    const r=canvas.getBoundingClientRect();
+    return (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+  }
+  function onStart(e){
+    isDragging=true; dragStartX=getLocalX(e);
+    dragStartPos=targetPos; lastMoveX=dragStartX; pointerVel=0;
+    if(e.cancelable) e.preventDefault();
+  }
   function onMove(e){
     if(!isDragging) return;
-    const x=getLocalX(e);pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
-    const raw=dragStartPos+(x-dragStartX)/RANGE;targetPos=Math.max(0,Math.min(1,raw));
-    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
-    if(maxS>0) betsEl.scrollTop=targetPos*maxS;
+    const x=getLocalX(e);
+    pointerVel = (x - lastMoveX) * 1.15;
+    lastMoveX = x;
+    const raw = dragStartPos + (x-dragStartX)/RANGE;
+    targetPos = Math.max(0, Math.min(1, raw));
+    const maxS = betsEl.scrollHeight - betsEl.clientHeight;
+    if(maxS>0) betsEl.scrollTop = targetPos*maxS;
   }
-  function onEnd(){isDragging=false;}
+  function onEnd(){ isDragging=false; }
+
   canvas.addEventListener('mousedown',onStart,{passive:false});
   canvas.addEventListener('touchstart',onStart,{passive:false});
-  window.addEventListener('mousemove',onMove);
-  window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
-  window.addEventListener('mouseup',onEnd);window.addEventListener('touchend',onEnd);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove',(e)=>{ if(!isDragging)return; onMove(e); },{passive:true});
+  window.addEventListener('mouseup', onEnd);
+  window.addEventListener('touchend', onEnd);
+
   betsEl.addEventListener('scroll',()=>{
-    if(isDragging)return;
-    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
-    if(maxS>0) targetPos=betsEl.scrollTop/maxS;
+    if(isDragging) return;
+    const maxS = betsEl.scrollHeight - betsEl.clientHeight;
+    if(maxS>0) targetPos = betsEl.scrollTop / maxS;
   },{passive:true});
+
   loop();
 }
 
@@ -393,7 +568,7 @@ function setBetsHeight(){
 }
 
 /* ═══════════════════════════════════════
-   MARKETS PAGE — with upgraded balance card
+   MARKETS PAGE
 ═══════════════════════════════════════ */
 function renderMarkets(){
   const m=META[state.cat], color=m.color;
@@ -402,7 +577,6 @@ function renderMarkets(){
   const trendText=trendItems.join('   ✦   ');
   const OG='#ff6a00';
 
-  /* TRENDING TICKER */
   let html=`
   <div style="margin:12px 14px 0;position:relative;overflow:hidden;border-radius:14px;height:44px;
     background:linear-gradient(135deg,rgba(255,106,0,.22),rgba(14,8,4,.92),rgba(255,106,0,.14));
@@ -428,39 +602,24 @@ function renderMarkets(){
     </div>
   </div>`;
 
-  /* ══════════════════════════════════════
-     BALANCE CARD — Deep Maroon Glassmorphism
-     All data-binding IDs kept for updateBal()
-  ══════════════════════════════════════ */
   const uidDisplay = state.userEmail || 'Login required';
   html+=`
   <div id="balCard" onclick="jellyTapBalCard()" style="position:relative">
-    <!-- decorative layers (z-index 0-2) -->
     <div class="bc-sweep"></div>
     <div class="bc-topline"></div>
-
-    <!-- CONTENT z-index 3+ -->
     <div style="position:relative;z-index:3">
-
-      <!-- Row 1: Total Balance label + UID chip + View button -->
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px">
         <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
           <span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap">Total Balance</span>
           <span class="bal-uid-chip" id="balUidChip" title="${uidDisplay}">${uidDisplay}</span>
         </div>
-        <button class="bal-view-btn" onclick="event.stopPropagation();openPortfolio()">
-          View &rsaquo;
-        </button>
+        <button class="bal-view-btn" onclick="event.stopPropagation();openPortfolio()">View &rsaquo;</button>
       </div>
-
-      <!-- Row 2: Large amount -->
       <div class="bal-main-row">
         <span class="bal-rupee-lg">₹</span>
         <span class="bal-num-lg" id="balNum">${state.bal}</span>
         <span class="bal-inr">INR</span>
       </div>
-
-      <!-- Row 3: Deposit / Withdraw buttons -->
       <div class="bal-btns">
         <button class="dep-btn" onclick="event.stopPropagation();openDeposit()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
@@ -471,8 +630,6 @@ function renderMarkets(){
           ↑ Withdraw
         </button>
       </div>
-
-      <!-- Row 4: Total Deposit | Total Withdrawal -->
       <div class="bal-stats-row">
         <div class="bal-stat-box">
           <div class="bal-stat-lbl">Total Deposit</div>
@@ -483,11 +640,9 @@ function renderMarkets(){
           <div class="bal-stat-val" id="totalWithdrawEl">${fmtCur(state.totalWithdraw)}</div>
         </div>
       </div>
-
     </div>
   </div>`;
 
-  /* JELLY SLIDER SECTION */
   html+=`
   <div class="jelly-section">
     <div class="jelly-header">
@@ -522,7 +677,6 @@ function renderMarkets(){
     </div>
   </div>`;
 
-  /* BETS */
   const bc=BADGE_COLORS[state.cat];
   let cardsHtml='';
   BETS[state.cat].forEach((b,i)=>{
@@ -805,7 +959,6 @@ function updateTimerCircle(){
   document.getElementById('timerNum').textContent=state.timer;
   document.getElementById('timerCircle').style.strokeDashoffset=150.8*(1-state.timer/80);
 }
-/* submitUTR — local fallback; Firebase override adds to totalDeposit */
 function submitUTR(){
   const utr=document.getElementById('utrInp').value;
   if(!utr||utr.length<10) return showToast('Enter valid 12-digit UTR','info');
@@ -813,7 +966,6 @@ function submitUTR(){
   const a=parseFloat(rawAmt)||0;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   state.txList.unshift({id:Date.now(),type:'DEPOSIT',q:'UPI Payment',amt:`₹${a}`,status:'PENDING',time:now});
-  /* Increment totalDeposit immediately on submission */
   state.totalDeposit += a;
   LS.save(); clearInterval(state.timerInt); closeAll();
   showToast('✅ Deposit submitted! Processing…');
@@ -833,25 +985,16 @@ function handleWithdraw(){
   state.bal-=a;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   state.txList.unshift({id:Date.now(),type:'WITHDRAW',q:'To UPI',amt:`₹${a}`,status:'PENDING',time:now,withdrawAmt:a});
-  /* NOTE: totalWithdraw is NOT incremented here — only after admin approval */
   LS.save(); closeAll(); showToast('✅ Withdrawal request sent!'); updateBal();
 }
 
-/* ── UPDATE BALANCE + STATS ── */
+/* ── UPDATE BALANCE ── */
 function updateBal(){
-  /* Nav balance */
   document.getElementById('navBal').textContent=state.bal;
-  /* Balance card */
   const balNum=document.getElementById('balNum');
   if(balNum) balNum.textContent=state.bal;
-  /* UID chip */
   const uidChip=document.getElementById('balUidChip');
-  if(uidChip){
-    const u=state.userEmail||'Login required';
-    uidChip.textContent=u;
-    uidChip.title=u;
-  }
-  /* Stats */
+  if(uidChip){ const u=state.userEmail||'Login required'; uidChip.textContent=u; uidChip.title=u; }
   const depEl=document.getElementById('totalDepositEl');
   const witEl=document.getElementById('totalWithdrawEl');
   if(depEl) depEl.textContent=fmtCur(state.totalDeposit);
@@ -868,23 +1011,15 @@ window.addEventListener('storage',(e)=>{
   }
 });
 
-/* ── ADMIN UPDATE ──
-   Called by admin panel or Firebase onSnapshot.
-   For WITHDRAW COMPLETED: also increments totalWithdraw.
-*/
+/* ── ADMIN UPDATE ── */
 window.adminUpdateTx=function(docId, newStatus, actionType, rawAmt){
   let tx=state.txList.find(t=>t.firestoreId===docId);
-  if(!tx&&actionType==='BET'){
-    tx=state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING'&&!t.firestoreId);
-  }
-  if(!tx&&actionType==='WITHDRAW'){
-    tx=state.txList.find(t=>t.type==='WITHDRAW'&&t.status==='PENDING'&&!t.firestoreId);
-  }
+  if(!tx&&actionType==='BET') tx=state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING'&&!t.firestoreId);
+  if(!tx&&actionType==='WITHDRAW') tx=state.txList.find(t=>t.type==='WITHDRAW'&&t.status==='PENDING'&&!t.firestoreId);
   if(tx){
     if(!tx.firestoreId) tx.firestoreId=docId;
     const prevStatus=tx.status;
     tx.status=newStatus;
-    /* Increment totalWithdraw only when admin marks WITHDRAW as completed/approved */
     const up=newStatus.toUpperCase();
     if(tx.type==='WITHDRAW'&&(up==='COMPLETED'||up==='APPROVED'||up==='PAID')){
       const wasAlreadyApproved=prevStatus.toUpperCase()==='COMPLETED'||prevStatus.toUpperCase()==='APPROVED'||prevStatus.toUpperCase()==='PAID';
