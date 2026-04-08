@@ -300,19 +300,31 @@ function initJellySlider(){
     jellyRAF=requestAnimationFrame(loop);
   }
   function getLocalX(e){const r=canvas.getBoundingClientRect();return(e.touches?e.touches[0].clientX:e.clientX)-r.left;}
+  function getScrollInfo(){
+    /* scroll the page from the top of betsContainer to the bottom */
+    const betsEl=document.getElementById('betsContainer');
+    if(!betsEl)return{scrollTop:0,maxScroll:0};
+    const containerTop=betsEl.offsetTop;
+    const containerH=betsEl.offsetHeight;
+    const winH=window.innerHeight;
+    const maxScroll=Math.max(0,containerTop+containerH-winH+82);
+    const scrollTop=Math.max(0,window.scrollY-containerTop+winH*0.3);
+    return{scrollTop:Math.min(scrollTop,maxScroll),maxScroll};
+  }
   function onStart(e){isDragging=true;dragStartX=getLocalX(e);dragStartPos=targetPos;lastMoveX=dragStartX;pointerVel=0;if(e.cancelable)e.preventDefault();}
-  function onMove(e){if(!isDragging)return;const x=getLocalX(e);pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;const raw=dragStartPos+(x-dragStartX)/RANGE;targetPos=Math.max(0,Math.min(1,raw));const maxS=betsEl.scrollHeight-betsEl.clientHeight;if(maxS>0)betsEl.scrollTop=targetPos*maxS;}
+  function onMove(e){if(!isDragging)return;const x=getLocalX(e);pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;const raw=dragStartPos+(x-dragStartX)/RANGE;targetPos=Math.max(0,Math.min(1,raw));const{maxScroll}=getScrollInfo();if(maxScroll>0)window.scrollTo({top:targetPos*maxScroll,behavior:'instant'});}
   function onEnd(){isDragging=false;}
   canvas.addEventListener('mousedown',onStart,{passive:false});canvas.addEventListener('touchstart',onStart,{passive:false});
   window.addEventListener('mousemove',onMove);window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
   window.addEventListener('mouseup',onEnd);window.addEventListener('touchend',onEnd);
-  betsEl.addEventListener('scroll',()=>{if(isDragging)return;const maxS=betsEl.scrollHeight-betsEl.clientHeight;if(maxS>0)targetPos=betsEl.scrollTop/maxS;},{passive:true});
+  window.addEventListener('scroll',()=>{if(isDragging)return;const{scrollTop,maxScroll}=getScrollInfo();if(maxScroll>0)targetPos=scrollTop/maxScroll;},{passive:true});
   loop();
 }
 function setBetsHeight(){
+  /* Let betsContainer scroll naturally — don't trap it with fixed height */
   const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
-  const top=betsEl.getBoundingClientRect().top;const avail=window.innerHeight-top-72;
-  betsEl.style.height=Math.max(260,avail)+'px';
+  betsEl.style.height='auto';
+  betsEl.style.overflow='visible';
 }
 
 /* ── MARKETS PAGE ── */
@@ -383,12 +395,26 @@ function renderMarkets(){
         <div class="jelly-icon-box" style="filter:brightness(1.5) saturate(1.6)">${m.icon}</div>
         <div style="min-width:0">
           <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            ${m.label} <span style="background:linear-gradient(90deg,#00c8ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Markets</span>
+            ${m.label} <span style="font-family:'Syne',sans-serif;font-weight:900;color:#00e5cc;text-shadow:0 0 10px rgba(0,229,204,.7),0 0 22px rgba(0,200,180,.4);letter-spacing:.5px">Markets</span>
           </div>
           <div class="jelly-chips">
             <div class="chip-live"><span style="width:5px;height:5px;border-radius:50%;background:#ef4444;animation:liveDot 1.1s infinite;display:inline-block;flex-shrink:0"></span><span class="chip-text" style="color:#ff6b6b;font-size:9px">LIVE</span></div>
             <div class="chip-vol"><span class="chip-text" style="color:#00c8ff;font-size:9px">₹4.2L+ VOL</span></div>
-            <div class="chip-hot"><span style="font-size:10px">🔥</span><span class="chip-text" style="color:#ffa040;font-size:9px">${BETS[state.cat].filter(b=>b.hot).length} HOT</span></div>
+            <div class="chip-hot" style="position:relative;overflow:visible">
+              <span class="fire-emoji-wrap" style="position:relative;display:inline-block;width:18px;height:22px;flex-shrink:0">
+                <svg class="fire-svg" width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <radialGradient id="fg1" cx="50%" cy="80%" r="60%"><stop offset="0%" stop-color="#fff7a0"/><stop offset="30%" stop-color="#ffcc00"/><stop offset="60%" stop-color="#ff6600"/><stop offset="100%" stop-color="#cc1100" stop-opacity="0"/></radialGradient>
+                    <radialGradient id="fg2" cx="50%" cy="70%" r="55%"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffaa00"/><stop offset="100%" stop-color="#ff3300" stop-opacity="0"/></radialGradient>
+                    <filter id="ff1"><feGaussianBlur stdDeviation="0.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  </defs>
+                  <path class="fire-outer" d="M9 1 C9 1 13 5 13 9 C14 7 14 5 13 3 C16 5 17 9 16 13 C17 11 17.5 9 17 7 C18 10 18 14 16 17 C15 19.5 12.5 21 9 21 C5.5 21 3 19.5 2 17 C0 14 0 10 1 7 C0.5 9 1 11 2 13 C1 9 2 5 5 3 C4 5 4 7 5 9 C5 5 7 1 9 1Z" fill="url(#fg1)" filter="url(#ff1)"/>
+                  <path class="fire-inner" d="M9 7 C9 7 11.5 10 11 13 C12 11.5 12 10 11.5 8.5 C13 10 13 13 12 15.5 C11 17.5 10 18.5 9 18.5 C8 18.5 7 17.5 6 15.5 C5 13 5 10 6.5 8.5 C6 10 6 11.5 7 13 C6.5 10 7 7 9 7Z" fill="url(#fg2)"/>
+                  <ellipse class="fire-core" cx="9" cy="17" rx="2.5" ry="2" fill="#fffde0" opacity="0.9"/>
+                </svg>
+              </span>
+              <span class="chip-text" style="color:#ffa040;font-size:9px">${BETS[state.cat].filter(b=>b.hot).length} HOT</span>
+            </div>
           </div>
         </div>
       </div>
@@ -396,9 +422,9 @@ function renderMarkets(){
     </div>
     <div class="jelly-track-wrap" id="jellyTrackWrap"><canvas id="jellyCanvas"></canvas></div>
     <div class="jelly-hints">
-      <span class="jelly-hint">◀ SCROLL UP</span>
-      <span class="jelly-hint" style="color:rgba(255,255,255,.14);font-size:8px;align-self:center">DRAG TO NAVIGATE</span>
-      <span class="jelly-hint">SCROLL DOWN ▶</span>
+      <span class="jelly-hint">◀ TOP</span>
+      <span class="jelly-hint" style="color:rgba(255,150,50,.25);font-size:8px;align-self:center">DRAG TO NAVIGATE</span>
+      <span class="jelly-hint">BOTTOM ▶</span>
     </div>
   </div>`;
 
@@ -433,7 +459,7 @@ function renderMarkets(){
       </div>
     </div>`;
   });
-  html+=`<div id="betsContainer" style="padding:0 14px">${cardsHtml}</div>`;
+  html+=`<div id="betsContainer" style="padding:0 14px;padding-bottom:20px">${cardsHtml}</div>`;
   container.innerHTML=html;
   updateBal();
   requestAnimationFrame(()=>requestAnimationFrame(()=>{setBetsHeight();initJellySlider();}));
