@@ -451,26 +451,24 @@ button{cursor:pointer;border:none}
 }
 #bnav{
   position:fixed;bottom:0;left:0;right:0;
-  /* Exact blue→purple gradient like image 2 */
   background:linear-gradient(180deg,
-    #1a3a6e 0%,
-    #2244aa 18%,
-    #3a6fcc 38%,
-    #5b7fd4 55%,
-    #6060c8 72%,
-    #5535a8 88%,
-    #3d1d88 100%
+    #0a1a3a 0%,
+    #0d2255 15%,
+    #1a3888 30%,
+    #2255bb 48%,
+    #3344aa 62%,
+    #442299 78%,
+    #2a1166 100%
   );
   backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
   display:flex;z-index:500;
   height:72px;
   align-items:stretch;
   border-top:none;
-  /* Rainbow glow on top edge like image 1 */
   box-shadow:
-    0 -2px 0 0 transparent,
-    0 -20px 40px rgba(80,130,255,.35),
-    0 -6px 20px rgba(100,80,220,.4);
+    0 -1px 0 rgba(60,120,255,.6),
+    0 -20px 40px rgba(30,80,220,.4),
+    0 -6px 20px rgba(40,60,200,.5);
 }
 /* Rainbow top border — animating gradient like image 1 Gemini bar */
 #bnav::before{
@@ -545,15 +543,15 @@ button{cursor:pointer;border:none}
   top:-26px;left:50%;transform:translateX(-50%);
   width:54px;height:54px;
   border-radius:50%;
-  background:linear-gradient(145deg,#4488ff,#6a1fd0,#aa00ff);
-  border:2px solid rgba(255,255,255,.2);
+  background:linear-gradient(145deg,#00c4b4,#00e5cc,#00ffea);
+  border:2px solid rgba(255,255,255,.25);
   cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   color:#fff;
   animation:plusBtnGlow 2.8s ease-in-out infinite;
   z-index:510;
   transition:transform .18s;
-  box-shadow:0 0 20px rgba(80,120,255,.7),0 0 40px rgba(120,60,255,.4),0 4px 16px rgba(0,0,0,.5);
+  box-shadow:0 0 20px rgba(0,220,200,.8),0 0 40px rgba(0,180,170,.5),0 4px 16px rgba(0,0,0,.5);
 }
 #bnavCenterBtn:active{transform:translateX(-50%) scale(.93)}
 #bnavCenterBtn svg{filter:drop-shadow(0 0 8px rgba(255,255,255,.9))}
