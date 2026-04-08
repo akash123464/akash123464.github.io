@@ -272,18 +272,23 @@ function initJellySlider(){
     const trackH=H-PAD*2,r=trackH/2-2,topY=cy-r,botY=cy+r;
     const vel=Math.max(-12,Math.min(12,pv)),absPv=Math.abs(vel);
     ctx.save();pillPath(PAD+1,PAD+1,W-PAD*2-2,H-PAD*2-2,TR-1);ctx.clip();
-    jellyFillPath(lx,cx,cy,r+7);const ambG=ctx.createLinearGradient(lx,cy,cx+r,cy);ambG.addColorStop(0,'rgba(0,90,210,0.04)');ambG.addColorStop(.65,'rgba(0,140,255,0.12)');ambG.addColorStop(1,'rgba(0,200,255,0.18)');ctx.fillStyle=ambG;ctx.fill();
+    jellyFillPath(lx,cx,cy,r+7);const ambG=ctx.createLinearGradient(lx,cy,cx+r,cy);ambG.addColorStop(0,'rgba(120,30,0,0.06)');ambG.addColorStop(.55,'rgba(200,80,0,0.16)');ambG.addColorStop(1,'rgba(255,140,0,0.28)');ctx.fillStyle=ambG;ctx.fill();
     ctx.shadowColor='rgba(0,0,0,0.58)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
-    jellyFillPath(lx,cx,cy,r);const bodyG=ctx.createLinearGradient(lx,topY,lx,botY);bodyG.addColorStop(0,'#7de8ff');bodyG.addColorStop(0.12,'#38c8f8');bodyG.addColorStop(0.42,'#0890e8');bodyG.addColorStop(0.76,'#055cc0');bodyG.addColorStop(1,'#023c88');ctx.fillStyle=bodyG;ctx.fill();
+    jellyFillPath(lx,cx,cy,r);const bodyG=ctx.createLinearGradient(lx,topY,lx,botY);bodyG.addColorStop(0,'#ffe085');bodyG.addColorStop(0.10,'#ffb830');bodyG.addColorStop(0.35,'#ff7200');bodyG.addColorStop(0.70,'#cc4400');bodyG.addColorStop(1,'#7a1e00');ctx.fillStyle=bodyG;ctx.fill();
     ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-    ctx.beginPath();ctx.moveTo(lx+3,topY+1.2);ctx.lineTo(cx-3,topY+1.2);ctx.strokeStyle='rgba(180,242,255,0.55)';ctx.lineWidth=1.5;ctx.lineCap='round';ctx.stroke();
+    /* Outer orange neon glow ring */
+    jellyFillPath(lx,cx,cy,r);ctx.save();ctx.shadowColor='rgba(255,120,0,0.9)';ctx.shadowBlur=18;ctx.strokeStyle='rgba(255,160,40,0.5)';ctx.lineWidth=2.5;ctx.stroke();ctx.restore();
+    ctx.beginPath();ctx.moveTo(lx+3,topY+1.5);ctx.lineTo(cx-3,topY+1.5);ctx.strokeStyle='rgba(255,240,160,0.65)';ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();
     const spFrac=Math.min(0.58,Math.max(0.2,fillW*0.0035)),spCX=lx+fillW*0.24,spCY=topY+r*0.25,spRX=fillW*spFrac,spRY=r*0.32;
     ctx.beginPath();ctx.ellipse(spCX,spCY,Math.max(spRX,4),Math.max(spRY,3),-0.06,0,Math.PI*2);
-    const specG=ctx.createRadialGradient(spCX-spRX*0.22,spCY-spRY*0.28,0,spCX,spCY,Math.max(spRX,spRY));specG.addColorStop(0,'rgba(255,255,255,0.97)');specG.addColorStop(0.20,'rgba(255,255,255,0.88)');specG.addColorStop(0.52,'rgba(255,255,255,0.42)');specG.addColorStop(0.80,'rgba(255,255,255,0.10)');specG.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=specG;ctx.fill();
-    const s2X=cx-r*0.20,s2Y=cy-r*0.42;ctx.beginPath();ctx.ellipse(s2X,s2Y,r*0.13,r*0.09,-0.22,0,Math.PI*2);const s2G=ctx.createRadialGradient(s2X-r*.04,s2Y-r*.03,0,s2X,s2Y,r*.14);s2G.addColorStop(0,'rgba(255,255,255,0.82)');s2G.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=s2G;ctx.fill();
-    const lgG=ctx.createRadialGradient(lx+r*0.22,cy-r*0.20,0,lx+r*0.28,cy,r*0.58);lgG.addColorStop(0,'rgba(160,240,255,0.26)');lgG.addColorStop(1,'rgba(160,240,255,0)');ctx.beginPath();ctx.arc(lx,cy,r,0,Math.PI*2);ctx.fillStyle=lgG;ctx.fill();
-    jellyFillPath(lx,cx,cy,r);const depG=ctx.createLinearGradient(lx,cy+r*0.32,lx,botY);depG.addColorStop(0,'rgba(0,12,42,0)');depG.addColorStop(1,'rgba(0,8,36,0.38)');ctx.fillStyle=depG;ctx.fill();
-    if(absPv>1.5){const sA=Math.min(absPv/14,0.38),sX=cx-r*0.18;const sG=ctx.createRadialGradient(sX,cy-r*0.28,0,sX,cy,r*0.55);sG.addColorStop(0,`rgba(140,230,255,${sA})`);sG.addColorStop(1,'rgba(140,230,255,0)');ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=sG;ctx.fill();}
+    const specG=ctx.createRadialGradient(spCX-spRX*0.22,spCY-spRY*0.28,0,spCX,spCY,Math.max(spRX,spRY));specG.addColorStop(0,'rgba(255,255,220,0.97)');specG.addColorStop(0.20,'rgba(255,240,180,0.88)');specG.addColorStop(0.52,'rgba(255,200,80,0.42)');specG.addColorStop(0.80,'rgba(255,150,20,0.10)');specG.addColorStop(1,'rgba(255,100,0,0)');ctx.fillStyle=specG;ctx.fill();
+    const s2X=cx-r*0.20,s2Y=cy-r*0.42;ctx.beginPath();ctx.ellipse(s2X,s2Y,r*0.13,r*0.09,-0.22,0,Math.PI*2);const s2G=ctx.createRadialGradient(s2X-r*.04,s2Y-r*.03,0,s2X,s2Y,r*.14);s2G.addColorStop(0,'rgba(255,255,200,0.82)');s2G.addColorStop(1,'rgba(255,200,80,0)');ctx.fillStyle=s2G;ctx.fill();
+    const lgG=ctx.createRadialGradient(lx+r*0.22,cy-r*0.20,0,lx+r*0.28,cy,r*0.58);lgG.addColorStop(0,'rgba(255,200,100,0.30)');lgG.addColorStop(1,'rgba(255,120,0,0)');ctx.beginPath();ctx.arc(lx,cy,r,0,Math.PI*2);ctx.fillStyle=lgG;ctx.fill();
+    jellyFillPath(lx,cx,cy,r);const depG=ctx.createLinearGradient(lx,cy+r*0.32,lx,botY);depG.addColorStop(0,'rgba(40,5,0,0)');depG.addColorStop(1,'rgba(30,4,0,0.45)');ctx.fillStyle=depG;ctx.fill();
+    /* Neon edge glow on moving side */
+    if(absPv>1.5){const sA=Math.min(absPv/14,0.55),sX=cx-r*0.18;const sG=ctx.createRadialGradient(sX,cy-r*0.28,0,sX,cy,r*0.65);sG.addColorStop(0,`rgba(255,200,50,${sA})`);sG.addColorStop(0.5,`rgba(255,120,0,${sA*0.6})`);sG.addColorStop(1,'rgba(255,80,0,0)');ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=sG;ctx.fill();}
+    /* Drip edge highlight */
+    const dripG=ctx.createRadialGradient(cx,cy,r*0.82,cx,cy,r+4);dripG.addColorStop(0,'rgba(255,130,0,0)');dripG.addColorStop(1,`rgba(255,110,0,${Math.min(absPv*0.04+0.12,0.35)})`);ctx.beginPath();ctx.arc(cx,cy,r+2,0,Math.PI*2);ctx.fillStyle=dripG;ctx.fill();
     ctx.restore();
   }
   function drawTicks(){ctx.save();ctx.font='700 8.5px "Space Grotesk",sans-serif';ctx.fillStyle='rgba(255,255,255,.22)';ctx.textAlign='left';ctx.fillText('▲ TOP',PAD+TR+4,H-PAD-3);ctx.textAlign='right';ctx.fillText('BOTTOM ▼',W-PAD-TR-4,H-PAD-3);ctx.restore();}
@@ -559,16 +564,16 @@ function openBet(idx, side){
   state.betAmt  = '';
 
   const isYes  = side === 'YES';
-  const color  = isYes ? '#22c55e' : '#ef4444';
-  const colorR = isYes ? '34,197,94' : '239,68,68';
-  const glow   = `rgba(${colorR},.42)`;
-  const glow2  = `rgba(${colorR},.18)`;
+  const color  = isYes ? '#1e3aff' : '#ef4444';
+  const colorR = isYes ? '30,58,255' : '239,68,68';
+  const glow   = `rgba(${colorR},.55)`;
+  const glow2  = `rgba(${colorR},.25)`;
   const sideLabel = isYes ? '✅ YES' : '❌ NO';
   const btnBg  = isYes
-    ? 'linear-gradient(145deg,#16a34a,#22c55e,#4ade80)'
+    ? 'linear-gradient(145deg,#0f1fcc,#1e3aff,#4d6bff)'
     : 'linear-gradient(145deg,#b91c1c,#ef4444,#f87171)';
   const topLine = isYes
-    ? `linear-gradient(90deg,transparent,rgba(34,197,94,.9),rgba(255,255,255,.85),rgba(34,197,94,.9),transparent)`
+    ? `linear-gradient(90deg,transparent,rgba(30,58,255,.9),rgba(150,180,255,.85),rgba(30,58,255,.9),transparent)`
     : `linear-gradient(90deg,transparent,rgba(239,68,68,.9),rgba(255,255,255,.85),rgba(239,68,68,.9),transparent)`;
   const catM   = META[state.cat];
   const barC   = b.odds > 65 ? '#22c55e' : b.odds > 40 ? catM.color : '#ef4444';
