@@ -307,9 +307,9 @@ function initJellySlider(){
     pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
     const raw=dragStartPos+(x-dragStartX)/RANGE;
     targetPos=Math.max(0,Math.min(1,raw));
-    /* Slider scrolls the whole page, not betsContainer */
-    const maxS=document.body.scrollHeight-window.innerHeight;
-    if(maxS>0)window.scrollTo(0,targetPos*maxS);
+    /* Slider scrolls ONLY betsContainer, not the whole page */
+    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
+    if(maxS>0)betsEl.scrollTop=targetPos*maxS;
   }
   function onEnd(){isDragging=false;}
   canvas.addEventListener('mousedown',onStart,{passive:false});
@@ -318,19 +318,18 @@ function initJellySlider(){
   window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
   window.addEventListener('mouseup',onEnd);
   window.addEventListener('touchend',onEnd);
-  /* When user manually scrolls the page, sync slider */
-  window.addEventListener('scroll',()=>{
-    if(isDragging)return;
-    const maxS=document.body.scrollHeight-window.innerHeight;
-    if(maxS>0)targetPos=window.scrollY/maxS;
-  },{passive:true});
+  /* Slider is independent — no page scroll sync needed */
   loop();
 }
 function setBetsHeight(){
   const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
-  /* Let betsContainer grow naturally — page scrolls freely */
-  betsEl.style.height='auto';
-  betsEl.style.overflowY='visible';
+  /* Fixed height so slider can scroll bets independently.
+     overflow-y:hidden means manual touch/swipe passes through to the page —
+     only the jelly slider sets scrollTop via JS. */
+  const top=betsEl.getBoundingClientRect().top;
+  const avail=window.innerHeight-top-82;
+  betsEl.style.height=Math.max(300,avail)+'px';
+  betsEl.style.overflowY='hidden';
   betsEl.style.overflowX='hidden';
 }
 
