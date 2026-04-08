@@ -319,6 +319,12 @@ function initJellySlider(){
   window.addEventListener('mouseup',onEnd);
   window.addEventListener('touchend',onEnd);
   /* Slider is independent — no page scroll sync needed */
+  /* Sync slider when user manually scrolls bets */
+  betsEl.addEventListener('scroll',()=>{
+    if(isDragging)return;
+    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
+    if(maxS>0)targetPos=betsEl.scrollTop/maxS;
+  },{passive:true});
   loop();
 }
 function setBetsHeight(){
@@ -329,7 +335,7 @@ function setBetsHeight(){
   const top=betsEl.getBoundingClientRect().top;
   const avail=window.innerHeight-top-82;
   betsEl.style.height=Math.max(300,avail)+'px';
-  betsEl.style.overflowY='hidden';
+  betsEl.style.overflowY='auto';
   betsEl.style.overflowX='hidden';
 }
 
@@ -569,9 +575,12 @@ function saveUpi(){
   else showToast('Enter UPI ID and phone','info');
 }
 function logout(){
+  /* Save txList to localStorage BEFORE clearing state so history is preserved */
+  LS.save();
+  /* Clear in-memory session only — do NOT wipe localStorage so portfolio survives */
   state.bal=0;state.txList=[];state.savedUpi='';state.upi='';state.phone='';
   state.totalDeposit=0;state.totalWithdraw=0;state.userEmail='';
-  LS.save();showToast('Logged out','info');renderAccTab();updateBal();
+  showToast('Logged out','info');renderAccTab();updateBal();
 }
 
 /* ── PORTFOLIO ── */
@@ -857,6 +866,10 @@ window.adminUpdateTx=function(docId,newStatus,actionType,rawAmt){
 
 /* ── INIT ── */
 function init(){
+  /* Restore the correct per-user LS key from any previously saved email */
+  const guestData=JSON.parse(localStorage.getItem('ww_guest')||'{}');
+  const savedEmail=guestData.userEmail||localStorage.getItem('userEmail')||'';
+  if(savedEmail){LS.setKey(savedEmail);}
   LS.load();setCC(META[state.cat].color);renderTabs();renderMarkets();updateBal();updateBlobs();
   ['support','account'].forEach(p=>{const pip=document.getElementById('pip-'+p);if(pip)pip.style.display='none';});
 }
