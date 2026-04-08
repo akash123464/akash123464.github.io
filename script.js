@@ -614,17 +614,17 @@ function openBet(idx, side){
   state.betAmt  = '';
 
   const isYes  = side === 'YES';
-  const color  = isYes ? '#1e3aff' : '#ef4444';
-  const colorR = isYes ? '30,58,255' : '239,68,68';
-  const glow   = `rgba(${colorR},.55)`;
-  const glow2  = `rgba(${colorR},.25)`;
+  const color  = isYes ? '#00e5cc' : '#8b0040';
+  const colorR = isYes ? '0,229,204' : '139,0,64';
+  const glow   = isYes ? 'rgba(0,229,204,.65)' : 'rgba(160,0,80,.75)';
+  const glow2  = isYes ? 'rgba(0,229,204,.30)' : 'rgba(130,0,60,.40)';
   const sideLabel = isYes ? '✅ YES' : '❌ NO';
   const btnBg  = isYes
-    ? 'linear-gradient(145deg,#0f1fcc,#1e3aff,#4d6bff)'
-    : 'linear-gradient(145deg,#b91c1c,#ef4444,#f87171)';
+    ? 'linear-gradient(145deg,#007a6e,#00c4ae,#00e5cc)'
+    : 'linear-gradient(145deg,#4a0020,#8b0040,#c0005a)';
   const topLine = isYes
-    ? `linear-gradient(90deg,transparent,rgba(30,58,255,.9),rgba(150,180,255,.85),rgba(30,58,255,.9),transparent)`
-    : `linear-gradient(90deg,transparent,rgba(239,68,68,.9),rgba(255,255,255,.85),rgba(239,68,68,.9),transparent)`;
+    ? `linear-gradient(90deg,transparent,rgba(0,229,204,.95),rgba(180,255,245,.85),rgba(0,229,204,.95),transparent)`
+    : `linear-gradient(90deg,transparent,rgba(160,0,80,.95),rgba(255,180,220,.75),rgba(160,0,80,.95),transparent)`;
   const catM   = META[state.cat];
   const barC   = b.odds > 65 ? '#22c55e' : b.odds > 40 ? catM.color : '#ef4444';
   const chipVals = [50,100,250,500,1000];
