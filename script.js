@@ -160,10 +160,10 @@ const BADGE_COLORS={
 const VOLS=["2.4K","5.1K","11.8K","3.2K","7.6K","18.4K","9.1K","4.3K","22.1K","1.8K","6.7K"];
 
 function normalizeStatus(raw){
-  const s=(raw||'').toString().toUpperCase().trim();
-  if(s==='WON'||s==='WIN'||s==='APPROVED'||s.includes('WIN'))    return{label:'WON 🏆',cls:'won'};
-  if(s==='LOST'||s==='LOSE'||s==='REJECTED'||s.includes('LOST')) return{label:'LOST ❌',cls:'lost'};
-  if(s==='COMPLETED'||s==='PAID'||s==='SUCCESS')                  return{label:'COMPLETED ✓',cls:'completed'};
+  const s=(raw||'').toString().toUpperCase().replace(/[^A-Z]/g,'');
+  if(s.includes('WIN')||s.includes('WON')||s.includes('APPROV'))    return{label:'WON 🏆',cls:'won'};
+  if(s.includes('LOST')||s.includes('LOSE')||s.includes('REJECT'))  return{label:'LOST ❌',cls:'lost'};
+  if(s.includes('COMPLET')||s.includes('PAID')||s.includes('SUCC')) return{label:'COMPLETED ✓',cls:'completed'};
   return{label:'PENDING',cls:'pending'};
 }
 function cc(){return META[state.cat].color;}
@@ -729,8 +729,14 @@ function bcUpdateAmt(val, colorR){
   if(inp && colorR) inp.style.borderColor = `rgba(${colorR},.65)`;
 }
 
-/* Place bet from shimmer card — same logic as before */
+/* Place bet from shimmer card — calls Firebase override if available */
 function bcPlaceBet(){
+  /* If Firebase override exists, use it (writes to Firestore) */
+  if(typeof window.placeBet === 'function' && window.placeBet !== bcPlaceBet){
+    window.placeBet();
+    return;
+  }
+  /* Local fallback (no Firebase) */
   const a = parseInt(state.betAmt);
   if(!a||a<=0) return showToast('Enter a valid amount','info');
   if(a>state.bal) return showToast('Insufficient balance 💸','info');
