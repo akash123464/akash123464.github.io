@@ -440,62 +440,123 @@ button{cursor:pointer;border:none}
 .neon-red-btn{background:linear-gradient(145deg,rgba(239,68,68,.13),rgba(239,68,68,.05));border:1.5px solid rgba(239,68,68,.45);color:#ef4444;font-weight:700;box-shadow:0 0 16px rgba(239,68,68,.18),inset 0 1px 0 rgba(255,255,255,.12)}
 
 /* ── BOTTOM NAV ── */
+@keyframes rainbowBorder{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+@keyframes iconRingRotate{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
 #bnav{
   position:fixed;bottom:0;left:0;right:0;
-  background:linear-gradient(180deg,rgba(8,4,22,.0) 0%,rgba(60,20,130,.85) 30%,rgba(80,30,160,.97) 100%);
-  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+  /* Exact blue→purple gradient like image 2 */
+  background:linear-gradient(180deg,
+    #1a3a6e 0%,
+    #2244aa 18%,
+    #3a6fcc 38%,
+    #5b7fd4 55%,
+    #6060c8 72%,
+    #5535a8 88%,
+    #3d1d88 100%
+  );
+  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
   display:flex;z-index:500;
-  height:68px;
+  height:72px;
   align-items:stretch;
-  animation:bnavBarGlow 3s ease-in-out infinite;
   border-top:none;
-  box-shadow:0 -4px 24px rgba(110,40,200,.6),0 -1px 0 rgba(140,60,255,.4);
+  /* Rainbow glow on top edge like image 1 */
+  box-shadow:
+    0 -2px 0 0 transparent,
+    0 -20px 40px rgba(80,130,255,.35),
+    0 -6px 20px rgba(100,80,220,.4);
+}
+/* Rainbow top border — animating gradient like image 1 Gemini bar */
+#bnav::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,
+    #ff0000,#ff6600,#ffcc00,#00ff88,#00ccff,#0066ff,#aa00ff,#ff0099,#ff0000
+  );
+  background-size:200% 100%;
+  animation:rainbowBorder 4s linear infinite;
+  box-shadow:0 0 12px rgba(120,180,255,.7),0 0 28px rgba(180,100,255,.5),0 0 48px rgba(255,80,180,.3);
+  pointer-events:none;
+  z-index:2;
 }
 /* curved dip in center */
-#bnav::before{
+#bnav::after{
   content:'';
   position:absolute;
   top:-22px;left:50%;transform:translateX(-50%);
   width:80px;height:44px;
   background:transparent;
   border-radius:0 0 50% 50%;
-  box-shadow:0 20px 0 0 rgba(80,30,160,.97);
+  box-shadow:0 20px 0 0 #3d2a99;
   pointer-events:none;
 }
-/* purple top border line glow */
-#bnav::after{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;height:1.5px;
-  background:linear-gradient(90deg,transparent 5%,rgba(160,80,255,.7) 30%,transparent 48%,transparent 52%,rgba(160,80,255,.7) 70%,transparent 95%);
-  box-shadow:0 0 8px rgba(160,80,255,.5);
-  pointer-events:none;
-}
-.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 0;gap:3px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,.38);transition:color .22s;position:relative}
-.bnav-item.active{color:#fff}
-.bnav-item svg{transition:all .25s;filter:drop-shadow(0 0 0px transparent)}
-.bnav-item.active svg{animation:bnavIconGlow 2.5s ease-in-out infinite}
-.bnav-item:not(.active):hover svg{filter:drop-shadow(0 0 4px rgba(180,120,255,.5))}
-.bnav-pip{position:absolute;top:0;left:50%;transform:translateX(-50%);width:22px;height:2.5px;border-radius:2px;background:linear-gradient(90deg,rgba(180,100,255,.8),rgba(255,215,0,.65));box-shadow:0 0 10px rgba(160,80,255,.8),0 0 20px rgba(140,60,255,.4)}
-.bnav-label{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.bnav-item.active .bnav-label{text-shadow:0 0 10px rgba(200,150,255,.8)}
 
-/* Center plus button — floats above bar like in the photo */
+/* Icon wrapper — circular ring like image 3 */
+.bnav-icon-wrap{
+  position:relative;
+  width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.bnav-icon-wrap::before{
+  content:'';
+  position:absolute;inset:-3px;
+  border-radius:50%;
+  padding:2px;
+  background:conic-gradient(
+    from 0deg,
+    rgba(100,160,255,0) 0%,
+    rgba(120,180,255,.8) 25%,
+    rgba(180,100,255,.9) 50%,
+    rgba(255,80,160,.7) 75%,
+    rgba(100,160,255,0) 100%
+  );
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  opacity:0;
+  transition:opacity .25s;
+}
+.bnav-item.active .bnav-icon-wrap::before{
+  opacity:1;
+  animation:iconRingRotate 3s linear infinite;
+}
+
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0;gap:4px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,.45);transition:color .22s;position:relative}
+.bnav-item.active{color:#fff}
+.bnav-item svg{transition:all .25s;position:relative;z-index:1}
+/* Active icon glow */
+.bnav-item.active svg{filter:drop-shadow(0 0 6px rgba(180,200,255,.9)) drop-shadow(0 0 14px rgba(120,160,255,.6))}
+.bnav-item:not(.active):hover svg{filter:drop-shadow(0 0 4px rgba(160,180,255,.5))}
+.bnav-pip{position:absolute;top:0;left:50%;transform:translateX(-50%);width:22px;height:2.5px;border-radius:2px;background:linear-gradient(90deg,#60a0ff,#cc80ff);box-shadow:0 0 10px rgba(120,160,255,.9),0 0 20px rgba(160,100,255,.5)}
+.bnav-label{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.bnav-item.active .bnav-label{text-shadow:0 0 10px rgba(180,210,255,.9);color:#fff}
+
+/* Center plus button */
 #bnavCenterBtn{
   position:absolute;
-  top:-24px;left:50%;transform:translateX(-50%);
-  width:52px;height:52px;
+  top:-26px;left:50%;transform:translateX(-50%);
+  width:54px;height:54px;
   border-radius:50%;
-  background:linear-gradient(145deg,#6a1fd0,#4a0ea8);
-  border:none;cursor:pointer;
+  background:linear-gradient(145deg,#4488ff,#6a1fd0,#aa00ff);
+  border:2px solid rgba(255,255,255,.2);
+  cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:26px;font-weight:300;
+  color:#fff;
   animation:plusBtnGlow 2.8s ease-in-out infinite;
   z-index:510;
   transition:transform .18s;
+  box-shadow:0 0 20px rgba(80,120,255,.7),0 0 40px rgba(120,60,255,.4),0 4px 16px rgba(0,0,0,.5);
 }
 #bnavCenterBtn:active{transform:translateX(-50%) scale(.93)}
-#bnavCenterBtn svg{filter:drop-shadow(0 0 6px rgba(255,255,255,.8))}
+#bnavCenterBtn svg{filter:drop-shadow(0 0 8px rgba(255,255,255,.9))}
 
 /* ── BACKDROP ── */
 .backdrop{position:fixed;inset:0;background:rgba(2,5,16,.76);z-index:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);animation:backdropIn .25s ease forwards}
