@@ -5,9 +5,10 @@
 
 /* ── RESET ── */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html{scroll-behavior:smooth}
 body{font-family:'Space Grotesk',sans-serif;background:#080c18;color:#e8edf5;min-height:100vh;overscroll-behavior:none}
 input,button{font-family:'Space Grotesk',sans-serif}
-button{cursor:pointer;border:none}
+button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease}
 ::-webkit-scrollbar{display:none}
 
 /* ── KEYFRAMES ── */
@@ -46,7 +47,7 @@ button{cursor:pointer;border:none}
 .fire-inner{animation:fireInner 1s ease-in-out infinite .15s;transform-origin:9px 13px}
 .fire-core{animation:fireCore 0.8s ease-in-out infinite .05s}
 
-@keyframes redBreath{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 4px #ff2200,0 0 8px #ff2200}50%{opacity:.55;transform:scale(.6);box-shadow:0 0 2px #ff4400}}
+@keyframes redBreath{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 8px #ff0000,0 0 18px #ff0000,0 0 32px rgba(255,0,0,.7),inset 0 0 4px rgba(255,100,100,.6)}50%{opacity:.6;transform:scale(.55);box-shadow:0 0 4px #ff1100,0 0 10px rgba(255,0,0,.5)}}
 @keyframes fireFlicker1{0%,100%{transform:scaleX(1) scaleY(1) translateY(0)}20%{transform:scaleX(1.1) scaleY(.96) translateY(1px)}40%{transform:scaleX(.9) scaleY(1.05) translateY(-1px)}60%{transform:scaleX(1.07) scaleY(.97) translateY(.5px)}80%{transform:scaleX(.95) scaleY(1.03) translateY(-.5px)}}
 @keyframes fireFlicker2{0%,100%{transform:scaleX(1) scaleY(1)}25%{transform:scaleX(.88) scaleY(1.08)}50%{transform:scaleX(1.1) scaleY(.94)}75%{transform:scaleX(.93) scaleY(1.05)}}
 @keyframes fireCoreBreath{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
@@ -255,7 +256,7 @@ button{cursor:pointer;border:none}
   border:1px solid rgba(255,255,255,.12);
   border-radius:50px;font-size:12px;font-weight:700;
   cursor:pointer;color:rgba(255,255,255,.7);
-  transition:all .18s;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);
 }
 .bc-chip.active,.bc-chip:active{
   background:var(--card-color,rgba(34,197,94,.2));
@@ -274,7 +275,7 @@ button{cursor:pointer;border:none}
   font-size:30px;font-weight:800;text-align:center;
   outline:none;margin-bottom:14px;
   font-family:'Oswald',sans-serif;letter-spacing:2px;
-  transition:border-color .18s,box-shadow .18s;
+  transition:border-color .25s ease,box-shadow .25s ease;
   backdrop-filter:blur(8px);
 }
 .bc-input:focus{
@@ -303,6 +304,7 @@ button{cursor:pointer;border:none}
   animation:shimmerSweep 1.8s ease-in-out infinite .4s;
   pointer-events:none;
 }
+.bc-btn{transition:transform .2s cubic-bezier(.34,1.56,.64,1),opacity .18s ease,box-shadow .22s ease}
 .bc-btn:active{transform:scale(.97)}
 
 /* Cancel link */
@@ -313,6 +315,7 @@ button{cursor:pointer;border:none}
   transition:color .18s;
 }
 .bc-cancel:hover{color:rgba(255,255,255,.6)}
+.bc-cancel{transition:color .22s ease}
 
 /* ── CSS VARIABLES ── */
 :root{--cc:#00d4ff}
@@ -352,7 +355,7 @@ button{cursor:pointer;border:none}
 /* ── TABS ── */
 #tabsWrap{position:sticky;top:60px;z-index:400;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);background:linear-gradient(180deg,rgba(6,9,20,.97),rgba(8,12,24,.95));border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 4px 18px rgba(0,0,0,.45)}
 #tabsRow{display:flex;overflow-x:auto;padding:0 4px;scrollbar-width:none;gap:2px}
-.tab{display:flex;align-items:center;gap:7px;padding:13px 15px;font-size:12px;font-weight:700;color:rgba(255,255,255,.28);white-space:nowrap;cursor:pointer;border-bottom:2.5px solid transparent;transition:all .25s ease;position:relative;letter-spacing:.3px}
+.tab{display:flex;align-items:center;gap:7px;padding:13px 15px;font-size:12px;font-weight:700;color:rgba(255,255,255,.28);white-space:nowrap;cursor:pointer;border-bottom:2.5px solid transparent;transition:color .28s ease,border-color .28s ease,background .28s ease,opacity .22s ease;position:relative;letter-spacing:.3px}
 .tab.active{color:#fff;border-bottom-color:var(--cc);background:rgba(255,255,255,.03);border-radius:6px 6px 0 0}
 .tab-glow{position:absolute;bottom:0;left:0;right:0;height:2px;filter:blur(3px);opacity:.55;background:var(--cc)}
 .tab svg{transition:all .25s}
@@ -374,8 +377,8 @@ button{cursor:pointer;border:none}
 .bal-num-lg{font-family:'Oswald',sans-serif;font-weight:700;font-size:46px;color:#fff;line-height:1;letter-spacing:1px;text-shadow:0 2px 20px rgba(255,255,255,.3)}
 .bal-inr{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:2px;align-self:flex-end;margin-bottom:6px}
 .bal-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-.dep-btn{padding:13px;border-radius:50px;border:2px solid var(--cc);font-weight:800;font-size:12px;cursor:pointer;color:var(--cc);background:rgba(0,212,255,.06);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.3px;position:relative;overflow:hidden;transition:all .22s;text-shadow:0 0 10px var(--cc);box-shadow:0 0 18px rgba(0,212,255,.18),inset 0 1px 0 rgba(255,255,255,.12)}
-.wit-btn{padding:13px;border-radius:50px;border:1.5px solid rgba(0,212,255,.3);font-weight:700;font-size:12px;cursor:pointer;background:rgba(0,212,255,.05);color:rgba(0,212,255,.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:6px;position:relative;overflow:hidden;transition:all .22s}
+.dep-btn{padding:13px;border-radius:50px;border:2px solid var(--cc);font-weight:800;font-size:12px;cursor:pointer;color:var(--cc);background:rgba(0,212,255,.06);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.3px;position:relative;overflow:hidden;transition:all .28s cubic-bezier(.34,1.56,.64,1);text-shadow:0 0 10px var(--cc);box-shadow:0 0 18px rgba(0,212,255,.18),inset 0 1px 0 rgba(255,255,255,.12)}
+.wit-btn{padding:13px;border-radius:50px;border:1.5px solid rgba(0,212,255,.3);font-weight:700;font-size:12px;cursor:pointer;background:rgba(0,212,255,.05);color:rgba(0,212,255,.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:6px;position:relative;overflow:hidden;transition:all .28s cubic-bezier(.34,1.56,.64,1)}
 .bal-stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;border-top:1px solid rgba(255,255,255,.1);padding-top:14px}
 .bal-stat-box{text-align:center}
 .bal-stat-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
@@ -417,7 +420,7 @@ button{cursor:pointer;border:none}
 #betsContainer::-webkit-scrollbar{display:none}
 
 /* ── MARKET CARDS ── */
-.market-card{margin:0 0 10px;border-radius:16px;padding:16px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.018),rgba(0,212,255,.018));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);transition:transform .2s ease,box-shadow .2s ease;position:relative;overflow:hidden;animation:cardIn .32s ease forwards}
+.market-card{margin:0 0 10px;border-radius:16px;padding:16px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.018),rgba(0,212,255,.018));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s ease,opacity .22s ease;position:relative;overflow:hidden;animation:cardIn .32s ease forwards}
 .market-card:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.12)}
 .card-glow-top{position:absolute;top:0;left:0;right:0;height:1px}
 .card-glow-left{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:16px 0 0 16px}
@@ -433,10 +436,10 @@ button{cursor:pointer;border:none}
 .odds-bar-fill{height:100%;border-radius:5px}
 .odds-label{font-size:10px;color:#4a5568;min-width:36px;text-align:right}
 .bet-btns{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding-left:4px}
-.bet-btn{padding:12px 10px;border-radius:11px;font-size:12px;cursor:pointer;backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;gap:5px;position:relative;overflow:hidden;font-weight:700}
+.bet-btn{padding:12px 10px;border-radius:11px;font-size:12px;cursor:pointer;backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;gap:5px;position:relative;overflow:hidden;font-weight:700;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease,opacity .18s ease}
 
 /* ── OTHER BUTTONS ── */
-.neon-btn{width:100%;padding:15px 18px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;position:relative;overflow:hidden;letter-spacing:.5px;transition:opacity .18s,transform .14s}
+.neon-btn{width:100%;padding:15px 18px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;position:relative;overflow:hidden;letter-spacing:.5px;transition:opacity .22s ease,transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease}
 .neon-btn:active{transform:scale(.98)}
 .neon-cyan-btn{background:linear-gradient(145deg,rgba(0,212,255,.13),rgba(0,212,255,.05));border:1.5px solid rgba(0,212,255,.45);color:#00d4ff;font-weight:700;box-shadow:0 0 16px rgba(0,212,255,.18),inset 0 1px 0 rgba(255,255,255,.12)}
 .neon-gold-btn{background:linear-gradient(145deg,rgba(255,215,0,.13),rgba(255,215,0,.05));border:1.5px solid rgba(255,215,0,.45);color:#ffd700;font-weight:700;box-shadow:0 0 16px rgba(255,215,0,.18),inset 0 1px 0 rgba(255,255,255,.12)}
@@ -531,7 +534,7 @@ button{cursor:pointer;border:none}
   animation:iconRingRotate 3s linear infinite;
 }
 
-.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0;gap:4px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,.45);transition:color .22s;position:relative}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0;gap:4px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,.45);transition:color .28s ease,transform .2s cubic-bezier(.34,1.56,.64,1);position:relative}
 .bnav-item.active{color:#fff}
 .bnav-item svg{transition:all .25s;position:relative;z-index:1}
 /* Active icon glow */
@@ -558,10 +561,11 @@ button{cursor:pointer;border:none}
   box-shadow:0 0 20px rgba(0,220,200,.8),0 0 40px rgba(0,180,170,.5),0 4px 16px rgba(0,0,0,.5);
 }
 #bnavCenterBtn:active{transform:translateX(-50%) scale(.93)}
+#bnavCenterBtn{transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease}
 #bnavCenterBtn svg{filter:drop-shadow(0 0 8px rgba(255,255,255,.9))}
 
 /* ── BACKDROP ── */
-.backdrop{position:fixed;inset:0;background:rgba(2,5,16,.76);z-index:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);animation:backdropIn .25s ease forwards}
+.backdrop{position:fixed;inset:0;background:rgba(2,5,16,.76);z-index:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);animation:backdropIn .3s ease forwards;transition:background .3s ease}
 /* When bet card is open — very light blur (10%) so site background is clearly visible */
 .backdrop.bet-open{background:rgba(2,5,16,.35);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
 
@@ -571,7 +575,7 @@ button{cursor:pointer;border:none}
 .sheet-title{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;margin-bottom:4px;line-height:1.35;color:#e8edf5}
 .sheet-sub{font-size:12px;color:#64748b;margin-bottom:16px;display:flex;align-items:center;gap:6px}
 .amt-chips{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.amt-chip{padding:7px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;color:#94a3b8;transition:all .16s}
+.amt-chip{padding:7px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;color:#94a3b8;transition:all .24s cubic-bezier(.34,1.56,.64,1)}
 .amt-chip.active{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.2);color:#e8edf5}
 .amt-inp{width:100%;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:15px;color:#e8edf5;font-size:28px;font-weight:700;text-align:center;outline:none;margin-bottom:10px;font-family:'Oswald',sans-serif;letter-spacing:2px;transition:border-color .18s}
 .amt-inp:focus{border-color:rgba(0,212,255,.3)}
@@ -579,13 +583,13 @@ button{cursor:pointer;border:none}
 .sheet-cancel{text-align:center;margin-top:12px;color:#475569;font-size:13px;cursor:pointer;padding:8px}
 
 /* ── TOAST ── */
-.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:14px;font-weight:700;font-size:13px;z-index:999;white-space:nowrap;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:none}
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:14px;font-weight:700;font-size:13px;z-index:999;white-space:nowrap;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:none;transition:opacity .3s ease,transform .3s cubic-bezier(.16,1,.3,1)}
 .toast.show{display:block}
 
 /* ── PORTFOLIO SIDEBAR ── */
 #portfolio{position:fixed;top:0;right:0;width:min(100%,385px);height:100%;background:linear-gradient(180deg,rgba(6,9,22,.98),rgba(4,6,14,.99));backdrop-filter:blur(44px);-webkit-backdrop-filter:blur(44px);z-index:800;overflow-y:auto;border-left:1px solid rgba(255,255,255,.07);box-shadow:-8px 0 36px rgba(0,0,0,.5);animation:slideInRight .36s cubic-bezier(.16,1,.3,1) forwards}
 .port-header{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(6,9,18,.94);backdrop-filter:blur(16px);z-index:1}
-.port-close{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:9px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#94a3b8;transition:all .18s}
+.port-close{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:9px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#94a3b8;transition:all .25s ease}
 .port-close:hover{background:rgba(255,255,255,.1);color:#e8edf5}
 .port-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:12px 14px 0}
 .port-stat{border-radius:11px;padding:10px;text-align:center}
@@ -606,6 +610,31 @@ button{cursor:pointer;border:none}
 .text-inp{width:100%;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:11px 14px;color:#e8edf5;font-size:13px;outline:none;font-family:inherit;transition:border-color .18s,box-shadow .18s}
 .text-inp::placeholder{color:#475569}
 .text-inp:focus{border-color:rgba(0,212,255,.28);box-shadow:0 0 0 3px rgba(0,212,255,.06)}
+.text-inp{transition:border-color .25s ease,box-shadow .25s ease}
 .acc-tabs{display:flex;gap:5px;margin-bottom:18px;background:rgba(255,255,255,.04);border-radius:11px;padding:4px;border:1px solid rgba(255,255,255,.06)}
-.acc-tab{flex:1;padding:8px;border-radius:8px;border:none;font-weight:700;font-size:12px;cursor:pointer;color:#64748b;background:transparent;transition:all .18s}
+.acc-tab{flex:1;padding:8px;border-radius:8px;border:none;font-weight:700;font-size:12px;cursor:pointer;color:#64748b;background:transparent;transition:all .25s ease}
 .acc-tab.active{background:rgba(255,215,0,.09);color:#ffd700}
+
+/* ── UPI POPUP ── */
+@keyframes upiPopIn{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.82)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+#upiPopup{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.82);
+  opacity:0;
+  z-index:1000;
+  width:min(88vw,320px);
+  border-radius:22px;
+  padding:24px 20px 20px;
+  background:linear-gradient(145deg,rgba(8,12,28,.97),rgba(4,7,18,.99));
+  backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+  border:1.5px solid rgba(255,215,0,.35);
+  box-shadow:0 0 40px rgba(255,215,0,.18),0 16px 60px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.12);
+  pointer-events:none;
+}
+#upiPopup.open{
+  animation:upiPopIn .38s cubic-bezier(.16,1,.3,1) forwards;
+  pointer-events:auto;
+}
