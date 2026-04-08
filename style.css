@@ -36,6 +36,15 @@ button{cursor:pointer;border:none}
 @keyframes plusBtnGlow{0%,100%{box-shadow:0 0 16px rgba(110,30,220,.7),0 0 32px rgba(90,20,200,.4),inset 0 1px 0 rgba(255,255,255,.25)}50%{box-shadow:0 0 28px rgba(140,60,255,.9),0 0 56px rgba(110,40,230,.6),inset 0 1px 0 rgba(255,255,255,.35)}}
 @keyframes blueYesGlow{0%,100%{box-shadow:0 0 18px rgba(30,60,255,.5),0 0 40px rgba(20,40,220,.25)}50%{box-shadow:0 0 32px rgba(40,80,255,.75),0 0 70px rgba(30,60,240,.4)}}
 @keyframes jellyDrip{0%{transform:translateY(0) scaleX(1)}20%{transform:translateY(-3px) scaleX(1.04)}40%{transform:translateY(2px) scaleX(.97)}60%{transform:translateY(-1.5px) scaleX(1.02)}80%{transform:translateY(1px) scaleX(.99)}100%{transform:translateY(0) scaleX(1)}}
+@keyframes fireOuter{0%,100%{d:path("M9 1 C9 1 13 5 13 9 C14 7 14 5 13 3 C16 5 17 9 16 13 C17 11 17.5 9 17 7 C18 10 18 14 16 17 C15 19.5 12.5 21 9 21 C5.5 21 3 19.5 2 17 C0 14 0 10 1 7 C0.5 9 1 11 2 13 C1 9 2 5 5 3 C4 5 4 7 5 9 C5 5 7 1 9 1Z");transform:scaleX(1)}25%{transform:scaleX(1.08) scaleY(.97)}50%{transform:scaleX(.93) scaleY(1.04)}75%{transform:scaleX(1.05) scaleY(.98)}}
+@keyframes fireInner{0%,100%{transform:scaleY(1) translateY(0)}33%{transform:scaleY(1.08) translateY(-1px)}66%{transform:scaleY(.94) translateY(1px)}}
+@keyframes fireCore{0%,100%{opacity:.9;rx:2.5}50%{opacity:.6;rx:1.8}}
+@keyframes fireGlow{0%,100%{filter:drop-shadow(0 0 3px #ff6600) drop-shadow(0 0 7px #ff3300)}50%{filter:drop-shadow(0 0 6px #ffaa00) drop-shadow(0 0 14px #ff6600) drop-shadow(0 0 22px #ff330066)}}
+@keyframes tealMarketsPulse{0%,100%{text-shadow:0 0 10px rgba(0,229,204,.7),0 0 22px rgba(0,200,180,.4)}50%{text-shadow:0 0 16px rgba(0,255,220,1),0 0 32px rgba(0,220,200,.7),0 0 48px rgba(0,180,160,.3)}}
+.fire-svg{animation:fireGlow 1.2s ease-in-out infinite}
+.fire-outer{animation:fireOuter 1.4s ease-in-out infinite;transform-origin:9px 11px}
+.fire-inner{animation:fireInner 1s ease-in-out infinite .15s;transform-origin:9px 13px}
+.fire-core{animation:fireCore 0.8s ease-in-out infinite .05s}
 
 /* Balance card gradient */
 @keyframes balCardGrad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
@@ -400,7 +409,7 @@ button{cursor:pointer;border:none}
 .jelly-track-wrap::after{content:'';position:absolute;inset:-3px;border-radius:54px;background:transparent;box-shadow:0 0 20px rgba(255,100,0,.18),0 0 40px rgba(255,60,0,.1);pointer-events:none;z-index:-1}
 
 /* ── BETS CONTAINER ── */
-#betsContainer{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:16px}
+#betsContainer{overflow:visible;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:16px}
 #betsContainer::-webkit-scrollbar{display:none}
 
 /* ── MARKET CARDS ── */
