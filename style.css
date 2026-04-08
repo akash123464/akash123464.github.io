@@ -46,7 +46,11 @@ button{cursor:pointer;border:none}
 .fire-inner{animation:fireInner 1s ease-in-out infinite .15s;transform-origin:9px 13px}
 .fire-core{animation:fireCore 0.8s ease-in-out infinite .05s}
 
-/* Balance card gradient */
+@keyframes redBreath{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 4px #ff2200,0 0 8px #ff2200}50%{opacity:.55;transform:scale(.6);box-shadow:0 0 2px #ff4400}}
+@keyframes fireFlicker1{0%,100%{transform:scaleX(1) scaleY(1) translateY(0)}20%{transform:scaleX(1.1) scaleY(.96) translateY(1px)}40%{transform:scaleX(.9) scaleY(1.05) translateY(-1px)}60%{transform:scaleX(1.07) scaleY(.97) translateY(.5px)}80%{transform:scaleX(.95) scaleY(1.03) translateY(-.5px)}}
+@keyframes fireFlicker2{0%,100%{transform:scaleX(1) scaleY(1)}25%{transform:scaleX(.88) scaleY(1.08)}50%{transform:scaleX(1.1) scaleY(.94)}75%{transform:scaleX(.93) scaleY(1.05)}}
+@keyframes fireCoreBreath{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+@keyframes fireColorShift{0%,100%{stop-color:#fff700}50%{stop-color:#ffaa00}}
 @keyframes balCardGrad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 /* Jelly tap */
 @keyframes jellyTap{
@@ -558,8 +562,8 @@ button{cursor:pointer;border:none}
 
 /* ── BACKDROP ── */
 .backdrop{position:fixed;inset:0;background:rgba(2,5,16,.76);z-index:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);animation:backdropIn .25s ease forwards}
-/* When bet card is open — 50% transparent so site background is visible through blur */
-.backdrop.bet-open{background:rgba(2,5,16,.5);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+/* When bet card is open — very light blur (10%) so site background is clearly visible */
+.backdrop.bet-open{background:rgba(2,5,16,.35);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
 
 /* ── BOTTOM SHEET (deposit / withdraw only) ── */
 .sheet{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,rgba(8,12,26,.97),rgba(4,7,16,.99));backdrop-filter:blur(44px);-webkit-backdrop-filter:blur(44px);border-radius:22px 22px 0 0;padding:20px;z-index:700;max-height:88vh;overflow-y:auto;border:1px solid rgba(255,255,255,.09);border-bottom:none;border-top:1.5px solid rgba(0,212,255,.15);box-shadow:0 -18px 55px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.09);animation:slideUp .38s cubic-bezier(.16,1,.3,1) forwards}
