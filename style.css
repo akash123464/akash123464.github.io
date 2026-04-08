@@ -413,7 +413,7 @@ button{cursor:pointer;border:none}
 .jelly-track-wrap::after{content:'';position:absolute;inset:-3px;border-radius:54px;background:transparent;box-shadow:0 0 20px rgba(255,100,0,.18),0 0 40px rgba(255,60,0,.1);pointer-events:none;z-index:-1}
 
 /* ── BETS CONTAINER ── */
-#betsContainer{overflow-y:hidden;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:16px}
+#betsContainer{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:16px}
 #betsContainer::-webkit-scrollbar{display:none}
 
 /* ── MARKET CARDS ── */
