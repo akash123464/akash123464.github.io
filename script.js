@@ -355,7 +355,7 @@ function renderMarkets(){
     <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,180,60,.95),rgba(255,220,100,.7),rgba(255,180,60,.95),transparent)"></div>
     <div style="position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,160,60,.12),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1"></div>
     <div style="position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:6px;height:100%;padding:0 14px;background:linear-gradient(160deg,rgba(255,100,0,.88),rgba(200,55,0,.92));border-right:1px solid rgba(255,140,40,.5);">
-      <span style="width:7px;height:7px;border-radius:50%;background:#ff2200;flex-shrink:0;animation:redBreath 1.4s ease-in-out infinite;box-shadow:0 0 6px #ff2200,0 0 12px #ff4400"></span>
+      <span style="width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff6666,#ff0000 55%,#cc0000);flex-shrink:0;animation:redBreath 1.4s ease-in-out infinite;box-shadow:0 0 10px #ff0000,0 0 22px #ff0000,0 0 38px rgba(255,0,0,.5)"></span>
       <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:#fff">TRENDING</span>
     </div>
     <div style="position:relative;z-index:3;flex:1;overflow:hidden;height:100%;display:flex;align-items:center;">
@@ -811,8 +811,48 @@ function submitUTR(){
   showToast('✅ Deposit submitted! Processing…');updateBal();
 }
 
+
+/* ── UPI POPUP ── */
+function showUpiPopup(){
+  const existing=document.getElementById('upiPopup');
+  if(existing)existing.remove();
+  const el=document.createElement('div');
+  el.id='upiPopup';
+  el.innerHTML=`
+    <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,215,0,.8),transparent);border-radius:22px 22px 0 0"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="width:38px;height:38px;border-radius:12px;background:rgba(255,215,0,.1);border:1.5px solid rgba(255,215,0,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="3" stroke="#ffd700" stroke-width="2"/><path d="M16 7V5C16 3.9 15.1 3 14 3H10C8.9 3 8 3.9 8 5V7" stroke="#ffd700" stroke-width="2"/><line x1="12" y1="12" x2="12" y2="16" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#e8edf5">UPI ID Required</div>
+        <div style="font-size:11px;color:#64748b;margin-top:1px">Add your UPI to withdraw</div>
+      </div>
+      <button onclick="closeUpiPopup()" style="margin-left:auto;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#94a3b8;font-size:14px;flex-shrink:0;transition:background .2s ease">✕</button>
+    </div>
+    <div style="font-size:12px;color:#94a3b8;line-height:1.6;margin-bottom:16px">Please submit your <span style="color:#ffd700;font-weight:700">UPI ID</span> and <span style="color:#ffd700;font-weight:700">phone number</span> in your Portfolio before making a withdrawal.</div>
+    <button onclick="closeUpiPopup();openPortfolio();" style="width:100%;padding:13px;border-radius:50px;background:linear-gradient(145deg,rgba(255,215,0,.15),rgba(255,215,0,.07));border:1.5px solid rgba(255,215,0,.5);color:#ffd700;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:.4px;box-shadow:0 0 18px rgba(255,215,0,.18),inset 0 1px 0 rgba(255,255,255,.12);transition:all .22s ease">Go to Portfolio →</button>
+  `;
+  document.body.appendChild(el);
+  /* backdrop */
+  const bd=document.getElementById('backdrop');
+  bd.classList.remove('hidden');
+  requestAnimationFrame(()=>el.classList.add('open'));
+}
+function closeUpiPopup(){
+  const el=document.getElementById('upiPopup');
+  if(el){el.style.opacity='0';el.style.transform='translate(-50%,-50%) scale(.88)';el.style.transition='opacity .25s ease,transform .25s ease';setTimeout(()=>el.remove(),260);}
+  const bd=document.getElementById('backdrop');
+  if(bd&&!document.getElementById('portfolio')?.classList.contains('hidden')===false&&
+     document.getElementById('depSheet')?.classList.contains('hidden')!==false&&
+     document.getElementById('witSheet')?.classList.contains('hidden')!==false){
+    bd.classList.add('hidden');
+  }
+}
+
 /* ── WITHDRAW ── */
 function openWithdraw(){
+  if(!state.savedUpi){showUpiPopup();return;}
   document.getElementById('witAmtInp').value='';
   document.getElementById('backdrop').classList.remove('hidden');
   document.getElementById('witSheet').classList.remove('hidden');
