@@ -345,25 +345,42 @@ function renderMarkets(){
 
   let html=`
   <div style="margin:12px 14px 0;position:relative;overflow:hidden;border-radius:14px;height:44px;
-    background:linear-gradient(135deg,rgba(255,106,0,.22),rgba(14,8,4,.92),rgba(255,106,0,.14));
-    backdrop-filter:blur(22px);border:1.5px solid rgba(255,106,0,.6);
-    box-shadow:0 0 16px rgba(255,106,0,.35),inset 0 1px 0 rgba(255,180,80,.28);
+    background:linear-gradient(135deg,rgba(160,40,0,.98),rgba(10,4,0,.97),rgba(140,35,0,.96));
+    backdrop-filter:blur(22px);border:1.5px solid rgba(200,60,0,.85);
+    box-shadow:0 0 18px rgba(180,50,0,.55),0 0 6px rgba(220,70,0,.4),inset 0 1px 0 rgba(220,100,30,.35);
     animation:orangePulse 3s ease-in-out infinite;display:flex;align-items:center;">
-    <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,200,80,.9),rgba(255,255,180,.8),rgba(255,200,80,.9),transparent)"></div>
-    <div style="position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,180,80,.1),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1"></div>
-    <div style="position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:6px;height:100%;padding:0 14px;background:linear-gradient(160deg,rgba(255,106,0,.65),rgba(200,50,0,.75));border-right:1px solid rgba(255,140,40,.45);">
-      <span style="width:7px;height:7px;border-radius:50%;background:#fff;opacity:.9;animation:liveDot 1.1s infinite;flex-shrink:0"></span>
+    <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(220,80,0,.95),rgba(255,140,40,.7),rgba(220,80,0,.95),transparent)"></div>
+    <div style="position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(200,80,0,.12),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1"></div>
+    <div style="position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:6px;height:100%;padding:0 14px;background:linear-gradient(160deg,rgba(160,40,0,.92),rgba(110,20,0,.97));border-right:1px solid rgba(200,70,0,.5);">
+      <span style="width:7px;height:7px;border-radius:50%;background:#ff2200;flex-shrink:0;animation:redBreath 1.4s ease-in-out infinite;box-shadow:0 0 6px #ff2200,0 0 12px #ff4400"></span>
       <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:#fff">TRENDING</span>
     </div>
     <div style="position:relative;z-index:3;flex:1;overflow:hidden;height:100%;display:flex;align-items:center;">
-      <div style="position:absolute;left:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,rgba(14,8,4,.95),transparent);z-index:2;pointer-events:none"></div>
-      <div style="position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(270deg,rgba(14,8,4,.95),transparent);z-index:2;pointer-events:none"></div>
+      <div style="position:absolute;left:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,rgba(10,4,0,.98),transparent);z-index:2;pointer-events:none"></div>
+      <div style="position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(270deg,rgba(10,4,0,.98),transparent);z-index:2;pointer-events:none"></div>
       <div style="display:flex;animation:marquee 24s linear infinite;white-space:nowrap;will-change:transform;padding-left:14px;">
-        <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:rgba(255,220,160,.88)">${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:rgba(255,200,140,.9)">${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;</span>
       </div>
     </div>
-    <div style="position:relative;z-index:3;flex-shrink:0;padding:0 12px;height:100%;display:flex;align-items:center;gap:4px;border-left:1px solid rgba(255,106,0,.35)">
-      <span style="font-size:13px">🔥</span><span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#ff9a3c">${BETS[state.cat].filter(b=>b.hot).length}</span>
+    <div style="position:relative;z-index:3;flex-shrink:0;padding:0 12px;height:100%;display:flex;align-items:center;gap:4px;border-left:1px solid rgba(180,50,0,.45)">
+      <svg width="16" height="20" viewBox="0 0 18 22" fill="none" style="overflow:visible;filter:drop-shadow(0 0 4px #ff6600) drop-shadow(0 0 8px #ff3300);animation:fireGlow 1.2s ease-in-out infinite">
+        <defs>
+          <radialGradient id="fg1" cx="50%" cy="75%" r="65%">
+            <stop offset="0%" stop-color="#fff200"/>
+            <stop offset="35%" stop-color="#ff7700"/>
+            <stop offset="100%" stop-color="#cc1100" stop-opacity="0.1"/>
+          </radialGradient>
+          <radialGradient id="fg2" cx="50%" cy="80%" r="55%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="25%" stop-color="#ffe600"/>
+            <stop offset="100%" stop-color="#ff5500" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <path d="M9 1 C9 1 13 5 13 9 C14 7 14 5 13 3 C16 5 17 9 16 13 C17 11 17.5 9 17 7 C18 10 18 14 16 17 C15 19.5 12.5 21 9 21 C5.5 21 3 19.5 2 17 C0 14 0 10 1 7 C0.5 9 1 11 2 13 C1 9 2 5 5 3 C4 5 4 7 5 9 C5 5 7 1 9 1Z" fill="url(#fg1)" style="transform-origin:9px 11px;animation:fireFlicker1 1.4s ease-in-out infinite"/>
+        <path d="M9 7 C9 7 11 10 11 13 C11.5 11.5 11.5 10 11 9 C12 10 12 13 11 15 C10.5 16.5 9.8 17 9 17 C8.2 17 7.5 16.5 7 15 C6 13 6 10 7 9 C6.5 10 6.5 11.5 7 13 C7 10 8 7 9 7Z" fill="url(#fg2)" style="transform-origin:9px 13px;animation:fireFlicker2 1s ease-in-out infinite 0.15s"/>
+        <ellipse cx="9" cy="16.5" rx="2.5" ry="1.4" fill="#ffffff" opacity="0.92" style="animation:fireCoreBreath 0.8s ease-in-out infinite 0.05s"/>
+      </svg>
+      <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#ff7730">${BETS[state.cat].filter(b=>b.hot).length}</span>
     </div>
   </div>`;
 
