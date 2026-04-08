@@ -307,9 +307,9 @@ function initJellySlider(){
     pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
     const raw=dragStartPos+(x-dragStartX)/RANGE;
     targetPos=Math.max(0,Math.min(1,raw));
-    /* Slider scrolls ONLY betsContainer, not the whole page */
-    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
-    if(maxS>0)betsEl.scrollTop=targetPos*maxS;
+    /* Slider scrolls the whole page, not betsContainer */
+    const maxS=document.body.scrollHeight-window.innerHeight;
+    if(maxS>0)window.scrollTo(0,targetPos*maxS);
   }
   function onEnd(){isDragging=false;}
   canvas.addEventListener('mousedown',onStart,{passive:false});
@@ -318,21 +318,19 @@ function initJellySlider(){
   window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
   window.addEventListener('mouseup',onEnd);
   window.addEventListener('touchend',onEnd);
-  /* When user manually scrolls the bets container, sync slider */
-  betsEl.addEventListener('scroll',()=>{
+  /* When user manually scrolls the page, sync slider */
+  window.addEventListener('scroll',()=>{
     if(isDragging)return;
-    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
-    if(maxS>0)targetPos=betsEl.scrollTop/maxS;
+    const maxS=document.body.scrollHeight-window.innerHeight;
+    if(maxS>0)targetPos=window.scrollY/maxS;
   },{passive:true});
   loop();
 }
 function setBetsHeight(){
   const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
-  /* Give betsContainer a fixed height so it scrolls independently */
-  const top=betsEl.getBoundingClientRect().top;
-  const avail=window.innerHeight-top-82;
-  betsEl.style.height=Math.max(300,avail)+'px';
-  betsEl.style.overflowY='auto';
+  /* Let betsContainer grow naturally — page scrolls freely */
+  betsEl.style.height='auto';
+  betsEl.style.overflowY='visible';
   betsEl.style.overflowX='hidden';
 }
 
@@ -345,24 +343,24 @@ function renderMarkets(){
 
   let html=`
   <div style="margin:12px 14px 0;position:relative;overflow:hidden;border-radius:14px;height:44px;
-    background:linear-gradient(135deg,rgba(160,40,0,.98),rgba(10,4,0,.97),rgba(140,35,0,.96));
-    backdrop-filter:blur(22px);border:1.5px solid rgba(200,60,0,.85);
-    box-shadow:0 0 18px rgba(180,50,0,.55),0 0 6px rgba(220,70,0,.4),inset 0 1px 0 rgba(220,100,30,.35);
+    background:linear-gradient(135deg,rgba(255,100,0,.82),rgba(20,8,0,.94),rgba(255,90,0,.72));
+    backdrop-filter:blur(22px);border:1.5px solid rgba(255,120,0,.75);
+    box-shadow:0 0 18px rgba(255,100,0,.4),0 0 6px rgba(255,130,0,.3),inset 0 1px 0 rgba(255,200,80,.32);
     animation:orangePulse 3s ease-in-out infinite;display:flex;align-items:center;">
-    <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(220,80,0,.95),rgba(255,140,40,.7),rgba(220,80,0,.95),transparent)"></div>
-    <div style="position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(200,80,0,.12),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1"></div>
-    <div style="position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:6px;height:100%;padding:0 14px;background:linear-gradient(160deg,rgba(160,40,0,.92),rgba(110,20,0,.97));border-right:1px solid rgba(200,70,0,.5);">
+    <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,180,60,.95),rgba(255,220,100,.7),rgba(255,180,60,.95),transparent)"></div>
+    <div style="position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,160,60,.12),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1"></div>
+    <div style="position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:6px;height:100%;padding:0 14px;background:linear-gradient(160deg,rgba(255,100,0,.88),rgba(200,55,0,.92));border-right:1px solid rgba(255,140,40,.5);">
       <span style="width:7px;height:7px;border-radius:50%;background:#ff2200;flex-shrink:0;animation:redBreath 1.4s ease-in-out infinite;box-shadow:0 0 6px #ff2200,0 0 12px #ff4400"></span>
       <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:#fff">TRENDING</span>
     </div>
     <div style="position:relative;z-index:3;flex:1;overflow:hidden;height:100%;display:flex;align-items:center;">
-      <div style="position:absolute;left:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,rgba(10,4,0,.98),transparent);z-index:2;pointer-events:none"></div>
-      <div style="position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(270deg,rgba(10,4,0,.98),transparent);z-index:2;pointer-events:none"></div>
+      <div style="position:absolute;left:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,rgba(20,8,0,.95),transparent);z-index:2;pointer-events:none"></div>
+      <div style="position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(270deg,rgba(20,8,0,.95),transparent);z-index:2;pointer-events:none"></div>
       <div style="display:flex;animation:marquee 24s linear infinite;white-space:nowrap;will-change:transform;padding-left:14px;">
-        <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:rgba(255,200,140,.9)">${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:rgba(255,210,150,.9)">${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;${trendText}&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;</span>
       </div>
     </div>
-    <div style="position:relative;z-index:3;flex-shrink:0;padding:0 12px;height:100%;display:flex;align-items:center;gap:4px;border-left:1px solid rgba(180,50,0,.45)">
+    <div style="position:relative;z-index:3;flex-shrink:0;padding:0 12px;height:100%;display:flex;align-items:center;gap:4px;border-left:1px solid rgba(255,100,0,.45)">
       <svg width="16" height="20" viewBox="0 0 18 22" fill="none" style="overflow:visible;filter:drop-shadow(0 0 4px #ff6600) drop-shadow(0 0 8px #ff3300);animation:fireGlow 1.2s ease-in-out infinite">
         <defs>
           <radialGradient id="fg1" cx="50%" cy="75%" r="65%">
@@ -380,7 +378,7 @@ function renderMarkets(){
         <path d="M9 7 C9 7 11 10 11 13 C11.5 11.5 11.5 10 11 9 C12 10 12 13 11 15 C10.5 16.5 9.8 17 9 17 C8.2 17 7.5 16.5 7 15 C6 13 6 10 7 9 C6.5 10 6.5 11.5 7 13 C7 10 8 7 9 7Z" fill="url(#fg2)" style="transform-origin:9px 13px;animation:fireFlicker2 1s ease-in-out infinite 0.15s"/>
         <ellipse cx="9" cy="16.5" rx="2.5" ry="1.4" fill="#ffffff" opacity="0.92" style="animation:fireCoreBreath 0.8s ease-in-out infinite 0.05s"/>
       </svg>
-      <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#ff7730">${BETS[state.cat].filter(b=>b.hot).length}</span>
+      <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#ff9a3c">${BETS[state.cat].filter(b=>b.hot).length}</span>
     </div>
   </div>`;
 
