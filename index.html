@@ -64,12 +64,16 @@
   <div id="bnav">
     <button class="bnav-item active" id="bnav-markets" onclick="setPage('markets')">
       <div class="bnav-pip" id="pip-markets"></div>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 9L12 2L21 9V20A1 1 0 0120 21H15V15H9V21H4A1 1 0 013 20V9Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="none"/></svg>
+      <div class="bnav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 9L12 2L21 9V20A1 1 0 0120 21H15V15H9V21H4A1 1 0 013 20V9Z" stroke="url(#hg)" stroke-width="2" stroke-linejoin="round" fill="none"/><defs><linearGradient id="hg" x1="3" y1="2" x2="21" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#60aaff"/><stop offset="100%" stop-color="#aa80ff"/></linearGradient></defs></svg>
+      </div>
       <div class="bnav-label">Markets</div>
     </button>
     <button class="bnav-item" id="bnav-portfolio" onclick="openPortfolio()">
       <div class="bnav-pip" id="pip-portfolio" style="display:none"></div>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="bnav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="url(#pg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="pg" x1="2" y1="3" x2="22" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00e5cc"/><stop offset="100%" stop-color="#0088ff"/></linearGradient></defs></svg>
+      </div>
       <div class="bnav-label">Portfolio</div>
     </button>
     <!-- CENTER PLUS BUTTON (floats above bar) -->
@@ -80,12 +84,16 @@
     </div>
     <button class="bnav-item" id="bnav-support" onclick="setPage('support')">
       <div class="bnav-pip" id="pip-support" style="display:none"></div>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8C10.3 8 9 9.3 9 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+      <div class="bnav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="url(#sg)" stroke-width="2"/><path d="M12 8C10.3 8 9 9.3 9 11" stroke="url(#sg)" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="#ff80cc"/><defs><linearGradient id="sg" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#ff80cc"/><stop offset="100%" stop-color="#aa40ff"/></linearGradient></defs></svg>
+      </div>
       <div class="bnav-label">Support</div>
     </button>
     <button class="bnav-item" id="bnav-account" onclick="setPage('account')">
       <div class="bnav-pip" id="pip-account" style="display:none"></div>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20C4 16.13 7.58 13 12 13s8 3.13 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <div class="bnav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="url(#ag)" stroke-width="2"/><path d="M4 20C4 16.13 7.58 13 12 13s8 3.13 8 7" stroke="url(#ag)" stroke-width="2" stroke-linecap="round"/><defs><linearGradient id="ag" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff8c00"/></linearGradient></defs></svg>
+      </div>
       <div class="bnav-label">Account</div>
     </button>
   </div>
