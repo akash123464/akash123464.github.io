@@ -300,24 +300,32 @@ function initJellySlider(){
     jellyRAF=requestAnimationFrame(loop);
   }
   function getLocalX(e){const r=canvas.getBoundingClientRect();return(e.touches?e.touches[0].clientX:e.clientX)-r.left;}
-  function getScrollInfo(){
-    /* scroll the page from the top of betsContainer to the bottom */
-    const betsEl=document.getElementById('betsContainer');
-    if(!betsEl)return{scrollTop:0,maxScroll:0};
-    const containerTop=betsEl.offsetTop;
-    const containerH=betsEl.offsetHeight;
-    const winH=window.innerHeight;
-    const maxScroll=Math.max(0,containerTop+containerH-winH+82);
-    const scrollTop=Math.max(0,window.scrollY-containerTop+winH*0.3);
-    return{scrollTop:Math.min(scrollTop,maxScroll),maxScroll};
+  function getMaxScroll(){
+    /* total scrollable height of the entire page */
+    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   }
   function onStart(e){isDragging=true;dragStartX=getLocalX(e);dragStartPos=targetPos;lastMoveX=dragStartX;pointerVel=0;if(e.cancelable)e.preventDefault();}
-  function onMove(e){if(!isDragging)return;const x=getLocalX(e);pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;const raw=dragStartPos+(x-dragStartX)/RANGE;targetPos=Math.max(0,Math.min(1,raw));const{maxScroll}=getScrollInfo();if(maxScroll>0)window.scrollTo({top:targetPos*maxScroll,behavior:'instant'});}
+  function onMove(e){
+    if(!isDragging)return;
+    const x=getLocalX(e);
+    pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
+    const raw=dragStartPos+(x-dragStartX)/RANGE;
+    targetPos=Math.max(0,Math.min(1,raw));
+    const maxS=getMaxScroll();
+    if(maxS>0)window.scrollTo({top:targetPos*maxS,behavior:'instant'});
+  }
   function onEnd(){isDragging=false;}
-  canvas.addEventListener('mousedown',onStart,{passive:false});canvas.addEventListener('touchstart',onStart,{passive:false});
-  window.addEventListener('mousemove',onMove);window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
-  window.addEventListener('mouseup',onEnd);window.addEventListener('touchend',onEnd);
-  window.addEventListener('scroll',()=>{if(isDragging)return;const{scrollTop,maxScroll}=getScrollInfo();if(maxScroll>0)targetPos=scrollTop/maxScroll;},{passive:true});
+  canvas.addEventListener('mousedown',onStart,{passive:false});
+  canvas.addEventListener('touchstart',onStart,{passive:false});
+  window.addEventListener('mousemove',onMove);
+  window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
+  window.addEventListener('mouseup',onEnd);
+  window.addEventListener('touchend',onEnd);
+  window.addEventListener('scroll',()=>{
+    if(isDragging)return;
+    const maxS=getMaxScroll();
+    if(maxS>0)targetPos=window.scrollY/maxS;
+  },{passive:true});
   loop();
 }
 function setBetsHeight(){
@@ -394,8 +402,8 @@ function renderMarkets(){
       <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
         <div class="jelly-icon-box" style="filter:brightness(1.5) saturate(1.6)">${m.icon}</div>
         <div style="min-width:0">
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            ${m.label} <span style="font-family:'Syne',sans-serif;font-weight:900;color:#00e5cc;text-shadow:0 0 10px rgba(0,229,204,.7),0 0 22px rgba(0,200,180,.4);letter-spacing:.5px">Markets</span>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px">
+            ${m.label} <span style="font-family:'Syne',sans-serif;font-weight:900;color:#00e5cc;text-shadow:0 0 12px rgba(0,229,204,.8),0 0 28px rgba(0,200,180,.5);letter-spacing:.5px">Markets</span>
           </div>
           <div class="jelly-chips">
             <div class="chip-live"><span style="width:5px;height:5px;border-radius:50%;background:#ef4444;animation:liveDot 1.1s infinite;display:inline-block;flex-shrink:0"></span><span class="chip-text" style="color:#ff6b6b;font-size:9px">LIVE</span></div>
