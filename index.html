@@ -226,21 +226,27 @@ onAuthStateChanged(auth,async(user)=>{
   betsUnsub=onSnapshot(query(collection(db,"users"),where("email","==",currentEmail)),(snapshot)=>{
     let changed=false;
     snapshot.docChanges().forEach((change)=>{
+      if(change.type==='removed')return;
       const data=change.doc.data(),docId=change.doc.id,raw=data.status||'PENDING',actionType=data.actionType||'';
+      /* Normalise — strip emojis and spaces for matching */
+      const up=raw.toUpperCase().replace(/[^A-Z]/g,'');
       let tx=state.txList.find(t=>t.firestoreId===docId);
       if(!tx&&actionType==='BET'){tx=state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING'&&!t.firestoreId);if(tx)tx.firestoreId=docId;}
       if(!tx&&actionType==='WITHDRAW'){tx=state.txList.find(t=>t.type==='WITHDRAW'&&t.status==='PENDING'&&!t.firestoreId);if(tx)tx.firestoreId=docId;}
       if(!tx&&actionType==='DEPOSIT'){tx=state.txList.find(t=>t.type==='DEPOSIT'&&t.status==='PENDING'&&!t.firestoreId);if(tx)tx.firestoreId=docId;}
-      if(tx){
-        const prevStatus=tx.status,up=raw.toUpperCase();
-        if(['WON','WIN','APPROVED','LOST','LOSE','REJECTED','COMPLETED','PAID'].includes(up)){
-          tx.status=raw;
-          if(actionType==='WITHDRAW'&&(up==='COMPLETED'||up==='APPROVED'||up==='PAID')){
-            const wasOK=prevStatus.toUpperCase()==='COMPLETED'||prevStatus.toUpperCase()==='APPROVED'||prevStatus.toUpperCase()==='PAID';
-            if(!wasOK){const amt=tx.withdrawAmt||parseFloat((tx.amt||'').replace('₹',''))||0;state.totalWithdraw+=amt;setDoc(doc(db,"wallets",currentEmail),{totalWithdraw:state.totalWithdraw},{merge:true}).catch(()=>{});}
+      if(tx&&raw!=='PENDING'&&raw!=='AWAITING UTR ⏳'){
+        const prevStatus=tx.status;
+        tx.status=raw;
+        /* Handle withdraw completion */
+        if(actionType==='WITHDRAW'&&(up.includes('PAID')||up.includes('COMPLET')||up.includes('APPROV'))){
+          const wasOK=prevStatus.toUpperCase().replace(/[^A-Z]/g,'');
+          if(!wasOK.includes('PAID')&&!wasOK.includes('COMPLET')&&!wasOK.includes('APPROV')){
+            const amt=tx.withdrawAmt||parseFloat((tx.amt||'').replace('₹',''))||0;
+            state.totalWithdraw+=amt;
+            setDoc(doc(db,"wallets",currentEmail),{totalWithdraw:state.totalWithdraw},{merge:true}).catch(()=>{});
           }
-          changed=true;
         }
+        changed=true;
       }
     });
     if(changed){LS.save();updateBal();const port=document.getElementById('portfolio');if(port&&!port.classList.contains('hidden'))renderPortfolio();if(state.activePage==='account')renderAccTab();}
