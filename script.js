@@ -300,10 +300,6 @@ function initJellySlider(){
     jellyRAF=requestAnimationFrame(loop);
   }
   function getLocalX(e){const r=canvas.getBoundingClientRect();return(e.touches?e.touches[0].clientX:e.clientX)-r.left;}
-  function getMaxScroll(){
-    /* total scrollable height of the entire page */
-    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-  }
   function onStart(e){isDragging=true;dragStartX=getLocalX(e);dragStartPos=targetPos;lastMoveX=dragStartX;pointerVel=0;if(e.cancelable)e.preventDefault();}
   function onMove(e){
     if(!isDragging)return;
@@ -311,8 +307,9 @@ function initJellySlider(){
     pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
     const raw=dragStartPos+(x-dragStartX)/RANGE;
     targetPos=Math.max(0,Math.min(1,raw));
-    const maxS=getMaxScroll();
-    if(maxS>0)window.scrollTo({top:targetPos*maxS,behavior:'instant'});
+    /* Slider scrolls ONLY betsContainer, not the whole page */
+    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
+    if(maxS>0)betsEl.scrollTop=targetPos*maxS;
   }
   function onEnd(){isDragging=false;}
   canvas.addEventListener('mousedown',onStart,{passive:false});
@@ -321,18 +318,22 @@ function initJellySlider(){
   window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
   window.addEventListener('mouseup',onEnd);
   window.addEventListener('touchend',onEnd);
-  window.addEventListener('scroll',()=>{
+  /* When user manually scrolls the bets container, sync slider */
+  betsEl.addEventListener('scroll',()=>{
     if(isDragging)return;
-    const maxS=getMaxScroll();
-    if(maxS>0)targetPos=window.scrollY/maxS;
+    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
+    if(maxS>0)targetPos=betsEl.scrollTop/maxS;
   },{passive:true});
   loop();
 }
 function setBetsHeight(){
-  /* Let betsContainer scroll naturally — don't trap it with fixed height */
   const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
-  betsEl.style.height='auto';
-  betsEl.style.overflow='visible';
+  /* Give betsContainer a fixed height so it scrolls independently */
+  const top=betsEl.getBoundingClientRect().top;
+  const avail=window.innerHeight-top-82;
+  betsEl.style.height=Math.max(300,avail)+'px';
+  betsEl.style.overflowY='auto';
+  betsEl.style.overflowX='hidden';
 }
 
 /* ── MARKETS PAGE ── */
