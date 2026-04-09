@@ -418,11 +418,8 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 /* ── BETS CONTAINER ── */
 /* ── MARKET STICKY WRAPPER ── */
 #marketSticky{
-  position:sticky;
-  top:106px; /* below topnav(60px) + tabsWrap(~46px) */
+  position:relative;
   z-index:300;
-  background:#080c18;
-  padding-bottom:0;
 }
 
 /* ── BETS CONTAINER ── */

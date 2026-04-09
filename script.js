@@ -325,14 +325,14 @@ function initJellySlider(){
     const maxS=betsEl.scrollHeight-betsEl.clientHeight;
     if(maxS>0)targetPos=betsEl.scrollTop/maxS;
   },{passive:true});
-  /* Recalc height as page scrolls (sticky changes betsEl top) */
-  window.addEventListener('scroll',()=>{ setBetsHeight(); },{passive:true});
   loop();
 }
 function setBetsHeight(){
   const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
-  const rect=betsEl.getBoundingClientRect();
-  const avail=window.innerHeight-rect.top-82;
+  /* Use a fixed height: full viewport minus bottom nav (82px) minus jelly section height */
+  const jellySection=document.querySelector('.jelly-section');
+  const jellyH=jellySection?jellySection.offsetHeight:200;
+  const avail=window.innerHeight-jellyH-82;
   betsEl.style.height=Math.max(200,avail)+'px';
   betsEl.style.overflowY='scroll';
   betsEl.style.overflowX='hidden';
