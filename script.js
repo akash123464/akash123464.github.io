@@ -301,15 +301,22 @@ function initJellySlider(){
   }
   function getLocalX(e){const r=canvas.getBoundingClientRect();return(e.touches?e.touches[0].clientX:e.clientX)-r.left;}
   function onStart(e){isDragging=true;dragStartX=getLocalX(e);dragStartPos=targetPos;lastMoveX=dragStartX;pointerVel=0;if(e.cancelable)e.preventDefault();}
+  function getBetsRange(){
+    const betsEl=document.getElementById('betsContainer');
+    if(!betsEl)return{start:0,end:0};
+    const start=betsEl.getBoundingClientRect().top+window.scrollY;
+    const end=start+betsEl.offsetHeight-window.innerHeight+82;
+    return{start,end:Math.max(start,end)};
+  }
   function onMove(e){
     if(!isDragging)return;
     const x=getLocalX(e);
     pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
     const raw=dragStartPos+(x-dragStartX)/RANGE;
     targetPos=Math.max(0,Math.min(1,raw));
-    /* Slider scrolls ONLY betsContainer */
-    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
-    if(maxS>0)betsEl.scrollTop=targetPos*maxS;
+    /* Scroll page to the bets section position */
+    const{start,end}=getBetsRange();
+    if(end>start)window.scrollTo({top:start+targetPos*(end-start),behavior:'instant'});
   }
   function onEnd(){isDragging=false;}
   canvas.addEventListener('mousedown',onStart,{passive:false});
@@ -318,23 +325,19 @@ function initJellySlider(){
   window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
   window.addEventListener('mouseup',onEnd);
   window.addEventListener('touchend',onEnd);
-  /* Sync slider when user manually scrolls betsContainer */
-  betsEl.addEventListener('scroll',()=>{
+  /* Sync slider thumb when user scrolls manually */
+  window.addEventListener('scroll',()=>{
     if(isDragging)return;
-    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
-    if(maxS>0)targetPos=betsEl.scrollTop/maxS;
+    const{start,end}=getBetsRange();
+    if(end>start)targetPos=Math.min(1,Math.max(0,(window.scrollY-start)/(end-start)));
   },{passive:true});
   loop();
 }
 function setBetsHeight(){
   const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
-  /* Height = from top of betsContainer in viewport down to above bottom nav */
-  const rect=betsEl.getBoundingClientRect();
-  const avail=window.innerHeight-rect.top-82;
-  betsEl.style.height=Math.max(300,avail)+'px';
-  betsEl.style.overflowY='auto';
-  betsEl.style.overflowX='hidden';
-  betsEl.style.webkitOverflowScrolling='touch';
+  /* No fixed height — all cards show, page scrolls freely */
+  betsEl.style.height='auto';
+  betsEl.style.overflow='visible';
 }
 
 /* ── MARKETS PAGE ── */
