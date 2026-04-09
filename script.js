@@ -357,7 +357,7 @@ function renderMarkets(){
     <div style="position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,160,60,.12),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1"></div>
     <div style="position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:6px;height:100%;padding:0 14px;background:linear-gradient(160deg,rgba(255,100,0,.88),rgba(200,55,0,.92));border-right:1px solid rgba(255,140,40,.5);">
       <span style="width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff6666,#ff0000 55%,#cc0000);flex-shrink:0;animation:redBreath 1.4s ease-in-out infinite;box-shadow:0 0 10px #ff0000,0 0 22px #ff0000,0 0 38px rgba(255,0,0,.5)"></span>
-      <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:#fff">TRENDING</span>
+      <span class="trending-word">TRENDING</span>
     </div>
     <div style="position:relative;z-index:3;flex:1;overflow:hidden;height:100%;display:flex;align-items:center;">
       <div style="position:absolute;left:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,rgba(20,8,0,.95),transparent);z-index:2;pointer-events:none"></div>
