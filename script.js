@@ -178,11 +178,13 @@ function fmtCur(n){return '₹'+(Number(n)||0).toLocaleString('en-IN',{minimumFr
 /* ── TOAST ── */
 let toastTimer;
 function showToast(msg,type='success'){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.className='toast show';
-  if(type==='success'){el.style.cssText='background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(34,197,94,.07));border:1.5px solid rgba(34,197,94,.38);color:#22c55e;box-shadow:0 0 22px rgba(34,197,94,.2);display:block';}
-  else{el.style.cssText='background:linear-gradient(135deg,rgba(0,212,255,.13),rgba(0,212,255,.05));border:1.5px solid rgba(0,212,255,.38);color:#00d4ff;box-shadow:0 0 22px rgba(0,212,255,.18);display:block';}
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
+  requestAnimationFrame(()=>{
+    const el=document.getElementById('toast');
+    el.textContent=msg;el.className='toast show';
+    if(type==='success'){el.style.cssText='background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(34,197,94,.07));border:1.5px solid rgba(34,197,94,.38);color:#22c55e;box-shadow:0 0 22px rgba(34,197,94,.2);display:block';}
+    else{el.style.cssText='background:linear-gradient(135deg,rgba(0,212,255,.13),rgba(0,212,255,.05));border:1.5px solid rgba(0,212,255,.38);color:#00d4ff;box-shadow:0 0 22px rgba(0,212,255,.18);display:block';}
+    clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
+  });
 }
 
 /* ── CLOSE ALL ── */
@@ -314,7 +316,7 @@ function initJellySlider(){
   }
   function onEnd(){isDragging=false;}
   canvas.addEventListener('mousedown',onStart,{passive:false});
-  canvas.addEventListener('touchstart',onStart,{passive:false});
+  canvas.addEventListener('touchstart',onStart,{passive:false,capture:false});
   window.addEventListener('mousemove',onMove);
   window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
   window.addEventListener('mouseup',onEnd);
@@ -465,7 +467,7 @@ function renderMarkets(){
     const barC=b.odds>65?"#22c55e":b.odds>40?color:"#ef4444";
     const numC=b.odds>65?"#22c55e":b.odds>40?"#d1d9e6":"#ef4444";
     const isLive=b.odds>70;
-    cardsHtml+=`<div class="market-card shine-card" style="animation-delay:${i*.04}s">
+    cardsHtml+=`<div class="market-card shine-card" style="animation-delay:${Math.min(i,.04)*0.04}s">
       <div class="card-glow-top" style="background:linear-gradient(90deg,transparent,${color}bb,rgba(255,215,0,.2),transparent)"></div>
       <div class="card-glow-left" style="background:linear-gradient(180deg,${color},${color}66,transparent);box-shadow:2px 0 10px ${color}44"></div>
       <div class="card-badge-row">
@@ -883,13 +885,15 @@ function handleWithdraw(){
 
 /* ── UPDATE BALANCE + STATS ── */
 function updateBal(){
-  document.getElementById('navBal').textContent=state.bal;
-  const balNum=document.getElementById('balNum');if(balNum)balNum.textContent=state.bal;
-  const uidChip=document.getElementById('balUidChip');
-  if(uidChip){const u=state.userEmail||'Login required';uidChip.textContent=u;uidChip.title=u;}
-  const depEl=document.getElementById('totalDepositEl');const witEl=document.getElementById('totalWithdrawEl');
-  if(depEl)depEl.textContent=fmtCur(state.totalDeposit);
-  if(witEl)witEl.textContent=fmtCur(state.totalWithdraw);
+  requestAnimationFrame(()=>{
+    document.getElementById('navBal').textContent=state.bal;
+    const balNum=document.getElementById('balNum');if(balNum)balNum.textContent=state.bal;
+    const uidChip=document.getElementById('balUidChip');
+    if(uidChip){const u=state.userEmail||'Login required';uidChip.textContent=u;uidChip.title=u;}
+    const depEl=document.getElementById('totalDepositEl');const witEl=document.getElementById('totalWithdrawEl');
+    if(depEl)depEl.textContent=fmtCur(state.totalDeposit);
+    if(witEl)witEl.textContent=fmtCur(state.totalWithdraw);
+  });
 }
 
 /* ── CROSS-TAB SYNC ── */
@@ -927,4 +931,11 @@ function init(){
   LS.load();setCC(META[state.cat].color);renderTabs();renderMarkets();updateBal();updateBlobs();
   ['support','account'].forEach(p=>{const pip=document.getElementById('pip-'+p);if(pip)pip.style.display='none';});
 }
+/* ── RESIZE: debounced setBetsHeight ── */
+let _resizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(_resizeTimer);
+  _resizeTimer=setTimeout(setBetsHeight,120);
+},{passive:true});
+
 init();

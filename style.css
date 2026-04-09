@@ -30,7 +30,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 @keyframes bounceUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes shimmerSlide{0%{background-position:-200% center}100%{background-position:200% center}}
 @keyframes scanline{0%{top:-4%}100%{top:104%}}
-@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 @keyframes slideUp{0%{transform:translateY(100%);opacity:0}100%{transform:translateY(0);opacity:1}}
 @keyframes slideInRight{0%{transform:translateX(100%);opacity:0}100%{transform:translateX(0);opacity:1}}
 @keyframes backdropIn{from{opacity:0}to{opacity:1}}
@@ -38,7 +38,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 @keyframes liveDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.5)}}
 @keyframes rupeeGlow{0%,100%{text-shadow:0 0 5px rgba(34,197,94,.4)}50%{text-shadow:0 0 12px rgba(34,197,94,.7),0 0 24px rgba(34,197,94,.25)}}
 @keyframes shineSwipe{0%{left:-110%}60%,100%{left:210%}}
-@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes marquee{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
 @keyframes subtleGlow{0%,100%{opacity:.05}50%{opacity:.13}}
 @keyframes orangePulse{0%,100%{box-shadow:0 0 16px rgba(255,106,0,.4),0 0 32px rgba(255,106,0,.16),inset 0 1px 0 rgba(255,180,80,.28)}50%{box-shadow:0 0 26px rgba(255,106,0,.58),0 0 48px rgba(255,106,0,.24),inset 0 1px 0 rgba(255,200,100,.38)}}
 @keyframes goldCountPulse{0%,100%{color:#ffd700}50%{color:#ffe54d}}
@@ -160,6 +160,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   scrollbar-width:none;
   -webkit-user-select:none;user-select:none;
   will-change:transform,opacity;
+  transform:translate(-50%,-50%) scale(.86) translateZ(0);
 }
 .bet-card::-webkit-scrollbar{display:none}
 
@@ -340,24 +341,24 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 .shine-card::before{content:'';position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.05),transparent);animation:shineSwipe 5.5s ease-in-out infinite;pointer-events:none;z-index:5}
 
 /* ── LAYOUT ── */
-#app{min-height:100vh;padding-bottom:82px;overflow-x:hidden;position:relative}
+#app{min-height:100vh;padding-bottom:82px;overflow-x:hidden;position:relative;touch-action:pan-y}
 
 /* ── BG BLOBS ── */
 .blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
-#blob1{width:500px;height:500px;filter:blur(120px);opacity:.08;background:#00d4ff;top:-160px;left:-160px;animation:float 18s ease-in-out infinite}
-#blob2{width:420px;height:420px;filter:blur(110px);opacity:.06;background:#00d4ff;bottom:-130px;right:-130px;animation:float 22s ease-in-out infinite reverse}
-#blob3{width:220px;height:220px;filter:blur(75px);opacity:.05;background:#ffd700;top:40%;left:50%;animation:float 14s ease-in-out infinite}
-#blob4{width:170px;height:170px;filter:blur(65px);opacity:.04;background:#a855f7;top:18%;right:8%;animation:float 20s ease-in-out infinite}
-#scanline{position:fixed;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.18),transparent);animation:scanline 12s linear infinite;pointer-events:none;z-index:1;opacity:.5}
+#blob1{width:500px;height:500px;filter:blur(120px);opacity:.08;background:#00d4ff;top:-160px;left:-160px;animation:float 18s ease-in-out infinite;will-change:transform;transform:translateZ(0)}
+#blob2{width:420px;height:420px;filter:blur(110px);opacity:.06;background:#00d4ff;bottom:-130px;right:-130px;animation:float 22s ease-in-out infinite reverse;will-change:transform;transform:translateZ(0)}
+#blob3{width:220px;height:220px;filter:blur(75px);opacity:.05;background:#ffd700;top:40%;left:50%;animation:float 14s ease-in-out infinite;will-change:transform;transform:translateZ(0)}
+#blob4{width:170px;height:170px;filter:blur(65px);opacity:.04;background:#a855f7;top:18%;right:8%;animation:float 20s ease-in-out infinite;will-change:transform;transform:translateZ(0)}
+#scanline{position:fixed;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.18),transparent);animation:scanline 12s linear infinite;pointer-events:none;z-index:1;opacity:.5;will-change:transform;transform:translateZ(0)}
 
 /* ── TOP NAV ── */
-#topnav{position:sticky;top:0;z-index:500;backdrop-filter:blur(36px);-webkit-backdrop-filter:blur(36px);background:linear-gradient(180deg,rgba(6,9,20,.97),rgba(8,12,24,.94));border-bottom:1px solid rgba(255,255,255,.07);padding:0 14px;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 1px 0 rgba(0,212,255,.05),0 4px 18px rgba(0,0,0,.4)}
+#topnav{position:sticky;top:0;z-index:500;backdrop-filter:blur(36px);-webkit-backdrop-filter:blur(36px);background:linear-gradient(180deg,rgba(6,9,20,.97),rgba(8,12,24,.94));border-bottom:1px solid rgba(255,255,255,.07);padding:0 14px;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 1px 0 rgba(0,212,255,.05),0 4px 18px rgba(0,0,0,.4);will-change:transform;transform:translateZ(0)}
 .nav-logo-wrap{display:flex;align-items:center;gap:10px;cursor:pointer}
 .nav-brand{display:flex;flex-direction:column;line-height:1}
 .brand-text-wrap{position:relative;display:inline-block}
 .brand-glass-bg{position:absolute;inset:-3px -8px;background:rgba(0,212,255,.05);backdrop-filter:blur(6px);border-radius:8px;border:1px solid rgba(0,212,255,.1);z-index:0}
 .brand-shine{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);animation:shineSwipe 4.5s ease-in-out infinite;z-index:1;border-radius:8px;pointer-events:none}
-.brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;letter-spacing:2.5px;font-style:italic;transform:skewX(-4deg);background:linear-gradient(105deg,#00d4ff 0%,#7dd3fc 30%,#fff 50%,#fbbf24 75%,#ffd700 100%);background-size:250% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmerSlide 3s linear infinite;display:inline-block;position:relative;z-index:2;filter:drop-shadow(0 0 7px rgba(0,212,255,.45))}
+.brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;letter-spacing:2.5px;font-style:italic;transform:skewX(-4deg);background:linear-gradient(105deg,#00d4ff 0%,#7dd3fc 30%,#fff 50%,#fbbf24 75%,#ffd700 100%);background-size:250% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmerSlide 3s linear infinite;display:inline-block;position:relative;z-index:2;filter:drop-shadow(0 0 7px rgba(0,212,255,.45));will-change:background-position}
 .brand-sub{font-size:7px;letter-spacing:3.5px;color:rgba(0,212,255,.48);font-weight:700;text-transform:uppercase;padding-left:3px;margin-top:1px;position:relative;z-index:2}
 .nav-right{display:flex;align-items:center;gap:8px}
 .nav-bal{background:rgba(34,197,94,.07);backdrop-filter:blur(12px);border:1px solid rgba(34,197,94,.22);border-radius:10px;padding:6px 12px;display:flex;align-items:center;gap:5px;box-shadow:0 0 12px rgba(34,197,94,.1)}
@@ -366,7 +367,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 .nav-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:9px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px)}
 
 /* ── TABS ── */
-#tabsWrap{position:sticky;top:60px;z-index:400;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);background:linear-gradient(180deg,rgba(6,9,20,.97),rgba(8,12,24,.95));border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 4px 18px rgba(0,0,0,.45)}
+#tabsWrap{position:sticky;top:60px;z-index:400;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);background:linear-gradient(180deg,rgba(6,9,20,.97),rgba(8,12,24,.95));border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 4px 18px rgba(0,0,0,.45);will-change:transform;transform:translateZ(0)}
 #tabsRow{display:flex;overflow-x:auto;padding:0 4px;scrollbar-width:none;gap:2px}
 .tab{display:flex;align-items:center;gap:7px;padding:13px 15px;font-size:12px;font-weight:700;color:rgba(255,255,255,.28);white-space:nowrap;cursor:pointer;border-bottom:2.5px solid transparent;transition:color .28s ease,border-color .28s ease,background .28s ease,opacity .22s ease;position:relative;letter-spacing:.3px}
 .tab.active{color:#fff;border-bottom-color:var(--cc);background:rgba(255,255,255,.03);border-radius:6px 6px 0 0}
@@ -378,7 +379,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 .glass{background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025),rgba(0,212,255,.02));backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.09);box-shadow:0 6px 24px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.1);border-radius:16px;position:relative;overflow:hidden}
 
 /* ── BALANCE CARD ── */
-#balCard{margin:12px 14px 0;border-radius:22px;padding:20px 18px;position:relative;overflow:hidden;cursor:pointer;background:linear-gradient(135deg,#3a0018 0%,#1a0535 25%,#051228 50%,#2a0640 75%,#3a0018 100%);background-size:300% 300%;animation:balCardGrad 7s ease infinite;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1.5px solid rgba(180,60,120,.45);box-shadow:0 0 0 1px rgba(120,20,80,.3),0 8px 40px rgba(80,0,40,.6),0 0 60px rgba(160,40,100,.18),0 0 100px rgba(0,180,255,.08),inset 0 1px 0 rgba(255,180,220,.22),inset 0 -1px 0 rgba(0,0,0,.4),inset 0 0 40px rgba(120,0,80,.1);will-change:transform;transition:box-shadow .25s ease;-webkit-user-select:none;user-select:none}
+#balCard{margin:12px 14px 0;border-radius:22px;padding:20px 18px;position:relative;overflow:hidden;cursor:pointer;background:linear-gradient(135deg,#3a0018 0%,#1a0535 25%,#051228 50%,#2a0640 75%,#3a0018 100%);background-size:300% 300%;animation:balCardGrad 7s ease infinite;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1.5px solid rgba(180,60,120,.45);box-shadow:0 0 0 1px rgba(120,20,80,.3),0 8px 40px rgba(80,0,40,.6),0 0 60px rgba(160,40,100,.18),0 0 100px rgba(0,180,255,.08),inset 0 1px 0 rgba(255,180,220,.22),inset 0 -1px 0 rgba(0,0,0,.4),inset 0 0 40px rgba(120,0,80,.1);will-change:transform;transition:box-shadow .25s ease;-webkit-user-select:none;user-select:none;transform:translateZ(0)}
 #balCard::after{content:'';position:absolute;top:0;left:0;right:0;height:40%;background:linear-gradient(180deg,rgba(255,180,220,.12) 0%,rgba(120,40,160,.04) 60%,transparent 100%);border-radius:22px 22px 60% 60%;pointer-events:none;z-index:0}
 #balCard .bc-sweep{position:absolute;top:0;left:-110%;width:55%;height:100%;background:linear-gradient(105deg,transparent,rgba(200,80,160,.12),rgba(0,200,255,.08),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1}
 #balCard .bc-topline{position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(200,80,140,.8),rgba(0,200,255,.6),rgba(200,80,140,.5),transparent);box-shadow:0 0 12px rgba(200,80,160,.5);z-index:2;pointer-events:none}
@@ -422,7 +423,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   overflow:hidden;cursor:grab
 }
 .jelly-track-wrap:active{cursor:grabbing;animation:none;box-shadow:0 0 40px rgba(255,140,0,.8),0 0 80px rgba(255,80,0,.4),inset 0 3px 8px rgba(0,0,0,.6)}
-.jelly-track-wrap canvas{display:block;width:100%;height:100%;border-radius:50%;animation:jellyWobble 3.5s ease-in-out infinite}
+.jelly-track-wrap canvas{display:block;width:100%;height:100%;border-radius:50%;animation:jellyWobble 3.5s ease-in-out infinite;will-change:transform}
 .jelly-hints{display:flex;justify-content:space-between;padding:4px 16px 0;pointer-events:none}
 .jelly-hint{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,150,50,.35)}
 /* Jelly outer glow wrapper */
@@ -440,7 +441,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 #betsContainer::-webkit-scrollbar{display:none}
 
 /* ── MARKET CARDS ── */
-.market-card{margin:0 0 10px;border-radius:16px;padding:16px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.018),rgba(0,212,255,.018));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s ease,opacity .22s ease;position:relative;overflow:hidden;animation:cardIn .32s ease forwards}
+.market-card{margin:0 0 10px;border-radius:16px;padding:16px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.018),rgba(0,212,255,.018));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s ease,opacity .22s ease;position:relative;overflow:hidden;animation:cardIn .32s ease forwards;contain:layout style}
 .market-card:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.12)}
 .card-glow-top{position:absolute;top:0;left:0;right:0;height:1px}
 .card-glow-left{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:16px 0 0 16px}
@@ -492,6 +493,8 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   height:72px;
   align-items:stretch;
   border-top:none;
+  will-change:transform;
+  transform:translateZ(0);
   box-shadow:
     0 -1px 0 rgba(60,120,255,.6),
     0 -20px 40px rgba(30,80,220,.4),
@@ -679,4 +682,5 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   background-clip:text;
   animation:trendingRedFlow 3.5s ease-in-out infinite;
   display:inline-block;
+  will-change:background-position;
 }
