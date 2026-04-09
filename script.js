@@ -472,7 +472,7 @@ function renderMarkets(){
         ${isLive?'<span class="live-badge"><span class="live-dot"></span>LIVE</span>':''}
         <span style="margin-left:auto;font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;color:#ffd700;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.22);padding:4px 10px;border-radius:50px;letter-spacing:.8px">₹${VOLS[i%11]} VOL</span>
       </div>
-      <div class="card-q" style="font-size:15px;font-weight:700;line-height:1.5;color:#dde4f0">${b.q}</div>
+      <div class="card-q" style="font-size:17px;font-weight:700;line-height:1.55;color:#dde4f0">${b.q}</div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:4px">
         <div class="bet-btns" style="flex:1">
         <button class="bet-btn neon-green-btn" onclick="openBet(${i},'YES')">
