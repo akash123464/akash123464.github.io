@@ -325,13 +325,15 @@ function initJellySlider(){
     const maxS=betsEl.scrollHeight-betsEl.clientHeight;
     if(maxS>0)targetPos=betsEl.scrollTop/maxS;
   },{passive:true});
+  /* Recalc height as page scrolls (sticky changes betsEl top) */
+  window.addEventListener('scroll',()=>{ setBetsHeight(); },{passive:true});
   loop();
 }
 function setBetsHeight(){
   const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
   const rect=betsEl.getBoundingClientRect();
   const avail=window.innerHeight-rect.top-82;
-  betsEl.style.height=Math.max(300,avail)+'px';
+  betsEl.style.height=Math.max(200,avail)+'px';
   betsEl.style.overflowY='scroll';
   betsEl.style.overflowX='hidden';
   betsEl.style.webkitOverflowScrolling='touch';
@@ -417,6 +419,7 @@ function renderMarkets(){
   </div>`;
 
   html+=`
+  <div id="marketSticky">
   <div class="jelly-section">
     <div class="jelly-header">
       <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
@@ -498,7 +501,8 @@ function renderMarkets(){
       </div>
     </div>`;
   });
-  html+=`<div id="betsContainer" style="padding:0 14px;padding-bottom:20px">${cardsHtml}</div>`;
+  html+=`<div id="betsContainer" style="padding:0 14px;padding-bottom:20px">${cardsHtml}</div>
+  </div>`;
   container.innerHTML=html;
   updateBal();
   requestAnimationFrame(()=>requestAnimationFrame(()=>{setBetsHeight();initJellySlider();}));

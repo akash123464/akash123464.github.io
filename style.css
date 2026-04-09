@@ -416,6 +416,16 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 .jelly-track-wrap::after{content:'';position:absolute;inset:-3px;border-radius:54px;background:transparent;box-shadow:0 0 20px rgba(255,100,0,.18),0 0 40px rgba(255,60,0,.1);pointer-events:none;z-index:-1}
 
 /* ── BETS CONTAINER ── */
+/* ── MARKET STICKY WRAPPER ── */
+#marketSticky{
+  position:sticky;
+  top:106px; /* below topnav(60px) + tabsWrap(~46px) */
+  z-index:300;
+  background:#080c18;
+  padding-bottom:0;
+}
+
+/* ── BETS CONTAINER ── */
 #betsContainer{overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:16px;touch-action:pan-y;overscroll-behavior:contain}
 #betsContainer::-webkit-scrollbar{display:none}
 
