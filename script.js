@@ -307,7 +307,7 @@ function initJellySlider(){
     pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
     const raw=dragStartPos+(x-dragStartX)/RANGE;
     targetPos=Math.max(0,Math.min(1,raw));
-    /* Slider scrolls ONLY betsContainer, not the whole page */
+    /* Slider scrolls ONLY betsContainer */
     const maxS=betsEl.scrollHeight-betsEl.clientHeight;
     if(maxS>0)betsEl.scrollTop=targetPos*maxS;
   }
@@ -318,8 +318,7 @@ function initJellySlider(){
   window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
   window.addEventListener('mouseup',onEnd);
   window.addEventListener('touchend',onEnd);
-  /* Slider is independent — no page scroll sync needed */
-  /* Sync slider when user manually scrolls bets */
+  /* Sync slider when user manually scrolls betsContainer */
   betsEl.addEventListener('scroll',()=>{
     if(isDragging)return;
     const maxS=betsEl.scrollHeight-betsEl.clientHeight;
@@ -329,14 +328,13 @@ function initJellySlider(){
 }
 function setBetsHeight(){
   const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
-  /* Fixed height so slider can scroll bets independently.
-     overflow-y:hidden means manual touch/swipe passes through to the page —
-     only the jelly slider sets scrollTop via JS. */
-  const top=betsEl.getBoundingClientRect().top;
-  const avail=window.innerHeight-top-82;
+  /* Height = from top of betsContainer in viewport down to above bottom nav */
+  const rect=betsEl.getBoundingClientRect();
+  const avail=window.innerHeight-rect.top-82;
   betsEl.style.height=Math.max(300,avail)+'px';
   betsEl.style.overflowY='auto';
   betsEl.style.overflowX='hidden';
+  betsEl.style.webkitOverflowScrolling='touch';
 }
 
 /* ── MARKETS PAGE ── */
