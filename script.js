@@ -46,12 +46,12 @@ let jellyRAF=null;
 /* ── DATA ── */
 const BETS={
   INSTAGRAM:[
-    {q:"Karan Aujla posts more than 5 stories on Instagram today?",id:"I1",odds:47,hot:true},
-    {q:"Modi Ji posts more than 3 stories on Instagram today?",id:"I2",odds:62},
-    {q:"Deepaliarora10 posts story in brown/white/grey bra🍒 today?",id:"I3",odds:55},
-    {q:"Shaanayakatiyan_official posts more than 4 stories today?",id:"I4",odds:38},
-    {q:"Shambhavi1997 posts a story in red outfit today?",id:"I5",odds:44},
-    {q:"Rajat Dalal posts more than 4 stories today?",id:"I6",odds:71},
+    {q:"Karan Aujla posts more than 5 stories on Instagram today (9April)?",id:"I1",odds:47,hot:true},
+    {q:"Modi Ji posts more than 3 stories on Instagram today (9April)?",id:"I2",odds:62},
+    {q:"Deepaliarora10 posts story in brown/white/grey bra🍒 today (9April)?",id:"I3",odds:55},
+    {q:"Shaanayakatiyan_official posts more than 4 stories today (9April)?",id:"I4",odds:38},
+    {q:"Shambhavi1997 posts a story in red outfit today (9April)?",id:"I5",odds:44},
+    {q:"Rajat Dalal posts more than 4 stories today (9April)?",id:"I6",odds:71},
     {q:"Minimyntra_official posts a bold reel on Instagram today(9April)?",id:"I7",odds:83,hot:true},
     {q:"Elvish Yadav will post more than 2 stories (9April) ?",id:"I8",odds:52},
     {q:"Narendra Modi ji will post more than 2 stories (9April)today?",id:"I9",odds:68},
