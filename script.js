@@ -301,22 +301,16 @@ function initJellySlider(){
   }
   function getLocalX(e){const r=canvas.getBoundingClientRect();return(e.touches?e.touches[0].clientX:e.clientX)-r.left;}
   function onStart(e){isDragging=true;dragStartX=getLocalX(e);dragStartPos=targetPos;lastMoveX=dragStartX;pointerVel=0;if(e.cancelable)e.preventDefault();}
-  function getBetsRange(){
-    const betsEl=document.getElementById('betsContainer');
-    if(!betsEl)return{start:0,end:0};
-    const start=betsEl.getBoundingClientRect().top+window.scrollY;
-    const end=start+betsEl.offsetHeight-window.innerHeight+82;
-    return{start,end:Math.max(start,end)};
-  }
+  function getBetsRange(){return null;}// unused
   function onMove(e){
     if(!isDragging)return;
     const x=getLocalX(e);
     pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
     const raw=dragStartPos+(x-dragStartX)/RANGE;
     targetPos=Math.max(0,Math.min(1,raw));
-    /* Scroll page to the bets section position */
-    const{start,end}=getBetsRange();
-    if(end>start)window.scrollTo({top:start+targetPos*(end-start),behavior:'instant'});
+    /* Scroll ONLY the bets list, not the page */
+    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
+    if(maxS>0)betsEl.scrollTop=targetPos*maxS;
   }
   function onEnd(){isDragging=false;}
   canvas.addEventListener('mousedown',onStart,{passive:false});
@@ -325,19 +319,23 @@ function initJellySlider(){
   window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
   window.addEventListener('mouseup',onEnd);
   window.addEventListener('touchend',onEnd);
-  /* Sync slider thumb when user scrolls manually */
-  window.addEventListener('scroll',()=>{
+  /* Sync slider when user finger-scrolls inside betsContainer */
+  betsEl.addEventListener('scroll',()=>{
     if(isDragging)return;
-    const{start,end}=getBetsRange();
-    if(end>start)targetPos=Math.min(1,Math.max(0,(window.scrollY-start)/(end-start)));
+    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
+    if(maxS>0)targetPos=betsEl.scrollTop/maxS;
   },{passive:true});
   loop();
 }
 function setBetsHeight(){
   const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
-  /* No fixed height — all cards show, page scrolls freely */
-  betsEl.style.height='auto';
-  betsEl.style.overflow='visible';
+  const rect=betsEl.getBoundingClientRect();
+  const avail=window.innerHeight-rect.top-82;
+  betsEl.style.height=Math.max(300,avail)+'px';
+  betsEl.style.overflowY='scroll';
+  betsEl.style.overflowX='hidden';
+  betsEl.style.webkitOverflowScrolling='touch';
+  betsEl.style.touchAction='pan-y';
 }
 
 /* ── MARKETS PAGE ── */
