@@ -472,19 +472,30 @@ function renderMarkets(){
         ${isLive?'<span class="live-badge"><span class="live-dot"></span>LIVE</span>':''}
         <span style="margin-left:auto;font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;color:#ffd700;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.22);padding:4px 10px;border-radius:50px;letter-spacing:.8px">₹${VOLS[i%11]} VOL</span>
       </div>
-      <div class="card-q">${b.q}</div>
-      <div class="odds-row">
-        <div class="odds-num" style="color:${numC}">${b.odds}%</div>
-        <div class="odds-bar-wrap"><div class="odds-bar-fill" style="width:${b.odds}%;background:linear-gradient(90deg,${barC}77,${barC})"></div></div>
-        <div class="odds-label">chance</div>
-      </div>
-      <div class="bet-btns">
+      <div class="card-q" style="font-size:15px;font-weight:700;line-height:1.5;color:#dde4f0">${b.q}</div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:4px">
+        <div class="bet-btns" style="flex:1">
         <button class="bet-btn neon-green-btn" onclick="openBet(${i},'YES')">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>YES ₹${b.odds}
         </button>
         <button class="bet-btn neon-red-btn" onclick="openBet(${i},'NO')">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><polyline points="22,17 13.5,8.5 8.5,13.5 2,7" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>NO ₹${100-b.odds}
         </button>
+        </div>
+        <!-- Circular chance gauge -->
+        <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;width:72px;height:72px">
+          <svg width="72" height="72" viewBox="0 0 72 72" style="position:absolute;top:0;left:0;transform:rotate(-220deg)">
+            <circle cx="36" cy="36" r="27" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="5" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="0"/>
+            <circle cx="36" cy="36" r="27" fill="none" stroke="${barC}" stroke-width="5.5" stroke-linecap="round"
+              stroke-dasharray="169.6"
+              stroke-dashoffset="${(169.6*(1-(b.odds/100)*(240/360))).toFixed(1)}"
+              style="filter:drop-shadow(0 0 5px ${barC})"/>
+          </svg>
+          <div style="position:relative;z-index:2;text-align:center;line-height:1.1">
+            <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:${barC};text-shadow:0 0 10px ${barC}88">${b.odds}%</div>
+            <div style="font-size:9px;font-weight:700;color:rgba(150,180,220,.7);letter-spacing:.5px">chance</div>
+          </div>
+        </div>
       </div>
     </div>`;
   });
