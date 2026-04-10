@@ -1540,6 +1540,24 @@ function renderGames(){
       My Bet History (${GAME.betHistory.length} bets)
     </button>
 
+    <!-- ✦ LEDGER BOOK TRIGGER ✦ -->
+    <div id="betLedgerTrigger" onclick="toggleLedger()" role="button" aria-label="Open Bet History Ledger">
+      <div class="ledger-book-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="14" height="18" rx="2" fill="rgba(180,140,60,.15)" stroke="rgba(180,140,60,.8)" stroke-width="1.5"/>
+          <line x1="7" y1="8" x2="13" y2="8" stroke="rgba(180,140,60,.7)" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="7" y1="11" x2="13" y2="11" stroke="rgba(180,140,60,.7)" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="7" y1="14" x2="11" y2="14" stroke="rgba(180,140,60,.7)" stroke-width="1.2" stroke-linecap="round"/>
+          <rect x="15" y="5" width="6" height="14" rx="1" fill="rgba(140,100,30,.3)" stroke="rgba(180,140,60,.5)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="ledger-trigger-text">
+        <div class="ledger-trigger-title">My Bet History</div>
+        <div class="ledger-trigger-sub">Tap to open ledger · last 10 rounds &amp; bets</div>
+      </div>
+      <div class="ledger-arrow">▲</div>
+    </div>
+
     <!-- Last 20 rounds -->
     <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px">
       <div style="font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:12px">LAST 20 ROUNDS · SAME FOR ALL USERS</div>
@@ -1571,5 +1589,164 @@ window.addEventListener('resize',()=>{
   clearTimeout(_resizeTimer);
   _resizeTimer=setTimeout(setBetsHeight,120);
 },{passive:true});
+
+/* ═══════════════════════════════════════════════
+   BET HISTORY LEDGER BOOK
+═══════════════════════════════════════════════ */
+(function(){
+  let ledgerOpen = false;
+  let ledgerTab  = 'game'; // 'game' | 'mybets'
+  let animRows   = false;
+
+  function createLedgerDOM(){
+    /* backdrop */
+    const bd = document.createElement('div');
+    bd.id = 'betLedgerBackdrop';
+    bd.onclick = closeLedger;
+    document.body.appendChild(bd);
+
+    /* panel */
+    const panel = document.createElement('div');
+    panel.id = 'betLedgerPanel';
+    panel.innerHTML = `
+      <div class="ledger-header">
+        <div class="ledger-header-top">
+          <div class="ledger-title">📖 Bet History Ledger</div>
+          <div class="ledger-close-btn" onclick="closeLedger()">✕</div>
+        </div>
+        <div class="ledger-rings">
+          <div class="ledger-ring"></div>
+          <div class="ledger-ring"></div>
+          <div class="ledger-ring"></div>
+          <div class="ledger-ring"></div>
+          <div class="ledger-ring"></div>
+        </div>
+        <div class="ledger-tabs">
+          <button class="ledger-tab active" id="ltab-game" onclick="switchLedgerTab('game')">🎲 Game Rounds</button>
+          <button class="ledger-tab" id="ltab-mybets" onclick="switchLedgerTab('mybets')">📝 My Bets</button>
+        </div>
+      </div>
+      <div class="ledger-content" id="ledgerContent"></div>
+    `;
+    document.body.appendChild(panel);
+  }
+
+  function renderLedgerContent(){
+    const el = document.getElementById('ledgerContent');
+    if(!el) return;
+    animRows = true;
+
+    if(ledgerTab === 'game'){
+      const rows = GAME.history.slice(0,10);
+      if(rows.length === 0){
+        el.innerHTML = `<div class="ledger-empty">✍️ No rounds yet...<br>Waiting for first result</div>`;
+        return;
+      }
+      el.innerHTML = `
+        <div class="ledger-col-header">
+          <span>#</span><span>Period</span><span style="text-align:center">No.</span><span style="text-align:right">Result</span>
+        </div>
+        ${rows.map((h,i) => {
+          const colHex = COL_HEX[h.colour]||'#888';
+          return `
+          <div class="ledger-row" style="animation-delay:${i*40}ms">
+            <div class="ledger-row-num">${i+1}.</div>
+            <div class="ledger-row-period">
+              ${h.period.slice(-6)}
+              <small>${h.colour}</small>
+            </div>
+            <div style="display:flex;justify-content:center">
+              <div class="ledger-ball" style="background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.32),transparent 55%),${colHex};border:2px solid ${colHex};box-shadow:0 0 10px ${colHex}55,0 2px 8px rgba(0,0,0,.5),inset 0 -2px 4px rgba(0,0,0,.3)">${h.num}</div>
+            </div>
+            <div class="ledger-result-wrap">
+              <div class="ledger-result-text" style="color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result.toUpperCase()}</div>
+              <div class="ledger-result-colour" style="color:${colHex}">${h.colour}</div>
+            </div>
+          </div>`;
+        }).join('')}
+        <div class="ledger-divider"></div>
+        <div style="text-align:center;padding:10px;font-family:'Caveat',cursive;font-size:13px;color:rgba(180,140,60,.4)">~ Last 10 rounds ~</div>
+      `;
+    } else {
+      /* My Bets tab */
+      const bets = GAME.betHistory.slice(0,10);
+      if(bets.length === 0){
+        el.innerHTML = `<div class="ledger-empty">✍️ No bets placed yet...<br>Place your first bet!</div>`;
+        return;
+      }
+      el.innerHTML = `
+        <div class="ledger-col-header" style="grid-template-columns:40px 1fr 70px 70px">
+          <span>#</span><span>Bet</span><span style="text-align:right">Amount</span><span style="text-align:right">Result</span>
+        </div>
+        ${bets.map((b,i) => {
+          const colHex = COL_HEX[b.colour]||'#888';
+          const typeLabel = b.type==='number' ? `No.${b.betNum} (8×)` : (b.side||'').toUpperCase()+' (1.9×)';
+          const typeColor = b.type==='number' ? '#d4a855' : (b.side==='big'?'#fb923c':'#60a5fa');
+          const stampCls  = b.won ? 'won' : 'lost';
+          const stampTxt  = b.won ? 'WON' : 'LOST';
+          const payout    = b.won ? `+₹${b.payout}` : `-₹${b.amt}`;
+          const payColor  = b.won ? '#22c55e' : '#ef4444';
+          return `
+          <div class="ledger-row ledger-row-bet" style="animation-delay:${i*45}ms">
+            <div class="ledger-row-num">${i+1}.</div>
+            <div>
+              <div class="ledger-bet-type" style="color:${typeColor}">${typeLabel}</div>
+              <div style="font-family:'Caveat',cursive;font-size:12px;color:rgba(180,140,60,.45)">Period ${(b.period||'').slice(-6)}</div>
+            </div>
+            <div class="ledger-bet-amt">₹${b.amt}</div>
+            <div class="ledger-payout" style="color:${payColor}">
+              ${payout}
+              <div class="ledger-stamp ${stampCls}" style="position:relative;right:auto;top:auto;transform:rotate(-5deg);display:inline-block;margin-top:2px">${stampTxt}</div>
+            </div>
+          </div>`;
+        }).join('')}
+        <div class="ledger-divider"></div>
+        <div style="text-align:center;padding:10px;font-family:'Caveat',cursive;font-size:13px;color:rgba(180,140,60,.4)">~ Last 10 bets ~</div>
+      `;
+    }
+  }
+
+  window.openLedger = function(){
+    if(!document.getElementById('betLedgerPanel')) createLedgerDOM();
+    ledgerOpen = true;
+    renderLedgerContent();
+    document.getElementById('betLedgerBackdrop').classList.add('open');
+    requestAnimationFrame(()=>{
+      document.getElementById('betLedgerPanel').classList.add('open');
+    });
+    const trig = document.getElementById('betLedgerTrigger');
+    if(trig) trig.classList.add('open');
+  };
+
+  window.closeLedger = function(){
+    ledgerOpen = false;
+    const panel = document.getElementById('betLedgerPanel');
+    const bd    = document.getElementById('betLedgerBackdrop');
+    const trig  = document.getElementById('betLedgerTrigger');
+    if(panel) panel.classList.remove('open');
+    if(bd)    bd.classList.remove('open');
+    if(trig)  trig.classList.remove('open');
+  };
+
+  window.switchLedgerTab = function(tab){
+    ledgerTab = tab;
+    document.querySelectorAll('.ledger-tab').forEach(el=>{
+      el.classList.toggle('active', el.id === 'ltab-'+tab);
+    });
+    renderLedgerContent();
+  };
+
+  window.toggleLedger = function(){
+    if(ledgerOpen) closeLedger(); else openLedger();
+  };
+
+  /* Refresh ledger content live if open */
+  const _origResolve = window.resolveGameRound;
+  const origRender   = window.renderGames;
+  setInterval(()=>{
+    if(ledgerOpen) renderLedgerContent();
+  }, 2000);
+
+})();
 
 init();
