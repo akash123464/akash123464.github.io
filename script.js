@@ -1542,20 +1542,12 @@ function renderGames(){
 
     <!-- ✦ LEDGER BOOK TRIGGER ✦ -->
     <div id="betLedgerTrigger" onclick="toggleLedger()" role="button" aria-label="Open Bet History Ledger">
-      <div class="ledger-book-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="3" width="14" height="18" rx="2" fill="rgba(180,140,60,.15)" stroke="rgba(180,140,60,.8)" stroke-width="1.5"/>
-          <line x1="7" y1="8" x2="13" y2="8" stroke="rgba(180,140,60,.7)" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="7" y1="11" x2="13" y2="11" stroke="rgba(180,140,60,.7)" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="7" y1="14" x2="11" y2="14" stroke="rgba(180,140,60,.7)" stroke-width="1.2" stroke-linecap="round"/>
-          <rect x="15" y="5" width="6" height="14" rx="1" fill="rgba(140,100,30,.3)" stroke="rgba(180,140,60,.5)" stroke-width="1"/>
-        </svg>
+      <div class="lbt-icon"></div>
+      <div class="lbt-text">
+        <div class="lbt-title">My Bet History</div>
+        <div class="lbt-sub">Tap to open ledger · last 10 rounds &amp; bets</div>
       </div>
-      <div class="ledger-trigger-text">
-        <div class="ledger-trigger-title">My Bet History</div>
-        <div class="ledger-trigger-sub">Tap to open ledger · last 10 rounds &amp; bets</div>
-      </div>
-      <div class="ledger-arrow">▲</div>
+      <div class="lbt-arrow">▲</div>
     </div>
 
     <!-- Last 20 rounds -->
@@ -1595,8 +1587,10 @@ window.addEventListener('resize',()=>{
 ═══════════════════════════════════════════════ */
 (function(){
   let ledgerOpen = false;
-  let ledgerTab  = 'game'; // 'game' | 'mybets'
-  let animRows   = false;
+  let ledgerTab  = 'game';
+
+  const COL_CLASS = {green:'green', red:'red', violet:'violet'};
+  const COL_HEX_L = {green:'#22c55e', red:'#ef4444', violet:'#a855f7'};
 
   function createLedgerDOM(){
     /* backdrop */
@@ -1609,107 +1603,167 @@ window.addEventListener('resize',()=>{
     const panel = document.createElement('div');
     panel.id = 'betLedgerPanel';
     panel.innerHTML = `
-      <div class="ledger-header">
-        <div class="ledger-header-top">
-          <div class="ledger-title">📖 Bet History Ledger</div>
-          <div class="ledger-close-btn" onclick="closeLedger()">✕</div>
+      <div class="book-frame-bar">
+        <div class="book-top-row">
+          <div class="book-title-main">📖 My Bet History</div>
+          <div class="book-close-btn" onclick="closeLedger()">✕</div>
         </div>
-        <div class="ledger-rings">
-          <div class="ledger-ring"></div>
-          <div class="ledger-ring"></div>
-          <div class="ledger-ring"></div>
-          <div class="ledger-ring"></div>
-          <div class="ledger-ring"></div>
-        </div>
-        <div class="ledger-tabs">
-          <button class="ledger-tab active" id="ltab-game" onclick="switchLedgerTab('game')">🎲 Game Rounds</button>
-          <button class="ledger-tab" id="ltab-mybets" onclick="switchLedgerTab('mybets')">📝 My Bets</button>
+        <div class="book-tabs">
+          <button class="book-tab active" id="ltab-game"   onclick="switchLedgerTab('game')">🎲 Game Rounds</button>
+          <button class="book-tab"        id="ltab-mybets" onclick="switchLedgerTab('mybets')">✍️ My Bets</button>
         </div>
       </div>
-      <div class="ledger-content" id="ledgerContent"></div>
+
+      <div class="book-spread">
+        <!-- LEFT PAGE -->
+        <div class="book-page-left" id="ledgerPageLeft"></div>
+
+        <!-- CENTER SPINE WITH RINGS -->
+        <div class="book-spine">
+          <div class="book-ring"></div>
+          <div class="book-ring"></div>
+          <div class="book-ring"></div>
+          <div class="book-ring"></div>
+          <div class="book-ring"></div>
+          <div class="book-ring"></div>
+        </div>
+
+        <!-- RIGHT PAGE -->
+        <div class="book-page-right" id="ledgerPageRight"></div>
+      </div>
+
+      <div class="book-rivet-bar"></div>
     `;
     document.body.appendChild(panel);
   }
 
-  function renderLedgerContent(){
-    const el = document.getElementById('ledgerContent');
-    if(!el) return;
-    animRows = true;
+  /* ── Render game rounds — left=1-5, right=6-10 ── */
+  function renderGame(){
+    const rounds = GAME.history.slice(0,10);
+    const left5  = rounds.slice(0,5);
+    const right5 = rounds.slice(5,10);
 
-    if(ledgerTab === 'game'){
-      const rows = GAME.history.slice(0,10);
-      if(rows.length === 0){
-        el.innerHTML = `<div class="ledger-empty">✍️ No rounds yet...<br>Waiting for first result</div>`;
-        return;
-      }
-      el.innerHTML = `
-        <div class="ledger-col-header">
-          <span>#</span><span>Period</span><span style="text-align:center">No.</span><span style="text-align:right">Result</span>
-        </div>
-        ${rows.map((h,i) => {
-          const colHex = COL_HEX[h.colour]||'#888';
-          return `
-          <div class="ledger-row" style="animation-delay:${i*40}ms">
-            <div class="ledger-row-num">${i+1}.</div>
-            <div class="ledger-row-period">
-              ${h.period.slice(-6)}
-              <small>${h.colour}</small>
-            </div>
-            <div style="display:flex;justify-content:center">
-              <div class="ledger-ball" style="background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.32),transparent 55%),${colHex};border:2px solid ${colHex};box-shadow:0 0 10px ${colHex}55,0 2px 8px rgba(0,0,0,.5),inset 0 -2px 4px rgba(0,0,0,.3)">${h.num}</div>
-            </div>
-            <div class="ledger-result-wrap">
-              <div class="ledger-result-text" style="color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result.toUpperCase()}</div>
-              <div class="ledger-result-colour" style="color:${colHex}">${h.colour}</div>
-            </div>
-          </div>`;
-        }).join('')}
-        <div class="ledger-divider"></div>
-        <div style="text-align:center;padding:10px;font-family:'Caveat',cursive;font-size:13px;color:rgba(180,140,60,.4)">~ Last 10 rounds ~</div>
-      `;
-    } else {
-      /* My Bets tab */
-      const bets = GAME.betHistory.slice(0,10);
-      if(bets.length === 0){
-        el.innerHTML = `<div class="ledger-empty">✍️ No bets placed yet...<br>Place your first bet!</div>`;
-        return;
-      }
-      el.innerHTML = `
-        <div class="ledger-col-header" style="grid-template-columns:40px 1fr 70px 70px">
-          <span>#</span><span>Bet</span><span style="text-align:right">Amount</span><span style="text-align:right">Result</span>
-        </div>
-        ${bets.map((b,i) => {
-          const colHex = COL_HEX[b.colour]||'#888';
-          const typeLabel = b.type==='number' ? `No.${b.betNum} (8×)` : (b.side||'').toUpperCase()+' (1.9×)';
-          const typeColor = b.type==='number' ? '#d4a855' : (b.side==='big'?'#fb923c':'#60a5fa');
-          const stampCls  = b.won ? 'won' : 'lost';
-          const stampTxt  = b.won ? 'WON' : 'LOST';
-          const payout    = b.won ? `+₹${b.payout}` : `-₹${b.amt}`;
-          const payColor  = b.won ? '#22c55e' : '#ef4444';
-          return `
-          <div class="ledger-row ledger-row-bet" style="animation-delay:${i*45}ms">
-            <div class="ledger-row-num">${i+1}.</div>
-            <div>
-              <div class="ledger-bet-type" style="color:${typeColor}">${typeLabel}</div>
-              <div style="font-family:'Caveat',cursive;font-size:12px;color:rgba(180,140,60,.45)">Period ${(b.period||'').slice(-6)}</div>
-            </div>
-            <div class="ledger-bet-amt">₹${b.amt}</div>
-            <div class="ledger-payout" style="color:${payColor}">
-              ${payout}
-              <div class="ledger-stamp ${stampCls}" style="position:relative;right:auto;top:auto;transform:rotate(-5deg);display:inline-block;margin-top:2px">${stampTxt}</div>
-            </div>
-          </div>`;
-        }).join('')}
-        <div class="ledger-divider"></div>
-        <div style="text-align:center;padding:10px;font-family:'Caveat',cursive;font-size:13px;color:rgba(180,140,60,.4)">~ Last 10 bets ~</div>
-      `;
+    document.getElementById('ledgerPageLeft').innerHTML  = buildGamePage(left5,  0, 'Game History');
+    document.getElementById('ledgerPageRight').innerHTML = buildGamePage(right5, 5, 'Continued...');
+
+    /* animate stamps after brief delay */
+    setTimeout(()=>{
+      document.querySelectorAll('.real-stamp').forEach((el,i)=>{
+        el.style.animationDelay = (i*80)+'ms';
+        el.classList.add('stamp-anim');
+      });
+    }, 120);
+  }
+
+  function buildGamePage(rounds, offset, heading){
+    let html = `
+      <div class="page-heading">${heading}</div>
+      <div class="page-underline"></div>
+    `;
+    if(rounds.length === 0){
+      html += `<div class="page-empty">✍️ No rounds yet...<br>Waiting for first result</div>`;
+      return html;
     }
+    rounds.forEach((h, i)=>{
+      const colHex = COL_HEX_L[h.colour] || '#888';
+      const isBig  = h.result === 'big';
+      const delay  = i * 60;
+      html += `
+        <div class="ledger-entry" style="animation-delay:${delay}ms">
+          <div class="period-lbl">Period ${(h.period||'').slice(-6)}</div>
+          <div class="ledger-field">
+            <span class="ledger-field-label">No.:</span>
+            <span class="ledger-field-value">
+              <span class="result-ball" style="background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colHex};border:2.5px solid ${colHex};box-shadow:0 3px 10px ${colHex}55,inset 0 -3px 6px rgba(0,0,0,.35),inset 0 2px 4px rgba(255,255,255,.3)">${h.num}</span>
+              &nbsp;<span style="font-size:16px;color:${isBig?'#a04010':'#10408a'}">${h.result.toUpperCase()}</span>
+            </span>
+          </div>
+          <div class="ledger-field">
+            <span class="ledger-field-label">Colour:</span>
+            <span class="ledger-field-value ${COL_CLASS[h.colour]||''}">
+              <span class="col-dot" style="background:${colHex}"></span>${h.colour}
+            </span>
+          </div>
+          <div style="text-align:right">
+            <div class="real-stamp stamped">STAMPED</div>
+          </div>
+          <div class="ledger-hr"></div>
+        </div>
+      `;
+    });
+    return html;
+  }
+
+  /* ── Render user bets — left=1-5, right=6-10 ── */
+  function renderMyBets(){
+    const bets  = GAME.betHistory.slice(0,10);
+    const left5  = bets.slice(0,5);
+    const right5 = bets.slice(5,10);
+
+    document.getElementById('ledgerPageLeft').innerHTML  = buildBetsPage(left5,  'My Bets');
+    document.getElementById('ledgerPageRight').innerHTML = buildBetsPage(right5, 'Continued...');
+
+    setTimeout(()=>{
+      document.querySelectorAll('.real-stamp').forEach((el,i)=>{
+        el.style.animationDelay = (i*80)+'ms';
+        el.classList.add('stamp-anim');
+      });
+    }, 120);
+  }
+
+  function buildBetsPage(bets, heading){
+    let html = `
+      <div class="page-heading">${heading}</div>
+      <div class="page-underline"></div>
+    `;
+    if(bets.length === 0){
+      html += `<div class="page-empty">✍️ No bets yet...<br>Place a bet to see history!</div>`;
+      return html;
+    }
+    bets.forEach((b, i)=>{
+      const colHex   = COL_HEX_L[b.colour] || '#888';
+      const typeLabel= b.type==='number' ? `No.${b.betNum} · 8×` : `${(b.side||'').toUpperCase()} · 1.9×`;
+      const typeColor= b.type==='number' ? '#6a4a00' : (b.side==='big' ? '#a04010' : '#10408a');
+      const stampCls = b.won ? 'won' : 'lost';
+      const stampTxt = b.won ? 'WON' : 'LOST';
+      const payout   = b.won ? `+₹${b.payout}` : `-₹${b.amt}`;
+      const payColor = b.won ? '#1a6a1a' : '#8a1a1a';
+      const delay    = i * 60;
+      html += `
+        <div class="ledger-entry" style="animation-delay:${delay}ms">
+          <div class="period-lbl">Period ${(b.period||'').slice(-6)}</div>
+          <div class="ledger-field">
+            <span class="ledger-field-label">Bet:</span>
+            <span class="ledger-field-value" style="color:${typeColor}">${typeLabel}</span>
+          </div>
+          <div class="ledger-field">
+            <span class="ledger-field-label">Covenant:</span>
+            <span class="ledger-field-value" style="color:#3a1a00">₹${b.amt}</span>
+          </div>
+          <div class="ledger-field">
+            <span class="ledger-field-label">Return:</span>
+            <span class="ledger-field-value" style="color:${payColor}">${payout}</span>
+          </div>
+          <div style="text-align:right">
+            <div class="real-stamp ${stampCls}">${stampTxt}</div>
+          </div>
+          <div class="ledger-hr"></div>
+        </div>
+      `;
+    });
+    return html;
+  }
+
+  function renderLedger(){
+    if(!document.getElementById('ledgerPageLeft')) return;
+    if(ledgerTab === 'game') renderGame();
+    else                     renderMyBets();
   }
 
   window.openLedger = function(){
     if(!document.getElementById('betLedgerPanel')) createLedgerDOM();
     ledgerOpen = true;
-    renderLedgerContent();
+    renderLedger();
     document.getElementById('betLedgerBackdrop').classList.add('open');
     requestAnimationFrame(()=>{
       document.getElementById('betLedgerPanel').classList.add('open');
@@ -1730,22 +1784,18 @@ window.addEventListener('resize',()=>{
 
   window.switchLedgerTab = function(tab){
     ledgerTab = tab;
-    document.querySelectorAll('.ledger-tab').forEach(el=>{
+    document.querySelectorAll('.book-tab').forEach(el=>{
       el.classList.toggle('active', el.id === 'ltab-'+tab);
     });
-    renderLedgerContent();
+    renderLedger();
   };
 
   window.toggleLedger = function(){
     if(ledgerOpen) closeLedger(); else openLedger();
   };
 
-  /* Refresh ledger content live if open */
-  const _origResolve = window.resolveGameRound;
-  const origRender   = window.renderGames;
-  setInterval(()=>{
-    if(ledgerOpen) renderLedgerContent();
-  }, 2000);
+  /* Auto-refresh if open */
+  setInterval(()=>{ if(ledgerOpen) renderLedger(); }, 3000);
 
 })();
 
