@@ -943,37 +943,57 @@ function init(){
   if(savedEmail){LS.setKey(savedEmail);}
   LS.load();setCC(META[state.cat].color);renderTabs();renderMarkets();updateBal();updateBlobs();
   ['support','account'].forEach(p=>{const pip=document.getElementById('pip-'+p);if(pip)pip.style.display='none';});
-}
 /* ══════════════════════════════════════════════════════
-   COLOUR PREDICTION GAME ENGINE  v3
+   COLOUR PREDICTION GAME ENGINE  v4
+   Fixes:
+   – Shared 60-second clock, auto-restart on zero (smooth)
+   – Win/Loss popup shown for 3 seconds then auto-closes
+   – Single-player pattern: W W L L W W W L L W W W …
+   – Multi-player: side with LEAST total bet amount wins
+   – Top-20 shared bet history shown to all users
 ══════════════════════════════════════════════════════ */
 
-/* ── Shared clock (same countdown for every user / every refresh) ── */
+/* ── Shared clock (deterministic 60-second period for every client) ── */
 const GAME_PERIOD_MS = 60000;
 const GAME_EPOCH     = 1700000000000;
 function getSharedTimer(){
   const elapsed = (Date.now() - GAME_EPOCH) % GAME_PERIOD_MS;
-  return Math.max(0, Math.floor((GAME_PERIOD_MS - elapsed) / 1000));
+  return Math.max(0, Math.ceil((GAME_PERIOD_MS - elapsed) / 1000));
 }
 function getSharedPeriod(){
   return Math.floor((Date.now() - GAME_EPOCH) / GAME_PERIOD_MS);
 }
 function periodLabel(p){ return String(p).padStart(10,'0'); }
 
+/* ── Single-player win pattern: W W L L W W W L L W W W L L … ── */
+const SP_PATTERN = [true,true,false,false,true,true,true,false,false,true,true,true,false,false,true];
+
+/* ── Shared "Top 20 bets" global history stored under one key ── */
+const SHARED_BET_HISTORY_KEY = 'ww_shared_bets';
+function getSharedBetHistory(){
+  try{ return JSON.parse(localStorage.getItem(SHARED_BET_HISTORY_KEY)||'[]'); }catch(e){ return []; }
+}
+function pushSharedBet(entry){
+  const arr = getSharedBetHistory();
+  arr.unshift(entry);
+  if(arr.length > 20) arr.length = 20;
+  try{ localStorage.setItem(SHARED_BET_HISTORY_KEY, JSON.stringify(arr)); }catch(e){}
+}
+
 const GAME = {
   timerInt: null,
-  history: [],          // round results (max 30)
-  betHistory: [],       // permanent user bet history
+  history: [],
+  betHistory: [],
   bigBets: 0,
   smallBets: 0,
-  userBet: null,        // {side,amt} for current round
-  winPattern: [true,true,false,false,true,true,true,false,false,true],
+  userBet: null,
   patternIdx: 0,
   betAmt: 10,
   pendingBetSide: null,
   resultAnimating: false,
   lastResolvedPeriod: -1,
-  showBetHistory: false
+  showBetHistory: false,
+  showSharedHistory: false
 };
 
 /* ── Persist / restore game state ── */
@@ -984,7 +1004,8 @@ const GAME = {
     if(Array.isArray(s.betHistory)) GAME.betHistory = s.betHistory;
     if(typeof s.patternIdx==='number') GAME.patternIdx = s.patternIdx;
     if(typeof s.lastResolvedPeriod==='number') GAME.lastResolvedPeriod = s.lastResolvedPeriod;
-    if(s.userBet && s.betPeriod === getSharedPeriod()){
+    const curPeriod = getSharedPeriod();
+    if(s.userBet && s.betPeriod === curPeriod){
       GAME.userBet = s.userBet;
       if(GAME.userBet.side==='big') GAME.bigBets = GAME.userBet.amt;
       else GAME.smallBets = GAME.userBet.amt;
@@ -1010,17 +1031,21 @@ function stopGameTimer(){ clearInterval(GAME.timerInt); GAME.timerInt=null; }
 
 function startGameTimer(){
   stopGameTimer();
-  checkPeriodRollover();
   updateGameTimerDisplay();
-  GAME.timerInt = setInterval(()=>{ updateGameTimerDisplay(); checkPeriodRollover(); }, 500);
+  checkPeriodRollover();
+  GAME.timerInt = setInterval(()=>{
+    if(!GAME.resultAnimating){ updateGameTimerDisplay(); }
+    checkPeriodRollover();
+  }, 300);
 }
 
 function checkPeriodRollover(){
   const cur = getSharedPeriod();
   const t   = getSharedTimer();
-  if(cur !== GAME.lastResolvedPeriod && t >= 58){
+  /* Fire resolve once per new period when clock is at the very start (t > 56) */
+  if(cur !== GAME.lastResolvedPeriod && t > 56){
     GAME.lastResolvedPeriod = cur;
-    GAME.period = cur;
+    GAME.period = cur - 1;
     resolveGameRound();
   }
 }
@@ -1037,57 +1062,65 @@ function updateGameTimerDisplay(){
   el.style.textShadow = isLow ? '0 0 18px rgba(255,77,109,.9)' : '0 0 18px rgba(0,229,204,.8)';
   const card = document.getElementById('gameTimerCard');
   if(card) card.style.borderColor = isLow ? 'rgba(255,77,109,.9)' : 'rgba(255,77,109,.4)';
-  /* Lock/unlock bet buttons */
   const locked = document.getElementById('gameBetLockMsg');
   const betArea = document.getElementById('gameBetArea');
   if(locked) locked.style.display = isLow ? 'flex' : 'none';
-  if(betArea) betArea.style.opacity = isLow ? '.38' : '1';
-  if(betArea) betArea.style.pointerEvents = isLow ? 'none' : 'auto';
+  if(betArea){ betArea.style.opacity = isLow ? '.38' : '1'; betArea.style.pointerEvents = isLow ? 'none' : 'auto'; }
 }
 
 /* ── Resolve round ── */
 function resolveGameRound(){
   if(GAME.resultAnimating) return;
-  const patResult = GAME.winPattern[GAME.patternIdx % GAME.winPattern.length];
+
+  const hasBig   = GAME.bigBets   > 0;
+  const hasSmall = GAME.smallBets > 0;
   let result;
-  if(GAME.bigBets > 0 && GAME.smallBets > 0){
-    if(GAME.smallBets < GAME.bigBets)      result = 'small';
-    else if(GAME.bigBets < GAME.smallBets) result = 'big';
-    else result = patResult ? 'big' : 'small';
+
+  if(hasBig && hasSmall){
+    /* Multi-player: LEAST total money side wins */
+    result = GAME.bigBets < GAME.smallBets ? 'big' : 'small';
   } else {
-    result = patResult ? 'big' : 'small';
+    /* Single-player (or no bets): follow SP_PATTERN */
+    const patWin = SP_PATTERN[GAME.patternIdx % SP_PATTERN.length];
+    if(GAME.userBet){
+      result = patWin ? GAME.userBet.side : (GAME.userBet.side === 'big' ? 'small' : 'big');
+    } else {
+      result = patWin ? 'big' : 'small';
+    }
   }
   GAME.patternIdx++;
 
+  const periodSeed = GAME.period !== undefined ? GAME.period : getSharedPeriod() - 1;
   const pool  = result==='big' ? [6,7,8,9] : [0,1,2,3,4,5];
-  const num   = pool[GAME.period % pool.length];
+  const num   = pool[Math.abs(periodSeed) % pool.length];
   const colour= num===0||num===5 ? 'violet' : num%2===0 ? 'red' : 'green';
 
-  GAME.history.unshift({ period: periodLabel(GAME.period), num, result, colour });
+  GAME.history.unshift({ period: periodLabel(periodSeed), num, result, colour });
   if(GAME.history.length > 30) GAME.history.pop();
 
-  /* Settle bet */
   let winMsg = null;
   if(GAME.userBet){
-    const won = GAME.userBet.side === result;
-    const amt = GAME.userBet.amt;
+    const won    = GAME.userBet.side === result;
+    const amt    = GAME.userBet.amt;
     const payout = won ? Math.floor(amt*1.9) : 0;
     if(won){ state.bal += payout; }
     winMsg = { won, amt, payout };
 
-    /* Save to permanent bet history */
-    GAME.betHistory.unshift({
-      period: periodLabel(GAME.period),
-      side:   GAME.userBet.side,
-      amt,
-      num, colour, result,
-      won,
-      payout,
+    const betEntry = {
+      period: periodLabel(periodSeed),
+      side: GAME.userBet.side, amt, num, colour, result, won, payout,
       time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
-    });
+    };
+    GAME.betHistory.unshift(betEntry);
     if(GAME.betHistory.length > 100) GAME.betHistory.pop();
 
-    /* Portfolio tx */
+    pushSharedBet({
+      user: state.userEmail || 'Player',
+      side: GAME.userBet.side, amt, won, payout,
+      period: periodLabel(periodSeed), num, colour, result,
+      time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+    });
+
     state.txList.unshift({
       id:Date.now(), type: won?'GAME WIN':'GAME LOSS',
       q:`Colour Prediction – ${result.toUpperCase()} (${num})`,
@@ -1103,7 +1136,7 @@ function resolveGameRound(){
   showGameResult(num, colour, result, winMsg);
 }
 
-/* ── Result popup (centered, orange=win, red=lose) ── */
+/* ── Result popup — auto-closes in 3 seconds ── */
 function showGameResult(num, colour, result, winMsg){
   GAME.resultAnimating = true;
   renderGames();
@@ -1112,7 +1145,6 @@ function showGameResult(num, colour, result, winMsg){
   const colMap = {green:'#22c55e', red:'#ef4444', violet:'#a855f7'};
   const ballCol = colMap[colour] || '#fff';
 
-  /* popup accent: orange for win, red for loss, teal for no-bet */
   let accent, accentBg, accentBorder, resultTitle, resultSub;
   if(!winMsg){
     accent='#00e5cc'; accentBg='rgba(0,229,204,.1)'; accentBorder='rgba(0,229,204,.35)';
@@ -1129,32 +1161,32 @@ function showGameResult(num, colour, result, winMsg){
     <div style="position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.85);backdrop-filter:blur(12px)">
       <div style="background:linear-gradient(145deg,rgba(10,14,32,.98),rgba(5,8,20,.99));border:2.5px solid ${accent};border-radius:30px;padding:32px 22px 24px;width:min(92vw,340px);text-align:center;box-shadow:0 0 60px ${accent}55,0 0 120px ${accent}22,0 28px 60px rgba(0,0,0,.85);animation:betCardPop .4s cubic-bezier(.16,1,.3,1) forwards;position:relative;overflow:hidden">
         <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,${accent},transparent)"></div>
-
-        <!-- Win/Loss banner -->
+        <div style="position:absolute;bottom:0;left:0;height:3px;background:${accent};border-radius:0 0 0 30px;animation:shrinkBar 3s linear forwards"></div>
         ${winMsg?`<div style="padding:8px 16px;border-radius:50px;background:${accentBg};border:1.5px solid ${accentBorder};font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:${accent};letter-spacing:.5px;margin-bottom:18px;display:inline-block">${resultTitle}</div>`:`<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:3px;margin-bottom:18px">ROUND RESULT</div>`}
-
-        <!-- Number ball -->
         <div style="width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.38),rgba(255,255,255,.1) 45%,transparent 65%),linear-gradient(145deg,${ballCol},${ballCol}88);border:3px solid ${ballCol};box-shadow:0 0 40px ${ballCol}99,0 0 80px ${ballCol}44;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-family:'Oswald',sans-serif;font-weight:700;font-size:54px;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.6)">${num}</div>
-
         <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:26px;color:${ballCol};text-transform:uppercase;letter-spacing:3px;margin-bottom:3px">${result.toUpperCase()}</div>
         <div style="font-size:12px;color:rgba(255,255,255,.4);text-transform:capitalize;letter-spacing:1px;margin-bottom:${winMsg?'18px':'22px'}">${colour}</div>
-
-        <!-- Win/loss amount box -->
         ${winMsg?`<div style="padding:14px;border-radius:16px;background:${accentBg};border:2px solid ${accentBorder};margin-bottom:20px">
           <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:26px;color:${accent};letter-spacing:1px">${winMsg.won?'+₹'+winMsg.payout:'-₹'+winMsg.amt}</div>
           <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;letter-spacing:.5px">${resultSub}</div>
         </div>`:''}
-
+        <div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:10px">Next round starts in 3s…</div>
         <button onclick="closeGameResult()" style="width:100%;padding:15px;border-radius:50px;background:linear-gradient(145deg,${accent}44,${accent}22);border:2px solid ${accent};color:${accent};font-weight:800;font-size:14px;cursor:pointer;letter-spacing:.8px;box-shadow:0 0 22px ${accent}44">Next Round →</button>
       </div>
     </div>`;
+
+  /* Auto-close after 3 seconds */
+  if(GAME._resultTimeout) clearTimeout(GAME._resultTimeout);
+  GAME._resultTimeout = setTimeout(()=>{ closeGameResult(); }, 3000);
 }
 
 window.closeGameResult = function(){
+  if(GAME._resultTimeout){ clearTimeout(GAME._resultTimeout); GAME._resultTimeout = null; }
   GAME.resultAnimating = false;
   const ov = document.getElementById('gameResultOverlay');
   if(ov) ov.innerHTML = '';
   renderGames();
+  startGameTimer();
 };
 
 /* ── Bet confirmation sheet ── */
@@ -1326,6 +1358,47 @@ function renderGames(){
     return;
   }
 
+  /* ── SHARED TOP-20 BET HISTORY VIEW ── */
+  if(GAME.showSharedHistory){
+    const sharedBets = getSharedBetHistory();
+    el.innerHTML = `
+    <div style="padding:14px 14px 100px;min-height:100vh">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button onclick="GAME.showSharedHistory=false;renderGames()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:18px;flex-shrink:0">←</button>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">Top 20 Bets</div>
+          <div style="font-size:10px;color:rgba(0,229,204,.7);font-weight:700;letter-spacing:1px">ALL PLAYERS · LAST 20</div>
+        </div>
+      </div>
+      ${sharedBets.length===0?`<div style="text-align:center;padding:60px 20px;color:#475569">
+        <div style="font-size:40px;margin-bottom:12px">🎮</div>
+        <div style="font-size:14px;font-weight:600">No bets yet</div>
+        <div style="font-size:12px;margin-top:6px">Place a bet to see it here</div>
+      </div>`:
+      sharedBets.map(b=>`
+        <div style="background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid ${b.won?'rgba(251,146,60,.25)':'rgba(239,68,68,.2)'};border-radius:14px;padding:13px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:11px;color:rgba(255,255,255,.5);font-weight:700">${b.user}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.3)">${b.time}</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colMap[b.colour]||'#aaa'};border:2px solid ${colMap[b.colour]||'#aaa'};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;box-shadow:0 0 12px ${colMap[b.colour]||'#aaa'}66">${b.num}</div>
+              <div>
+                <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:${b.side==='big'?'#fb923c':'#60a5fa'}">${b.side.toUpperCase()} · ₹${b.amt}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">Result: <span style="color:${b.result==='big'?'#fb923c':'#60a5fa'};font-weight:700">${b.result.toUpperCase()}</span></div>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:${b.won?'#fb923c':'#ef4444'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</div>
+              <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:${b.won?'rgba(251,146,60,.12)':'rgba(239,68,68,.1)'};border:1px solid ${b.won?'rgba(251,146,60,.3)':'rgba(239,68,68,.25)'};color:${b.won?'#fb923c':'#ef4444'};margin-top:3px;display:inline-block">${b.won?'WON':'LOST'}</div>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+    return;
+  }
+
   /* ── MAIN GAME VIEW ── */
   el.innerHTML = `
   <div style="padding:14px 14px 100px;min-height:100vh">
@@ -1404,11 +1477,11 @@ function renderGames(){
     </div>
     <div id="gameBetLockMsg" style="display:${isLow?'flex':'none'};align-items:center;justify-content:center;gap:8px;padding:14px;background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.35);border-radius:14px;margin-bottom:12px;font-size:13px;font-weight:700;color:#ff4d6d">🔒 Betting closed for this round</div>
 
-    <!-- Bet History Button -->
-    <button onclick="GAME.showBetHistory=true;renderGames()" style="width:100%;padding:14px;border-radius:16px;background:rgba(255,215,0,.06);border:1.5px solid rgba(255,215,0,.3);color:#ffd700;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;letter-spacing:.3px">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 8V12L15 15" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="#ffd700" stroke-width="2"/></svg>
-      Bet History (${GAME.betHistory.length} bets)
-    </button>
+    <!-- Bet History Buttons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <button onclick="GAME.showBetHistory=true;GAME.showSharedHistory=false;renderGames()" style="padding:13px 8px;border-radius:16px;background:rgba(255,215,0,.06);border:1.5px solid rgba(255,215,0,.3);color:#ffd700;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.3px">My Bets (${GAME.betHistory.length})</button>
+      <button onclick="GAME.showSharedHistory=true;GAME.showBetHistory=false;renderGames()" style="padding:13px 8px;border-radius:16px;background:rgba(0,229,204,.06);border:1.5px solid rgba(0,229,204,.3);color:#00e5cc;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.3px">Top 20 Bets</button>
+    </div>
 
     <!-- Round History -->
     <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px">
