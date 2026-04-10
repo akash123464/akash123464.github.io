@@ -684,3 +684,19 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   display:inline-block;
   will-change:background-position;
 }
+
+/* ── GAME PAGE ── */
+.game-chip.active{
+  background:rgba(255,77,109,.2)!important;
+  border-color:rgba(255,77,109,.7)!important;
+  color:#ff4d6d!important;
+  box-shadow:0 0 12px rgba(255,77,109,.3);
+}
+#pageGames{
+  min-height:100vh;
+  scroll-behavior:smooth;
+}
+#gameResultOverlay{
+  position:fixed;inset:0;z-index:900;pointer-events:none;
+}
+#gameResultOverlay:not(:empty){pointer-events:auto;}

@@ -46,93 +46,93 @@ let jellyRAF=null;
 /* ── DATA ── */
 const BETS={
   INSTAGRAM:[
-    {q:"Karan Aujla posts more than 5 stories on Instagram today (9April)?",id:"I1",odds:47,hot:true},
-    {q:"Modi Ji posts more than 3 stories on Instagram today (9April)?",id:"I2",odds:62},
-    {q:"Deepaliarora10 posts story in brown/white/grey bra🍒 today (9April)?",id:"I3",odds:55},
-    {q:"Shaanayakatiyan_official posts more than 4 stories today (9April)?",id:"I4",odds:38},
-    {q:"Shambhavi1997 posts a story in red outfit today (9April)?",id:"I5",odds:44},
-    {q:"Rajat Dalal posts more than 4 stories today (9April)?",id:"I6",odds:71},
-    {q:"Minimyntra_official posts a bold reel on Instagram today(9April)?",id:"I7",odds:83,hot:true},
-    {q:"Elvish Yadav will post more than 2 stories (9April) ?",id:"I8",odds:52},
-    {q:"Narendra Modi ji will post more than 2 stories (9April)today?",id:"I9",odds:68},
-    {q:"ika_dauria will post more than 2 stories today(9April)?",id:"I10",odds:34},
-    {q:"Priyanka Chopra posts more than 1 stories on Instagram today(9April)?",id:"I11",odds:59}
+    {q:"Karan Aujla posts more than 5 stories on Instagram today?",id:"I1",odds:47,hot:true},
+    {q:"Modi Ji posts more than 3 stories on Instagram today?",id:"I2",odds:62},
+    {q:"Deepaliarora10 posts story in brown/white/grey outfit today?",id:"I3",odds:55},
+    {q:"Shaanayakatiyan_official posts more than 4 stories today?",id:"I4",odds:38},
+    {q:"Shambhavi1997 posts a story in red outfit today?",id:"I5",odds:44},
+    {q:"Rajat Dalal posts more than 4 stories today?",id:"I6",odds:71},
+    {q:"Uorfi Javed posts a bold reel on Instagram today?",id:"I7",odds:83,hot:true},
+    {q:"Elvish Yadav goes Instagram LIVE for 30+ minutes today?",id:"I8",odds:52},
+    {q:"Rohit Zinjurke posts a gym/workout reel today?",id:"I9",odds:68},
+    {q:"Guru Randhawa posts a new music story on Instagram today?",id:"I10",odds:34},
+    {q:"Priyanka Chopra posts more than 2 stories on Instagram today?",id:"I11",odds:59}
   ],
   CRICKET:[
-    {q:"Kolkata knight riders will win the toss?",id:"C1",odds:58},
-    {q:"Lucknow super giants will bowl first?",id:"C2",odds:33},
-    {q:"Andre Russell will be caught out?",id:"C3",odds:67,hot:true},
-    {q:"KL Rahul will hit🏏 more than 3 sixes?",id:"C4",odds:52},
-    {q:"Shreyas Iyer will hit 3 fours?",id:"C5",odds:28},
-    {q:"Kolkata knight riders will win the match?",id:"C6",odds:61},
-    {q:"Lucknow super giants will hit 8 runs in 2md over?",id:"C7",odds:49,hot:true},
-    {q:"Kolkata knight riders will hit 9 runs in 3rd over?",id:"C8",odds:44},
-    {q:"First ball of the match will gain 2 runs?",id:"C9",odds:71},
-    {q:"Total match score will cross 370 runs?",id:"C10",odds:38},
+    {q:"Hyderabad will hit 5+ runs in the 7th over today?",id:"C1",odds:58},
+    {q:"Second wicket of Hyderabad falls in the 6th over today?",id:"C2",odds:33},
+    {q:"Virat Kohli will hit more than 2 sixes today?",id:"C3",odds:67,hot:true},
+    {q:"Pat Cummins will touch his hair 6+ times during the match?",id:"C4",odds:52},
+    {q:"Virat Kohli will get run out today?",id:"C5",odds:28},
+    {q:"India wins by more than 50 runs today?",id:"C6",odds:61},
+    {q:"Rohit Sharma scores a half century (50+ runs) today?",id:"C7",odds:49,hot:true},
+    {q:"Jasprit Bumrah takes 3+ wickets in today's match?",id:"C8",odds:44},
+    {q:"First ball of the match will be a dot ball?",id:"C9",odds:71},
+    {q:"Total match score will cross 350 runs today?",id:"C10",odds:38},
     {q:"Man of the Match will be a bowler, not a batsman?",id:"C11",odds:42}
   ],
   OIL:[
-    {q:"Petrol price reaches ₹95.50 in Delhi today?",id:"O1",odds:34},
-    {q:"Diesel price reaches ₹88.70 in Delhi today?",id:"O2",odds:41},
-    {q:"Petrol price hits ₹112 in Delhi by 17 April?",id:"O3",odds:22},
-    {q:"Diesel price hits ₹94 in Delhi by 1 May?",id:"O4",odds:38},
-    {q:"Gasoline tax increases by 2% by 1May?",id:"O5",odds:18},
+    {q:"Petrol price reaches ₹107.50 in MP today?",id:"O1",odds:34},
+    {q:"Diesel price reaches ₹92.70 in MP today?",id:"O2",odds:41},
+    {q:"Petrol price hits ₹112 in Delhi by 10 April?",id:"O3",odds:22},
+    {q:"Diesel price hits ₹94 in Delhi by 10 May?",id:"O4",odds:38},
+    {q:"Gasoline tax increases by 2% by 29 March?",id:"O5",odds:18},
     {q:"Global oil price drops 2%+ today?",id:"O6",odds:55},
     {q:"Brent crude crosses $90/barrel this week?",id:"O7",odds:47,hot:true},
-    {q:"OPEC announces a production cut before May 2026?",id:"O8",odds:31},
+    {q:"OPEC announces a production cut before April 2026?",id:"O8",odds:31},
     {q:"CNG price increases in Delhi NCR this week?",id:"O9",odds:26},
-    {q:"EV subsidy announced by government before May 2026?",id:"O10",odds:19},
+    {q:"EV subsidy announced by government before April 2026?",id:"O10",odds:19},
     {q:"Reliance Industries shares rise 2%+ this week?",id:"O11",odds:53}
   ],
   POLITICS:[
-    {q:"Republic TV Arnab debate — someone says 'Pakistan' 3+ times today (9April)?",id:"P1",odds:88,hot:true},
-    {q:"Aaj Tak Dangal — someone says 'Trump' 5+ times today (9April)?",id:"P2",odds:74},
+    {q:"Republic TV Arnab debate — someone says 'Pakistan' 3+ times?",id:"P1",odds:88,hot:true},
+    {q:"Aaj Tak Dangal — someone says 'cylinder' 5+ times?",id:"P2",odds:74},
     {q:"Lallantop posts 5+ videos about BJP government today?",id:"P3",odds:81},
     {q:"Raghav Chadha posts a YouTube video today?",id:"P4",odds:63},
-    {q:"Modi Ji broadcasts live 45+ minutes (9April  – 2 May)?",id:"P5",odds:57},
-    {q:"Rahul Gandhi broadcasts live 65+ minutes (9April – 2 May)?",id:"P6",odds:49},
+    {q:"Modi Ji broadcasts live 45+ minutes (28 Mar – 2 May)?",id:"P5",odds:57},
+    {q:"Rahul Gandhi broadcasts live 65+ minutes (28 Mar – 2 May)?",id:"P6",odds:49},
     {q:"BJP wins more than 200 seats in upcoming state elections?",id:"P7",odds:61},
-    {q:"Arvind Kejriwal tweets about Delhi govt 5+ times till 12April?",id:"P8",odds:77,hot:true},
-    {q:"New cabinet reshuffle announced before 15 May 2026?",id:"P9",odds:23},
+    {q:"Arvind Kejriwal tweets about Delhi govt 5+ times today?",id:"P8",odds:77,hot:true},
+    {q:"New cabinet reshuffle announced before 15 April 2026?",id:"P9",odds:23},
     {q:"India-Pakistan peace talks resume before June 2026?",id:"P10",odds:14},
-    {q:"Congress holds press conference about inflation till 15April?",id:"P11",odds:82}
+    {q:"Congress holds press conference about inflation today?",id:"P11",odds:82}
   ],
   YOUTUBE:[
-    {q:"Lallantop posts a video about LPG crisis today(9April)?",id:"Y1",odds:76,hot:true},
-    {q:"Samayraina new video ALIVE  will cross 23 million views today (9April)?",id:"Y2",odds:52},
-    {q:"Ranveer allahbadia new video WHOLESOME will cross 180k views today (9April)?",id:"Y3",odds:65},
-    {q:"Lallantop video mentions Modi Ji 3+ times today(9April)?",id:"Y4",odds:83},
+    {q:"Lallantop posts a video about LPG crisis today?",id:"Y1",odds:76,hot:true},
+    {q:"Passenger Paramveer 'Shocked Japan' video hits 30k+ likes today?",id:"Y2",odds:52},
+    {q:"Dhruv Rathi 'Dhurandhar Expose' hits 58k+ likes today?",id:"Y3",odds:65},
+    {q:"Lallantop video mentions Modi Ji 3+ times today?",id:"Y4",odds:83},
     {q:"Raj Shamani Clips posts 5+ videos today?",id:"Y5",odds:71},
     {q:"Modi Ji posts a video on YouTube today?",id:"Y6",odds:44},
-    {q:"UFC official channel will post more than 2 vides today (9April)?",id:"Y7",odds:29},
-    {q:"Lallantop will post 2 videos about Trump today (9april)?",id:"Y8",odds:38},
-    {q:"Dhruv rathi will post a video about Trump this week?",id:"Y9",odds:67,hot:true},
+    {q:"Carry Minati posts a new roast/reaction video today?",id:"Y7",odds:29},
+    {q:"BB Ki Vines uploads a new sketch video today?",id:"Y8",odds:38},
+    {q:"Technical Guruji uploads 2+ tech videos today?",id:"Y9",odds:67,hot:true},
     {q:"T-Series releases a new song on YouTube today?",id:"Y10",odds:81},
     {q:"Any Indian YouTuber crosses 10M views in a single video today?",id:"Y11",odds:22}
   ],
   RANDOM:[
-    {q:"Gold price gains ₹300+ today — goal ₹1,55,700(9April)?",id:"R1",odds:42},
-    {q:"Rain in Delhi India gate today (9April)?",id:"R2",odds:31},
-    {q:"Bitcoin gains +₹2,000 today — goal ₹65,73,727(9april)?",id:"R3",odds:58,hot:true},
-    {q:"Trump will post about iran today (9April)?",id:"R4",odds:12},
+    {q:"Gold price gains ₹300+ today — goal ₹1,47,375?",id:"R1",odds:42},
+    {q:"Rain in Delhi today?",id:"R2",odds:31},
+    {q:"Bitcoin gains +₹2,000 today — goal ₹62,63,727?",id:"R3",odds:58,hot:true},
+    {q:"A famous celebrity MMS gets leaked today?",id:"R4",odds:12},
     {q:"Delhi temperature breaks yesterday's record today?",id:"R5",odds:67},
-    {q:"Rain in Agra (TAJMAHAL) today?",id:"R6",odds:48},
+    {q:"Rain in Mumbai today?",id:"R6",odds:48},
     {q:"Sensex closes 500+ points up today?",id:"R7",odds:39},
-    {q:" SSC slogans will got on top hashtags on X today (9April)?",id:"R8",odds:88},
+    {q:"A viral animal video trends on X/Twitter today?",id:"R8",odds:88},
     {q:"IndiGo announces a new flight route today?",id:"R9",odds:21},
     {q:"Any big IPL-related news drops today?",id:"R10",odds:55},
-    {q:"Earthquake 3.0+ magnitude hits anywhere in India today?",id:"R11",odds:8}
+    {q:"Earthquake 5.0+ magnitude hits anywhere in India today?",id:"R11",odds:8}
   ],
   NAUGHTY:[
-    {q:"Ika Dauria posts in red bikini on Instagram by 10 April?",id:"N1",odds:38},
-    {q:"Johnny Sins new video released by 10 April?",id:"N2",odds:72,hot:true},
-    {q:"Lilykoti posts a new video on her platform by 10 April?",id:"N3",odds:55},
-    {q:"Vadapav girl makes a viral bold statement by 10 April?",id:"N4",odds:44},
-    {q:"Lilykoti drops OnlyFans subscription price by 10 April?",id:"N5",odds:29},
+    {q:"Ika Dauria posts in red bikini on Instagram by 3 April?",id:"N1",odds:38},
+    {q:"Johnny Sins new video released by 3 April?",id:"N2",odds:72,hot:true},
+    {q:"Lilykoti posts a new video on her platform by 3 April?",id:"N3",odds:55},
+    {q:"Vadapav girl makes a viral bold statement by 3 April?",id:"N4",odds:44},
+    {q:"Lilykoti drops OnlyFans subscription price by 3 April?",id:"N5",odds:29},
     {q:"Major OnlyFans platform update announced by 3 May?",id:"N6",odds:61},
-    {q:"Anjali Arora posts a bold reel in red bra 🍒 on Instagram by 10April?",id:"N7",odds:67,hot:true},
+    {q:"Anjali Arora posts a bold reel on Instagram by 5 April?",id:"N7",odds:67,hot:true},
     {q:"Urfi Javed's reel crosses 2M views in 24 hours this week?",id:"N8",odds:73},
-    {q:"Lily koti new video by this week ?",id:"N9",odds:84},
+    {q:"A top Bollywood actress posts a bikini photo this week?",id:"N9",odds:84},
     {q:"A bold/viral music video goes #1 on YouTube this week?",id:"N10",odds:78},
     {q:"Adult content ban gets discussed in Parliament this month?",id:"N11",odds:19}
   ]
@@ -211,22 +211,35 @@ function setPage(page){
     document.getElementById('bnav-'+p).classList.toggle('active',p===page);
     const pip=document.getElementById('pip-'+p);if(pip)pip.style.display=p===page?'block':'none';
   });
+  document.getElementById('pageGames').classList.toggle('hidden',page!=='games');
   document.getElementById('tabsWrap').style.display=page==='markets'?'block':'none';
   if(page==='markets')renderMarkets();
   if(page==='support')renderSupport();
   if(page==='account')renderAccount();
+  if(page==='games'){stopGameTimer();renderGames();}
+  else stopGameTimer();
 }
 
 /* ── TABS ── */
 function renderTabs(){
   const row=document.getElementById('tabsRow');row.innerHTML='';
+  /* GAMES tab — always first */
+  const gDiv=document.createElement('div');
+  gDiv.className='tab'+(state.activePage==='games'?' active':'');
+  gDiv.style.setProperty('--cc','#ff4d6d');
+  gDiv.innerHTML=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="3" stroke="#ff4d6d" stroke-width="2"/><circle cx="8" cy="14" r="2" fill="#ff4d6d"/><circle cx="16" cy="14" r="2" fill="#ff4d6d"/><path d="M12 2v5" stroke="#ff4d6d" stroke-width="2" stroke-linecap="round"/></svg> GAMES`+(state.activePage==='games'?'<div class="tab-glow"></div>':'');
+  if(state.activePage==='games')gDiv.style.color='#fff';
+  gDiv.onclick=()=>{setPage('games');renderTabs();};
+  row.appendChild(gDiv);
+  /* Market category tabs */
+  document.getElementById('tabsWrap').style.display='block';
   Object.keys(BETS).forEach(c=>{
-    const m=META[c],active=state.cat===c;
+    const m=META[c],active=state.cat===c&&state.activePage==='markets';
     const div=document.createElement('div');
     div.className='tab'+(active?' active':'');div.style.setProperty('--cc',m.color);
     div.innerHTML=m.icon+' '+m.label+(active?'<div class="tab-glow"></div>':'');
     if(active)div.style.color='#fff';
-    div.onclick=()=>{state.cat=c;setCC(m.color);renderTabs();renderMarkets();updateBlobs();};
+    div.onclick=()=>{state.cat=c;setCC(m.color);setPage('markets');renderTabs();updateBlobs();};
     row.appendChild(div);
   });
 }
@@ -931,6 +944,269 @@ function init(){
   LS.load();setCC(META[state.cat].color);renderTabs();renderMarkets();updateBal();updateBlobs();
   ['support','account'].forEach(p=>{const pip=document.getElementById('pip-'+p);if(pip)pip.style.display='none';});
 }
+/* ══════════════════════════════════════════════════════
+   COLOUR PREDICTION GAME ENGINE
+══════════════════════════════════════════════════════ */
+const GAME={
+  timer:60,
+  timerInt:null,
+  period:0,
+  history:[],
+  bigBets:0,
+  smallBets:0,
+  userBet:null,   // {side:'big'|'small', amt:number}
+  winPattern:[true,true,false,false,true,true,true,false,false,true], // solo win pattern
+  patternIdx:0,
+  totalPlayers:1, // tracked via firebase bets in period
+  betAmt:10,
+  betSide:null,
+  resultAnimating:false
+};
+
+function stopGameTimer(){
+  clearInterval(GAME.timerInt);
+  GAME.timerInt=null;
+}
+
+function startGameTimer(){
+  stopGameTimer();
+  GAME.timer=60;
+  updateGameTimerDisplay();
+  GAME.timerInt=setInterval(()=>{
+    GAME.timer--;
+    updateGameTimerDisplay();
+    if(GAME.timer<=0){
+      resolveGameRound();
+    }
+  },1000);
+}
+
+function updateGameTimerDisplay(){
+  const el=document.getElementById('gameTimerNum');
+  if(!el)return;
+  const m=String(Math.floor(GAME.timer/60)).padStart(2,'0');
+  const s=String(GAME.timer%60).padStart(2,'0');
+  el.textContent=`${m}:${s}`;
+  /* colour timer red when < 10s */
+  el.style.color=GAME.timer<=10?'#ff4d6d':'#00e5cc';
+  el.style.textShadow=GAME.timer<=10?'0 0 18px rgba(255,77,109,.8)':'0 0 18px rgba(0,229,204,.8)';
+}
+
+function resolveGameRound(){
+  stopGameTimer();
+  GAME.period++;
+  const totalBig=GAME.bigBets;
+  const totalSmall=GAME.smallBets;
+  let result;
+
+  /* Multi-player: result = side with LESS money bet */
+  if(totalBig>0&&totalSmall>0){
+    result=totalSmall<totalBig?'small':'big';
+    /* tie: use solo pattern */
+    if(totalBig===totalSmall) result=GAME.winPattern[GAME.patternIdx%GAME.winPattern.length]?'big':'small';
+  } else if(totalBig===0&&totalSmall===0){
+    /* No bets — use pattern */
+    result=GAME.winPattern[GAME.patternIdx%GAME.winPattern.length]?'big':'small';
+  } else if(totalBig>0&&totalSmall===0){
+    /* Solo big bet — use pattern to decide */
+    result=GAME.winPattern[GAME.patternIdx%GAME.winPattern.length]?'big':'small';
+  } else {
+    result=GAME.winPattern[GAME.patternIdx%GAME.winPattern.length]?'big':'small';
+  }
+  GAME.patternIdx++;
+
+  /* Pick a number matching result */
+  const bigNums=[6,7,8,9];
+  const smallNums=[0,1,2,3,4,5];
+  /* Slightly randomise within the set */
+  const numPool=result==='big'?bigNums:smallNums;
+  const num=numPool[Math.floor(Math.random()*numPool.length)];
+
+  /* Colour: 0/5 = violet+red, even = red, odd = green */
+  let colour;
+  if(num===0||num===5) colour='violet';
+  else if(num%2===0) colour='red';
+  else colour='green';
+
+  /* Push to history */
+  GAME.history.unshift({period:String(Date.now()).slice(-8),num,result,colour});
+  if(GAME.history.length>20)GAME.history.pop();
+
+  /* Settle user bet */
+  let winMsg=null;
+  if(GAME.userBet){
+    const won=GAME.userBet.side===result;
+    const amt=GAME.userBet.amt;
+    if(won){
+      const payout=Math.floor(amt*1.9);
+      state.bal+=payout;
+      winMsg={won:true,text:`🎉 You won ₹${payout}!`,amt:payout};
+      state.txList.unshift({id:Date.now(),type:'GAME WIN',q:`Colour Prediction — ${result.toUpperCase()}`,amt:`+₹${payout}`,status:'WON 🏆',time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});
+    } else {
+      winMsg={won:false,text:`You lost ₹${amt}`,amt:amt};
+      state.txList.unshift({id:Date.now(),type:'GAME LOSS',q:`Colour Prediction — ${result.toUpperCase()}`,amt:`-₹${amt}`,status:'LOST ❌',time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});
+    }
+    LS.save();updateBal();
+    GAME.userBet=null;
+  }
+
+  /* Reset bets */
+  GAME.bigBets=0;
+  GAME.smallBets=0;
+
+  /* Show result then re-render */
+  showGameResult(num,colour,result,winMsg);
+}
+
+function showGameResult(num,colour,result,winMsg){
+  GAME.resultAnimating=true;
+  const overlay=document.getElementById('gameResultOverlay');
+  if(!overlay)return;
+  const colMap={green:'#22c55e',red:'#ef4444',violet:'#a855f7'};
+  const col=colMap[colour]||'#fff';
+  overlay.innerHTML=`
+    <div style="position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);animation:backdropIn .3s ease">
+      <div style="background:linear-gradient(145deg,rgba(10,15,35,.97),rgba(5,8,20,.99));border:2px solid ${col};border-radius:28px;padding:28px 24px;width:min(88vw,320px);text-align:center;box-shadow:0 0 40px ${col}55,0 20px 60px rgba(0,0,0,.7);animation:betCardPop .4s cubic-bezier(.16,1,.3,1) forwards">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:2px;margin-bottom:14px">ROUND RESULT</div>
+        <div style="width:90px;height:90px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.25),transparent 60%),linear-gradient(145deg,${col}cc,${col}88);border:3px solid ${col};box-shadow:0 0 30px ${col}88,0 0 60px ${col}44;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-family:'Oswald',sans-serif;font-weight:700;font-size:42px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.5)">${num}</div>
+        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:22px;color:${col};text-transform:uppercase;letter-spacing:2px;margin-bottom:4px">${result.toUpperCase()}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:18px;text-transform:capitalize">${colour}</div>
+        ${winMsg?`<div style="padding:12px;border-radius:14px;background:${winMsg.won?'rgba(34,197,94,.12)':'rgba(239,68,68,.1)'};border:1px solid ${winMsg.won?'rgba(34,197,94,.3)':'rgba(239,68,68,.3)'};font-weight:800;font-size:15px;color:${winMsg.won?'#22c55e':'#ef4444'}">${winMsg.text}</div>`:''}
+        <button onclick="document.getElementById('gameResultOverlay').innerHTML='';GAME.resultAnimating=false;renderGames();startGameTimer();" style="margin-top:16px;width:100%;padding:13px;border-radius:50px;background:linear-gradient(145deg,${col}33,${col}11);border:1.5px solid ${col};color:${col};font-weight:800;font-size:13px;cursor:pointer;letter-spacing:.5px">Next Round →</button>
+      </div>
+    </div>`;
+  overlay.style.display='block';
+}
+
+function placeBetGame(side){
+  if(GAME.resultAnimating){showToast('Wait for next round','info');return;}
+  if(GAME.timer<=3){showToast('Betting closed!','info');return;}
+  const amt=GAME.betAmt;
+  if(amt>state.bal){showToast('Insufficient balance 💸','info');return;}
+  if(GAME.userBet){showToast('Bet already placed this round','info');return;}
+  state.bal-=amt;
+  LS.save();updateBal();
+  GAME.userBet={side,amt};
+  if(side==='big')GAME.bigBets+=amt;
+  else GAME.smallBets+=amt;
+  showToast(`✅ ₹${amt} on ${side.toUpperCase()}`);
+  /* Update bet indicators */
+  renderGameBetState();
+}
+
+function renderGameBetState(){
+  const bigEl=document.getElementById('gameBigBtn');
+  const smallEl=document.getElementById('gameSmallBtn');
+  if(!bigEl||!smallEl)return;
+  if(GAME.userBet){
+    bigEl.style.opacity=GAME.userBet.side==='big'?'1':'.45';
+    smallEl.style.opacity=GAME.userBet.side==='small'?'1':'.45';
+    const activeEl=GAME.userBet.side==='big'?bigEl:smallEl;
+    activeEl.style.boxShadow=GAME.userBet.side==='big'?'0 0 24px rgba(251,146,60,.8)':'0 0 24px rgba(96,165,250,.8)';
+  }
+}
+
+function setGameBetAmt(amt){
+  GAME.betAmt=amt;
+  document.querySelectorAll('.game-chip').forEach(el=>{
+    el.classList.toggle('active',parseInt(el.dataset.amt)===amt);
+  });
+}
+
+function renderGames(){
+  const el=document.getElementById('pageGames');
+  if(!el)return;
+
+  const lastH=GAME.history.slice(0,8);
+  const colMap={green:'#22c55e',red:'#ef4444',violet:'#a855f7'};
+
+  el.innerHTML=`
+  <div style="padding:14px 14px 100px;min-height:100vh">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(255,77,109,.2),rgba(255,77,109,.08));border:1.5px solid rgba(255,77,109,.5);display:flex;align-items:center;justify-content:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="3" stroke="#ff4d6d" stroke-width="2"/><circle cx="8" cy="14" r="1.8" fill="#ff4d6d"/><circle cx="16" cy="14" r="1.8" fill="#ff4d6d"/><path d="M12 2v5" stroke="#ff4d6d" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">Colour Prediction</div>
+        <div style="font-size:10px;color:rgba(255,77,109,.7);font-weight:700;letter-spacing:1px">WIN GO · 60 SEC</div>
+      </div>
+      <div style="margin-left:auto;font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;color:#00e5cc;background:rgba(0,229,204,.1);border:1px solid rgba(0,229,204,.3);padding:4px 12px;border-radius:50px">LIVE</div>
+    </div>
+
+    <!-- Timer Card -->
+    <div style="background:linear-gradient(135deg,rgba(255,77,109,.12),rgba(20,10,40,.95));border:1.5px solid rgba(255,77,109,.4);border-radius:20px;padding:18px 16px;margin-bottom:14px;box-shadow:0 0 24px rgba(255,77,109,.15),inset 0 1px 0 rgba(255,255,255,.08);position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,77,109,.9),transparent)"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:1.5px;margin-bottom:6px">TIME REMAINING</div>
+          <div id="gameTimerNum" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:46px;color:#00e5cc;letter-spacing:3px;line-height:1;text-shadow:0 0 18px rgba(0,229,204,.8)">01:00</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:1px;margin-bottom:6px">LAST RESULTS</div>
+          <div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap;max-width:140px">
+            ${lastH.slice(0,6).map(h=>`<div style="width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 60%),${colMap[h.colour]||'#666'};border:1.5px solid ${colMap[h.colour]||'#666'};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;color:#fff;box-shadow:0 0 8px ${colMap[h.colour]||'#666'}66">${h.num}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+      ${GAME.userBet?`<div style="margin-top:12px;padding:8px 12px;background:rgba(255,255,255,.05);border-radius:10px;border:1px solid rgba(255,255,255,.1);font-size:12px;color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:space-between"><span>Your bet: <strong style="color:${GAME.userBet.side==='big'?'#fb923c':'#60a5fa'}">${GAME.userBet.side.toUpperCase()}</strong></span><span style="color:#ffd700;font-weight:700">₹${GAME.userBet.amt}</span></div>`:''}
+    </div>
+
+    <!-- Colour Buttons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+      <button onclick="placeBetGame('small')" style="padding:14px 0;border-radius:14px;background:linear-gradient(145deg,rgba(34,197,94,.2),rgba(34,197,94,.08));border:1.5px solid rgba(34,197,94,.6);color:#22c55e;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:.5px;box-shadow:0 0 16px rgba(34,197,94,.2)">Green</button>
+      <button onclick="showToast('Bet on Big or Small','info')" style="padding:14px 0;border-radius:14px;background:linear-gradient(145deg,rgba(168,85,247,.2),rgba(168,85,247,.08));border:1.5px solid rgba(168,85,247,.6);color:#a855f7;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:.5px;box-shadow:0 0 16px rgba(168,85,247,.2)">Violet</button>
+      <button onclick="placeBetGame('big')" style="padding:14px 0;border-radius:14px;background:linear-gradient(145deg,rgba(239,68,68,.2),rgba(239,68,68,.08));border:1.5px solid rgba(239,68,68,.6);color:#ef4444;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:.5px;box-shadow:0 0 16px rgba(239,68,68,.2)">Red</button>
+    </div>
+
+    <!-- Number Grid -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px">
+      ${[0,1,2,3,4,5,6,7,8,9].map(n=>{
+        const isBig=n>=6;
+        const col=n===0||n===5?'#a855f7':n%2===0?'#ef4444':'#22c55e';
+        const borderCol=n===0||n===5?'rgba(168,85,247,.6)':n%2===0?'rgba(239,68,68,.5)':'rgba(34,197,94,.5)';
+        return `<button onclick="placeBetGame('${isBig?'big':'small'}')" style="aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.22),transparent 60%),linear-gradient(145deg,${col}44,${col}22);border:2px solid ${borderCol};color:${col};font-family:'Oswald',sans-serif;font-weight:700;font-size:20px;cursor:pointer;box-shadow:0 0 14px ${col}44;display:flex;align-items:center;justify-content:center;width:100%">${n}</button>`;
+      }).join('')}
+    </div>
+
+    <!-- Amount Chips -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px;margin-bottom:12px">
+      <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:1.5px;margin-bottom:10px">BET AMOUNT</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+        ${[10,50,100,500,1000].map(a=>`<button class="game-chip ${GAME.betAmt===a?'active':''}" data-amt="${a}" onclick="setGameBetAmt(${a})" style="padding:8px 14px;border-radius:50px;background:${GAME.betAmt===a?'rgba(255,77,109,.2)':'rgba(255,255,255,.05)'};border:1.5px solid ${GAME.betAmt===a?'rgba(255,77,109,.7)':'rgba(255,255,255,.1)'};color:${GAME.betAmt===a?'#ff4d6d':'#94a3b8'};font-weight:700;font-size:12px;cursor:pointer;transition:all .2s">₹${a>=1000?'1K':a}</button>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button id="gameSmallBtn" onclick="placeBetGame('small')" style="padding:15px;border-radius:14px;background:linear-gradient(145deg,rgba(96,165,250,.22),rgba(96,165,250,.08));border:2px solid rgba(96,165,250,.7);color:#60a5fa;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 0 18px rgba(96,165,250,.25);letter-spacing:.5px">
+          <div>SMALL</div><div style="font-size:10px;opacity:.6;margin-top:2px">0 – 5</div>
+        </button>
+        <button id="gameBigBtn" onclick="placeBetGame('big')" style="padding:15px;border-radius:14px;background:linear-gradient(145deg,rgba(251,146,60,.22),rgba(251,146,60,.08));border:2px solid rgba(251,146,60,.7);color:#fb923c;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 0 18px rgba(251,146,60,.25);letter-spacing:.5px">
+          <div>BIG</div><div style="font-size:10px;opacity:.6;margin-top:2px">6 – 9</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Game History -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px">
+      <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:1.5px;margin-bottom:10px">GAME HISTORY</div>
+      ${GAME.history.length===0?'<div style="text-align:center;color:#475569;padding:20px;font-size:13px">No rounds played yet</div>':
+        `<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;font-size:10px;color:rgba(255,255,255,.35);font-weight:700;letter-spacing:.8px;padding:0 4px;margin-bottom:6px"><span>PERIOD</span><span style="text-align:center">NUM</span><span style="text-align:right">RESULT</span></div>`+
+        GAME.history.map(h=>`
+          <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.04)">
+            <div style="font-size:11px;color:rgba(255,255,255,.45);font-family:'Oswald',sans-serif">${h.period}</div>
+            <div style="width:28px;height:28px;border-radius:50%;background:${colMap[h.colour]||'#666'};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#fff;box-shadow:0 0 10px ${colMap[h.colour]||'#666'}66">${h.num}</div>
+            <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;color:${h.result==='big'?'#fb923c':'#60a5fa'};text-align:right;letter-spacing:.5px">${h.result.toUpperCase()}</div>
+          </div>`).join('')
+      }
+    </div>
+
+  </div>
+  <div id="gameResultOverlay"></div>`;
+
+  renderGameBetState();
+  if(!GAME.timerInt&&!GAME.resultAnimating) startGameTimer();
+}
+
 /* ── RESIZE: debounced setBetsHeight ── */
 let _resizeTimer;
 window.addEventListener('resize',()=>{
