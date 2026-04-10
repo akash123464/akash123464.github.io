@@ -183,7 +183,7 @@ function showToast(msg,type='success'){
     el.textContent=msg;el.className='toast show';
     if(type==='success'){el.style.cssText='background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(34,197,94,.07));border:1.5px solid rgba(34,197,94,.38);color:#22c55e;box-shadow:0 0 22px rgba(34,197,94,.2);display:block';}
     else{el.style.cssText='background:linear-gradient(135deg,rgba(0,212,255,.13),rgba(0,212,255,.05));border:1.5px solid rgba(0,212,255,.38);color:#00d4ff;box-shadow:0 0 22px rgba(0,212,255,.18);display:block';}
-    clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
+    clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),4000);
   });
 }
 
@@ -1030,21 +1030,20 @@ function stopGameTimer(){ clearInterval(GAME.timerInt); GAME.timerInt=null; }
 
 function startGameTimer(){
   stopGameTimer();
-  /* Poll every 100ms — ultra snappy, catches period boundary reliably */
-  GAME.timerInt = setInterval(gameTick, 100);
-  gameTick(); // immediate first tick
+  /* Poll every 200ms for snappy response */
+  GAME.timerInt = setInterval(gameTick, 200);
+  gameTick();
 }
 
 function gameTick(){
   const t   = getSharedTimer();
   const cur = getSharedPeriod();
 
-  /* Update display — always, even during popup */
+  /* Update display */
   updateTimerUI(t);
 
-  /* Detect period boundary: resolve when timer wraps back to 58-60 */
-  /* Use a wider window (t>=55) to ensure we never miss the boundary */
-  if(cur !== GAME.lastResolvedPeriod && t >= 55){
+  /* Detect period boundary: resolve when timer wraps back to 59-60 */
+  if(cur !== GAME.lastResolvedPeriod && t >= 58){
     GAME.lastResolvedPeriod = cur;
     resolveGameRound(cur - 1);   // settle the period that just ended
   }
@@ -1054,31 +1053,20 @@ function updateTimerUI(t){
   const el = document.getElementById('gameTimerNum');
   if(!el) return;
   const isLow = t <= 10;
-  /* Always show correct time — never freeze */
-  const display = String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
-  if(el.textContent !== display) el.textContent = display;
+  el.textContent = String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
   el.style.color      = isLow ? '#ff4d6d' : '#00e5cc';
   el.style.textShadow = isLow ? '0 0 22px #ff4d6d' : '0 0 18px rgba(0,229,204,.8)';
   const card = document.getElementById('gameTimerCard');
   if(card) card.style.borderColor = isLow ? 'rgba(255,77,109,.95)' : 'rgba(255,77,109,.4)';
-  /* Only update bet area lock if NOT showing result popup (avoid flicker) */
-  if(!GAME.resultAnimating){
-    const area = document.getElementById('gameBetArea');
-    const lock = document.getElementById('gameLock');
-    if(area){ area.style.opacity=isLow?'.32':'1'; area.style.pointerEvents=isLow?'none':'auto'; }
-    if(lock) lock.style.display=isLow?'flex':'none';
-  }
+  const area = document.getElementById('gameBetArea');
+  const lock = document.getElementById('gameLock');
+  if(area){ area.style.opacity=isLow?'.32':'1'; area.style.pointerEvents=isLow?'none':'auto'; }
+  if(lock) lock.style.display=isLow?'flex':'none';
 }
 
 /* ─── Resolve round ─── */
 function resolveGameRound(period){
-  /* Never skip resolving — even if previous popup is still showing */
-  if(GAME.resultAnimating){
-    /* Force close previous popup instantly before resolving new period */
-    GAME.resultAnimating = false;
-    const ov = document.getElementById('gameResultOverlay');
-    if(ov) ov.innerHTML = '';
-  }
+  if(GAME.resultAnimating) return;
   const {num, colour, result} = resultForPeriod(period);
 
   /* Push to shared history */
@@ -1132,90 +1120,91 @@ function resolveGameRound(period){
   GAME.bets = [];
   saveUser();
 
-  /* Show popup */
-  const winMsg = hadBet ? {totalWin, totalLost, net:totalWin-totalLost, count:settledBets.length, num, colour, result} : null;
-  showGameResult(num, colour, result, winMsg);
+  /* Show popup ONLY if user had bets this round */
+  if(hadBet){
+    const winMsg = {totalWin, totalLost, net:totalWin-totalLost, count:settledBets.length, num, colour, result};
+    showGameResult(num, colour, result, winMsg);
+  } else {
+    /* No bets — just update history display silently, no popup */
+    renderGames();
+  }
 }
 
-/* ─── Result popup — auto closes in 3s ─── */
+/* ─── Result popup — only shown when user had bets — auto closes in 3s ─── */
 function showGameResult(num, colour, result, winMsg){
   GAME.resultAnimating = true;
 
-  /* Inject overlay into body directly so timer/game UI stays intact underneath */
-  let ov = document.getElementById('gameResultOverlayFixed');
-  if(!ov){
-    ov = document.createElement('div');
-    ov.id = 'gameResultOverlayFixed';
-    document.body.appendChild(ov);
-  }
+  /* Remove any existing popup first */
+  const existing = document.getElementById('wwGamePopup');
+  if(existing) existing.remove();
 
   const ballCol = COL_HEX[colour] || '#fff';
-  let accent, accentBg, accentBdr, title;
+  const isWin   = winMsg.net >= 0;
+  const accent  = isWin ? '#fb923c' : '#ef4444';
+  const accentBg  = isWin ? 'rgba(251,146,60,.15)' : 'rgba(239,68,68,.13)';
+  const accentBdr = isWin ? 'rgba(251,146,60,.55)'  : 'rgba(239,68,68,.5)';
+  const title     = isWin ? '🎉 CONGRATULATIONS!' : '😔 BETTER LUCK NEXT TIME';
 
-  if(!winMsg){
-    accent='#00e5cc'; accentBg='rgba(0,229,204,.1)'; accentBdr='rgba(0,229,204,.4)'; title='ROUND RESULT';
-  } else if(winMsg.net >= 0){
-    accent='#fb923c'; accentBg='rgba(251,146,60,.15)'; accentBdr='rgba(251,146,60,.55)'; title='🎉 CONGRATULATIONS!';
-  } else {
-    accent='#ef4444'; accentBg='rgba(239,68,68,.13)'; accentBdr='rgba(239,68,68,.5)'; title='😔 BETTER LUCK NEXT TIME';
-  }
+  /* Inject into body — guarantees true viewport center regardless of page scroll/layout */
+  const wrap = document.createElement('div');
+  wrap.id = 'wwGamePopup';
+  wrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;background:rgba(0,0,0,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)';
 
-  ov.innerHTML = `
-  <div style="position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(14px)">
-    <div style="background:linear-gradient(145deg,rgba(8,12,30,.99),rgba(4,7,18,.99));border:2.5px solid ${accent};border-radius:30px;padding:28px 22px 20px;width:min(92vw,330px);text-align:center;box-shadow:0 0 70px ${accent}55,0 0 140px ${accent}1a,0 30px 70px rgba(0,0,0,.9);animation:betCardPop .35s cubic-bezier(.16,1,.3,1) forwards;position:relative;overflow:hidden">
+  wrap.innerHTML = `
+    <div style="background:linear-gradient(145deg,rgba(8,12,30,.99),rgba(4,7,18,.99));border:2.5px solid ${accent};border-radius:30px;padding:28px 22px 20px;width:min(88vw,320px);text-align:center;box-shadow:0 0 70px ${accent}55,0 0 140px ${accent}1a,0 30px 70px rgba(0,0,0,.9);animation:betCardPop .35s cubic-bezier(.16,1,.3,1) forwards;position:relative;overflow:hidden">
       <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,${accent},transparent)"></div>
-      <!-- Auto-close bar -->
-      <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);border-radius:0 0 30px 30px"><div id="gBarInner" style="height:100%;background:${accent};border-radius:inherit;width:100%;transition:width 3s linear"></div></div>
+      <!-- Auto-close progress bar -->
+      <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);border-radius:0 0 30px 30px">
+        <div id="gBarInner" style="height:100%;background:${accent};border-radius:inherit;width:100%;transition:width 3s linear"></div>
+      </div>
 
-      ${winMsg ? `<div style="display:inline-block;padding:7px 18px;border-radius:50px;background:${accentBg};border:1.5px solid ${accentBdr};font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:${accent};letter-spacing:.5px;margin-bottom:14px">${title}</div>` : `<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:3px;margin-bottom:14px">ROUND RESULT</div>`}
+      <div style="display:inline-block;padding:7px 18px;border-radius:50px;background:${accentBg};border:1.5px solid ${accentBdr};font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:${accent};letter-spacing:.5px;margin-bottom:14px">${title}</div>
 
-      <!-- Ball -->
-      <div style="width:106px;height:106px;border-radius:50%;background:radial-gradient(circle at 33% 26%,rgba(255,255,255,.42),rgba(255,255,255,.12) 40%,transparent 62%),linear-gradient(145deg,${ballCol},${ballCol}88);border:3.5px solid ${ballCol};box-shadow:0 0 44px ${ballCol}aa,0 0 90px ${ballCol}44;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:56px;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.65)">${num}</div>
+      <!-- Result ball -->
+      <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 33% 26%,rgba(255,255,255,.42),rgba(255,255,255,.12) 40%,transparent 62%),linear-gradient(145deg,${ballCol},${ballCol}88);border:3.5px solid ${ballCol};box-shadow:0 0 44px ${ballCol}aa,0 0 90px ${ballCol}44;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:52px;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.65)">${num}</div>
 
       <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:24px;color:${ballCol};text-transform:uppercase;letter-spacing:3px;margin-bottom:2px">${result.toUpperCase()}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.35);text-transform:capitalize;letter-spacing:1px;margin-bottom:${winMsg?'14px':'16px'}">${colour}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.35);text-transform:capitalize;letter-spacing:1px;margin-bottom:14px">${colour}</div>
 
-      ${winMsg ? `
       <div style="padding:14px;border-radius:16px;background:${accentBg};border:2px solid ${accentBdr};margin-bottom:14px">
-        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:36px;color:${accent};letter-spacing:1px;line-height:1">${winMsg.net>=0?'+₹'+winMsg.net:'-₹'+Math.abs(winMsg.net)}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:6px;font-weight:600">${winMsg.net>=0?'🎉 You Won!':'💸 You Lost'} · ${winMsg.count} bet${winMsg.count>1?'s':''}</div>
+        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:38px;color:${accent};letter-spacing:1px;line-height:1">${isWin?'+₹'+winMsg.net:'-₹'+Math.abs(winMsg.net)}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.55);margin-top:6px;font-weight:700">${isWin?'🎉 You Won!':'💸 You Lost'} · ${winMsg.count} bet${winMsg.count>1?'s':''}</div>
         <div style="font-size:10px;color:rgba(255,255,255,.28);margin-top:3px">Won ₹${winMsg.totalWin} / Lost ₹${winMsg.totalLost}</div>
-      </div>` : ''}
+      </div>
 
       <div style="font-size:11px;color:rgba(255,255,255,.25);letter-spacing:.5px">Closing in <span id="gPopCount" style="color:${accent};font-weight:700">3</span>s</div>
-    </div>
-  </div>`;
+    </div>`;
 
-  ov.style.display = '';
+  document.body.appendChild(wrap);
 
-  /* Start bar animation after one tick */
+  /* Animate progress bar to empty over 3s */
   requestAnimationFrame(()=>{
     const bar = document.getElementById('gBarInner');
-    if(bar) bar.style.width='0%';
+    if(bar) bar.style.width = '0%';
   });
 
-  /* Countdown number */
-  let c=3;
+  /* Countdown display */
+  let c = 3;
   const ci = setInterval(()=>{
     c--;
-    const cn=document.getElementById('gPopCount');
-    if(cn) cn.textContent=c;
-    if(c<=0){ clearInterval(ci); closeGameResult(); }
-  },1000);
+    const cn = document.getElementById('gPopCount');
+    if(cn) cn.textContent = c;
+    if(c <= 0){ clearInterval(ci); closeGameResult(); }
+  }, 1000);
 
-  /* Hard close backup at 3.2s */
-  setTimeout(()=>{ clearInterval(ci); closeGameResult(); }, 3200);
+  /* Hard-close failsafe */
+  setTimeout(()=>{ clearInterval(ci); closeGameResult(); }, 3300);
 }
 
 window.closeGameResult = function(){
   if(!GAME.resultAnimating) return;
   GAME.resultAnimating = false;
-  const ov = document.getElementById('gameResultOverlayFixed');
-  if(ov){ ov.innerHTML=''; ov.style.display='none'; }
-  /* Also clear the inline overlay in case it was used */
-  const ov2 = document.getElementById('gameResultOverlay');
-  if(ov2) ov2.innerHTML='';
-  /* Re-render the game page fresh after popup closes */
+  /* Remove body-level popup */
+  const pop = document.getElementById('wwGamePopup');
+  if(pop) pop.remove();
+  /* Clear inline overlay too just in case */
+  const ov = document.getElementById('gameResultOverlay');
+  if(ov) ov.innerHTML = '';
   renderGames();
 };
 
@@ -1513,9 +1502,9 @@ function renderGames(){
   </div>
   <div id="gameResultOverlay"></div>`;
 
-  if(!GAME.timerInt && !GAME.resultAnimating) startGameTimer();
-  /* Never re-trigger showGameResult from renderGames — timer handles it */
+  if(!GAME.timerInt) startGameTimer();
 }
+
 
 /* ── RESIZE: debounced setBetsHeight ── */
 let _resizeTimer;
