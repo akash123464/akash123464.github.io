@@ -1406,41 +1406,6 @@ function renderGames(){
   const cur    = getSharedPeriod();
   const totalBetAmt = GAME.bets.reduce((s,b)=>s+b.amt,0);
 
-  /* BET HISTORY VIEW */
-  if(GAME.showBetHistory){
-    el.innerHTML=`
-    <div style="padding:14px 14px 100px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <button onclick="GAME.showBetHistory=false;renderGames()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:18px;flex-shrink:0">←</button>
-        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">Bet History</div><div style="font-size:10px;color:rgba(255,77,109,.7);font-weight:700;letter-spacing:1px">SAVED PERMANENTLY · ${GAME.betHistory.length} BETS</div></div>
-      </div>
-      ${GAME.betHistory.length===0
-        ?`<div style="text-align:center;padding:60px 20px;color:#475569"><div style="font-size:40px;margin-bottom:12px">🎮</div><div style="font-size:14px;font-weight:600">No bets yet</div></div>`
-        :GAME.betHistory.map(b=>`
-          <div style="background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid ${b.won?'rgba(251,146,60,.25)':'rgba(239,68,68,.2)'};border-radius:14px;padding:13px;margin-bottom:8px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-              <span style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.35)">Period ${b.period}</span>
-              <span style="font-size:10px;color:rgba(255,255,255,.3)">${b.time}</span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:36px;height:36px;border-radius:50%;background:${COL_HEX[b.colour]};border:2px solid ${COL_HEX[b.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;box-shadow:0 0 12px ${COL_HEX[b.colour]}55">${b.num}</div>
-                <div>
-                  <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:${b.type==='number'?'#ffd700':b.side==='big'?'#fb923c':'#60a5fa'}">${b.type==='number'?'No.'+b.betNum+' (8×)':b.side.toUpperCase()+' (1.9×)'}</div>
-                  <div style="font-size:11px;color:rgba(255,255,255,.38);margin-top:1px">Result: <strong style="color:${b.result==='big'?'#fb923c':'#60a5fa'}">${b.result.toUpperCase()} (${b.num})</strong></div>
-                </div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:${b.won?'#fb923c':'#ef4444'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</div>
-                <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:${b.won?'rgba(251,146,60,.12)':'rgba(239,68,68,.1)'};border:1px solid ${b.won?'rgba(251,146,60,.3)':'rgba(239,68,68,.25)'};color:${b.won?'#fb923c':'#ef4444'};margin-top:3px;display:inline-block">${b.won?'WON':'LOST'}</div>
-              </div>
-            </div>
-          </div>`).join('')
-      }
-    </div>`;
-    return;
-  }
-
   /* MAIN GAME VIEW */
   el.innerHTML=`
   <div style="padding:14px 14px 100px;min-height:100vh">
@@ -1534,18 +1499,12 @@ function renderGames(){
 
     <div id="gameLock" style="display:${isLow?'flex':'none'};align-items:center;justify-content:center;gap:8px;padding:14px;background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.35);border-radius:14px;margin-bottom:12px;font-size:13px;font-weight:700;color:#ff4d6d">🔒 Betting closed — last 10 seconds</div>
 
-    <!-- Bet History button -->
-    <button onclick="GAME.showBetHistory=true;renderGames()" style="width:100%;padding:14px;border-radius:16px;background:rgba(255,215,0,.06);border:1.5px solid rgba(255,215,0,.3);color:#ffd700;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;letter-spacing:.3px">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 8V12L15 15" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="#ffd700" stroke-width="2"/></svg>
-      My Bet History (${GAME.betHistory.length} bets)
-    </button>
-
-    <!-- ✦ LEDGER BOOK TRIGGER ✦ -->
+    <!-- Last 20 rounds -->
     <div id="betLedgerTrigger" onclick="toggleLedger()" role="button" aria-label="Open Bet History Ledger">
       <div class="lbt-icon"></div>
       <div class="lbt-text">
         <div class="lbt-title">My Bet History</div>
-        <div class="lbt-sub">Tap to open ledger · last 10 rounds &amp; bets</div>
+        <div class="lbt-sub">Tap to open ledger · your last 10 bets</div>
       </div>
       <div class="lbt-arrow">▲</div>
     </div>
@@ -1583,13 +1542,12 @@ window.addEventListener('resize',()=>{
 },{passive:true});
 
 /* ═══════════════════════════════════════════════
-   BET HISTORY LEDGER BOOK
+   BET HISTORY LEDGER BOOK — User Bets Only
+   Red APPROVED stamp · No game tab · No header bar
 ═══════════════════════════════════════════════ */
 (function(){
   let ledgerOpen = false;
-  let ledgerTab  = 'game';
 
-  const COL_CLASS = {green:'green', red:'red', violet:'violet'};
   const COL_HEX_L = {green:'#22c55e', red:'#ef4444', violet:'#a855f7'};
 
   function createLedgerDOM(){
@@ -1599,7 +1557,7 @@ window.addEventListener('resize',()=>{
     bd.onclick = closeLedger;
     document.body.appendChild(bd);
 
-    /* panel */
+    /* panel — NO tab switcher, NO header bar, straight to dual pages */
     const panel = document.createElement('div');
     panel.id = 'betLedgerPanel';
     panel.innerHTML = `
@@ -1607,10 +1565,6 @@ window.addEventListener('resize',()=>{
         <div class="book-top-row">
           <div class="book-title-main">📖 My Bet History</div>
           <div class="book-close-btn" onclick="closeLedger()">✕</div>
-        </div>
-        <div class="book-tabs">
-          <button class="book-tab active" id="ltab-game"   onclick="switchLedgerTab('game')">🎲 Game Rounds</button>
-          <button class="book-tab"        id="ltab-mybets" onclick="switchLedgerTab('mybets')">✍️ My Bets</button>
         </div>
       </div>
 
@@ -1637,103 +1591,32 @@ window.addEventListener('resize',()=>{
     document.body.appendChild(panel);
   }
 
-  /* ── Render game rounds — left=1-5, right=6-10 ── */
-  function renderGame(){
-    const rounds = GAME.history.slice(0,10);
-    const left5  = rounds.slice(0,5);
-    const right5 = rounds.slice(5,10);
-
-    document.getElementById('ledgerPageLeft').innerHTML  = buildGamePage(left5,  0, 'Game History');
-    document.getElementById('ledgerPageRight').innerHTML = buildGamePage(right5, 5, 'Continued...');
-
-    /* animate stamps after brief delay */
-    setTimeout(()=>{
-      document.querySelectorAll('.real-stamp').forEach((el,i)=>{
-        el.style.animationDelay = (i*80)+'ms';
-        el.classList.add('stamp-anim');
-      });
-    }, 120);
-  }
-
-  function buildGamePage(rounds, offset, heading){
+  /* ── Build one page of user bets ── */
+  function buildBetsPage(bets, heading, isLeft){
     let html = `
       <div class="page-heading">${heading}</div>
       <div class="page-underline"></div>
     `;
-    if(rounds.length === 0){
-      html += `<div class="page-empty">✍️ No rounds yet...<br>Waiting for first result</div>`;
-      return html;
-    }
-    rounds.forEach((h, i)=>{
-      const colHex = COL_HEX_L[h.colour] || '#888';
-      const isBig  = h.result === 'big';
-      const delay  = i * 60;
-      html += `
-        <div class="ledger-entry" style="animation-delay:${delay}ms">
-          <div class="period-lbl">Period ${(h.period||'').slice(-6)}</div>
-          <div class="ledger-field">
-            <span class="ledger-field-label">No.:</span>
-            <span class="ledger-field-value">
-              <span class="result-ball" style="background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colHex};border:2.5px solid ${colHex};box-shadow:0 3px 10px ${colHex}55,inset 0 -3px 6px rgba(0,0,0,.35),inset 0 2px 4px rgba(255,255,255,.3)">${h.num}</span>
-              &nbsp;<span style="font-size:16px;color:${isBig?'#a04010':'#10408a'}">${h.result.toUpperCase()}</span>
-            </span>
-          </div>
-          <div class="ledger-field">
-            <span class="ledger-field-label">Colour:</span>
-            <span class="ledger-field-value ${COL_CLASS[h.colour]||''}">
-              <span class="col-dot" style="background:${colHex}"></span>${h.colour}
-            </span>
-          </div>
-          <div style="text-align:right">
-            <div class="real-stamp stamped">STAMPED</div>
-          </div>
-          <div class="ledger-hr"></div>
-        </div>
-      `;
-    });
-    return html;
-  }
 
-  /* ── Render user bets — left=1-5, right=6-10 ── */
-  function renderMyBets(){
-    const bets  = GAME.betHistory.slice(0,10);
-    const left5  = bets.slice(0,5);
-    const right5 = bets.slice(5,10);
-
-    document.getElementById('ledgerPageLeft').innerHTML  = buildBetsPage(left5,  'My Bets');
-    document.getElementById('ledgerPageRight').innerHTML = buildBetsPage(right5, 'Continued...');
-
-    setTimeout(()=>{
-      document.querySelectorAll('.real-stamp').forEach((el,i)=>{
-        el.style.animationDelay = (i*80)+'ms';
-        el.classList.add('stamp-anim');
-      });
-    }, 120);
-  }
-
-  function buildBetsPage(bets, heading){
-    let html = `
-      <div class="page-heading">${heading}</div>
-      <div class="page-underline"></div>
-    `;
     if(bets.length === 0){
       html += `<div class="page-empty">✍️ No bets yet...<br>Place a bet to see history!</div>`;
       return html;
     }
+
     bets.forEach((b, i)=>{
-      const colHex   = COL_HEX_L[b.colour] || '#888';
-      const typeLabel= b.type==='number' ? `No.${b.betNum} · 8×` : `${(b.side||'').toUpperCase()} · 1.9×`;
-      const typeColor= b.type==='number' ? '#6a4a00' : (b.side==='big' ? '#a04010' : '#10408a');
-      const stampCls = b.won ? 'won' : 'lost';
-      const stampTxt = b.won ? 'WON' : 'LOST';
-      const payout   = b.won ? `+₹${b.payout}` : `-₹${b.amt}`;
-      const payColor = b.won ? '#1a6a1a' : '#8a1a1a';
-      const delay    = i * 60;
+      const colHex    = COL_HEX_L[b.colour] || '#888';
+      const typeLabel = b.type==='number' ? `No.${b.betNum} · 8×` : `${(b.side||'').toUpperCase()} · 1.9×`;
+      const typeColor = b.type==='number' ? '#6a4a00' : (b.side==='big' ? '#a04010' : '#10408a');
+      const payout    = b.won ? `+₹${b.payout}` : `-₹${b.amt}`;
+      const payColor  = b.won ? '#1a6a1a' : '#8a1a1a';
+      const delay     = i * 70;
+      const stampDelay= (i * 70 + 280);
+
       html += `
         <div class="ledger-entry" style="animation-delay:${delay}ms">
           <div class="period-lbl">Period ${(b.period||'').slice(-6)}</div>
           <div class="ledger-field">
-            <span class="ledger-field-label">Bet:</span>
+            <span class="ledger-field-label">Name:</span>
             <span class="ledger-field-value" style="color:${typeColor}">${typeLabel}</span>
           </div>
           <div class="ledger-field">
@@ -1744,8 +1627,16 @@ window.addEventListener('resize',()=>{
             <span class="ledger-field-label">Return:</span>
             <span class="ledger-field-value" style="color:${payColor}">${payout}</span>
           </div>
-          <div style="text-align:right">
-            <div class="real-stamp ${stampCls}">${stampTxt}</div>
+          <div class="ledger-field">
+            <span class="ledger-field-label">Dig:</span>
+            <span class="ledger-field-value">
+              <span class="result-ball" style="background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colHex};border:2.5px solid ${colHex};box-shadow:0 3px 10px ${colHex}55,inset 0 -3px 6px rgba(0,0,0,.35),inset 0 2px 4px rgba(255,255,255,.3)">${b.num}</span>
+              &nbsp;<span style="font-size:15px;color:${b.result==='big'?'#a04010':'#10408a'}">${(b.result||'').toUpperCase()}</span>
+            </span>
+          </div>
+          <!-- RED APPROVED STAMP -->
+          <div style="text-align:right;margin-top:4px">
+            <div class="real-stamp approved" style="animation-delay:${stampDelay}ms">APPROVED</div>
           </div>
           <div class="ledger-hr"></div>
         </div>
@@ -1754,16 +1645,28 @@ window.addEventListener('resize',()=>{
     return html;
   }
 
-  function renderLedger(){
-    if(!document.getElementById('ledgerPageLeft')) return;
-    if(ledgerTab === 'game') renderGame();
-    else                     renderMyBets();
+  /* ── Render both pages ── */
+  function renderMyBets(){
+    const bets   = GAME.betHistory.slice(0, 10);
+    const left5  = bets.slice(0, 5);
+    const right5 = bets.slice(5, 10);
+
+    document.getElementById('ledgerPageLeft').innerHTML  = buildBetsPage(left5,  'My Bets',      true);
+    document.getElementById('ledgerPageRight').innerHTML = buildBetsPage(right5, 'Continued...', false);
+
+    /* Trigger stamp animation after entries fade in */
+    setTimeout(()=>{
+      document.querySelectorAll('.real-stamp.approved').forEach((el, i)=>{
+        el.classList.add('stamp-anim');
+      });
+    }, 150);
   }
 
+  /* ── Open / Close / Toggle ── */
   window.openLedger = function(){
     if(!document.getElementById('betLedgerPanel')) createLedgerDOM();
     ledgerOpen = true;
-    renderLedger();
+    renderMyBets();
     document.getElementById('betLedgerBackdrop').classList.add('open');
     requestAnimationFrame(()=>{
       document.getElementById('betLedgerPanel').classList.add('open');
@@ -1782,20 +1685,12 @@ window.addEventListener('resize',()=>{
     if(trig)  trig.classList.remove('open');
   };
 
-  window.switchLedgerTab = function(tab){
-    ledgerTab = tab;
-    document.querySelectorAll('.book-tab').forEach(el=>{
-      el.classList.toggle('active', el.id === 'ltab-'+tab);
-    });
-    renderLedger();
-  };
-
   window.toggleLedger = function(){
     if(ledgerOpen) closeLedger(); else openLedger();
   };
 
   /* Auto-refresh if open */
-  setInterval(()=>{ if(ledgerOpen) renderLedger(); }, 3000);
+  setInterval(()=>{ if(ledgerOpen) renderMyBets(); }, 3000);
 
 })();
 

@@ -736,11 +736,31 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   100%{clip-path:inset(0 0% 0 0 round 4px);opacity:1}
 }
 @keyframes stampDrop{
-  0%  {transform:scale(2.5) rotate(-18deg) translateY(-10px);opacity:0;filter:blur(4px)}
-  55% {transform:scale(.88) rotate(5deg)  translateY(2px);opacity:1;filter:blur(0)}
-  75% {transform:scale(1.08) rotate(-3deg)}
-  88% {transform:scale(.97) rotate(1deg)}
-  100%{transform:scale(1) rotate(-10deg);opacity:1}
+  0%  {transform:scale(3.2) rotate(-22deg) translateY(-20px);opacity:0;filter:blur(6px) saturate(3)}
+  35% {transform:scale(.82) rotate(8deg) translateY(3px);opacity:1;filter:blur(0) saturate(1.5)}
+  52% {transform:scale(1.12) rotate(-5deg);filter:saturate(1.8)}
+  66% {transform:scale(.94) rotate(2deg)}
+  78% {transform:scale(1.05) rotate(-2deg)}
+  88% {transform:scale(.98) rotate(1deg)}
+  100%{transform:scale(1) rotate(-10deg);opacity:1;filter:saturate(1)}
+}
+@keyframes stampInkBleed{
+  0%  {box-shadow:0 0 0 0 rgba(180,20,20,.0),0 0 0 1px rgba(180,20,20,.8)}
+  30% {box-shadow:0 0 0 8px rgba(180,20,20,.35),0 0 0 1px rgba(180,20,20,.8)}
+  60% {box-shadow:0 0 0 16px rgba(180,20,20,.1),0 0 0 1px rgba(180,20,20,.7)}
+  100%{box-shadow:0 0 0 22px rgba(180,20,20,.0),0 0 0 1px rgba(180,20,20,.55)}
+}
+@keyframes stampTextAppear{
+  0%  {letter-spacing:8px;opacity:0}
+  50% {letter-spacing:4px;opacity:.7}
+  100%{letter-spacing:3px;opacity:1}
+}
+@keyframes stampImpact{
+  0%  {transform:scale(1) rotate(-10deg)}
+  25% {transform:scale(1.04,.92) rotate(-10deg)}
+  50% {transform:scale(.97,1.05) rotate(-10deg)}
+  75% {transform:scale(1.01,.98) rotate(-10deg)}
+  100%{transform:scale(1) rotate(-10deg)}
 }
 @keyframes inkLine{
   0%  {width:0;opacity:0}
@@ -899,23 +919,82 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 }
 .book-close-btn:active{transform:scale(.85);}
 
-/* Tab switcher */
-.book-tabs{
-  display:flex;gap:4px;
-  background:rgba(0,0,0,.3);border-radius:10px;padding:3px;
-  border:1px solid rgba(60,190,195,.2);
+/* Tab switcher — REMOVED (only user bets now) */
+
+/* ══════════════════════════════════════
+   RED APPROVED STAMP — elite animation
+══════════════════════════════════════ */
+
+/* Base stamp — always red APPROVED */
+.real-stamp{
+  display:inline-block;
+  font-family:'Caveat',cursive;
+  font-weight:700;
+  font-size:17px;
+  letter-spacing:3px;
+  padding:5px 13px 4px;
+  border:3.5px solid rgba(185,20,20,.88);
+  border-radius:5px;
+  transform:rotate(-10deg);
+  position:relative;
+  margin-top:4px;
+  pointer-events:none;
+  opacity:0; /* hidden until stamp-anim fires */
+
+  /* Layered red ink look */
+  color:rgba(185,20,20,.92);
+  background:radial-gradient(ellipse at 50% 50%,rgba(200,30,30,.12),rgba(180,15,15,.06));
+  box-shadow:
+    0 0 0 1.5px rgba(185,20,20,.55),
+    inset 0 0 6px rgba(185,20,20,.1),
+    2px 2px 0 rgba(140,10,10,.3);
+  text-shadow:
+    0 0 8px rgba(200,30,30,.5),
+    1px 1px 0 rgba(140,10,10,.4);
 }
-.book-tab{
-  flex:1;padding:7px 6px;border-radius:8px;border:none;cursor:pointer;
-  font-family:'Caveat',cursive;font-weight:600;font-size:16px;
-  color:rgba(80,180,190,.5);background:transparent;
-  transition:all .2s ease;text-align:center;
+
+/* Worn texture overlay */
+.real-stamp::before{
+  content:'';
+  position:absolute;inset:0;
+  border-radius:3px;
+  background:
+    repeating-linear-gradient(
+      42deg,
+      transparent,transparent 3px,
+      rgba(185,20,20,.04) 3px,rgba(185,20,20,.04) 4px
+    );
+  pointer-events:none;
 }
-.book-tab.active{
-  background:linear-gradient(135deg,rgba(0,160,170,.25),rgba(0,130,140,.15));
-  color:#6ddde0;border:1px solid rgba(60,190,195,.4);
-  text-shadow:0 0 12px rgba(80,220,230,.5);
+
+/* Outer ring detail (like a rubber stamp frame) */
+.real-stamp::after{
+  content:'';
+  position:absolute;
+  inset:-6px;
+  border:1.5px dashed rgba(185,20,20,.22);
+  border-radius:8px;
+  pointer-events:none;
 }
+
+/* ── Stamp drop animation ── */
+.stamp-anim{
+  animation:
+    stampDrop   .58s cubic-bezier(.22,1.4,.36,1) both,
+    stampImpact .22s ease .56s both,
+    stampInkBleed .7s ease .52s both;
+  opacity:1;
+}
+
+/* ── Letter-spacing write-on for the text ── */
+.stamp-anim .stamp-txt,
+.stamp-anim{
+  animation:
+    stampDrop    .58s cubic-bezier(.22,1.4,.36,1) both,
+    stampImpact  .22s ease .56s both,
+    stampInkBleed .7s ease .52s both;
+}
+
 
 /* ═══════════════════════════════
    OPEN BOOK — dual page spread
@@ -1031,43 +1110,6 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   background:linear-gradient(90deg,transparent,rgba(80,50,10,.4),transparent);
   margin:8px 0;
 }
-
-/* STAMPED badge — big red ink stamp like reference */
-.real-stamp{
-  display:inline-block;
-  font-family:'Caveat',cursive;font-weight:700;font-size:18px;
-  letter-spacing:2px;
-  padding:5px 14px;
-  border:3px solid currentColor;
-  border-radius:6px;
-  transform:rotate(-10deg);
-  position:relative;
-  margin-top:6px;
-  pointer-events:none;
-}
-.real-stamp.stamped{
-  color:rgba(180,30,30,.85);
-  background:rgba(180,30,30,.07);
-  box-shadow:0 0 0 1px rgba(180,30,30,.2),inset 0 0 8px rgba(180,30,30,.06);
-  text-shadow:1px 1px 0 rgba(200,50,50,.3);
-}
-.real-stamp.won{
-  color:rgba(20,130,20,.85);
-  background:rgba(20,130,20,.07);
-  box-shadow:0 0 0 1px rgba(20,130,20,.2),inset 0 0 8px rgba(20,130,20,.06);
-}
-.real-stamp.lost{
-  color:rgba(180,30,30,.85);
-  background:rgba(180,30,30,.07);
-  box-shadow:0 0 0 1px rgba(180,30,30,.2);
-}
-.real-stamp.pending{
-  color:rgba(150,100,10,.85);
-  background:rgba(150,100,10,.07);
-  box-shadow:0 0 0 1px rgba(150,100,10,.2);
-}
-/* Stamp animation class */
-.stamp-anim{animation:stampDrop .55s cubic-bezier(.34,1.56,.64,1) both;}
 
 /* Colour dot */
 .col-dot{
