@@ -183,7 +183,7 @@ function showToast(msg,type='success'){
     el.textContent=msg;el.className='toast show';
     if(type==='success'){el.style.cssText='background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(34,197,94,.07));border:1.5px solid rgba(34,197,94,.38);color:#22c55e;box-shadow:0 0 22px rgba(34,197,94,.2);display:block';}
     else{el.style.cssText='background:linear-gradient(135deg,rgba(0,212,255,.13),rgba(0,212,255,.05));border:1.5px solid rgba(0,212,255,.38);color:#00d4ff;box-shadow:0 0 22px rgba(0,212,255,.18);display:block';}
-    clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),4000);
+    clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
   });
 }
 
@@ -1120,70 +1120,101 @@ function resolveGameRound(period){
   GAME.bets = [];
   saveUser();
 
-  /* Show popup ONLY if user had bets this round */
+  /* Show popup ONLY when user placed bets this round */
   if(hadBet){
     const winMsg = {totalWin, totalLost, net:totalWin-totalLost, count:settledBets.length, num, colour, result};
     showGameResult(num, colour, result, winMsg);
   } else {
-    /* No bets — just update history display silently, no popup */
+    /* No bets — silently refresh UI, no popup */
     renderGames();
   }
 }
 
-/* ─── Result popup — only shown when user had bets — auto closes in 3s ─── */
+/* ─── Result popup — appended to <body> for true screen-center on Chrome Android ─── */
 function showGameResult(num, colour, result, winMsg){
   GAME.resultAnimating = true;
 
-  /* Remove any existing popup first */
-  const existing = document.getElementById('wwGamePopup');
-  if(existing) existing.remove();
+  /* Always remove any stale popup first */
+  const stale = document.getElementById('wwResultPop');
+  if(stale) stale.remove();
 
-  const ballCol = COL_HEX[colour] || '#fff';
-  const isWin   = winMsg.net >= 0;
-  const accent  = isWin ? '#fb923c' : '#ef4444';
-  const accentBg  = isWin ? 'rgba(251,146,60,.15)' : 'rgba(239,68,68,.13)';
-  const accentBdr = isWin ? 'rgba(251,146,60,.55)'  : 'rgba(239,68,68,.5)';
-  const title     = isWin ? '🎉 CONGRATULATIONS!' : '😔 BETTER LUCK NEXT TIME';
+  const ballCol  = COL_HEX[colour] || '#fff';
+  const isWin    = winMsg.net >= 0;
+  const accent   = isWin ? '#fb923c' : '#ef4444';
+  const accentBg = isWin ? 'rgba(251,146,60,.15)' : 'rgba(239,68,68,.13)';
+  const accentBdr= isWin ? 'rgba(251,146,60,.55)'  : 'rgba(239,68,68,.5)';
+  const title    = isWin ? '🎉 CONGRATULATIONS!' : '😔 BETTER LUCK NEXT TIME';
 
-  /* Inject into body — guarantees true viewport center regardless of page scroll/layout */
-  const wrap = document.createElement('div');
-  wrap.id = 'wwGamePopup';
-  wrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;background:rgba(0,0,0,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)';
+  /*
+   * CENTERING STRATEGY — Chrome Android safe:
+   * position:fixed on an element DIRECTLY inside <body> (no transformed/overflow ancestor).
+   * Use top:50% left:50% + translateX(-50%) translateY(-50%) on the CARD (not the backdrop)
+   * so the card is always perfectly centred regardless of scroll or viewport quirks.
+   */
 
-  wrap.innerHTML = `
-    <div style="background:linear-gradient(145deg,rgba(8,12,30,.99),rgba(4,7,18,.99));border:2.5px solid ${accent};border-radius:30px;padding:28px 22px 20px;width:min(88vw,320px);text-align:center;box-shadow:0 0 70px ${accent}55,0 0 140px ${accent}1a,0 30px 70px rgba(0,0,0,.9);animation:betCardPop .35s cubic-bezier(.16,1,.3,1) forwards;position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,${accent},transparent)"></div>
-      <!-- Auto-close progress bar -->
-      <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);border-radius:0 0 30px 30px">
-        <div id="gBarInner" style="height:100%;background:${accent};border-radius:inherit;width:100%;transition:width 3s linear"></div>
-      </div>
+  /* Backdrop — full screen, z-index 9999 */
+  const backdrop = document.createElement('div');
+  backdrop.id = 'wwResultPop';
+  backdrop.style.cssText = [
+    'position:fixed',
+    'top:0','left:0',
+    'width:100vw','height:100vh',
+    'z-index:99999',
+    'background:rgba(0,0,0,.87)',
+    'backdrop-filter:blur(14px)',
+    '-webkit-backdrop-filter:blur(14px)',
+    'pointer-events:all'
+  ].join(';');
 
-      <div style="display:inline-block;padding:7px 18px;border-radius:50px;background:${accentBg};border:1.5px solid ${accentBdr};font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:${accent};letter-spacing:.5px;margin-bottom:14px">${title}</div>
+  /* Card — translate-centred */
+  const card = document.createElement('div');
+  card.style.cssText = [
+    'position:absolute',
+    'top:50%','left:50%',
+    'transform:translateX(-50%) translateY(-50%)',
+    'width:min(88vw,320px)',
+    `background:linear-gradient(145deg,rgba(8,12,30,.99),rgba(4,7,18,.99))`,
+    `border:2.5px solid ${accent}`,
+    'border-radius:30px',
+    'padding:28px 22px 20px',
+    'text-align:center',
+    `box-shadow:0 0 70px ${accent}55,0 0 140px ${accent}1a,0 30px 70px rgba(0,0,0,.9)`,
+    'animation:betCardPop .35s cubic-bezier(.16,1,.3,1) forwards',
+    'overflow:hidden',
+    'box-sizing:border-box'
+  ].join(';');
 
-      <!-- Result ball -->
-      <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 33% 26%,rgba(255,255,255,.42),rgba(255,255,255,.12) 40%,transparent 62%),linear-gradient(145deg,${ballCol},${ballCol}88);border:3.5px solid ${ballCol};box-shadow:0 0 44px ${ballCol}aa,0 0 90px ${ballCol}44;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:52px;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.65)">${num}</div>
+  card.innerHTML = `
+    <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,${accent},transparent)"></div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);border-radius:0 0 30px 30px">
+      <div id="gBarInner" style="height:100%;background:${accent};border-radius:inherit;width:100%;transition:width 3s linear"></div>
+    </div>
 
-      <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:24px;color:${ballCol};text-transform:uppercase;letter-spacing:3px;margin-bottom:2px">${result.toUpperCase()}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.35);text-transform:capitalize;letter-spacing:1px;margin-bottom:14px">${colour}</div>
+    <div style="display:inline-block;padding:7px 18px;border-radius:50px;background:${accentBg};border:1.5px solid ${accentBdr};font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:${accent};letter-spacing:.5px;margin-bottom:14px">${title}</div>
 
-      <div style="padding:14px;border-radius:16px;background:${accentBg};border:2px solid ${accentBdr};margin-bottom:14px">
-        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:38px;color:${accent};letter-spacing:1px;line-height:1">${isWin?'+₹'+winMsg.net:'-₹'+Math.abs(winMsg.net)}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.55);margin-top:6px;font-weight:700">${isWin?'🎉 You Won!':'💸 You Lost'} · ${winMsg.count} bet${winMsg.count>1?'s':''}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.28);margin-top:3px">Won ₹${winMsg.totalWin} / Lost ₹${winMsg.totalLost}</div>
-      </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 33% 26%,rgba(255,255,255,.42),rgba(255,255,255,.12) 40%,transparent 62%),linear-gradient(145deg,${ballCol},${ballCol}88);border:3.5px solid ${ballCol};box-shadow:0 0 44px ${ballCol}aa,0 0 90px ${ballCol}44;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:52px;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.65)">${num}</div>
 
-      <div style="font-size:11px;color:rgba(255,255,255,.25);letter-spacing:.5px">Closing in <span id="gPopCount" style="color:${accent};font-weight:700">3</span>s</div>
-    </div>`;
+    <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:24px;color:${ballCol};text-transform:uppercase;letter-spacing:3px;margin-bottom:2px">${result.toUpperCase()}</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.35);text-transform:capitalize;letter-spacing:1px;margin-bottom:14px">${colour}</div>
 
-  document.body.appendChild(wrap);
+    <div style="padding:14px;border-radius:16px;background:${accentBg};border:2px solid ${accentBdr};margin-bottom:14px">
+      <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:38px;color:${accent};letter-spacing:1px;line-height:1">${isWin?'+₹'+winMsg.net:'-₹'+Math.abs(winMsg.net)}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.55);margin-top:6px;font-weight:700">${isWin?'🎉 You Won!':'💸 You Lost'} · ${winMsg.count} bet${winMsg.count>1?'s':''}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.28);margin-top:3px">Won ₹${winMsg.totalWin} / Lost ₹${winMsg.totalLost}</div>
+    </div>
 
-  /* Animate progress bar to empty over 3s */
+    <div style="font-size:11px;color:rgba(255,255,255,.25);letter-spacing:.5px">Closing in <span id="gPopCount" style="color:${accent};font-weight:700">3</span>s</div>`;
+
+  backdrop.appendChild(card);
+  document.body.appendChild(backdrop);   /* direct child of <body> — no overflow/transform ancestors */
+
+  /* Shrink progress bar over 3s */
   requestAnimationFrame(()=>{
     const bar = document.getElementById('gBarInner');
     if(bar) bar.style.width = '0%';
   });
 
-  /* Countdown display */
+  /* Countdown */
   let c = 3;
   const ci = setInterval(()=>{
     c--;
@@ -1192,17 +1223,16 @@ function showGameResult(num, colour, result, winMsg){
     if(c <= 0){ clearInterval(ci); closeGameResult(); }
   }, 1000);
 
-  /* Hard-close failsafe */
-  setTimeout(()=>{ clearInterval(ci); closeGameResult(); }, 3300);
+  /* Failsafe hard-close */
+  setTimeout(()=>{ clearInterval(ci); closeGameResult(); }, 3400);
 }
 
 window.closeGameResult = function(){
   if(!GAME.resultAnimating) return;
   GAME.resultAnimating = false;
-  /* Remove body-level popup */
-  const pop = document.getElementById('wwGamePopup');
+  const pop = document.getElementById('wwResultPop');
   if(pop) pop.remove();
-  /* Clear inline overlay too just in case */
+  /* Also wipe the inline overlay inside page DOM */
   const ov = document.getElementById('gameResultOverlay');
   if(ov) ov.innerHTML = '';
   renderGames();
@@ -1310,11 +1340,40 @@ window.confirmGameBet = function(type, side, num){
   const numVal = (num===null||num==='null'||num===undefined) ? null : parseInt(num);
   if(addBet(type, side, numVal, amt)){
     showToast(`✅ ₹${amt} on ${type==='number'?'No.'+numVal:side.toUpperCase()} added!`);
-    /* Re-open sheet stays open so user can add more bets */
-    const ex=document.getElementById('gameBetSheet'); if(ex) ex.remove();
-    openBetSheet(type, side, numVal);
+
+    /* ── Slide the sheet DOWN and remove it ── */
+    const sheet = document.getElementById('gameBetSheet');
+    if(sheet){
+      const inner = sheet.querySelector('div');
+      if(inner){
+        inner.style.transition = 'transform .28s cubic-bezier(.4,0,1,1)';
+        inner.style.transform  = 'translateY(110%)';
+      }
+      setTimeout(()=> sheet.remove(), 300);
+    }
+
+    /* ── Immediately update the "active bets" summary on the game page ── */
+    updateGameBetSummary();
   }
 };
+
+/* Patch the bets summary + lock bar in-place without full renderGames() */
+function updateGameBetSummary(){
+  const totalBetAmt = GAME.bets.reduce((s,b)=>s+b.amt,0);
+
+  /* Bets summary inside timer card */
+  const sumEl = document.getElementById('gameBetSummary');
+  if(sumEl && GAME.bets.length > 0){
+    sumEl.innerHTML = `
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(255,215,0,.07);border-radius:12px;border:1px solid rgba(255,215,0,.22)">
+        <div style="font-size:10px;color:rgba(255,215,0,.7);font-weight:700;letter-spacing:1px;margin-bottom:6px">${GAME.bets.length} BET${GAME.bets.length>1?'S':''} PLACED · ₹${totalBetAmt} TOTAL</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          ${GAME.bets.map(b=>`<div style="padding:4px 10px;border-radius:50px;background:${b.type==='number'?'rgba(255,215,0,.12)':b.side==='big'?'rgba(251,146,60,.12)':'rgba(96,165,250,.12)'};border:1px solid ${b.type==='number'?'rgba(255,215,0,.3)':b.side==='big'?'rgba(251,146,60,.3)':'rgba(96,165,250,.3)'};font-size:11px;font-weight:700;color:${b.type==='number'?'#ffd700':b.side==='big'?'#fb923c':'#60a5fa'}">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</div>`).join('')}
+        </div>
+      </div>`;
+    sumEl.style.display = '';
+  }
+}
 
 window.setGameBetAmt = function(amt){
   GAME.betAmt=amt;
@@ -1421,7 +1480,8 @@ function renderGames(){
         </div>
       </div>
 
-      <!-- Active bets summary -->
+      <!-- Active bets summary — id allows in-place update after bet confirm -->
+      <div id="gameBetSummary" style="${GAME.bets.length===0?'display:none':''}">
       ${GAME.bets.length>0?`
       <div style="margin-top:12px;padding:10px 14px;background:rgba(255,215,0,.07);border-radius:12px;border:1px solid rgba(255,215,0,.22)">
         <div style="font-size:10px;color:rgba(255,215,0,.7);font-weight:700;letter-spacing:1px;margin-bottom:6px">${GAME.bets.length} BET${GAME.bets.length>1?'S':''} PLACED · ₹${totalBetAmt} TOTAL</div>
@@ -1429,7 +1489,7 @@ function renderGames(){
           ${GAME.bets.map(b=>`<div style="padding:4px 10px;border-radius:50px;background:${b.type==='number'?'rgba(255,215,0,.12)':b.side==='big'?'rgba(251,146,60,.12)':'rgba(96,165,250,.12)'};border:1px solid ${b.type==='number'?'rgba(255,215,0,.3)':b.side==='big'?'rgba(251,146,60,.3)':'rgba(96,165,250,.3)'};font-size:11px;font-weight:700;color:${b.type==='number'?'#ffd700':b.side==='big'?'#fb923c':'#60a5fa'}">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</div>`).join('')}
         </div>
       </div>`:''}
-
+      </div>
       ${isLow?`<div style="margin-top:10px;padding:8px 14px;background:rgba(255,77,109,.12);border-radius:10px;border:1px solid rgba(255,77,109,.35);text-align:center;font-size:12px;font-weight:700;color:#ff4d6d">🔒 Betting closed — last 10 seconds</div>`:''}
     </div>
 
@@ -1504,7 +1564,6 @@ function renderGames(){
 
   if(!GAME.timerInt) startGameTimer();
 }
-
 
 /* ── RESIZE: debounced setBetsHeight ── */
 let _resizeTimer;
