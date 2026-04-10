@@ -1030,20 +1030,21 @@ function stopGameTimer(){ clearInterval(GAME.timerInt); GAME.timerInt=null; }
 
 function startGameTimer(){
   stopGameTimer();
-  /* Poll every 200ms for snappy response */
-  GAME.timerInt = setInterval(gameTick, 200);
-  gameTick();
+  /* Poll every 100ms — ultra snappy, catches period boundary reliably */
+  GAME.timerInt = setInterval(gameTick, 100);
+  gameTick(); // immediate first tick
 }
 
 function gameTick(){
   const t   = getSharedTimer();
   const cur = getSharedPeriod();
 
-  /* Update display */
+  /* Update display — always, even during popup */
   updateTimerUI(t);
 
-  /* Detect period boundary: resolve when timer wraps back to 59-60 */
-  if(cur !== GAME.lastResolvedPeriod && t >= 58){
+  /* Detect period boundary: resolve when timer wraps back to 58-60 */
+  /* Use a wider window (t>=55) to ensure we never miss the boundary */
+  if(cur !== GAME.lastResolvedPeriod && t >= 55){
     GAME.lastResolvedPeriod = cur;
     resolveGameRound(cur - 1);   // settle the period that just ended
   }
@@ -1053,20 +1054,31 @@ function updateTimerUI(t){
   const el = document.getElementById('gameTimerNum');
   if(!el) return;
   const isLow = t <= 10;
-  el.textContent = String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
+  /* Always show correct time — never freeze */
+  const display = String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
+  if(el.textContent !== display) el.textContent = display;
   el.style.color      = isLow ? '#ff4d6d' : '#00e5cc';
   el.style.textShadow = isLow ? '0 0 22px #ff4d6d' : '0 0 18px rgba(0,229,204,.8)';
   const card = document.getElementById('gameTimerCard');
   if(card) card.style.borderColor = isLow ? 'rgba(255,77,109,.95)' : 'rgba(255,77,109,.4)';
-  const area = document.getElementById('gameBetArea');
-  const lock = document.getElementById('gameLock');
-  if(area){ area.style.opacity=isLow?'.32':'1'; area.style.pointerEvents=isLow?'none':'auto'; }
-  if(lock) lock.style.display=isLow?'flex':'none';
+  /* Only update bet area lock if NOT showing result popup (avoid flicker) */
+  if(!GAME.resultAnimating){
+    const area = document.getElementById('gameBetArea');
+    const lock = document.getElementById('gameLock');
+    if(area){ area.style.opacity=isLow?'.32':'1'; area.style.pointerEvents=isLow?'none':'auto'; }
+    if(lock) lock.style.display=isLow?'flex':'none';
+  }
 }
 
 /* ─── Resolve round ─── */
 function resolveGameRound(period){
-  if(GAME.resultAnimating) return;
+  /* Never skip resolving — even if previous popup is still showing */
+  if(GAME.resultAnimating){
+    /* Force close previous popup instantly before resolving new period */
+    GAME.resultAnimating = false;
+    const ov = document.getElementById('gameResultOverlay');
+    if(ov) ov.innerHTML = '';
+  }
   const {num, colour, result} = resultForPeriod(period);
 
   /* Push to shared history */
@@ -1128,9 +1140,14 @@ function resolveGameRound(period){
 /* ─── Result popup — auto closes in 3s ─── */
 function showGameResult(num, colour, result, winMsg){
   GAME.resultAnimating = true;
-  renderGames();
-  const ov = document.getElementById('gameResultOverlay');
-  if(!ov) return;
+
+  /* Inject overlay into body directly so timer/game UI stays intact underneath */
+  let ov = document.getElementById('gameResultOverlayFixed');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'gameResultOverlayFixed';
+    document.body.appendChild(ov);
+  }
 
   const ballCol = COL_HEX[colour] || '#fff';
   let accent, accentBg, accentBdr, title;
@@ -1140,7 +1157,7 @@ function showGameResult(num, colour, result, winMsg){
   } else if(winMsg.net >= 0){
     accent='#fb923c'; accentBg='rgba(251,146,60,.15)'; accentBdr='rgba(251,146,60,.55)'; title='🎉 CONGRATULATIONS!';
   } else {
-    accent='#ef4444'; accentBg='rgba(239,68,68,.13)'; accentBdr='rgba(239,68,68,.5)'; title='BETTER LUCK NEXT TIME';
+    accent='#ef4444'; accentBg='rgba(239,68,68,.13)'; accentBdr='rgba(239,68,68,.5)'; title='😔 BETTER LUCK NEXT TIME';
   }
 
   ov.innerHTML = `
@@ -1160,13 +1177,16 @@ function showGameResult(num, colour, result, winMsg){
 
       ${winMsg ? `
       <div style="padding:14px;border-radius:16px;background:${accentBg};border:2px solid ${accentBdr};margin-bottom:14px">
-        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:32px;color:${accent};letter-spacing:1px;line-height:1">${winMsg.net>=0?'+₹'+winMsg.net:'-₹'+Math.abs(winMsg.net)}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.38);margin-top:4px">${winMsg.count} bet${winMsg.count>1?'s':''} · Won ₹${winMsg.totalWin} / Lost ₹${winMsg.totalLost}</div>
+        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:36px;color:${accent};letter-spacing:1px;line-height:1">${winMsg.net>=0?'+₹'+winMsg.net:'-₹'+Math.abs(winMsg.net)}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:6px;font-weight:600">${winMsg.net>=0?'🎉 You Won!':'💸 You Lost'} · ${winMsg.count} bet${winMsg.count>1?'s':''}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.28);margin-top:3px">Won ₹${winMsg.totalWin} / Lost ₹${winMsg.totalLost}</div>
       </div>` : ''}
 
       <div style="font-size:11px;color:rgba(255,255,255,.25);letter-spacing:.5px">Closing in <span id="gPopCount" style="color:${accent};font-weight:700">3</span>s</div>
     </div>
   </div>`;
+
+  ov.style.display = '';
 
   /* Start bar animation after one tick */
   requestAnimationFrame(()=>{
@@ -1183,15 +1203,19 @@ function showGameResult(num, colour, result, winMsg){
     if(c<=0){ clearInterval(ci); closeGameResult(); }
   },1000);
 
-  /* Hard close backup */
-  setTimeout(closeGameResult, 3300);
+  /* Hard close backup at 3.2s */
+  setTimeout(()=>{ clearInterval(ci); closeGameResult(); }, 3200);
 }
 
 window.closeGameResult = function(){
   if(!GAME.resultAnimating) return;
   GAME.resultAnimating = false;
-  const ov=document.getElementById('gameResultOverlay');
-  if(ov) ov.innerHTML='';
+  const ov = document.getElementById('gameResultOverlayFixed');
+  if(ov){ ov.innerHTML=''; ov.style.display='none'; }
+  /* Also clear the inline overlay in case it was used */
+  const ov2 = document.getElementById('gameResultOverlay');
+  if(ov2) ov2.innerHTML='';
+  /* Re-render the game page fresh after popup closes */
   renderGames();
 };
 
@@ -1490,10 +1514,7 @@ function renderGames(){
   <div id="gameResultOverlay"></div>`;
 
   if(!GAME.timerInt && !GAME.resultAnimating) startGameTimer();
-  if(GAME.resultAnimating){
-    const last=GAME.history[0];
-    if(last) showGameResult(last.num,last.colour,last.result,null);
-  }
+  /* Never re-trigger showGameResult from renderGames — timer handles it */
 }
 
 /* ── RESIZE: debounced setBetsHeight ── */
