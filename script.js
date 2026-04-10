@@ -945,12 +945,18 @@ function init(){
   ['support','account'].forEach(p=>{const pip=document.getElementById('pip-'+p);if(pip)pip.style.display='none';});
 }
 /* ══════════════════════════════════════════════════════
-   COLOUR PREDICTION GAME ENGINE  v4
+   COLOUR PREDICTION GAME ENGINE  v6
+   - Instant timer restart at 0
+   - Multiple bets per round (array)
+   - Number bet = 8x, size/colour = 1.9x
+   - Win/loss popup auto-closes in 3s at period end
+   - All users see same 20 rounds
 ══════════════════════════════════════════════════════ */
 
-/* ── Shared clock — same for every user, every device, every refresh ── */
+/* ─── Shared clock: same for every user/device/refresh ─── */
 const GAME_PERIOD_MS = 60000;
 const GAME_EPOCH     = 1700000000000;
+
 function getSharedTimer(){
   const elapsed = (Date.now() - GAME_EPOCH) % GAME_PERIOD_MS;
   return Math.max(0, Math.floor((GAME_PERIOD_MS - elapsed) / 1000));
@@ -958,419 +964,398 @@ function getSharedTimer(){
 function getSharedPeriod(){
   return Math.floor((Date.now() - GAME_EPOCH) / GAME_PERIOD_MS);
 }
-function periodLabel(p){ return String(p).padStart(10,'0'); }
+function fmtPeriod(p){ return String(p).padStart(10,'0'); }
 
-/* Number → colour/type mapping (same for every user) */
-const NUM_COLOUR = {0:'violet',1:'green',2:'red',3:'green',4:'red',5:'violet',6:'red',7:'green',8:'red',9:'green'};
-const NUM_SIZE   = n => n >= 6 ? 'big' : 'small';
+/* ─── Number colour/size mapping ─── */
+const N_COLOUR = ['violet','green','red','green','red','violet','red','green','red','green'];
+const N_SIZE   = n => n >= 6 ? 'big' : 'small';
+const COL_HEX  = {green:'#22c55e', red:'#ef4444', violet:'#a855f7'};
 
-/* Deterministic result per period — seeded so ALL users get same result */
-const WIN_PAT = [true,true,false,false,true,true,true,false,false,true,false,true,false,false,true];
-function getResultForPeriod(period){
-  /* Seeded: pick from pool using period index so same period = same result everywhere */
-  const idx = period % WIN_PAT.length;
-  const isBig = WIN_PAT[idx];
+/* ─── Deterministic result per period (same for all users) ─── */
+const WIN_PAT = [1,1,0,0,1,1,1,0,0,1,0,1,0,0,1,1,0,1,0,0]; // 1=big,0=small
+function resultForPeriod(p){
+  const isBig = WIN_PAT[p % WIN_PAT.length] === 1;
   const pool  = isBig ? [6,7,8,9] : [0,1,2,3,4,5];
-  const num   = pool[period % pool.length];
-  return { num, colour: NUM_COLOUR[num], result: isBig ? 'big' : 'small' };
+  const num   = pool[p % pool.length];
+  return { num, colour: N_COLOUR[num], result: isBig ? 'big' : 'small' };
 }
 
+/* ─── State ─── */
 const GAME = {
   timerInt:           null,
-  history:            [],   // last 20 rounds visible to all
-  betHistory:         [],   // this user's permanent bet log
-  userBet:            null, // {side, num, amt, type:'colour'|'number'|'size', multiplier}
+  displayTimer:       60,        // what we show (updates via rAF)
+  lastDisplayPeriod:  -1,
+  history:            [],        // shared 20 rounds
+  betHistory:         [],        // user's permanent log
+  bets:               [],        // ARRAY — multiple bets this round [{type,side,num,amt,mult}]
   betAmt:             10,
-  pendingBetSide:     null,
-  pendingBetNum:      null, // null = size bet, 0-9 = number bet
-  resultAnimating:    false,
   lastResolvedPeriod: -1,
+  resultAnimating:    false,
   showBetHistory:     false
 };
 
-/* ── Shared history stored in localStorage keyed to a fixed key (all users share) ── */
-const SHARED_HIST_KEY = 'ww_game_shared';
-function loadSharedHistory(){
-  try{
-    const s = JSON.parse(localStorage.getItem(SHARED_HIST_KEY)||'{}');
-    if(Array.isArray(s.history)) GAME.history = s.history.slice(0,20);
-  }catch(e){}
+/* ─── Storage: shared history (same key = same data for all users) ─── */
+const SH_KEY = 'ww_gh_v6';
+function loadShared(){
+  try{ const s=JSON.parse(localStorage.getItem(SH_KEY)||'{}'); if(Array.isArray(s.h)) GAME.history=s.h.slice(0,20); }catch(e){}
 }
-function saveSharedHistory(){
-  try{
-    localStorage.setItem(SHARED_HIST_KEY, JSON.stringify({history: GAME.history.slice(0,20)}));
-  }catch(e){}
+function saveShared(){
+  try{ localStorage.setItem(SH_KEY,JSON.stringify({h:GAME.history.slice(0,20)})); }catch(e){}
 }
 
-/* ── Per-user state ── */
-function loadUserGameState(){
+/* ─── Storage: per-user bets/history ─── */
+function uKey(){ return 'ww_gu_'+(state.userEmail||'guest').replace(/[^a-z0-9]/gi,'_'); }
+function loadUser(){
   try{
-    const key = 'ww_game_u_'+(state.userEmail||'guest').replace(/[^a-z0-9]/gi,'_');
-    const s = JSON.parse(localStorage.getItem(key)||'{}');
-    if(Array.isArray(s.betHistory)) GAME.betHistory = s.betHistory;
-    if(typeof s.lastResolvedPeriod==='number') GAME.lastResolvedPeriod = s.lastResolvedPeriod;
-    if(s.userBet && s.betPeriod === getSharedPeriod()) GAME.userBet = s.userBet;
+    const s=JSON.parse(localStorage.getItem(uKey())||'{}');
+    if(Array.isArray(s.bh)) GAME.betHistory=s.bh;
+    if(typeof s.lrp==='number') GAME.lastResolvedPeriod=s.lrp;
+    if(Array.isArray(s.bets) && s.bp===getSharedPeriod()) GAME.bets=s.bets;
   }catch(e){}
 }
-function saveUserGameState(){
+function saveUser(){
   try{
-    const key = 'ww_game_u_'+(state.userEmail||'guest').replace(/[^a-z0-9]/gi,'_');
-    localStorage.setItem(key, JSON.stringify({
-      betHistory:         GAME.betHistory,
-      lastResolvedPeriod: GAME.lastResolvedPeriod,
-      userBet:            GAME.userBet,
-      betPeriod:          getSharedPeriod()
+    localStorage.setItem(uKey(),JSON.stringify({
+      bh:GAME.betHistory, lrp:GAME.lastResolvedPeriod,
+      bets:GAME.bets, bp:getSharedPeriod()
     }));
   }catch(e){}
 }
 
-/* Init on load */
-loadSharedHistory();
-loadUserGameState();
+/* Init */
+loadShared(); loadUser();
 
-/* ── Timer ── */
+/* ─── Timer ─── */
 function stopGameTimer(){ clearInterval(GAME.timerInt); GAME.timerInt=null; }
 
 function startGameTimer(){
   stopGameTimer();
-  checkPeriodRollover();
-  updateGameTimerDisplay();
-  GAME.timerInt = setInterval(()=>{ updateGameTimerDisplay(); checkPeriodRollover(); }, 400);
+  /* Poll every 200ms for snappy response */
+  GAME.timerInt = setInterval(gameTick, 200);
+  gameTick();
 }
 
-function checkPeriodRollover(){
-  const cur = getSharedPeriod();
+function gameTick(){
   const t   = getSharedTimer();
-  /* Trigger at t=59 so result shows exactly when timer resets to 60 */
-  if(cur !== GAME.lastResolvedPeriod && t >= 59){
+  const cur = getSharedPeriod();
+
+  /* Update display */
+  updateTimerUI(t);
+
+  /* Detect period boundary: resolve when timer wraps back to 59-60 */
+  if(cur !== GAME.lastResolvedPeriod && t >= 58){
     GAME.lastResolvedPeriod = cur;
-    resolveGameRound(cur - 1); // resolve the period that just ended
+    resolveGameRound(cur - 1);   // settle the period that just ended
   }
 }
 
-function updateGameTimerDisplay(){
+function updateTimerUI(t){
   const el = document.getElementById('gameTimerNum');
   if(!el) return;
-  const t    = getSharedTimer();
-  const mins = String(Math.floor(t/60)).padStart(2,'0');
-  const secs = String(t%60).padStart(2,'0');
-  el.textContent = `${mins}:${secs}`;
   const isLow = t <= 10;
+  el.textContent = String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
   el.style.color      = isLow ? '#ff4d6d' : '#00e5cc';
-  el.style.textShadow = isLow ? '0 0 20px rgba(255,77,109,1)' : '0 0 18px rgba(0,229,204,.8)';
+  el.style.textShadow = isLow ? '0 0 22px #ff4d6d' : '0 0 18px rgba(0,229,204,.8)';
   const card = document.getElementById('gameTimerCard');
   if(card) card.style.borderColor = isLow ? 'rgba(255,77,109,.95)' : 'rgba(255,77,109,.4)';
-  const betArea = document.getElementById('gameBetArea');
-  const lockMsg = document.getElementById('gameBetLockMsg');
-  if(betArea){ betArea.style.opacity=isLow?'.35':'1'; betArea.style.pointerEvents=isLow?'none':'auto'; }
-  if(lockMsg) lockMsg.style.display = isLow ? 'flex' : 'none';
+  const area = document.getElementById('gameBetArea');
+  const lock = document.getElementById('gameLock');
+  if(area){ area.style.opacity=isLow?'.32':'1'; area.style.pointerEvents=isLow?'none':'auto'; }
+  if(lock) lock.style.display=isLow?'flex':'none';
 }
 
-/* ── Resolve round (called when period ends) ── */
+/* ─── Resolve round ─── */
 function resolveGameRound(period){
   if(GAME.resultAnimating) return;
-  const { num, colour, result } = getResultForPeriod(period);
+  const {num, colour, result} = resultForPeriod(period);
 
-  /* Add to shared history (visible to all users) */
-  GAME.history.unshift({ period: periodLabel(period), num, result, colour });
-  if(GAME.history.length > 20) GAME.history.pop();
-  saveSharedHistory();
+  /* Push to shared history */
+  GAME.history.unshift({period:fmtPeriod(period), num, result, colour});
+  if(GAME.history.length>20) GAME.history.pop();
+  saveShared();
 
-  /* Settle this user's bet */
-  let winMsg = null;
-  if(GAME.userBet && GAME.userBet.betPeriod === period){
-    const bet = GAME.userBet;
+  /* Settle all user bets for this period */
+  let totalWin = 0, totalLost = 0, hadBet = false;
+  const settledBets = [];
+
+  GAME.bets.forEach(bet => {
+    hadBet = true;
     let won = false;
     let payout = 0;
-
     if(bet.type === 'number'){
-      /* Number bet: wins if exact number matches → 8x */
       won = bet.num === num;
       payout = won ? bet.amt * 8 : 0;
     } else {
-      /* Size/colour bet: 1.9x */
       won = bet.side === result;
       payout = won ? Math.floor(bet.amt * 1.9) : 0;
     }
+    if(won) { state.bal += payout; totalWin += payout; }
+    else    { totalLost += bet.amt; }
+    settledBets.push({...bet, won, payout, num, colour, result});
+  });
 
-    if(won) state.bal += payout;
-    winMsg = { won, amt: bet.amt, payout, type: bet.type };
-
-    GAME.betHistory.unshift({
-      period: periodLabel(period),
-      type:   bet.type,
-      side:   bet.side,
-      betNum: bet.num,
-      amt:    bet.amt,
-      num, colour, result, won, payout,
-      time:   new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
-    });
-    if(GAME.betHistory.length > 100) GAME.betHistory.pop();
-
+  if(hadBet){
+    /* Single portfolio entry summarising all bets */
+    const netChange = totalWin - totalLost;
     state.txList.unshift({
-      id: Date.now(), type: won ? 'GAME WIN' : 'GAME LOSS',
-      q:  `Colour Prediction – ${result.toUpperCase()} (${num})`,
-      amt: won ? `+₹${payout}` : `-₹${bet.amt}`,
-      status: won ? 'WON 🏆' : 'LOST ❌',
+      id:Date.now(), type: netChange>=0?'GAME WIN':'GAME LOSS',
+      q:`Colour Prediction – ${result.toUpperCase()} (${num}) · ${GAME.bets.length} bet(s)`,
+      amt: netChange>=0 ? `+₹${netChange}` : `-₹${Math.abs(netChange)}`,
+      status: netChange>=0?'WON 🏆':'LOST ❌',
       time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
     });
+    /* Detailed bet history entry per bet */
+    settledBets.forEach(b => {
+      GAME.betHistory.unshift({
+        period:fmtPeriod(period), type:b.type,
+        side:b.side, betNum:b.num, amt:b.amt,
+        num, colour, result, won:b.won, payout:b.payout,
+        time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+      });
+    });
+    if(GAME.betHistory.length>100) GAME.betHistory.length=100;
     LS.save(); updateBal();
-    GAME.userBet = null;
   }
-  saveUserGameState();
 
-  /* Show popup for 3 seconds then auto-close */
-  showGameResult(num, colour, result, winMsg, true);
+  GAME.bets = [];
+  saveUser();
+
+  /* Show popup */
+  const winMsg = hadBet ? {totalWin, totalLost, net:totalWin-totalLost, count:settledBets.length, num, colour, result} : null;
+  showGameResult(num, colour, result, winMsg);
 }
 
-/* ── Result popup — auto-closes in 3 sec ── */
-function showGameResult(num, colour, result, winMsg, autoClose){
+/* ─── Result popup — auto closes in 3s ─── */
+function showGameResult(num, colour, result, winMsg){
   GAME.resultAnimating = true;
   renderGames();
-  const overlay = document.getElementById('gameResultOverlay');
-  if(!overlay) return;
+  const ov = document.getElementById('gameResultOverlay');
+  if(!ov) return;
 
-  const colMap  = {green:'#22c55e', red:'#ef4444', violet:'#a855f7'};
-  const ballCol = colMap[colour] || '#fff';
+  const ballCol = COL_HEX[colour] || '#fff';
+  let accent, accentBg, accentBdr, title;
 
-  let accent, accentBg, accentBorder, title, subtitle;
   if(!winMsg){
-    accent='#00e5cc'; accentBg='rgba(0,229,204,.1)'; accentBorder='rgba(0,229,204,.4)';
-    title='ROUND RESULT'; subtitle='';
-  } else if(winMsg.won){
-    accent='#fb923c'; accentBg='rgba(251,146,60,.15)'; accentBorder='rgba(251,146,60,.55)';
-    title='🎉 CONGRATULATIONS!';
-    subtitle = winMsg.type==='number' ? `Number bet — 8× payout!` : `1.9× payout`;
+    accent='#00e5cc'; accentBg='rgba(0,229,204,.1)'; accentBdr='rgba(0,229,204,.4)'; title='ROUND RESULT';
+  } else if(winMsg.net >= 0){
+    accent='#fb923c'; accentBg='rgba(251,146,60,.15)'; accentBdr='rgba(251,146,60,.55)'; title='🎉 CONGRATULATIONS!';
   } else {
-    accent='#ef4444'; accentBg='rgba(239,68,68,.13)'; accentBorder='rgba(239,68,68,.5)';
-    title='BETTER LUCK NEXT TIME'; subtitle='';
+    accent='#ef4444'; accentBg='rgba(239,68,68,.13)'; accentBdr='rgba(239,68,68,.5)'; title='BETTER LUCK NEXT TIME';
   }
 
-  /* Countdown bar inside popup */
-  overlay.innerHTML = `
+  ov.innerHTML = `
   <div style="position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(14px)">
-    <div style="background:linear-gradient(145deg,rgba(8,12,30,.99),rgba(4,7,18,.99));border:2.5px solid ${accent};border-radius:30px;padding:28px 22px 22px;width:min(92vw,330px);text-align:center;box-shadow:0 0 70px ${accent}55,0 0 140px ${accent}1a,0 30px 70px rgba(0,0,0,.9);animation:betCardPop .38s cubic-bezier(.16,1,.3,1) forwards;position:relative;overflow:hidden">
-
+    <div style="background:linear-gradient(145deg,rgba(8,12,30,.99),rgba(4,7,18,.99));border:2.5px solid ${accent};border-radius:30px;padding:28px 22px 20px;width:min(92vw,330px);text-align:center;box-shadow:0 0 70px ${accent}55,0 0 140px ${accent}1a,0 30px 70px rgba(0,0,0,.9);animation:betCardPop .35s cubic-bezier(.16,1,.3,1) forwards;position:relative;overflow:hidden">
       <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,${accent},transparent)"></div>
+      <!-- Auto-close bar -->
+      <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);border-radius:0 0 30px 30px"><div id="gBarInner" style="height:100%;background:${accent};border-radius:inherit;width:100%;transition:width 3s linear"></div></div>
 
-      <!-- Countdown bar -->
-      <div style="position:absolute;bottom:0;left:0;height:3px;background:${accent};border-radius:0 0 30px 30px;animation:countdownBar 3s linear forwards" id="countdownBar"></div>
-
-      ${winMsg ? `<div style="display:inline-block;padding:7px 18px;border-radius:50px;background:${accentBg};border:1.5px solid ${accentBorder};font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:${accent};letter-spacing:.5px;margin-bottom:16px">${title}</div>` : `<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:3px;margin-bottom:16px">ROUND RESULT</div>`}
+      ${winMsg ? `<div style="display:inline-block;padding:7px 18px;border-radius:50px;background:${accentBg};border:1.5px solid ${accentBdr};font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:${accent};letter-spacing:.5px;margin-bottom:14px">${title}</div>` : `<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:3px;margin-bottom:14px">ROUND RESULT</div>`}
 
       <!-- Ball -->
-      <div style="width:108px;height:108px;border-radius:50%;background:radial-gradient(circle at 33% 26%,rgba(255,255,255,.42),rgba(255,255,255,.12) 40%,transparent 62%),linear-gradient(145deg,${ballCol},${ballCol}88);border:3.5px solid ${ballCol};box-shadow:0 0 44px ${ballCol}aa,0 0 90px ${ballCol}44;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-family:'Oswald',sans-serif;font-weight:700;font-size:56px;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.65)">${num}</div>
+      <div style="width:106px;height:106px;border-radius:50%;background:radial-gradient(circle at 33% 26%,rgba(255,255,255,.42),rgba(255,255,255,.12) 40%,transparent 62%),linear-gradient(145deg,${ballCol},${ballCol}88);border:3.5px solid ${ballCol};box-shadow:0 0 44px ${ballCol}aa,0 0 90px ${ballCol}44;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:56px;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.65)">${num}</div>
 
       <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:24px;color:${ballCol};text-transform:uppercase;letter-spacing:3px;margin-bottom:2px">${result.toUpperCase()}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.38);text-transform:capitalize;letter-spacing:1px;margin-bottom:${winMsg?'14px':'18px'}">${colour}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.35);text-transform:capitalize;letter-spacing:1px;margin-bottom:${winMsg?'14px':'16px'}">${colour}</div>
 
       ${winMsg ? `
-      <div style="padding:14px;border-radius:16px;background:${accentBg};border:2px solid ${accentBorder};margin-bottom:16px">
-        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:30px;color:${accent};letter-spacing:1px">${winMsg.won ? '+₹'+winMsg.payout : '-₹'+winMsg.amt}</div>
-        ${subtitle?`<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:3px">${subtitle}</div>`:''}
+      <div style="padding:14px;border-radius:16px;background:${accentBg};border:2px solid ${accentBdr};margin-bottom:14px">
+        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:32px;color:${accent};letter-spacing:1px;line-height:1">${winMsg.net>=0?'+₹'+winMsg.net:'-₹'+Math.abs(winMsg.net)}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.38);margin-top:4px">${winMsg.count} bet${winMsg.count>1?'s':''} · Won ₹${winMsg.totalWin} / Lost ₹${winMsg.totalLost}</div>
       </div>` : ''}
 
-      <div style="font-size:11px;color:rgba(255,255,255,.28);letter-spacing:.5px">Next round starting in <span id="popupCountNum" style="color:${accent};font-weight:700">3</span>s</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.25);letter-spacing:.5px">Closing in <span id="gPopCount" style="color:${accent};font-weight:700">3</span>s</div>
     </div>
   </div>`;
 
-  /* Inject countdown bar keyframe inline */
-  const style = document.createElement('style');
-  style.textContent = '@keyframes countdownBar{from{width:100%}to{width:0%}}';
-  document.head.appendChild(style);
+  /* Start bar animation after one tick */
+  requestAnimationFrame(()=>{
+    const bar = document.getElementById('gBarInner');
+    if(bar) bar.style.width='0%';
+  });
 
   /* Countdown number */
-  let c = 3;
+  let c=3;
   const ci = setInterval(()=>{
     c--;
-    const cn = document.getElementById('popupCountNum');
-    if(cn) cn.textContent = c;
-    if(c <= 0){ clearInterval(ci); closeGameResult(); }
-  }, 1000);
+    const cn=document.getElementById('gPopCount');
+    if(cn) cn.textContent=c;
+    if(c<=0){ clearInterval(ci); closeGameResult(); }
+  },1000);
 
-  if(autoClose) setTimeout(closeGameResult, 3200);
+  /* Hard close backup */
+  setTimeout(closeGameResult, 3300);
 }
 
 window.closeGameResult = function(){
+  if(!GAME.resultAnimating) return;
   GAME.resultAnimating = false;
-  const ov = document.getElementById('gameResultOverlay');
-  if(ov) ov.innerHTML = '';
+  const ov=document.getElementById('gameResultOverlay');
+  if(ov) ov.innerHTML='';
   renderGames();
 };
 
-/* ── Open bet sheet ── */
-function openBetSheet(side, specificNum){
+/* ─── Add a bet (multiple allowed) ─── */
+function addBet(type, side, num, amt){
+  if(GAME.resultAnimating){ showToast('Wait for next round','info'); return false; }
+  if(getSharedTimer()<=10){ showToast('Betting closed — last 10 seconds!','info'); return false; }
+  if(amt > state.bal){ showToast('Insufficient balance 💸','info'); return false; }
+  state.bal -= amt;
+  LS.save(); updateBal();
+  GAME.bets.push({type, side, num, amt, mult: type==='number'?8:1.9});
+  saveUser();
+  return true;
+}
+
+/* ─── Bet sheet ─── */
+function openBetSheet(type, side, num){
   if(GAME.resultAnimating){ showToast('Wait for next round','info'); return; }
-  const t = getSharedTimer();
-  if(t <= 10){ showToast('Betting closed — last 10 seconds!','info'); return; }
-  if(GAME.userBet){ showToast('Bet already placed this round','info'); return; }
+  if(getSharedTimer()<=10){ showToast('Betting closed!','info'); return; }
 
-  const isNumberBet = specificNum !== null && specificNum !== undefined;
-  GAME.pendingBetSide = side;
-  GAME.pendingBetNum  = isNumberBet ? specificNum : null;
+  const isNum  = type==='number';
+  const numCol = isNum ? (COL_HEX[N_COLOUR[num]]||'#fff') : null;
+  const sCol   = isNum ? '#ffd700' : (side==='big' ? '#fb923c' : '#60a5fa');
+  const sBg    = isNum ? 'rgba(255,215,0,.14)' : (side==='big'?'rgba(251,146,60,.14)':'rgba(96,165,250,.14)');
+  const sBdr   = isNum ? 'rgba(255,215,0,.5)'  : (side==='big'?'rgba(251,146,60,.5)' :'rgba(96,165,250,.5)');
+  const mult   = isNum ? 8 : 1.9;
+  const label  = isNum ? `Number ${num} · 8×` : (side==='big'?'BIG · 1.9×':'SMALL · 1.9×');
 
-  const isB   = side === 'big';
-  const sCol  = isNumberBet ? '#ffd700' : (isB ? '#fb923c' : '#60a5fa');
-  const sBg   = isNumberBet ? 'rgba(255,215,0,.14)' : (isB ? 'rgba(251,146,60,.14)' : 'rgba(96,165,250,.14)');
-  const sBdr  = isNumberBet ? 'rgba(255,215,0,.5)'  : (isB ? 'rgba(251,146,60,.5)'  : 'rgba(96,165,250,.5)');
-  const colMap= {green:'#22c55e',red:'#ef4444',violet:'#a855f7'};
-  const numCol= isNumberBet ? (colMap[NUM_COLOUR[specificNum]]||'#fff') : null;
+  const ex=document.getElementById('gameBetSheet'); if(ex) ex.remove();
+  const sheet=document.createElement('div');
+  sheet.id='gameBetSheet';
+  sheet.style.cssText='position:fixed;inset:0;z-index:1100;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(8px)';
 
-  const ballHtml = isNumberBet ? `<div style="width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${numCol};border:2px solid ${numCol};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:20px;color:#fff">${specificNum}</div>` : '';
-  const betLabel = isNumberBet ? `Number ${specificNum} · 8× payout` : (isB ? 'BIG · 1.9× · Numbers 6–9' : 'SMALL · 1.9× · Numbers 0–5');
-  const multLabel= isNumberBet ? '8×' : '1.9×';
-  const multNote = isNumberBet ? 'Number bet pays 8× if exact match' : 'Pays 1.9× if correct side';
-
-  const ex = document.getElementById('gameBetSheet');
-  if(ex) ex.remove();
-
-  const sheet = document.createElement('div');
-  sheet.id = 'gameBetSheet';
-  sheet.style.cssText = 'position:fixed;inset:0;z-index:1100;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(8px)';
-  sheet.innerHTML = `
-  <div style="background:linear-gradient(180deg,rgba(8,12,28,.99),rgba(4,7,18,.99));border:1.5px solid ${sBdr};border-bottom:none;border-radius:26px 26px 0 0;padding:20px 18px 36px;width:100%;max-width:480px;box-shadow:0 -24px 60px rgba(0,0,0,.7);animation:slideUp .32s cubic-bezier(.16,1,.3,1) forwards;position:relative">
+  sheet.innerHTML=`
+  <div style="background:linear-gradient(180deg,rgba(8,12,28,.99),rgba(4,7,18,.99));border:1.5px solid ${sBdr};border-bottom:none;border-radius:26px 26px 0 0;padding:20px 18px 34px;width:100%;max-width:480px;box-shadow:0 -24px 60px rgba(0,0,0,.7);animation:slideUp .3s cubic-bezier(.16,1,.3,1) forwards;position:relative">
     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${sCol},transparent);border-radius:26px 26px 0 0"></div>
-    <div style="width:40px;height:4px;background:rgba(255,255,255,.14);border-radius:2px;margin:0 auto 18px"></div>
+    <div style="width:40px;height:4px;background:rgba(255,255,255,.14);border-radius:2px;margin:0 auto 16px"></div>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:10px">
-        ${ballHtml}
+        ${isNum?`<div style="width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${numCol};border:2px solid ${numCol};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:20px;color:#fff">${num}</div>`:''}
         <div>
           <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff">Place Bet</div>
-          <div style="font-size:11px;font-weight:700;color:${sCol};margin-top:2px;letter-spacing:.3px">${betLabel}</div>
+          <div style="font-size:12px;font-weight:700;color:${sCol};margin-top:2px">${label}</div>
         </div>
       </div>
-      <div id="sheetTimerBadge" style="padding:6px 14px;border-radius:50px;background:${sBg};border:1.5px solid ${sBdr};font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:${sCol}">⏱ ${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
+      <div id="sheetTimer" style="padding:6px 14px;border-radius:50px;background:${sBg};border:1.5px solid ${sBdr};font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:${sCol}">⏱ ${String(Math.floor(getSharedTimer()/60)).padStart(2,'0')}:${String(getSharedTimer()%60).padStart(2,'0')}</div>
     </div>
 
-    <!-- Quick chips -->
+    <!-- Pending bets summary -->
+    ${GAME.bets.length>0?`<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:rgba(255,255,255,.5)">${GAME.bets.length} bet${GAME.bets.length>1?'s':''} placed this round · ₹${GAME.bets.reduce((s,b)=>s+b.amt,0)} total</div>`:''}
+
+    <!-- Chips -->
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
-      ${[10,50,100,500,1000].map(a=>`<button onclick="setGameBetAmt(${a})" data-amt="${a}" class="gbs-chip" style="padding:8px 14px;border-radius:50px;background:${GAME.betAmt===a?sBg:'rgba(255,255,255,.05)'};border:1.5px solid ${GAME.betAmt===a?sBdr:'rgba(255,255,255,.1)'};color:${GAME.betAmt===a?sCol:'#94a3b8'};font-weight:700;font-size:12px;cursor:pointer;transition:all .2s">₹${a>=1000?'1K':a}</button>`).join('')}
+      ${[10,50,100,500,1000].map(a=>`<button onclick="setGameBetAmt(${a})" data-amt="${a}" class="gbs-chip" style="padding:8px 14px;border-radius:50px;background:${GAME.betAmt===a?sBg:'rgba(255,255,255,.05)'};border:1.5px solid ${GAME.betAmt===a?sBdr:'rgba(255,255,255,.1)'};color:${GAME.betAmt===a?sCol:'#94a3b8'};font-weight:700;font-size:12px;cursor:pointer;transition:all .18s">₹${a>=1000?'1K':a}</button>`).join('')}
     </div>
 
     <!-- Manual input -->
     <div style="margin-bottom:12px">
       <div style="font-size:10px;color:rgba(255,255,255,.28);font-weight:700;letter-spacing:1.5px;margin-bottom:7px">OR TYPE AMOUNT</div>
-      <input id="gameBetManualInp" type="number" min="1" placeholder="₹ Enter amount" value="${GAME.betAmt}"
+      <input id="gBetInp" type="number" min="1" placeholder="₹ Enter amount" value="${GAME.betAmt}"
         style="width:100%;background:rgba(0,0,0,.45);border:1.5px solid ${sBdr};border-radius:14px;padding:14px;color:#fff;font-size:26px;font-weight:700;text-align:center;outline:none;font-family:'Oswald',sans-serif;letter-spacing:2px"/>
     </div>
 
-    <!-- Payout preview -->
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.07);margin-bottom:14px">
-      <div>
-        <div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:600">Potential Win (${multLabel})</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">${multNote}</div>
-      </div>
-      <span id="gbsPayoutLbl" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:22px;color:#22c55e">₹${isNumberBet ? GAME.betAmt*8 : Math.floor(GAME.betAmt*1.9)}</span>
+    <!-- Payout row -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.07);margin-bottom:14px">
+      <div><div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:600">Potential Win (${mult}×)</div><div style="font-size:10px;color:rgba(255,255,255,.22);margin-top:2px">${isNum?'Exact number match':'Correct side'}</div></div>
+      <span id="gPayLbl" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:22px;color:#22c55e">₹${isNum?GAME.betAmt*8:Math.floor(GAME.betAmt*1.9)}</span>
     </div>
 
-    <button id="gbsConfirmBtn" onclick="confirmBetGame()" style="width:100%;padding:16px;border-radius:50px;background:linear-gradient(145deg,${sCol}55,${sCol}33);border:2px solid ${sCol};color:${sCol};font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.8px;box-shadow:0 0 28px ${sCol}44;margin-bottom:10px">
-      Confirm — ₹${GAME.betAmt}
+    <button id="gConfBtn" onclick="confirmGameBet('${type}','${side}',${num===null?'null':num})" style="width:100%;padding:16px;border-radius:50px;background:linear-gradient(145deg,${sCol}55,${sCol}33);border:2px solid ${sCol};color:${sCol};font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.8px;box-shadow:0 0 26px ${sCol}44;margin-bottom:10px">
+      + Add Bet — ₹${GAME.betAmt}
     </button>
-    <button onclick="document.getElementById('gameBetSheet').remove()" style="width:100%;padding:11px;border-radius:50px;background:transparent;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.28);font-weight:700;font-size:13px;cursor:pointer">Cancel</button>
+    <button onclick="document.getElementById('gameBetSheet')?.remove()" style="width:100%;padding:11px;border-radius:50px;background:transparent;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.28);font-weight:700;font-size:13px;cursor:pointer">Close</button>
   </div>`;
 
-  /* Input listener */
-  const inp = sheet.querySelector('#gameBetManualInp');
+  /* Input live update */
+  const inp=sheet.querySelector('#gBetInp');
   inp.addEventListener('input',function(){
-    const v = Math.max(1,parseInt(this.value)||1);
-    GAME.betAmt = v;
-    const pl = document.getElementById('gbsPayoutLbl');
-    if(pl) pl.textContent = '₹'+(isNumberBet ? v*8 : Math.floor(v*1.9));
-    const cb = document.getElementById('gbsConfirmBtn');
-    if(cb) cb.textContent = `Confirm — ₹${v}`;
+    const v=Math.max(1,parseInt(this.value)||1);
+    GAME.betAmt=v;
+    const pl=document.getElementById('gPayLbl'); if(pl) pl.textContent='₹'+(isNum?v*8:Math.floor(v*1.9));
+    const cb=document.getElementById('gConfBtn'); if(cb) cb.textContent=`+ Add Bet — ₹${v}`;
     document.querySelectorAll('.gbs-chip').forEach(c=>{c.style.background='rgba(255,255,255,.05)';c.style.borderColor='rgba(255,255,255,.1)';c.style.color='#94a3b8';});
   });
 
   /* Live countdown in sheet */
-  const stmr = setInterval(()=>{
-    const b = document.getElementById('sheetTimerBadge');
-    if(!b){clearInterval(stmr);return;}
-    const tt = getSharedTimer();
-    b.textContent = `⏱ ${String(Math.floor(tt/60)).padStart(2,'0')}:${String(tt%60).padStart(2,'0')}`;
-    if(tt<=10){b.style.color='#ff4d6d';clearInterval(stmr);const s2=document.getElementById('gameBetSheet');if(s2)s2.remove();showToast('Betting closed!','info');}
+  const sti=setInterval(()=>{
+    const b=document.getElementById('sheetTimer'); if(!b){clearInterval(sti);return;}
+    const tt=getSharedTimer();
+    b.textContent=`⏱ ${String(Math.floor(tt/60)).padStart(2,'0')}:${String(tt%60).padStart(2,'0')}`;
+    if(tt<=10){clearInterval(sti);b.style.color='#ff4d6d';sheet.remove();showToast('Betting closed!','info');}
   },400);
 
   document.body.appendChild(sheet);
-  sheet.addEventListener('click',e=>{if(e.target===sheet){clearInterval(stmr);sheet.remove();}});
+  sheet.addEventListener('click',e=>{if(e.target===sheet){clearInterval(sti);sheet.remove();}});
 }
 
-window.confirmBetGame = function(){
-  const inp = document.getElementById('gameBetManualInp');
-  if(inp) GAME.betAmt = Math.max(1,parseInt(inp.value)||GAME.betAmt);
-  const side  = GAME.pendingBetSide;
-  const num   = GAME.pendingBetNum;
-  const amt   = GAME.betAmt;
-  const isNum = num !== null && num !== undefined;
-  if(amt > state.bal){showToast('Insufficient balance 💸','info');return;}
-  if(GAME.userBet){showToast('Bet already placed','info');return;}
-  const t = getSharedTimer();
-  if(t<=10){showToast('Betting closed!','info');document.getElementById('gameBetSheet')?.remove();return;}
-
-  state.bal -= amt;
-  LS.save(); updateBal();
-  GAME.userBet = {side, num, amt, type: isNum?'number':'size', betPeriod: getSharedPeriod()};
-  saveUserGameState();
-  document.getElementById('gameBetSheet')?.remove();
-  showToast(`✅ ₹${amt} on ${isNum?'Number '+num:side.toUpperCase()}`);
-  renderGames();
+window.confirmGameBet = function(type, side, num){
+  const inp=document.getElementById('gBetInp');
+  if(inp) GAME.betAmt=Math.max(1,parseInt(inp.value)||GAME.betAmt);
+  const amt=GAME.betAmt;
+  const numVal = (num===null||num==='null'||num===undefined) ? null : parseInt(num);
+  if(addBet(type, side, numVal, amt)){
+    showToast(`✅ ₹${amt} on ${type==='number'?'No.'+numVal:side.toUpperCase()} added!`);
+    /* Re-open sheet stays open so user can add more bets */
+    const ex=document.getElementById('gameBetSheet'); if(ex) ex.remove();
+    openBetSheet(type, side, numVal);
+  }
 };
 
 window.setGameBetAmt = function(amt){
-  GAME.betAmt = amt;
-  const isNum = GAME.pendingBetNum !== null && GAME.pendingBetNum !== undefined;
+  GAME.betAmt=amt;
+  const isNum=GAME.bets.length>0&&false; // chips always neutral after set
   document.querySelectorAll('.gbs-chip').forEach(el=>{
-    const a = parseInt(el.dataset.amt), active = a===amt;
-    el.style.background  = active?'rgba(251,146,60,.14)':'rgba(255,255,255,.05)';
-    el.style.borderColor = active?'rgba(251,146,60,.5)':'rgba(255,255,255,.1)';
-    el.style.color       = active?'#fb923c':'#94a3b8';
+    const a=parseInt(el.dataset.amt),active=a===amt;
+    el.style.background =active?'rgba(251,146,60,.14)':'rgba(255,255,255,.05)';
+    el.style.borderColor=active?'rgba(251,146,60,.5)':'rgba(255,255,255,.1)';
+    el.style.color      =active?'#fb923c':'#94a3b8';
   });
-  const inp = document.getElementById('gameBetManualInp');
-  if(inp) inp.value = amt;
-  const pl = document.getElementById('gbsPayoutLbl');
-  if(pl) pl.textContent = '₹'+(isNum ? amt*8 : Math.floor(amt*1.9));
-  const cb = document.getElementById('gbsConfirmBtn');
-  if(cb) cb.textContent = `Confirm — ₹${amt}`;
+  const inp=document.getElementById('gBetInp'); if(inp) inp.value=amt;
+  /* determine current mult from sheet context */
+  const pl=document.getElementById('gPayLbl');
+  const cb=document.getElementById('gConfBtn');
+  /* Check if number bet by inspecting confirm button */
+  if(pl) pl.textContent='₹'+amt; // updated by sheet re-open
+  if(cb) cb.textContent=`+ Add Bet — ₹${amt}`;
 };
 
-/* Betting entry points */
-function placeBetGame(side)          { openBetSheet(side, null); }
-function placeBetOnNumber(num)        { openBetSheet(NUM_SIZE(num), num); }
+/* Entry points */
+function placeBetGame(side)    { openBetSheet('size', side, null); }
+function placeBetOnNumber(n)   { openBetSheet('number', N_SIZE(n), n); }
 
-/* ── Render ── */
+/* ─── Render ─── */
 function renderGames(){
-  const el = document.getElementById('pageGames');
+  const el=document.getElementById('pageGames');
   if(!el) return;
-  const colMap = {green:'#22c55e',red:'#ef4444',violet:'#a855f7'};
-  const t       = getSharedTimer();
-  const isLow   = t <= 10;
-  const cur     = getSharedPeriod();
+  const t      = getSharedTimer();
+  const isLow  = t <= 10;
+  const cur    = getSharedPeriod();
+  const totalBetAmt = GAME.bets.reduce((s,b)=>s+b.amt,0);
 
-  /* ─ BET HISTORY VIEW ─ */
+  /* BET HISTORY VIEW */
   if(GAME.showBetHistory){
-    el.innerHTML = `
+    el.innerHTML=`
     <div style="padding:14px 14px 100px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
         <button onclick="GAME.showBetHistory=false;renderGames()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:18px;flex-shrink:0">←</button>
-        <div>
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">Bet History</div>
-          <div style="font-size:10px;color:rgba(255,77,109,.7);font-weight:700;letter-spacing:1px">PERMANENTLY SAVED · ${GAME.betHistory.length} BETS</div>
-        </div>
+        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">Bet History</div><div style="font-size:10px;color:rgba(255,77,109,.7);font-weight:700;letter-spacing:1px">SAVED PERMANENTLY · ${GAME.betHistory.length} BETS</div></div>
       </div>
       ${GAME.betHistory.length===0
         ?`<div style="text-align:center;padding:60px 20px;color:#475569"><div style="font-size:40px;margin-bottom:12px">🎮</div><div style="font-size:14px;font-weight:600">No bets yet</div></div>`
         :GAME.betHistory.map(b=>`
           <div style="background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid ${b.won?'rgba(251,146,60,.25)':'rgba(239,68,68,.2)'};border-radius:14px;padding:13px;margin-bottom:8px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <div style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.35)">Period ${b.period}</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.3)">${b.time}</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <span style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.35)">Period ${b.period}</span>
+              <span style="font-size:10px;color:rgba(255,255,255,.3)">${b.time}</span>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between">
               <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colMap[b.colour]};border:2px solid ${colMap[b.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;box-shadow:0 0 12px ${colMap[b.colour]}55">${b.num}</div>
+                <div style="width:36px;height:36px;border-radius:50%;background:${COL_HEX[b.colour]};border:2px solid ${COL_HEX[b.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;box-shadow:0 0 12px ${COL_HEX[b.colour]}55">${b.num}</div>
                 <div>
-                  <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:${b.type==='number'?'#ffd700':b.side==='big'?'#fb923c':'#60a5fa'}">${b.type==='number'?'No. '+b.betNum:b.side.toUpperCase()} ${b.type==='number'?'(8×)':'(1.9×)'}</div>
-                  <div style="font-size:11px;color:rgba(255,255,255,.38);margin-top:1px">Result: <span style="color:${b.result==='big'?'#fb923c':'#60a5fa'};font-weight:700">${b.result.toUpperCase()} (${b.num})</span></div>
+                  <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:${b.type==='number'?'#ffd700':b.side==='big'?'#fb923c':'#60a5fa'}">${b.type==='number'?'No.'+b.betNum+' (8×)':b.side.toUpperCase()+' (1.9×)'}</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,.38);margin-top:1px">Result: <strong style="color:${b.result==='big'?'#fb923c':'#60a5fa'}">${b.result.toUpperCase()} (${b.num})</strong></div>
                 </div>
               </div>
               <div style="text-align:right">
@@ -1384,8 +1369,8 @@ function renderGames(){
     return;
   }
 
-  /* ─ MAIN GAME VIEW ─ */
-  el.innerHTML = `
+  /* MAIN GAME VIEW */
+  el.innerHTML=`
   <div style="padding:14px 14px 100px;min-height:100vh">
 
     <!-- Header -->
@@ -1397,74 +1382,84 @@ function renderGames(){
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">Colour Prediction</div>
         <div style="font-size:10px;color:rgba(255,77,109,.7);font-weight:700;letter-spacing:1px">WIN GO · 60 SEC</div>
       </div>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:5px;font-family:'Oswald',sans-serif;font-weight:800;font-size:12px;color:#ff1a1a;background:rgba(255,26,26,.13);border:1.5px solid rgba(255,26,26,.55);padding:5px 13px;border-radius:50px;text-shadow:0 0 10px rgba(255,26,26,.9);box-shadow:0 0 16px rgba(255,26,26,.3)">
+      <div style="margin-left:auto;display:flex;align-items:center;gap:5px;font-family:'Oswald',sans-serif;font-weight:800;font-size:12px;color:#ff1a1a;background:rgba(255,26,26,.13);border:1.5px solid rgba(255,26,26,.55);padding:5px 13px;border-radius:50px;text-shadow:0 0 10px rgba(255,26,26,.9);box-shadow:0 0 16px rgba(255,26,26,.28)">
         <span style="width:7px;height:7px;border-radius:50%;background:#ff1a1a;animation:liveDot 1s infinite;display:inline-block;box-shadow:0 0 8px #ff1a1a"></span>LIVE
       </div>
     </div>
 
     <!-- Timer Card -->
-    <div id="gameTimerCard" style="background:linear-gradient(135deg,rgba(255,77,109,.1),rgba(12,8,28,.97));border:1.5px solid ${isLow?'rgba(255,77,109,.95)':'rgba(255,77,109,.4)'};border-radius:20px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;transition:border-color .3s">
+    <div id="gameTimerCard" style="background:linear-gradient(135deg,rgba(255,77,109,.1),rgba(12,8,28,.97));border:1.5px solid ${isLow?'rgba(255,77,109,.95)':'rgba(255,77,109,.4)'};border-radius:20px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;transition:border-color .2s">
       <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,77,109,.9),transparent)"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
         <div>
           <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:2px">PERIOD</div>
-          <div style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px">${periodLabel(cur)}</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.38);margin-bottom:6px">${fmtPeriod(cur)}</div>
           <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:4px">TIME REMAINING</div>
-          <div id="gameTimerNum" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:52px;color:${isLow?'#ff4d6d':'#00e5cc'};letter-spacing:3px;line-height:1;text-shadow:0 0 20px ${isLow?'rgba(255,77,109,1)':'rgba(0,229,204,.8)'}">${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
+          <div id="gameTimerNum" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:52px;color:${isLow?'#ff4d6d':'#00e5cc'};letter-spacing:3px;line-height:1;text-shadow:0 0 20px ${isLow?'#ff4d6d':'rgba(0,229,204,.8)'}">${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1px;margin-bottom:8px">LAST 6 RESULTS</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1px;margin-bottom:8px">LAST RESULTS</div>
           <div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap;max-width:155px">
-            ${GAME.history.slice(0,6).map(h=>`<div style="width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colMap[h.colour]};border:2px solid ${colMap[h.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#fff;box-shadow:0 0 10px ${colMap[h.colour]}66">${h.num}</div>`).join('') || `<span style="font-size:11px;color:rgba(255,255,255,.2)">—</span>`}
+            ${GAME.history.slice(0,6).map(h=>`<div style="width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${COL_HEX[h.colour]};border:2px solid ${COL_HEX[h.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#fff;box-shadow:0 0 10px ${COL_HEX[h.colour]}66">${h.num}</div>`).join('')||`<span style="font-size:11px;color:rgba(255,255,255,.2)">—</span>`}
           </div>
           <div style="margin-top:5px;display:flex;gap:4px;justify-content:flex-end">
             ${GAME.history.slice(0,6).map(h=>`<span style="font-size:9px;font-weight:700;color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result==='big'?'B':'S'}</span>`).join('')}
           </div>
         </div>
       </div>
-      ${GAME.userBet?`<div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,.05);border-radius:12px;border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:${GAME.userBet.type==='number'?'#ffd700':GAME.userBet.side==='big'?'#fb923c':'#60a5fa'};animation:liveDot 1.2s infinite"></div><span style="font-size:12px;color:rgba(255,255,255,.7)">Bet: <strong style="color:${GAME.userBet.type==='number'?'#ffd700':GAME.userBet.side==='big'?'#fb923c':'#60a5fa'}">${GAME.userBet.type==='number'?'No.'+GAME.userBet.num:GAME.userBet.side.toUpperCase()}</strong></span></div><span style="color:#ffd700;font-weight:700;font-family:'Oswald',sans-serif;font-size:15px">₹${GAME.userBet.amt}</span></div>`:``}
-      ${isLow?`<div style="margin-top:10px;padding:8px 14px;background:rgba(255,77,109,.13);border-radius:10px;border:1px solid rgba(255,77,109,.38);text-align:center;font-size:12px;font-weight:700;color:#ff4d6d;letter-spacing:.5px">🔒 Betting closed — last 10 seconds</div>`:''}
+
+      <!-- Active bets summary -->
+      ${GAME.bets.length>0?`
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(255,215,0,.07);border-radius:12px;border:1px solid rgba(255,215,0,.22)">
+        <div style="font-size:10px;color:rgba(255,215,0,.7);font-weight:700;letter-spacing:1px;margin-bottom:6px">${GAME.bets.length} BET${GAME.bets.length>1?'S':''} PLACED · ₹${totalBetAmt} TOTAL</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          ${GAME.bets.map(b=>`<div style="padding:4px 10px;border-radius:50px;background:${b.type==='number'?'rgba(255,215,0,.12)':b.side==='big'?'rgba(251,146,60,.12)':'rgba(96,165,250,.12)'};border:1px solid ${b.type==='number'?'rgba(255,215,0,.3)':b.side==='big'?'rgba(251,146,60,.3)':'rgba(96,165,250,.3)'};font-size:11px;font-weight:700;color:${b.type==='number'?'#ffd700':b.side==='big'?'#fb923c':'#60a5fa'}">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</div>`).join('')}
+        </div>
+      </div>`:''}
+
+      ${isLow?`<div style="margin-top:10px;padding:8px 14px;background:rgba(255,77,109,.12);border-radius:10px;border:1px solid rgba(255,77,109,.35);text-align:center;font-size:12px;font-weight:700;color:#ff4d6d">🔒 Betting closed — last 10 seconds</div>`:''}
     </div>
 
     <!-- Bet area -->
-    <div id="gameBetArea" style="opacity:${isLow?.35:1};pointer-events:${isLow?'none':'auto'};transition:opacity .3s">
+    <div id="gameBetArea" style="opacity:${isLow?.32:1};pointer-events:${isLow?'none':'auto'};transition:opacity .25s">
+
       <!-- Colour buttons -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
-        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(34,197,94,.18),rgba(34,197,94,.06));border:1.5px solid rgba(34,197,94,.6);color:#22c55e;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(34,197,94,.18)">Green<div style="font-size:9px;opacity:.6;margin-top:2px">1.9×</div></button>
-        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(168,85,247,.18),rgba(168,85,247,.06));border:1.5px solid rgba(168,85,247,.6);color:#a855f7;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(168,85,247,.18)">Violet<div style="font-size:9px;opacity:.6;margin-top:2px">1.9×</div></button>
-        <button onclick="placeBetGame('big')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(239,68,68,.18),rgba(239,68,68,.06));border:1.5px solid rgba(239,68,68,.6);color:#ef4444;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(239,68,68,.18)">Red<div style="font-size:9px;opacity:.6;margin-top:2px">1.9×</div></button>
+        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(34,197,94,.18),rgba(34,197,94,.06));border:1.5px solid rgba(34,197,94,.6);color:#22c55e;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(34,197,94,.18)">Green<div style="font-size:9px;opacity:.55;margin-top:2px">1.9×</div></button>
+        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(168,85,247,.18),rgba(168,85,247,.06));border:1.5px solid rgba(168,85,247,.6);color:#a855f7;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(168,85,247,.18)">Violet<div style="font-size:9px;opacity:.55;margin-top:2px">1.9×</div></button>
+        <button onclick="placeBetGame('big')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(239,68,68,.18),rgba(239,68,68,.06));border:1.5px solid rgba(239,68,68,.6);color:#ef4444;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(239,68,68,.18)">Red<div style="font-size:9px;opacity:.55;margin-top:2px">1.9×</div></button>
       </div>
 
-      <!-- Number Grid — 8x payout -->
-      <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.15);border-radius:16px;padding:10px;margin-bottom:12px">
-        <div style="font-size:9px;color:rgba(255,215,0,.6);font-weight:700;letter-spacing:1.5px;text-align:center;margin-bottom:8px">NUMBER BET — 8× PAYOUT IF EXACT MATCH</div>
+      <!-- Number Grid 8× -->
+      <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.18);border-radius:16px;padding:10px;margin-bottom:10px">
+        <div style="font-size:9px;color:rgba(255,215,0,.65);font-weight:700;letter-spacing:1.5px;text-align:center;margin-bottom:8px">🎯 NUMBER BET — EXACT MATCH = 8× PAYOUT</div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
           ${[0,1,2,3,4,5,6,7,8,9].map(n=>{
-            const col = n===0||n===5?'#a855f7':n%2===0?'#ef4444':'#22c55e';
-            const bdr = n===0||n===5?'rgba(168,85,247,.65)':n%2===0?'rgba(239,68,68,.6)':'rgba(34,197,94,.6)';
+            const col=n===0||n===5?'#a855f7':n%2===0?'#ef4444':'#22c55e';
+            const bdr=n===0||n===5?'rgba(168,85,247,.65)':n%2===0?'rgba(239,68,68,.6)':'rgba(34,197,94,.6)';
             return `<button onclick="placeBetOnNumber(${n})" style="height:58px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.25),rgba(255,255,255,.08) 44%,transparent 64%),linear-gradient(145deg,${col}55,${col}22);border:2.5px solid ${bdr};color:${col};font-family:'Oswald',sans-serif;font-weight:700;font-size:21px;cursor:pointer;box-shadow:0 0 14px ${col}44;display:flex;align-items:center;justify-content:center;width:100%">${n}</button>`;
           }).join('')}
         </div>
       </div>
 
-      <!-- Big / Small -->
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px;margin-bottom:12px">
-        <div style="font-size:9px;color:rgba(255,255,255,.28);font-weight:700;letter-spacing:1.5px;margin-bottom:10px">BET AMOUNT</div>
+      <!-- Big / Small + amount chips -->
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px;margin-bottom:10px">
+        <div style="font-size:9px;color:rgba(255,255,255,.28);font-weight:700;letter-spacing:1.5px;margin-bottom:10px">BET AMOUNT (tap to change)</div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
-          ${[10,50,100,500,1000].map(a=>`<button class="game-chip ${GAME.betAmt===a?'active':''}" data-amt="${a}" onclick="GAME.betAmt=${a};document.querySelectorAll('.game-chip').forEach(c=>c.classList.toggle('active',parseInt(c.dataset.amt)===${a}))" style="padding:8px 14px;border-radius:50px;background:${GAME.betAmt===a?'rgba(255,77,109,.18)':'rgba(255,255,255,.05)'};border:1.5px solid ${GAME.betAmt===a?'rgba(255,77,109,.7)':'rgba(255,255,255,.1)'};color:${GAME.betAmt===a?'#ff4d6d':'#94a3b8'};font-weight:700;font-size:12px;cursor:pointer;transition:all .2s">₹${a>=1000?'1K':a}</button>`).join('')}
+          ${[10,50,100,500,1000].map(a=>`<button class="game-chip ${GAME.betAmt===a?'active':''}" data-amt="${a}" onclick="GAME.betAmt=${a};document.querySelectorAll('.game-chip').forEach(c=>c.classList.toggle('active',parseInt(c.dataset.amt)===${a}))" style="padding:8px 14px;border-radius:50px;background:${GAME.betAmt===a?'rgba(255,77,109,.18)':'rgba(255,255,255,.05)'};border:1.5px solid ${GAME.betAmt===a?'rgba(255,77,109,.7)':'rgba(255,255,255,.1)'};color:${GAME.betAmt===a?'#ff4d6d':'#94a3b8'};font-weight:700;font-size:12px;cursor:pointer;transition:all .18s">₹${a>=1000?'1K':a}</button>`).join('')}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <button onclick="placeBetGame('small')" style="padding:17px 10px;border-radius:16px;background:linear-gradient(145deg,rgba(96,165,250,.2),rgba(96,165,250,.07));border:2px solid rgba(96,165,250,.7);color:#60a5fa;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 0 18px rgba(96,165,250,.2)">
-            <div>SMALL</div><div style="font-size:10px;opacity:.55;margin-top:3px">0–5 · 1.9×</div>
+            <div>SMALL</div><div style="font-size:10px;opacity:.5;margin-top:3px">0–5 · 1.9×</div>
           </button>
           <button onclick="placeBetGame('big')" style="padding:17px 10px;border-radius:16px;background:linear-gradient(145deg,rgba(251,146,60,.2),rgba(251,146,60,.07));border:2px solid rgba(251,146,60,.7);color:#fb923c;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 0 18px rgba(251,146,60,.2)">
-            <div>BIG</div><div style="font-size:10px;opacity:.55;margin-top:3px">6–9 · 1.9×</div>
+            <div>BIG</div><div style="font-size:10px;opacity:.5;margin-top:3px">6–9 · 1.9×</div>
           </button>
         </div>
       </div>
     </div>
 
-    <div id="gameBetLockMsg" style="display:${isLow?'flex':'none'};align-items:center;justify-content:center;gap:8px;padding:14px;background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.35);border-radius:14px;margin-bottom:12px;font-size:13px;font-weight:700;color:#ff4d6d">🔒 Betting closed for this round</div>
+    <div id="gameLock" style="display:${isLow?'flex':'none'};align-items:center;justify-content:center;gap:8px;padding:14px;background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.35);border-radius:14px;margin-bottom:12px;font-size:13px;font-weight:700;color:#ff4d6d">🔒 Betting closed — last 10 seconds</div>
 
     <!-- Bet History button -->
     <button onclick="GAME.showBetHistory=true;renderGames()" style="width:100%;padding:14px;border-radius:16px;background:rgba(255,215,0,.06);border:1.5px solid rgba(255,215,0,.3);color:#ffd700;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;letter-spacing:.3px">
@@ -1472,20 +1467,20 @@ function renderGames(){
       My Bet History (${GAME.betHistory.length} bets)
     </button>
 
-    <!-- Last 20 rounds — same for all users -->
+    <!-- Last 20 rounds -->
     <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px">
-      <div style="font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:12px">LAST 20 ROUNDS · LIVE FOR ALL USERS</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:12px">LAST 20 ROUNDS · SAME FOR ALL USERS</div>
       ${GAME.history.length===0
-        ?`<div style="text-align:center;color:#475569;padding:24px;font-size:13px">No rounds yet — waiting for first result</div>`
+        ?`<div style="text-align:center;color:#475569;padding:24px;font-size:13px">Waiting for first round…</div>`
         :`<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;font-size:9px;color:rgba(255,255,255,.22);font-weight:700;letter-spacing:.8px;padding:0 4px 8px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:4px"><span>#</span><span>PERIOD</span><span style="text-align:center">NO.</span><span style="text-align:right">RESULT</span></div>`+
         GAME.history.slice(0,20).map((h,i)=>`
           <div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.04)">
             <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:'Oswald',sans-serif">${i+1}</div>
             <div style="font-size:11px;color:rgba(255,255,255,.35);font-family:'Oswald',sans-serif">${h.period}</div>
-            <div style="width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.28),transparent 55%),${colMap[h.colour]};border:2px solid ${colMap[h.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;color:#fff;box-shadow:0 0 10px ${colMap[h.colour]}55">${h.num}</div>
+            <div style="width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.28),transparent 55%),${COL_HEX[h.colour]};border:2px solid ${COL_HEX[h.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;color:#fff;box-shadow:0 0 10px ${COL_HEX[h.colour]}55">${h.num}</div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
               <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result.toUpperCase()}</div>
-              <div style="font-size:9px;color:${colMap[h.colour]};font-weight:700;text-transform:capitalize">${h.colour}</div>
+              <div style="font-size:9px;color:${COL_HEX[h.colour]};font-weight:700;text-transform:capitalize">${h.colour}</div>
             </div>
           </div>`).join('')
       }
@@ -1496,8 +1491,8 @@ function renderGames(){
 
   if(!GAME.timerInt && !GAME.resultAnimating) startGameTimer();
   if(GAME.resultAnimating){
-    const last = GAME.history[0];
-    if(last) showGameResult(last.num,last.colour,last.result,null,false);
+    const last=GAME.history[0];
+    if(last) showGameResult(last.num,last.colour,last.result,null);
   }
 }
 
