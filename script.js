@@ -944,16 +944,15 @@ function init(){
   LS.load();setCC(META[state.cat].color);renderTabs();renderMarkets();updateBal();updateBlobs();
   ['support','account'].forEach(p=>{const pip=document.getElementById('pip-'+p);if(pip)pip.style.display='none';});
 /* ══════════════════════════════════════════════════════
-   COLOUR PREDICTION GAME ENGINE  v4
-   Fixes:
-   – Shared 60-second clock, auto-restart on zero (smooth)
-   – Win/Loss popup shown for 3 seconds then auto-closes
-   – Single-player pattern: W W L L W W W L L W W W …
-   – Multi-player: side with LEAST total bet amount wins
-   – Top-20 shared bet history shown to all users
+   COLOUR PREDICTION GAME ENGINE  v4 – WISHWORK
+   ✅ 60-second shared clock, auto-restart on zero
+   ✅ Win/Loss popup shows 3 seconds then auto-closes
+   ✅ Single-player pattern: W W L L W W W L L W W W L L W
+   ✅ Multi-player: side with LEAST total ₹ wins
+   ✅ Top-20 shared bet history across all users
 ══════════════════════════════════════════════════════ */
 
-/* ── Shared clock (deterministic 60-second period for every client) ── */
+/* ── Shared clock — same for every device ── */
 const GAME_PERIOD_MS = 60000;
 const GAME_EPOCH     = 1700000000000;
 function getSharedTimer(){
@@ -965,21 +964,22 @@ function getSharedPeriod(){
 }
 function periodLabel(p){ return String(p).padStart(10,'0'); }
 
-/* ── Single-player win pattern: W W L L W W W L L W W W L L … ── */
+/* ── Single-player win pattern W W L L W W W L L W W W L L W … ── */
 const SP_PATTERN = [true,true,false,false,true,true,true,false,false,true,true,true,false,false,true];
 
-/* ── Shared "Top 20 bets" global history stored under one key ── */
-const SHARED_BET_HISTORY_KEY = 'ww_shared_bets';
+/* ── Shared top-20 history (same for every user) ── */
+const SBH_KEY = 'ww_shared_bets';
 function getSharedBetHistory(){
-  try{ return JSON.parse(localStorage.getItem(SHARED_BET_HISTORY_KEY)||'[]'); }catch(e){ return []; }
+  try{ return JSON.parse(localStorage.getItem(SBH_KEY)||'[]'); }catch(e){ return []; }
 }
 function pushSharedBet(entry){
   const arr = getSharedBetHistory();
   arr.unshift(entry);
   if(arr.length > 20) arr.length = 20;
-  try{ localStorage.setItem(SHARED_BET_HISTORY_KEY, JSON.stringify(arr)); }catch(e){}
+  try{ localStorage.setItem(SBH_KEY, JSON.stringify(arr)); }catch(e){}
 }
 
+/* ── Game state ── */
 const GAME = {
   timerInt: null,
   history: [],
@@ -993,19 +993,19 @@ const GAME = {
   resultAnimating: false,
   lastResolvedPeriod: -1,
   showBetHistory: false,
-  showSharedHistory: false
+  showSharedHistory: false,
+  _resultTimeout: null
 };
 
-/* ── Persist / restore game state ── */
+/* ── Restore persisted game state ── */
 (function restoreGame(){
   try{
     const s = JSON.parse(localStorage.getItem('ww_game')||'{}');
-    if(Array.isArray(s.history))    GAME.history    = s.history;
-    if(Array.isArray(s.betHistory)) GAME.betHistory = s.betHistory;
-    if(typeof s.patternIdx==='number') GAME.patternIdx = s.patternIdx;
+    if(Array.isArray(s.history))             GAME.history    = s.history;
+    if(Array.isArray(s.betHistory))          GAME.betHistory = s.betHistory;
+    if(typeof s.patternIdx==='number')       GAME.patternIdx = s.patternIdx;
     if(typeof s.lastResolvedPeriod==='number') GAME.lastResolvedPeriod = s.lastResolvedPeriod;
-    const curPeriod = getSharedPeriod();
-    if(s.userBet && s.betPeriod === curPeriod){
+    if(s.userBet && s.betPeriod === getSharedPeriod()){
       GAME.userBet = s.userBet;
       if(GAME.userBet.side==='big') GAME.bigBets = GAME.userBet.amt;
       else GAME.smallBets = GAME.userBet.amt;
@@ -1026,15 +1026,15 @@ function saveGameState(){
   }catch(e){}
 }
 
-/* ── Timer ── */
-function stopGameTimer(){ clearInterval(GAME.timerInt); GAME.timerInt=null; }
+/* ── Timer control ── */
+function stopGameTimer(){ clearInterval(GAME.timerInt); GAME.timerInt = null; }
 
 function startGameTimer(){
   stopGameTimer();
   updateGameTimerDisplay();
   checkPeriodRollover();
   GAME.timerInt = setInterval(()=>{
-    if(!GAME.resultAnimating){ updateGameTimerDisplay(); }
+    if(!GAME.resultAnimating) updateGameTimerDisplay();
     checkPeriodRollover();
   }, 300);
 }
@@ -1042,7 +1042,7 @@ function startGameTimer(){
 function checkPeriodRollover(){
   const cur = getSharedPeriod();
   const t   = getSharedTimer();
-  /* Fire resolve once per new period when clock is at the very start (t > 56) */
+  /* New period starts when t resets to near 60; fire resolve exactly once */
   if(cur !== GAME.lastResolvedPeriod && t > 56){
     GAME.lastResolvedPeriod = cur;
     GAME.period = cur - 1;
@@ -1053,22 +1053,22 @@ function checkPeriodRollover(){
 function updateGameTimerDisplay(){
   const el = document.getElementById('gameTimerNum');
   if(!el) return;
-  const t = getSharedTimer();
-  const m = String(Math.floor(t/60)).padStart(2,'0');
-  const s = String(t%60).padStart(2,'0');
+  const t  = getSharedTimer();
+  const m  = String(Math.floor(t/60)).padStart(2,'0');
+  const s  = String(t%60).padStart(2,'0');
   el.textContent = `${m}:${s}`;
   const isLow = t <= 10;
   el.style.color      = isLow ? '#ff4d6d' : '#00e5cc';
   el.style.textShadow = isLow ? '0 0 18px rgba(255,77,109,.9)' : '0 0 18px rgba(0,229,204,.8)';
   const card = document.getElementById('gameTimerCard');
   if(card) card.style.borderColor = isLow ? 'rgba(255,77,109,.9)' : 'rgba(255,77,109,.4)';
-  const locked = document.getElementById('gameBetLockMsg');
+  const locked  = document.getElementById('gameBetLockMsg');
   const betArea = document.getElementById('gameBetArea');
-  if(locked) locked.style.display = isLow ? 'flex' : 'none';
+  if(locked)  locked.style.display = isLow ? 'flex' : 'none';
   if(betArea){ betArea.style.opacity = isLow ? '.38' : '1'; betArea.style.pointerEvents = isLow ? 'none' : 'auto'; }
 }
 
-/* ── Resolve round ── */
+/* ── Round resolution ── */
 function resolveGameRound(){
   if(GAME.resultAnimating) return;
 
@@ -1077,10 +1077,10 @@ function resolveGameRound(){
   let result;
 
   if(hasBig && hasSmall){
-    /* Multi-player: LEAST total money side wins */
-    result = GAME.bigBets < GAME.smallBets ? 'big' : 'small';
+    /* Multi-player: side with LEAST total ₹ wins */
+    result = (GAME.bigBets < GAME.smallBets) ? 'big' : 'small';
   } else {
-    /* Single-player (or no bets): follow SP_PATTERN */
+    /* Single-player or no bets: follow SP_PATTERN */
     const patWin = SP_PATTERN[GAME.patternIdx % SP_PATTERN.length];
     if(GAME.userBet){
       result = patWin ? GAME.userBet.side : (GAME.userBet.side === 'big' ? 'small' : 'big');
@@ -1090,62 +1090,67 @@ function resolveGameRound(){
   }
   GAME.patternIdx++;
 
-  const periodSeed = GAME.period !== undefined ? GAME.period : getSharedPeriod() - 1;
-  const pool  = result==='big' ? [6,7,8,9] : [0,1,2,3,4,5];
-  const num   = pool[Math.abs(periodSeed) % pool.length];
-  const colour= num===0||num===5 ? 'violet' : num%2===0 ? 'red' : 'green';
+  const seed  = typeof GAME.period === 'number' ? GAME.period : (getSharedPeriod() - 1);
+  const pool  = result === 'big' ? [6,7,8,9] : [0,1,2,3,4,5];
+  const num   = pool[Math.abs(seed) % pool.length];
+  const colour= (num===0||num===5) ? 'violet' : (num%2===0 ? 'red' : 'green');
 
-  GAME.history.unshift({ period: periodLabel(periodSeed), num, result, colour });
+  GAME.history.unshift({ period: periodLabel(seed), num, result, colour });
   if(GAME.history.length > 30) GAME.history.pop();
 
+  /* Settle bet */
   let winMsg = null;
   if(GAME.userBet){
     const won    = GAME.userBet.side === result;
     const amt    = GAME.userBet.amt;
-    const payout = won ? Math.floor(amt*1.9) : 0;
-    if(won){ state.bal += payout; }
+    const payout = won ? Math.floor(amt * 1.9) : 0;
+    if(won) state.bal += payout;
     winMsg = { won, amt, payout };
 
     const betEntry = {
-      period: periodLabel(periodSeed),
-      side: GAME.userBet.side, amt, num, colour, result, won, payout,
+      period: periodLabel(seed), side: GAME.userBet.side,
+      amt, num, colour, result, won, payout,
       time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
     };
     GAME.betHistory.unshift(betEntry);
     if(GAME.betHistory.length > 100) GAME.betHistory.pop();
 
+    /* Shared top-20 */
     pushSharedBet({
       user: state.userEmail || 'Player',
       side: GAME.userBet.side, amt, won, payout,
-      period: periodLabel(periodSeed), num, colour, result,
-      time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+      period: periodLabel(seed), num, colour, result,
+      time: betEntry.time
     });
 
+    /* Portfolio transaction */
     state.txList.unshift({
-      id:Date.now(), type: won?'GAME WIN':'GAME LOSS',
-      q:`Colour Prediction – ${result.toUpperCase()} (${num})`,
+      id: Date.now(), type: won ? 'GAME WIN' : 'GAME LOSS',
+      q: `Colour Prediction – ${result.toUpperCase()} (${num})`,
       amt: won ? `+₹${payout}` : `-₹${amt}`,
       status: won ? 'WON 🏆' : 'LOST ❌',
-      time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+      time: betEntry.time
     });
     LS.save(); updateBal();
     GAME.userBet = null;
   }
+
   GAME.bigBets = 0; GAME.smallBets = 0;
   saveGameState();
   showGameResult(num, colour, result, winMsg);
 }
 
-/* ── Result popup — auto-closes in 3 seconds ── */
+/* ── Result popup — auto-closes after 3 seconds ── */
 function showGameResult(num, colour, result, winMsg){
   GAME.resultAnimating = true;
   renderGames();
   const overlay = document.getElementById('gameResultOverlay');
   if(!overlay) return;
-  const colMap = {green:'#22c55e', red:'#ef4444', violet:'#a855f7'};
-  const ballCol = colMap[colour] || '#fff';
 
+  const colMap   = { green:'#22c55e', red:'#ef4444', violet:'#a855f7' };
+  const ballCol  = colMap[colour] || '#fff';
   let accent, accentBg, accentBorder, resultTitle, resultSub;
+
   if(!winMsg){
     accent='#00e5cc'; accentBg='rgba(0,229,204,.1)'; accentBorder='rgba(0,229,204,.35)';
     resultTitle='ROUND ENDED'; resultSub='';
@@ -1158,24 +1163,53 @@ function showGameResult(num, colour, result, winMsg){
   }
 
   overlay.innerHTML = `
-    <div style="position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.85);backdrop-filter:blur(12px)">
-      <div style="background:linear-gradient(145deg,rgba(10,14,32,.98),rgba(5,8,20,.99));border:2.5px solid ${accent};border-radius:30px;padding:32px 22px 24px;width:min(92vw,340px);text-align:center;box-shadow:0 0 60px ${accent}55,0 0 120px ${accent}22,0 28px 60px rgba(0,0,0,.85);animation:betCardPop .4s cubic-bezier(.16,1,.3,1) forwards;position:relative;overflow:hidden">
-        <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,${accent},transparent)"></div>
-        <div style="position:absolute;bottom:0;left:0;height:3px;background:${accent};border-radius:0 0 0 30px;animation:shrinkBar 3s linear forwards"></div>
-        ${winMsg?`<div style="padding:8px 16px;border-radius:50px;background:${accentBg};border:1.5px solid ${accentBorder};font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:${accent};letter-spacing:.5px;margin-bottom:18px;display:inline-block">${resultTitle}</div>`:`<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:3px;margin-bottom:18px">ROUND RESULT</div>`}
-        <div style="width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.38),rgba(255,255,255,.1) 45%,transparent 65%),linear-gradient(145deg,${ballCol},${ballCol}88);border:3px solid ${ballCol};box-shadow:0 0 40px ${ballCol}99,0 0 80px ${ballCol}44;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-family:'Oswald',sans-serif;font-weight:700;font-size:54px;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.6)">${num}</div>
-        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:26px;color:${ballCol};text-transform:uppercase;letter-spacing:3px;margin-bottom:3px">${result.toUpperCase()}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.4);text-transform:capitalize;letter-spacing:1px;margin-bottom:${winMsg?'18px':'22px'}">${colour}</div>
-        ${winMsg?`<div style="padding:14px;border-radius:16px;background:${accentBg};border:2px solid ${accentBorder};margin-bottom:20px">
-          <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:26px;color:${accent};letter-spacing:1px">${winMsg.won?'+₹'+winMsg.payout:'-₹'+winMsg.amt}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;letter-spacing:.5px">${resultSub}</div>
-        </div>`:''}
+    <div style="position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;
+      padding:20px;background:rgba(0,0,0,.85);backdrop-filter:blur(12px)">
+      <div style="background:linear-gradient(145deg,rgba(10,14,32,.98),rgba(5,8,20,.99));
+        border:2.5px solid ${accent};border-radius:30px;padding:32px 22px 24px;
+        width:min(92vw,340px);text-align:center;
+        box-shadow:0 0 60px ${accent}55,0 28px 60px rgba(0,0,0,.85);
+        animation:betCardPop .4s cubic-bezier(.16,1,.3,1) forwards;
+        position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:2.5px;
+          background:linear-gradient(90deg,transparent,${accent},transparent)"></div>
+        <div style="position:absolute;bottom:0;left:0;height:3px;background:${accent};
+          border-radius:0 0 0 30px;animation:shrinkBar 3s linear forwards"></div>
+        ${winMsg
+          ? `<div style="padding:8px 16px;border-radius:50px;background:${accentBg};
+              border:1.5px solid ${accentBorder};font-family:'Syne',sans-serif;font-weight:800;
+              font-size:14px;color:${accent};letter-spacing:.5px;margin-bottom:18px;display:inline-block">
+              ${resultTitle}</div>`
+          : `<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.3);
+              letter-spacing:3px;margin-bottom:18px">ROUND RESULT</div>`}
+        <div style="width:110px;height:110px;border-radius:50%;
+          background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.38),rgba(255,255,255,.1) 45%,transparent 65%),
+          linear-gradient(145deg,${ballCol},${ballCol}88);
+          border:3px solid ${ballCol};
+          box-shadow:0 0 40px ${ballCol}99,0 0 80px ${ballCol}44;
+          display:flex;align-items:center;justify-content:center;
+          margin:0 auto 16px;font-family:'Oswald',sans-serif;font-weight:700;
+          font-size:54px;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.6)">${num}</div>
+        <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:26px;
+          color:${ballCol};text-transform:uppercase;letter-spacing:3px;margin-bottom:3px">${result.toUpperCase()}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.4);text-transform:capitalize;
+          letter-spacing:1px;margin-bottom:${winMsg?'18px':'22px'}">${colour}</div>
+        ${winMsg ? `<div style="padding:14px;border-radius:16px;background:${accentBg};
+            border:2px solid ${accentBorder};margin-bottom:20px">
+            <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:26px;
+              color:${accent};letter-spacing:1px">${winMsg.won?'+₹'+winMsg.payout:'-₹'+winMsg.amt}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:3px">${resultSub}</div>
+          </div>` : ''}
         <div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:10px">Next round starts in 3s…</div>
-        <button onclick="closeGameResult()" style="width:100%;padding:15px;border-radius:50px;background:linear-gradient(145deg,${accent}44,${accent}22);border:2px solid ${accent};color:${accent};font-weight:800;font-size:14px;cursor:pointer;letter-spacing:.8px;box-shadow:0 0 22px ${accent}44">Next Round →</button>
+        <button onclick="closeGameResult()"
+          style="width:100%;padding:15px;border-radius:50px;
+            background:linear-gradient(145deg,${accent}44,${accent}22);
+            border:2px solid ${accent};color:${accent};font-weight:800;font-size:14px;
+            cursor:pointer;letter-spacing:.8px;box-shadow:0 0 22px ${accent}44">
+          Next Round →</button>
       </div>
     </div>`;
 
-  /* Auto-close after 3 seconds */
   if(GAME._resultTimeout) clearTimeout(GAME._resultTimeout);
   GAME._resultTimeout = setTimeout(()=>{ closeGameResult(); }, 3000);
 }
@@ -1197,10 +1231,10 @@ function openBetSheet(side){
   if(GAME.userBet){ showToast('Bet already placed this round','info'); return; }
   GAME.pendingBetSide = side;
 
-  const isB    = side==='big';
-  const sCol   = isB ? '#fb923c' : '#60a5fa';
-  const sBg    = isB ? 'rgba(251,146,60,.15)' : 'rgba(96,165,250,.15)';
-  const sBdr   = isB ? 'rgba(251,146,60,.5)'  : 'rgba(96,165,250,.5)';
+  const isB  = side === 'big';
+  const sCol = isB ? '#fb923c' : '#60a5fa';
+  const sBg  = isB ? 'rgba(251,146,60,.15)' : 'rgba(96,165,250,.15)';
+  const sBdr = isB ? 'rgba(251,146,60,.5)'  : 'rgba(96,165,250,.5)';
 
   const ex = document.getElementById('gameBetSheet');
   if(ex) ex.remove();
@@ -1209,37 +1243,55 @@ function openBetSheet(side){
   sheet.id = 'gameBetSheet';
   sheet.style.cssText = 'position:fixed;inset:0;z-index:1100;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.72);backdrop-filter:blur(7px)';
   sheet.innerHTML = `
-    <div style="background:linear-gradient(180deg,rgba(8,12,28,.98),rgba(4,7,18,.99));border:1.5px solid ${sBdr};border-bottom:none;border-radius:26px 26px 0 0;padding:20px 18px 36px;width:100%;max-width:480px;box-shadow:0 -22px 60px rgba(0,0,0,.65);animation:slideUp .32s cubic-bezier(.16,1,.3,1) forwards;position:relative">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${sCol},transparent);border-radius:26px 26px 0 0"></div>
+    <div style="background:linear-gradient(180deg,rgba(8,12,28,.98),rgba(4,7,18,.99));
+      border:1.5px solid ${sBdr};border-bottom:none;border-radius:26px 26px 0 0;
+      padding:20px 18px 36px;width:100%;max-width:480px;
+      box-shadow:0 -22px 60px rgba(0,0,0,.65);
+      animation:slideUp .32s cubic-bezier(.16,1,.3,1) forwards;position:relative">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;
+        background:linear-gradient(90deg,transparent,${sCol},transparent);border-radius:26px 26px 0 0"></div>
       <div style="width:40px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 18px"></div>
-
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
         <div>
           <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff">Place Bet</div>
           <div style="font-size:12px;font-weight:700;color:${sCol};margin-top:2px;letter-spacing:.5px">${side.toUpperCase()} · ${isB?'6–9':'0–5'}</div>
         </div>
-        <div id="sheetTimerBadge" style="padding:6px 16px;border-radius:50px;background:${sBg};border:1.5px solid ${sBdr};font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:${sCol}">⏱ ${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
+        <div id="sheetTimerBadge" style="padding:6px 16px;border-radius:50px;background:${sBg};
+          border:1.5px solid ${sBdr};font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:${sCol}">
+          ⏱ ${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
       </div>
-
       <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
-        ${[10,50,100,500,1000].map(a=>`<button onclick="setGameBetAmt(${a})" data-amt="${a}" class="gbs-chip" style="padding:8px 14px;border-radius:50px;background:${GAME.betAmt===a?sBg:'rgba(255,255,255,.05)'};border:1.5px solid ${GAME.betAmt===a?sBdr:'rgba(255,255,255,.1)'};color:${GAME.betAmt===a?sCol:'#94a3b8'};font-weight:700;font-size:12px;cursor:pointer;transition:all .2s">₹${a>=1000?'1K':a}</button>`).join('')}
+        ${[10,50,100,500,1000].map(a=>`<button onclick="setGameBetAmt(${a})" data-amt="${a}" class="gbs-chip"
+          style="padding:8px 14px;border-radius:50px;
+            background:${GAME.betAmt===a?sBg:'rgba(255,255,255,.05)'};
+            border:1.5px solid ${GAME.betAmt===a?sBdr:'rgba(255,255,255,.1)'};
+            color:${GAME.betAmt===a?sCol:'#94a3b8'};
+            font-weight:700;font-size:12px;cursor:pointer;transition:all .2s">₹${a>=1000?'1K':a}</button>`).join('')}
       </div>
-
       <div style="margin-bottom:14px">
         <div style="font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:7px">OR TYPE AMOUNT</div>
         <input id="gameBetManualInp" type="number" min="1" placeholder="₹ Enter amount" value="${GAME.betAmt}"
-          style="width:100%;background:rgba(0,0,0,.4);border:1.5px solid ${sBdr};border-radius:14px;padding:14px;color:#fff;font-size:26px;font-weight:700;text-align:center;outline:none;font-family:'Oswald',sans-serif;letter-spacing:2px"/>
+          style="width:100%;background:rgba(0,0,0,.4);border:1.5px solid ${sBdr};border-radius:14px;
+            padding:14px;color:#fff;font-size:26px;font-weight:700;text-align:center;
+            outline:none;font-family:'Oswald',sans-serif;letter-spacing:2px"/>
       </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.07);margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;
+        background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.07);margin-bottom:14px">
         <span style="font-size:12px;color:rgba(255,255,255,.4);font-weight:600">Potential Win (1.9×)</span>
-        <span id="gbsPayoutLbl" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:20px;color:#22c55e">₹${Math.floor(GAME.betAmt*1.9)}</span>
+        <span id="gbsPayoutLbl" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:20px;color:#22c55e">
+          ₹${Math.floor(GAME.betAmt*1.9)}</span>
       </div>
-
-      <button onclick="confirmBetGame()" style="width:100%;padding:16px;border-radius:50px;background:linear-gradient(145deg,${sCol}55,${sCol}33);border:2px solid ${sCol};color:${sCol};font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.8px;box-shadow:0 0 26px ${sCol}44;margin-bottom:10px">
+      <button onclick="confirmBetGame()"
+        style="width:100%;padding:16px;border-radius:50px;
+          background:linear-gradient(145deg,${sCol}55,${sCol}33);
+          border:2px solid ${sCol};color:${sCol};font-weight:800;font-size:15px;
+          cursor:pointer;letter-spacing:.8px;box-shadow:0 0 26px ${sCol}44;margin-bottom:10px">
         Confirm ${side.toUpperCase()} — ₹${GAME.betAmt}
       </button>
-      <button onclick="document.getElementById('gameBetSheet').remove()" style="width:100%;padding:11px;border-radius:50px;background:transparent;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);font-weight:700;font-size:13px;cursor:pointer">Cancel</button>
+      <button onclick="document.getElementById('gameBetSheet').remove()"
+        style="width:100%;padding:11px;border-radius:50px;background:transparent;
+          border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);font-weight:700;font-size:13px;cursor:pointer">
+        Cancel</button>
     </div>`;
 
   const inp = sheet.querySelector('#gameBetManualInp');
@@ -1248,22 +1300,22 @@ function openBetSheet(side){
     GAME.betAmt = v;
     const pl = document.getElementById('gbsPayoutLbl');
     if(pl) pl.textContent = '₹'+Math.floor(v*1.9);
-    /* Update confirm btn text */
     const cb = sheet.querySelectorAll('button')[sheet.querySelectorAll('button').length-2];
     if(cb) cb.textContent = `Confirm ${GAME.pendingBetSide.toUpperCase()} — ₹${v}`;
-    document.querySelectorAll('.gbs-chip').forEach(c=>{ c.style.background='rgba(255,255,255,.05)'; c.style.borderColor='rgba(255,255,255,.1)'; c.style.color='#94a3b8'; });
+    document.querySelectorAll('.gbs-chip').forEach(c=>{
+      c.style.background='rgba(255,255,255,.05)';
+      c.style.borderColor='rgba(255,255,255,.1)';
+      c.style.color='#94a3b8';
+    });
   });
 
-  /* Live timer in sheet */
   const sheetTmr = setInterval(()=>{
     const badge = document.getElementById('sheetTimerBadge');
     if(!badge){ clearInterval(sheetTmr); return; }
     const tt = getSharedTimer();
-    const mm = String(Math.floor(tt/60)).padStart(2,'0');
-    const ss = String(tt%60).padStart(2,'0');
-    badge.textContent = `⏱ ${mm}:${ss}`;
-    if(tt<=10){ badge.style.color='#ff4d6d'; clearInterval(sheetTmr); sheet.remove(); showToast('Betting closed!','info'); }
-  }, 500);
+    badge.textContent = `⏱ ${String(Math.floor(tt/60)).padStart(2,'0')}:${String(tt%60).padStart(2,'0')}`;
+    if(tt <= 10){ badge.style.color='#ff4d6d'; clearInterval(sheetTmr); sheet.remove(); showToast('Betting closed!','info'); }
+  }, 300);
 
   document.body.appendChild(sheet);
   sheet.addEventListener('click', e=>{ if(e.target===sheet){ clearInterval(sheetTmr); sheet.remove(); } });
@@ -1285,7 +1337,6 @@ window.confirmBetGame = function(){
   if(side==='big') GAME.bigBets += amt;
   else             GAME.smallBets += amt;
   saveGameState();
-
   document.getElementById('gameBetSheet')?.remove();
   showToast(`✅ ₹${amt} on ${side.toUpperCase()}`);
   renderGames();
@@ -1295,7 +1346,7 @@ window.setGameBetAmt = function(amt){
   GAME.betAmt = amt;
   document.querySelectorAll('.gbs-chip').forEach(el=>{
     const a = parseInt(el.dataset.amt);
-    const active = a===amt;
+    const active = a === amt;
     el.style.background  = active ? 'rgba(251,146,60,.15)' : 'rgba(255,255,255,.05)';
     el.style.borderColor = active ? 'rgba(251,146,60,.5)'  : 'rgba(255,255,255,.1)';
     el.style.color       = active ? '#fb923c' : '#94a3b8';
@@ -1312,89 +1363,120 @@ function placeBetGame(side){ openBetSheet(side); }
 function renderGames(){
   const el = document.getElementById('pageGames');
   if(!el) return;
-  const colMap = {green:'#22c55e', red:'#ef4444', violet:'#a855f7'};
-  const t = getSharedTimer();
-  const isLow = t <= 10;
+  const colMap  = { green:'#22c55e', red:'#ef4444', violet:'#a855f7' };
+  const t       = getSharedTimer();
+  const isLow   = t <= 10;
   const curPeriod = getSharedPeriod();
 
+  /* ── PERSONAL BET HISTORY ── */
   if(GAME.showBetHistory){
-    /* ── BET HISTORY VIEW ── */
     el.innerHTML = `
     <div style="padding:14px 14px 100px;min-height:100vh">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <button onclick="GAME.showBetHistory=false;renderGames()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:18px;flex-shrink:0">←</button>
+        <button onclick="GAME.showBetHistory=false;renderGames()"
+          style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+            border-radius:10px;width:36px;height:36px;display:flex;align-items:center;
+            justify-content:center;cursor:pointer;color:#fff;font-size:18px;flex-shrink:0">←</button>
         <div>
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">Bet History</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">My Bet History</div>
           <div style="font-size:10px;color:rgba(255,77,109,.7);font-weight:700;letter-spacing:1px">YOUR GAME BETS</div>
         </div>
       </div>
-      ${GAME.betHistory.length===0?`<div style="text-align:center;padding:60px 20px;color:#475569">
-        <div style="font-size:40px;margin-bottom:12px">🎮</div>
-        <div style="font-size:14px;font-weight:600">No bets placed yet</div>
-        <div style="font-size:12px;margin-top:6px">Your game bets will appear here</div>
-      </div>`:
-      GAME.betHistory.map((b,i)=>`
-        <div style="background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid ${b.won?'rgba(251,146,60,.25)':'rgba(239,68,68,.2)'};border-radius:14px;padding:13px;margin-bottom:8px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.5px">Period ${b.period}</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.35)">${b.time}</div>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colMap[b.colour]};border:2px solid ${colMap[b.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;box-shadow:0 0 12px ${colMap[b.colour]}66">${b.num}</div>
-              <div>
-                <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:${b.side==='big'?'#fb923c':'#60a5fa'}">${b.side.toUpperCase()}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">Result: <span style="color:${b.result==='big'?'#fb923c':'#60a5fa'};font-weight:700">${b.result.toUpperCase()}</span></div>
+      ${GAME.betHistory.length===0
+        ? `<div style="text-align:center;padding:60px 20px;color:#475569">
+            <div style="font-size:40px;margin-bottom:12px">🎮</div>
+            <div style="font-size:14px;font-weight:600">No bets placed yet</div>
+          </div>`
+        : GAME.betHistory.map(b=>`
+          <div style="background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+            border:1px solid ${b.won?'rgba(251,146,60,.25)':'rgba(239,68,68,.2)'};
+            border-radius:14px;padding:13px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.35)">${b.period}</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.35)">${b.time}</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:50%;
+                  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colMap[b.colour]};
+                  border:2px solid ${colMap[b.colour]};display:flex;align-items:center;justify-content:center;
+                  font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;
+                  box-shadow:0 0 12px ${colMap[b.colour]}66">${b.num}</div>
+                <div>
+                  <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;
+                    color:${b.side==='big'?'#fb923c':'#60a5fa'}">${b.side.toUpperCase()}</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">
+                    Result: <span style="color:${b.result==='big'?'#fb923c':'#60a5fa'};font-weight:700">${b.result.toUpperCase()}</span></div>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;
+                  color:${b.won?'#fb923c':'#ef4444'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</div>
+                <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;
+                  background:${b.won?'rgba(251,146,60,.12)':'rgba(239,68,68,.1)'};
+                  border:1px solid ${b.won?'rgba(251,146,60,.3)':'rgba(239,68,68,.25)'};
+                  color:${b.won?'#fb923c':'#ef4444'};margin-top:3px;display:inline-block">
+                  ${b.won?'WON':'LOST'}</div>
               </div>
             </div>
-            <div style="text-align:right">
-              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:${b.won?'#fb923c':'#ef4444'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</div>
-              <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:${b.won?'rgba(251,146,60,.12)':'rgba(239,68,68,.1)'};border:1px solid ${b.won?'rgba(251,146,60,.3)':'rgba(239,68,68,.25)'};color:${b.won?'#fb923c':'#ef4444'};margin-top:3px;display:inline-block">${b.won?'WON':'LOST'}</div>
-            </div>
-          </div>
-        </div>`).join('')
-      }
+          </div>`).join('')}
     </div>`;
     return;
   }
 
-  /* ── SHARED TOP-20 BET HISTORY VIEW ── */
+  /* ── SHARED TOP-20 BET HISTORY ── */
   if(GAME.showSharedHistory){
     const sharedBets = getSharedBetHistory();
     el.innerHTML = `
     <div style="padding:14px 14px 100px;min-height:100vh">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <button onclick="GAME.showSharedHistory=false;renderGames()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:18px;flex-shrink:0">←</button>
+        <button onclick="GAME.showSharedHistory=false;renderGames()"
+          style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+            border-radius:10px;width:36px;height:36px;display:flex;align-items:center;
+            justify-content:center;cursor:pointer;color:#fff;font-size:18px;flex-shrink:0">←</button>
         <div>
           <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">Top 20 Bets</div>
           <div style="font-size:10px;color:rgba(0,229,204,.7);font-weight:700;letter-spacing:1px">ALL PLAYERS · LAST 20</div>
         </div>
       </div>
-      ${sharedBets.length===0?`<div style="text-align:center;padding:60px 20px;color:#475569">
-        <div style="font-size:40px;margin-bottom:12px">🎮</div>
-        <div style="font-size:14px;font-weight:600">No bets yet</div>
-        <div style="font-size:12px;margin-top:6px">Place a bet to see it here</div>
-      </div>`:
-      sharedBets.map(b=>`
-        <div style="background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid ${b.won?'rgba(251,146,60,.25)':'rgba(239,68,68,.2)'};border-radius:14px;padding:13px;margin-bottom:8px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div style="font-size:11px;color:rgba(255,255,255,.5);font-weight:700">${b.user}</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.3)">${b.time}</div>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colMap[b.colour]||'#aaa'};border:2px solid ${colMap[b.colour]||'#aaa'};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;box-shadow:0 0 12px ${colMap[b.colour]||'#aaa'}66">${b.num}</div>
-              <div>
-                <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:${b.side==='big'?'#fb923c':'#60a5fa'}">${b.side.toUpperCase()} · ₹${b.amt}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">Result: <span style="color:${b.result==='big'?'#fb923c':'#60a5fa'};font-weight:700">${b.result.toUpperCase()}</span></div>
+      ${sharedBets.length===0
+        ? `<div style="text-align:center;padding:60px 20px;color:#475569">
+            <div style="font-size:40px;margin-bottom:12px">🎮</div>
+            <div style="font-size:14px;font-weight:600">No bets yet — be the first!</div>
+          </div>`
+        : sharedBets.map(b=>`
+          <div style="background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+            border:1px solid ${b.won?'rgba(251,146,60,.25)':'rgba(239,68,68,.2)'};
+            border-radius:14px;padding:13px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <div style="font-size:11px;color:rgba(255,255,255,.55);font-weight:700">👤 ${b.user}</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.3)">${b.time}</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:50%;
+                  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colMap[b.colour]||'#888'};
+                  border:2px solid ${colMap[b.colour]||'#888'};display:flex;align-items:center;justify-content:center;
+                  font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;
+                  box-shadow:0 0 12px ${colMap[b.colour]||'#888'}66">${b.num}</div>
+                <div>
+                  <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;
+                    color:${b.side==='big'?'#fb923c':'#60a5fa'}">${b.side.toUpperCase()} · ₹${b.amt}</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">
+                    Result: <span style="color:${b.result==='big'?'#fb923c':'#60a5fa'};font-weight:700">${b.result.toUpperCase()}</span></div>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;
+                  color:${b.won?'#fb923c':'#ef4444'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</div>
+                <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;
+                  background:${b.won?'rgba(251,146,60,.12)':'rgba(239,68,68,.1)'};
+                  border:1px solid ${b.won?'rgba(251,146,60,.3)':'rgba(239,68,68,.25)'};
+                  color:${b.won?'#fb923c':'#ef4444'};margin-top:3px;display:inline-block">
+                  ${b.won?'WON':'LOST'}</div>
               </div>
             </div>
-            <div style="text-align:right">
-              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:${b.won?'#fb923c':'#ef4444'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</div>
-              <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:${b.won?'rgba(251,146,60,.12)':'rgba(239,68,68,.1)'};border:1px solid ${b.won?'rgba(251,146,60,.3)':'rgba(239,68,68,.25)'};color:${b.won?'#fb923c':'#ef4444'};margin-top:3px;display:inline-block">${b.won?'WON':'LOST'}</div>
-            </div>
-          </div>
-        </div>`).join('')}
+          </div>`).join('')}
     </div>`;
     return;
   }
@@ -1405,100 +1487,193 @@ function renderGames(){
 
     <!-- Header -->
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-      <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(255,77,109,.2),rgba(255,77,109,.08));border:1.5px solid rgba(255,77,109,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="3" stroke="#ff4d6d" stroke-width="2"/><circle cx="8" cy="14" r="1.8" fill="#ff4d6d"/><circle cx="16" cy="14" r="1.8" fill="#ff4d6d"/><path d="M12 2v5" stroke="#ff4d6d" stroke-width="2" stroke-linecap="round"/></svg>
+      <div style="width:40px;height:40px;border-radius:12px;
+        background:linear-gradient(135deg,rgba(255,77,109,.2),rgba(255,77,109,.08));
+        border:1.5px solid rgba(255,77,109,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="7" width="20" height="14" rx="3" stroke="#ff4d6d" stroke-width="2"/>
+          <circle cx="8" cy="14" r="1.8" fill="#ff4d6d"/>
+          <circle cx="16" cy="14" r="1.8" fill="#ff4d6d"/>
+          <path d="M12 2v5" stroke="#ff4d6d" stroke-width="2" stroke-linecap="round"/>
+        </svg>
       </div>
       <div>
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff">Colour Prediction</div>
         <div style="font-size:10px;color:rgba(255,77,109,.7);font-weight:700;letter-spacing:1px">WIN GO · 60 SEC</div>
       </div>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:5px;font-family:'Oswald',sans-serif;font-weight:800;font-size:12px;color:#ff1a1a;background:rgba(255,26,26,.12);border:1.5px solid rgba(255,26,26,.5);padding:5px 13px;border-radius:50px;text-shadow:0 0 10px rgba(255,26,26,.8);box-shadow:0 0 14px rgba(255,26,26,.25)">
-        <span style="width:7px;height:7px;border-radius:50%;background:#ff1a1a;animation:liveDot 1s infinite;display:inline-block;box-shadow:0 0 8px #ff1a1a"></span>LIVE
+      <div style="margin-left:auto;display:flex;align-items:center;gap:5px;font-family:'Oswald',sans-serif;
+        font-weight:800;font-size:12px;color:#ff1a1a;background:rgba(255,26,26,.12);
+        border:1.5px solid rgba(255,26,26,.5);padding:5px 13px;border-radius:50px;
+        text-shadow:0 0 10px rgba(255,26,26,.8);box-shadow:0 0 14px rgba(255,26,26,.25)">
+        <span style="width:7px;height:7px;border-radius:50%;background:#ff1a1a;
+          animation:liveDot 1s infinite;display:inline-block;box-shadow:0 0 8px #ff1a1a"></span>LIVE
       </div>
     </div>
 
     <!-- Timer Card -->
-    <div id="gameTimerCard" style="background:linear-gradient(135deg,rgba(255,77,109,.1),rgba(12,8,28,.96));border:1.5px solid ${isLow?'rgba(255,77,109,.9)':'rgba(255,77,109,.4)'};border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 0 24px rgba(255,77,109,.12),inset 0 1px 0 rgba(255,255,255,.07);position:relative;overflow:hidden;transition:border-color .3s">
-      <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,77,109,.9),transparent)"></div>
+    <div id="gameTimerCard" style="background:linear-gradient(135deg,rgba(255,77,109,.1),rgba(12,8,28,.96));
+      border:1.5px solid ${isLow?'rgba(255,77,109,.9)':'rgba(255,77,109,.4)'};
+      border-radius:20px;padding:16px;margin-bottom:12px;
+      box-shadow:0 0 24px rgba(255,77,109,.12),inset 0 1px 0 rgba(255,255,255,.07);
+      position:relative;overflow:hidden;transition:border-color .3s">
+      <div style="position:absolute;top:0;left:0;right:0;height:1.5px;
+        background:linear-gradient(90deg,transparent,rgba(255,77,109,.9),transparent)"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
         <div>
           <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:2px">PERIOD</div>
           <div style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px">${periodLabel(curPeriod)}</div>
           <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:4px">TIME REMAINING</div>
-          <div id="gameTimerNum" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:52px;color:${isLow?'#ff4d6d':'#00e5cc'};letter-spacing:3px;line-height:1;text-shadow:0 0 18px ${isLow?'rgba(255,77,109,.9)':'rgba(0,229,204,.8)'}">${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
+          <div id="gameTimerNum" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:52px;
+            color:${isLow?'#ff4d6d':'#00e5cc'};letter-spacing:3px;line-height:1;
+            text-shadow:0 0 18px ${isLow?'rgba(255,77,109,.9)':'rgba(0,229,204,.8)'}">
+            ${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1px;margin-bottom:8px">LAST RESULTS</div>
           <div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap;max-width:155px">
-            ${GAME.history.slice(0,6).map(h=>`<div style="width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colMap[h.colour]};border:2px solid ${colMap[h.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#fff;box-shadow:0 0 10px ${colMap[h.colour]}66">${h.num}</div>`).join('') || '<span style="font-size:11px;color:rgba(255,255,255,.2)">—</span>'}
+            ${GAME.history.slice(0,6).map(h=>`
+              <div style="width:30px;height:30px;border-radius:50%;
+                background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${colMap[h.colour]};
+                border:2px solid ${colMap[h.colour]};display:flex;align-items:center;justify-content:center;
+                font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#fff;
+                box-shadow:0 0 10px ${colMap[h.colour]}66">${h.num}</div>`).join('') || '<span style="font-size:11px;color:rgba(255,255,255,.2)">—</span>'}
           </div>
           <div style="margin-top:6px;display:flex;gap:4px;justify-content:flex-end">
-            ${GAME.history.slice(0,6).map(h=>`<span style="font-size:9px;font-weight:700;color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result==='big'?'B':'S'}</span>`).join('')}
+            ${GAME.history.slice(0,6).map(h=>`<span style="font-size:9px;font-weight:700;
+              color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result==='big'?'B':'S'}</span>`).join('')}
           </div>
         </div>
       </div>
-      ${GAME.userBet?`<div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,.05);border-radius:12px;border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:${GAME.userBet.side==='big'?'#fb923c':'#60a5fa'};animation:liveDot 1.2s infinite"></div><span style="font-size:12px;color:rgba(255,255,255,.7)">Bet: <strong style="color:${GAME.userBet.side==='big'?'#fb923c':'#60a5fa'}">${GAME.userBet.side.toUpperCase()}</strong></span></div><span style="color:#ffd700;font-weight:700;font-family:'Oswald',sans-serif;font-size:15px">₹${GAME.userBet.amt}</span></div>`:''}
-      ${isLow?`<div style="margin-top:10px;padding:8px 14px;background:rgba(255,77,109,.12);border-radius:10px;border:1px solid rgba(255,77,109,.35);text-align:center;font-size:12px;font-weight:700;color:#ff4d6d;letter-spacing:.5px">🔒 Betting closed — last 10 seconds</div>`:''}
+      ${GAME.userBet?`
+        <div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,.05);
+          border-radius:12px;border:1px solid rgba(255,255,255,.1);
+          display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:8px;height:8px;border-radius:50%;
+              background:${GAME.userBet.side==='big'?'#fb923c':'#60a5fa'};animation:liveDot 1.2s infinite"></div>
+            <span style="font-size:12px;color:rgba(255,255,255,.7)">Bet:
+              <strong style="color:${GAME.userBet.side==='big'?'#fb923c':'#60a5fa'}">${GAME.userBet.side.toUpperCase()}</strong></span>
+          </div>
+          <span style="color:#ffd700;font-weight:700;font-family:'Oswald',sans-serif;font-size:15px">₹${GAME.userBet.amt}</span>
+        </div>`:''}
+      ${isLow?`<div style="margin-top:10px;padding:8px 14px;background:rgba(255,77,109,.12);
+        border-radius:10px;border:1px solid rgba(255,77,109,.35);text-align:center;
+        font-size:12px;font-weight:700;color:#ff4d6d;letter-spacing:.5px">🔒 Betting closed — last 10 seconds</div>`:''}
     </div>
 
-    <!-- Colour Buttons -->
+    <!-- Colour Bet Buttons -->
     <div id="gameBetArea" style="opacity:${isLow?.38:1};pointer-events:${isLow?'none':'auto'};transition:opacity .3s">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
-        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(34,197,94,.18),rgba(34,197,94,.06));border:1.5px solid rgba(34,197,94,.6);color:#22c55e;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(34,197,94,.18)">Green</button>
-        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(168,85,247,.18),rgba(168,85,247,.06));border:1.5px solid rgba(168,85,247,.6);color:#a855f7;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(168,85,247,.18)">Violet</button>
-        <button onclick="placeBetGame('big')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(239,68,68,.18),rgba(239,68,68,.06));border:1.5px solid rgba(239,68,68,.6);color:#ef4444;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(239,68,68,.18)">Red</button>
+        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;
+          background:linear-gradient(145deg,rgba(34,197,94,.18),rgba(34,197,94,.06));
+          border:1.5px solid rgba(34,197,94,.6);color:#22c55e;font-weight:800;font-size:14px;
+          cursor:pointer;box-shadow:0 0 14px rgba(34,197,94,.18)">Green</button>
+        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;
+          background:linear-gradient(145deg,rgba(168,85,247,.18),rgba(168,85,247,.06));
+          border:1.5px solid rgba(168,85,247,.6);color:#a855f7;font-weight:800;font-size:14px;
+          cursor:pointer;box-shadow:0 0 14px rgba(168,85,247,.18)">Violet</button>
+        <button onclick="placeBetGame('big')" style="padding:15px 0;border-radius:14px;
+          background:linear-gradient(145deg,rgba(239,68,68,.18),rgba(239,68,68,.06));
+          border:1.5px solid rgba(239,68,68,.6);color:#ef4444;font-weight:800;font-size:14px;
+          cursor:pointer;box-shadow:0 0 14px rgba(239,68,68,.18)">Red</button>
       </div>
 
       <!-- Number Grid -->
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px">
         ${[0,1,2,3,4,5,6,7,8,9].map(n=>{
-          const isBig=n>=6;
-          const col=n===0||n===5?'#a855f7':n%2===0?'#ef4444':'#22c55e';
-          const bdr=n===0||n===5?'rgba(168,85,247,.65)':n%2===0?'rgba(239,68,68,.6)':'rgba(34,197,94,.6)';
-          return `<button onclick="placeBetGame('${isBig?'big':'small'}')" style="height:60px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.25),rgba(255,255,255,.08) 45%,transparent 65%),linear-gradient(145deg,${col}55,${col}22);border:2.5px solid ${bdr};color:${col};font-family:'Oswald',sans-serif;font-weight:700;font-size:22px;cursor:pointer;box-shadow:0 0 16px ${col}44;display:flex;align-items:center;justify-content:center;width:100%">${n}</button>`;
+          const isBig = n >= 6;
+          const col   = (n===0||n===5) ? '#a855f7' : (n%2===0 ? '#ef4444' : '#22c55e');
+          const bdr   = (n===0||n===5) ? 'rgba(168,85,247,.65)' : (n%2===0 ? 'rgba(239,68,68,.6)' : 'rgba(34,197,94,.6)');
+          return `<button onclick="placeBetGame('${isBig?'big':'small'}')"
+            style="height:60px;border-radius:50%;
+              background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.25),rgba(255,255,255,.08) 45%,transparent 65%),
+              linear-gradient(145deg,${col}55,${col}22);
+              border:2.5px solid ${bdr};color:${col};font-family:'Oswald',sans-serif;
+              font-weight:700;font-size:22px;cursor:pointer;
+              box-shadow:0 0 16px ${col}44;display:flex;align-items:center;justify-content:center;width:100%">${n}</button>`;
         }).join('')}
       </div>
 
-      <!-- Big / Small Buttons + chips -->
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px;margin-bottom:12px">
-        <div style="font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:10px">SELECT AMOUNT & BET</div>
+      <!-- Big / Small + chip selector -->
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+        border-radius:18px;padding:14px;margin-bottom:12px">
+        <div style="font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:10px">
+          SELECT AMOUNT &amp; BET</div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
-          ${[10,50,100,500,1000].map(a=>`<button class="game-chip ${GAME.betAmt===a?'active':''}" data-amt="${a}" onclick="GAME.betAmt=${a};document.querySelectorAll('.game-chip').forEach(c=>c.classList.toggle('active',parseInt(c.dataset.amt)===${a}))" style="padding:8px 14px;border-radius:50px;background:${GAME.betAmt===a?'rgba(255,77,109,.18)':'rgba(255,255,255,.05)'};border:1.5px solid ${GAME.betAmt===a?'rgba(255,77,109,.7)':'rgba(255,255,255,.1)'};color:${GAME.betAmt===a?'#ff4d6d':'#94a3b8'};font-weight:700;font-size:12px;cursor:pointer;transition:all .2s">₹${a>=1000?'1K':a}</button>`).join('')}
+          ${[10,50,100,500,1000].map(a=>`<button class="game-chip ${GAME.betAmt===a?'active':''}" data-amt="${a}"
+            onclick="GAME.betAmt=${a};document.querySelectorAll('.game-chip').forEach(c=>c.classList.toggle('active',parseInt(c.dataset.amt)===${a}))"
+            style="padding:8px 14px;border-radius:50px;
+              background:${GAME.betAmt===a?'rgba(255,77,109,.18)':'rgba(255,255,255,.05)'};
+              border:1.5px solid ${GAME.betAmt===a?'rgba(255,77,109,.7)':'rgba(255,255,255,.1)'};
+              color:${GAME.betAmt===a?'#ff4d6d':'#94a3b8'};
+              font-weight:700;font-size:12px;cursor:pointer;transition:all .2s">₹${a>=1000?'1K':a}</button>`).join('')}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <button id="gameSmallBtn" onclick="placeBetGame('small')" style="padding:18px 10px;border-radius:16px;background:linear-gradient(145deg,rgba(96,165,250,.2),rgba(96,165,250,.07));border:2px solid rgba(96,165,250,.7);color:#60a5fa;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 0 18px rgba(96,165,250,.2)">
+          <button onclick="placeBetGame('small')" style="padding:18px 10px;border-radius:16px;
+            background:linear-gradient(145deg,rgba(96,165,250,.2),rgba(96,165,250,.07));
+            border:2px solid rgba(96,165,250,.7);color:#60a5fa;font-weight:800;font-size:16px;
+            cursor:pointer;box-shadow:0 0 18px rgba(96,165,250,.2)">
             <div>SMALL</div><div style="font-size:11px;opacity:.55;margin-top:3px">Numbers 0–5</div>
           </button>
-          <button id="gameBigBtn" onclick="placeBetGame('big')" style="padding:18px 10px;border-radius:16px;background:linear-gradient(145deg,rgba(251,146,60,.2),rgba(251,146,60,.07));border:2px solid rgba(251,146,60,.7);color:#fb923c;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 0 18px rgba(251,146,60,.2)">
+          <button onclick="placeBetGame('big')" style="padding:18px 10px;border-radius:16px;
+            background:linear-gradient(145deg,rgba(251,146,60,.2),rgba(251,146,60,.07));
+            border:2px solid rgba(251,146,60,.7);color:#fb923c;font-weight:800;font-size:16px;
+            cursor:pointer;box-shadow:0 0 18px rgba(251,146,60,.2)">
             <div>BIG</div><div style="font-size:11px;opacity:.55;margin-top:3px">Numbers 6–9</div>
           </button>
         </div>
       </div>
     </div>
-    <div id="gameBetLockMsg" style="display:${isLow?'flex':'none'};align-items:center;justify-content:center;gap:8px;padding:14px;background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.35);border-radius:14px;margin-bottom:12px;font-size:13px;font-weight:700;color:#ff4d6d">🔒 Betting closed for this round</div>
 
-    <!-- Bet History Buttons -->
+    <div id="gameBetLockMsg" style="display:${isLow?'flex':'none'};align-items:center;justify-content:center;
+      gap:8px;padding:14px;background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.35);
+      border-radius:14px;margin-bottom:12px;font-size:13px;font-weight:700;color:#ff4d6d">
+      🔒 Betting closed for this round</div>
+
+    <!-- History buttons -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
-      <button onclick="GAME.showBetHistory=true;GAME.showSharedHistory=false;renderGames()" style="padding:13px 8px;border-radius:16px;background:rgba(255,215,0,.06);border:1.5px solid rgba(255,215,0,.3);color:#ffd700;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.3px">My Bets (${GAME.betHistory.length})</button>
-      <button onclick="GAME.showSharedHistory=true;GAME.showBetHistory=false;renderGames()" style="padding:13px 8px;border-radius:16px;background:rgba(0,229,204,.06);border:1.5px solid rgba(0,229,204,.3);color:#00e5cc;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.3px">Top 20 Bets</button>
+      <button onclick="GAME.showBetHistory=true;GAME.showSharedHistory=false;renderGames()"
+        style="padding:13px 8px;border-radius:16px;background:rgba(255,215,0,.06);
+          border:1.5px solid rgba(255,215,0,.3);color:#ffd700;font-weight:700;font-size:12px;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+        My Bets (${GAME.betHistory.length})
+      </button>
+      <button onclick="GAME.showSharedHistory=true;GAME.showBetHistory=false;renderGames()"
+        style="padding:13px 8px;border-radius:16px;background:rgba(0,229,204,.06);
+          border:1.5px solid rgba(0,229,204,.3);color:#00e5cc;font-weight:700;font-size:12px;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+        Top 20 Bets
+      </button>
     </div>
 
     <!-- Round History -->
-    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px">
-      <div style="font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:12px">ROUND HISTORY</div>
-      ${GAME.history.length===0?'<div style="text-align:center;color:#475569;padding:24px;font-size:13px">No rounds yet</div>':
-        `<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;font-size:9px;color:rgba(255,255,255,.25);font-weight:700;letter-spacing:.8px;padding:0 4px 8px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:4px"><span>#</span><span>PERIOD</span><span style="text-align:center">NO.</span><span style="text-align:right">RESULT</span></div>`+
-        GAME.history.map((h,i)=>`
-          <div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.04)">
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+      border-radius:18px;padding:14px">
+      <div style="font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:12px">
+        ROUND HISTORY</div>
+      ${GAME.history.length===0
+        ? '<div style="text-align:center;color:#475569;padding:24px;font-size:13px">No rounds yet</div>'
+        : `<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;
+            font-size:9px;color:rgba(255,255,255,.25);font-weight:700;letter-spacing:.8px;
+            padding:0 4px 8px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:4px">
+            <span>#</span><span>PERIOD</span><span style="text-align:center">NO.</span><span style="text-align:right">RESULT</span>
+          </div>` +
+          GAME.history.map((h,i)=>`
+          <div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;
+            align-items:center;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.04)">
             <div style="font-size:10px;color:rgba(255,255,255,.2);font-family:'Oswald',sans-serif">${i+1}</div>
             <div style="font-size:11px;color:rgba(255,255,255,.35);font-family:'Oswald',sans-serif">${h.period}</div>
-            <div style="width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.28),transparent 55%),${colMap[h.colour]};border:2px solid ${colMap[h.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;color:#fff;box-shadow:0 0 12px ${colMap[h.colour]}66">${h.num}</div>
+            <div style="width:32px;height:32px;border-radius:50%;
+              background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.28),transparent 55%),${colMap[h.colour]};
+              border:2px solid ${colMap[h.colour]};display:flex;align-items:center;justify-content:center;
+              font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;color:#fff;
+              box-shadow:0 0 12px ${colMap[h.colour]}66">${h.num}</div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result.toUpperCase()}</div>
+              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;
+                color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result.toUpperCase()}</div>
               <div style="font-size:9px;color:${colMap[h.colour]};font-weight:700;text-transform:capitalize">${h.colour}</div>
             </div>
-          </div>`).join('')
-      }
+          </div>`).join('')}
     </div>
 
   </div>
