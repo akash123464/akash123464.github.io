@@ -1062,9 +1062,24 @@ function updateTimerUI(t){
   const isLow = t <= 10;
   el.textContent = String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
   el.style.color      = isLow ? '#ff4d6d' : '#00e5cc';
-  el.style.textShadow = isLow ? '0 0 22px #ff4d6d' : '0 0 18px rgba(0,229,204,.8)';
+  el.style.fontSize   = isLow ? '80px' : '88px';
+  el.style.textShadow = isLow
+    ? '0 0 30px #ff4d6d,0 0 60px rgba(255,77,109,.5)'
+    : '0 0 28px rgba(0,229,204,.9),0 0 56px rgba(0,229,204,.4)';
   const card = document.getElementById('gameTimerCard');
-  if(card) card.style.borderColor = isLow ? 'rgba(255,77,109,.95)' : 'rgba(255,77,109,.4)';
+  if(card){
+    card.style.borderColor = isLow ? 'rgba(255,77,109,.95)' : 'rgba(0,229,204,.45)';
+    card.style.boxShadow   = isLow ? '0 0 36px rgba(255,77,109,.32)' : '0 0 20px rgba(0,229,204,.1)';
+    card.style.background  = isLow
+      ? 'linear-gradient(135deg,rgba(255,77,109,.18),rgba(8,10,24,.98))'
+      : 'linear-gradient(135deg,rgba(0,229,204,.07),rgba(8,10,24,.98))';
+  }
+  const bar = document.getElementById('gameProgressBar');
+  if(bar){
+    bar.style.width      = (t/60*100)+'%';
+    bar.style.background = isLow ? '#ff4d6d' : '#00e5cc';
+    bar.style.boxShadow  = isLow ? '0 0 10px #ff4d6d' : '0 0 8px #00e5cc';
+  }
   const area = document.getElementById('gameBetArea');
   const lock = document.getElementById('gameLock');
   if(area){ area.style.opacity=isLow?'.32':'1'; area.style.pointerEvents=isLow?'none':'auto'; }
@@ -1432,37 +1447,42 @@ function renderGames(){
     </div>
 
     <!-- Timer Card -->
-    <div id="gameTimerCard" style="background:linear-gradient(135deg,rgba(255,77,109,.1),rgba(12,8,28,.97));border:1.5px solid ${isLow?'rgba(255,77,109,.95)':'rgba(255,77,109,.4)'};border-radius:20px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;transition:border-color .2s">
-      <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,77,109,.9),transparent)"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <div id="gameTimerCard" style="background:linear-gradient(135deg,${isLow?'rgba(255,77,109,.18)':'rgba(0,229,204,.07)'},rgba(8,10,24,.98));border:2px solid ${isLow?'rgba(255,77,109,.95)':'rgba(0,229,204,.45)'};border-radius:22px;padding:14px 16px 14px;margin-bottom:12px;position:relative;overflow:hidden;transition:border-color .2s,background .2s;box-shadow:${isLow?'0 0 32px rgba(255,77,109,.25)':'0 0 20px rgba(0,229,204,.1)'}">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${isLow?'rgba(255,77,109,.9)':'rgba(0,229,204,.7)'},transparent)"></div>
+
+      <!-- Top row: period + last results -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div>
-          <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:2px">PERIOD</div>
-          <div style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.38);margin-bottom:6px">${fmtPeriod(cur)}</div>
-          <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1.5px;margin-bottom:4px">TIME REMAINING</div>
-          <div id="gameTimerNum" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:52px;color:${isLow?'#ff4d6d':'#00e5cc'};letter-spacing:3px;line-height:1;text-shadow:0 0 20px ${isLow?'#ff4d6d':'rgba(0,229,204,.8)'}">${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.28);font-weight:700;letter-spacing:1.5px">PERIOD</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;color:rgba(255,255,255,.38);margin-top:1px">${fmtPeriod(cur)}</div>
         </div>
-        <div style="text-align:right">
-          <div style="font-size:9px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1px;margin-bottom:8px">LAST RESULTS</div>
-          <div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap;max-width:155px">
-            ${GAME.history.slice(0,6).map(h=>`<div style="width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 55%),${COL_HEX[h.colour]};border:2px solid ${COL_HEX[h.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:#fff;box-shadow:0 0 10px ${COL_HEX[h.colour]}66">${h.num}</div>`).join('')||`<span style="font-size:11px;color:rgba(255,255,255,.2)">—</span>`}
-          </div>
-          <div style="margin-top:5px;display:flex;gap:4px;justify-content:flex-end">
-            ${GAME.history.slice(0,6).map(h=>`<span style="font-size:9px;font-weight:700;color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result==='big'?'B':'S'}</span>`).join('')}
-          </div>
+        <div style="display:flex;gap:5px;align-items:center">
+          ${GAME.history.slice(0,5).map(h=>`<div style="width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.32),transparent 55%),${COL_HEX[h.colour]};border:2px solid ${COL_HEX[h.colour]};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;color:#fff;box-shadow:0 0 8px ${COL_HEX[h.colour]}66;flex-shrink:0">${h.num}</div>`).join('')||''}
         </div>
       </div>
 
-      <!-- Active bets summary — id allows in-place update after bet confirm -->
+      <!-- GIANT timer number — hero element, fills the card -->
+      <div style="text-align:center;margin:0 0 8px">
+        <div style="font-size:10px;color:${isLow?'rgba(255,77,109,.7)':'rgba(0,229,204,.6)'};font-weight:700;letter-spacing:2px;margin-bottom:2px">TIME REMAINING</div>
+        <div id="gameTimerNum"
+          style="font-family:'Oswald',sans-serif;font-weight:900;font-size:88px;line-height:1;letter-spacing:6px;color:${isLow?'#ff4d6d':'#00e5cc'};text-shadow:${isLow?'0 0 30px #ff4d6d,0 0 60px rgba(255,77,109,.5)':'0 0 28px rgba(0,229,204,.9),0 0 56px rgba(0,229,204,.4)'};transition:color .2s,text-shadow .2s">${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
+      </div>
+
+      <!-- Thin progress bar beneath number -->
+      <div style="height:4px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:8px">
+        <div id="gameProgressBar" style="height:100%;border-radius:4px;width:${(t/60)*100}%;background:${isLow?'#ff4d6d':'#00e5cc'};transition:width .9s linear,background .2s;box-shadow:0 0 8px ${isLow?'#ff4d6d':'#00e5cc'}"></div>
+      </div>
+
+      <!-- Active bets summary -->
       <div id="gameBetSummary" style="${GAME.bets.length===0?'display:none':''}">
       ${GAME.bets.length>0?`
-      <div style="margin-top:12px;padding:10px 14px;background:rgba(255,215,0,.07);border-radius:12px;border:1px solid rgba(255,215,0,.22)">
-        <div style="font-size:10px;color:rgba(255,215,0,.7);font-weight:700;letter-spacing:1px;margin-bottom:6px">${GAME.bets.length} BET${GAME.bets.length>1?'S':''} PLACED · ₹${totalBetAmt} TOTAL</div>
+      <div style="padding:8px 12px;background:rgba(255,215,0,.07);border-radius:10px;border:1px solid rgba(255,215,0,.22)">
+        <div style="font-size:10px;color:rgba(255,215,0,.7);font-weight:700;letter-spacing:1px;margin-bottom:5px">${GAME.bets.length} BET${GAME.bets.length>1?'S':''} PLACED · ₹${totalBetAmt} TOTAL</div>
         <div style="display:flex;flex-wrap:wrap;gap:5px">
-          ${GAME.bets.map(b=>`<div style="padding:4px 10px;border-radius:50px;background:${b.type==='number'?'rgba(255,215,0,.12)':b.side==='big'?'rgba(251,146,60,.12)':'rgba(96,165,250,.12)'};border:1px solid ${b.type==='number'?'rgba(255,215,0,.3)':b.side==='big'?'rgba(251,146,60,.3)':'rgba(96,165,250,.3)'};font-size:11px;font-weight:700;color:${b.type==='number'?'#ffd700':b.side==='big'?'#fb923c':'#60a5fa'}">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</div>`).join('')}
+          ${GAME.bets.map(b=>`<div style="padding:3px 9px;border-radius:50px;background:${b.type==='number'?'rgba(255,215,0,.12)':b.side==='big'?'rgba(251,146,60,.12)':'rgba(96,165,250,.12)'};border:1px solid ${b.type==='number'?'rgba(255,215,0,.3)':b.side==='big'?'rgba(251,146,60,.3)':'rgba(96,165,250,.3)'};font-size:11px;font-weight:700;color:${b.type==='number'?'#ffd700':b.side==='big'?'#fb923c':'#60a5fa'}">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</div>`).join('')}
         </div>
       </div>`:''}
       </div>
-      ${isLow?`<div style="margin-top:10px;padding:8px 14px;background:rgba(255,77,109,.12);border-radius:10px;border:1px solid rgba(255,77,109,.35);text-align:center;font-size:12px;font-weight:700;color:#ff4d6d">🔒 Betting closed — last 10 seconds</div>`:''}
     </div>
 
     <!-- Bet area -->
@@ -1470,19 +1490,24 @@ function renderGames(){
 
       <!-- Colour buttons -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
-        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(34,197,94,.18),rgba(34,197,94,.06));border:1.5px solid rgba(34,197,94,.6);color:#22c55e;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(34,197,94,.18)">Green<div style="font-size:9px;opacity:.55;margin-top:2px">1.9×</div></button>
-        <button onclick="placeBetGame('small')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(168,85,247,.18),rgba(168,85,247,.06));border:1.5px solid rgba(168,85,247,.6);color:#a855f7;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(168,85,247,.18)">Violet<div style="font-size:9px;opacity:.55;margin-top:2px">1.9×</div></button>
-        <button onclick="placeBetGame('big')" style="padding:15px 0;border-radius:14px;background:linear-gradient(145deg,rgba(239,68,68,.18),rgba(239,68,68,.06));border:1.5px solid rgba(239,68,68,.6);color:#ef4444;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 14px rgba(239,68,68,.18)">Red<div style="font-size:9px;opacity:.55;margin-top:2px">1.9×</div></button>
+        <button onclick="placeBetGame('small')" style="padding:16px 0;border-radius:16px;background:linear-gradient(145deg,rgba(34,197,94,.3),rgba(15,120,40,.95));border:2px solid rgba(34,197,94,.8);color:#fff;font-weight:900;font-size:17px;cursor:pointer;box-shadow:0 0 20px rgba(34,197,94,.35),inset 0 1px 0 rgba(255,255,255,.2);font-family:'Oswald',sans-serif;text-shadow:0 0 12px rgba(34,197,94,.8);transition:transform .14s" onmousedown="this.style.transform='scale(.93)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.93)'" ontouchend="this.style.transform='scale(1)'">Green<div style="font-size:9px;opacity:.65;margin-top:2px;font-weight:700">1.9×</div></button>
+        <button onclick="placeBetGame('small')" style="padding:16px 0;border-radius:16px;background:linear-gradient(145deg,rgba(168,85,247,.3),rgba(100,30,180,.95));border:2px solid rgba(168,85,247,.8);color:#fff;font-weight:900;font-size:17px;cursor:pointer;box-shadow:0 0 20px rgba(168,85,247,.35),inset 0 1px 0 rgba(255,255,255,.2);font-family:'Oswald',sans-serif;text-shadow:0 0 12px rgba(168,85,247,.8);transition:transform .14s" onmousedown="this.style.transform='scale(.93)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.93)'" ontouchend="this.style.transform='scale(1)'">Violet<div style="font-size:9px;opacity:.65;margin-top:2px;font-weight:700">1.9×</div></button>
+        <button onclick="placeBetGame('big')" style="padding:16px 0;border-radius:16px;background:linear-gradient(145deg,rgba(239,68,68,.3),rgba(160,20,20,.95));border:2px solid rgba(239,68,68,.8);color:#fff;font-weight:900;font-size:17px;cursor:pointer;box-shadow:0 0 20px rgba(239,68,68,.35),inset 0 1px 0 rgba(255,255,255,.2);font-family:'Oswald',sans-serif;text-shadow:0 0 12px rgba(239,68,68,.8);transition:transform .14s" onmousedown="this.style.transform='scale(.93)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.93)'" ontouchend="this.style.transform='scale(1)'">Red<div style="font-size:9px;opacity:.65;margin-top:2px;font-weight:700">1.9×</div></button>
       </div>
 
       <!-- Number Grid 8× -->
-      <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.18);border-radius:16px;padding:10px;margin-bottom:10px">
-        <div style="font-size:9px;color:rgba(255,215,0,.65);font-weight:700;letter-spacing:1.5px;text-align:center;margin-bottom:8px">🎯 NUMBER BET — EXACT MATCH = 8× PAYOUT</div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+      <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.18);border-radius:16px;padding:12px;margin-bottom:10px">
+        <div style="font-size:9px;color:rgba(255,215,0,.65);font-weight:700;letter-spacing:1.5px;text-align:center;margin-bottom:10px">🎯 NUMBER BET — EXACT MATCH = 8× PAYOUT</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
           ${[0,1,2,3,4,5,6,7,8,9].map(n=>{
             const col=n===0||n===5?'#a855f7':n%2===0?'#ef4444':'#22c55e';
-            const bdr=n===0||n===5?'rgba(168,85,247,.65)':n%2===0?'rgba(239,68,68,.6)':'rgba(34,197,94,.6)';
-            return `<button onclick="placeBetOnNumber(${n})" style="height:58px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.25),rgba(255,255,255,.08) 44%,transparent 64%),linear-gradient(145deg,${col}55,${col}22);border:2.5px solid ${bdr};color:${col};font-family:'Oswald',sans-serif;font-weight:700;font-size:21px;cursor:pointer;box-shadow:0 0 14px ${col}44;display:flex;align-items:center;justify-content:center;width:100%">${n}</button>`;
+            const glow=n===0||n===5?'rgba(168,85,247,.7)':n%2===0?'rgba(239,68,68,.7)':'rgba(34,197,94,.7)';
+            const bg=n===0||n===5
+              ?'radial-gradient(circle at 35% 28%,rgba(255,255,255,.28),rgba(168,85,247,.5) 45%,rgba(120,40,200,.9))'
+              :n%2===0
+              ?'radial-gradient(circle at 35% 28%,rgba(255,255,255,.28),rgba(239,68,68,.5) 45%,rgba(180,20,20,.9))'
+              :'radial-gradient(circle at 35% 28%,rgba(255,255,255,.28),rgba(34,197,94,.5) 45%,rgba(15,120,40,.9))';
+            return `<button onclick="placeBetOnNumber(${n})" style="aspect-ratio:1/1;border-radius:50%;background:${bg};border:2.5px solid ${glow};color:#fff;font-family:'Oswald',sans-serif;font-weight:900;font-size:22px;cursor:pointer;box-shadow:0 0 18px ${glow},inset 0 2px 4px rgba(255,255,255,.3),inset 0 -3px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;width:100%;text-shadow:0 1px 6px rgba(0,0,0,.7);transition:transform .14s cubic-bezier(.34,1.56,.64,1),box-shadow .14s" onmousedown="this.style.transform='scale(.88)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.88)'" ontouchend="this.style.transform='scale(1)'">${n}</button>`;
           }).join('')}
         </div>
       </div>
@@ -1494,17 +1519,15 @@ function renderGames(){
           ${[10,50,100,500,1000].map(a=>`<button class="game-chip ${GAME.betAmt===a?'active':''}" data-amt="${a}" onclick="GAME.betAmt=${a};document.querySelectorAll('.game-chip').forEach(c=>c.classList.toggle('active',parseInt(c.dataset.amt)===${a}))" style="padding:8px 14px;border-radius:50px;background:${GAME.betAmt===a?'rgba(255,77,109,.18)':'rgba(255,255,255,.05)'};border:1.5px solid ${GAME.betAmt===a?'rgba(255,77,109,.7)':'rgba(255,255,255,.1)'};color:${GAME.betAmt===a?'#ff4d6d':'#94a3b8'};font-weight:700;font-size:12px;cursor:pointer;transition:all .18s">₹${a>=1000?'1K':a}</button>`).join('')}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <button onclick="placeBetGame('small')" style="padding:17px 10px;border-radius:16px;background:linear-gradient(145deg,rgba(96,165,250,.2),rgba(96,165,250,.07));border:2px solid rgba(96,165,250,.7);color:#60a5fa;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 0 18px rgba(96,165,250,.2)">
-            <div>SMALL</div><div style="font-size:10px;opacity:.5;margin-top:3px">0–5 · 1.9×</div>
+          <button onclick="placeBetGame('small')" style="padding:20px 10px;border-radius:18px;background:linear-gradient(145deg,rgba(96,165,250,.28),rgba(30,80,200,.18),rgba(10,30,100,.95));border:2.5px solid rgba(96,165,250,.85);color:#60a5fa;font-weight:900;font-size:26px;cursor:pointer;box-shadow:0 0 28px rgba(96,165,250,.35),inset 0 1px 0 rgba(255,255,255,.15);letter-spacing:1px;font-family:'Oswald',sans-serif;text-shadow:0 0 16px rgba(96,165,250,.9),0 0 32px rgba(96,165,250,.4);transition:transform .14s cubic-bezier(.34,1.56,.64,1)" onmousedown="this.style.transform='scale(.94)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.94)'" ontouchend="this.style.transform='scale(1)'">
+            SMALL<div style="font-size:11px;opacity:.6;margin-top:4px;font-weight:700;letter-spacing:2px">0–5 · 1.9×</div>
           </button>
-          <button onclick="placeBetGame('big')" style="padding:17px 10px;border-radius:16px;background:linear-gradient(145deg,rgba(251,146,60,.2),rgba(251,146,60,.07));border:2px solid rgba(251,146,60,.7);color:#fb923c;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 0 18px rgba(251,146,60,.2)">
-            <div>BIG</div><div style="font-size:10px;opacity:.5;margin-top:3px">6–9 · 1.9×</div>
+          <button onclick="placeBetGame('big')" style="padding:20px 10px;border-radius:18px;background:linear-gradient(145deg,rgba(251,146,60,.28),rgba(200,80,20,.18),rgba(100,30,5,.95));border:2.5px solid rgba(251,146,60,.85);color:#fb923c;font-weight:900;font-size:26px;cursor:pointer;box-shadow:0 0 28px rgba(251,146,60,.35),inset 0 1px 0 rgba(255,255,255,.15);letter-spacing:1px;font-family:'Oswald',sans-serif;text-shadow:0 0 16px rgba(251,146,60,.9),0 0 32px rgba(251,146,60,.4);transition:transform .14s cubic-bezier(.34,1.56,.64,1)" onmousedown="this.style.transform='scale(.94)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.94)'" ontouchend="this.style.transform='scale(1)'">
+            BIG<div style="font-size:11px;opacity:.6;margin-top:4px;font-weight:700;letter-spacing:2px">6–9 · 1.9×</div>
           </button>
         </div>
       </div>
     </div>
-
-    <div id="gameLock" style="display:${isLow?'flex':'none'};align-items:center;justify-content:center;gap:8px;padding:14px;background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.35);border-radius:14px;margin-bottom:12px;font-size:13px;font-weight:700;color:#ff4d6d">🔒 Betting closed — last 10 seconds</div>
 
     <!-- Last 20 rounds -->
     <div id="betLedgerTrigger" onclick="toggleLedger()" role="button" aria-label="Open Bet History Ledger">

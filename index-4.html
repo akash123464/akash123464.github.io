@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
+<title>WISHWORK – Prediction Market</title>
+<meta name="theme-color" content="#080c18"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin/>
+<link rel="dns-prefetch" href="https://fonts.googleapis.com"/>
+<link rel="dns-prefetch" href="https://www.gstatic.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;800&family=Oswald:wght@600;700&family=Caveat:wght@500;600;700&family=Kalam:wght@400;700&display=swap&font-display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="blob1" class="blob"></div>
+  <div id="blob2" class="blob"></div>
+  <div id="blob3" class="blob"></div>
+  <div id="blob4" class="blob"></div>
+  <div id="scanline"></div>
+  <div id="toast" class="toast"></div>
+
+  <!-- NAV -->
+  <nav id="topnav">
+    <div class="nav-logo-wrap">
+      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" style="filter:drop-shadow(0 0 6px rgba(0,212,255,.7)) drop-shadow(0 0 14px rgba(255,215,0,.35));flex-shrink:0;animation:pulse 3.5s ease-in-out infinite">
+        <defs>
+          <linearGradient id="lg" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00d4ff"/><stop offset="50%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#ffd700"/></linearGradient>
+          <linearGradient id="lf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00d4ff" stop-opacity="0.18"/><stop offset="100%" stop-color="#ffd700" stop-opacity="0.1"/></linearGradient>
+          <linearGradient id="ls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="white" stop-opacity="0.25"/><stop offset="100%" stop-color="white" stop-opacity="0.04"/></linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="1.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="40" height="40" rx="11" fill="url(#lf)"/>
+        <rect width="40" height="40" rx="11" fill="none" stroke="url(#lg)" stroke-width="1.5" opacity="0.85"/>
+        <polyline points="6,29 12,19 18,24 25,12 32,16" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+        <polygon points="25,7 30,14 20,14" fill="url(#lg)" opacity="0.8"/>
+        <circle cx="32" cy="16" r="2.5" fill="#ffd700"/>
+        <rect x="3" y="3" width="34" height="15" rx="8" fill="url(#ls)" opacity="0.5"/>
+        <circle cx="6" cy="6" r="0.9" fill="white" opacity="0.45"/>
+      </svg>
+      <div class="nav-brand">
+        <div class="brand-text-wrap">
+          <div class="brand-glass-bg"></div>
+          <div class="brand-shine"></div>
+          <div class="brand-name">W<span style="letter-spacing:3px">ISH</span><span style="letter-spacing:2px">WORK</span></div>
+          <div class="brand-sub">PREDICTION MARKET</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-bal"><span class="nav-rupee">₹</span><span class="nav-bal-num" id="navBal">500</span></div>
+      <div class="nav-btn" onclick="openPortfolio()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  </nav>
+
+  <!-- TABS -->
+  <div id="tabsWrap"><div id="tabsRow"></div></div>
+
+  <!-- PAGES -->
+  <div id="pageMarkets" class="page-content"></div>
+  <div id="pageSupport" class="page-content hidden"></div>
+  <div id="pageAccount" class="page-content hidden"></div>
+  <div id="pageGames" class="page-content hidden"></div>
+
+  <!-- BOTTOM NAV -->
+  <div id="bnav">
+    <button class="bnav-item active" id="bnav-markets" onclick="setPage('markets')">
+      <div class="bnav-pip" id="pip-markets"></div>
+      <div class="bnav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 9L12 2L21 9V20A1 1 0 0120 21H15V15H9V21H4A1 1 0 013 20V9Z" stroke="url(#hg)" stroke-width="2" stroke-linejoin="round" fill="none"/><defs><linearGradient id="hg" x1="3" y1="2" x2="21" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#60aaff"/><stop offset="100%" stop-color="#aa80ff"/></linearGradient></defs></svg>
+      </div>
+      <div class="bnav-label">Markets</div>
+    </button>
+    <button class="bnav-item" id="bnav-portfolio" onclick="openPortfolio()">
+      <div class="bnav-pip" id="pip-portfolio" style="display:none"></div>
+      <div class="bnav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="url(#pg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="pg" x1="2" y1="3" x2="22" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00e5cc"/><stop offset="100%" stop-color="#0088ff"/></linearGradient></defs></svg>
+      </div>
+      <div class="bnav-label">Portfolio</div>
+    </button>
+    <!-- CENTER PLUS BUTTON (floats above bar) -->
+    <div style="flex:0 0 68px;position:relative">
+      <button id="bnavCenterBtn" onclick="openDeposit()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <button class="bnav-item" id="bnav-support" onclick="setPage('support')">
+      <div class="bnav-pip" id="pip-support" style="display:none"></div>
+      <div class="bnav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="url(#sg)" stroke-width="2"/><path d="M12 8C10.3 8 9 9.3 9 11" stroke="url(#sg)" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="#ff80cc"/><defs><linearGradient id="sg" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#ff80cc"/><stop offset="100%" stop-color="#aa40ff"/></linearGradient></defs></svg>
+      </div>
+      <div class="bnav-label">Support</div>
+    </button>
+    <button class="bnav-item" id="bnav-account" onclick="setPage('account')">
+      <div class="bnav-pip" id="pip-account" style="display:none"></div>
+      <div class="bnav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="url(#ag)" stroke-width="2"/><path d="M4 20C4 16.13 7.58 13 12 13s8 3.13 8 7" stroke="url(#ag)" stroke-width="2" stroke-linecap="round"/><defs><linearGradient id="ag" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff8c00"/></linearGradient></defs></svg>
+      </div>
+      <div class="bnav-label">Account</div>
+    </button>
+  </div>
+</div>
+
+<!-- BACKDROP — shared for bet card, portfolio, sheets -->
+<div id="backdrop" class="backdrop hidden" onclick="closeAll()"></div>
+
+<!-- PORTFOLIO SIDEBAR -->
+<div id="portfolio" class="hidden">
+  <div class="port-header">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px;color:#e8edf5">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Portfolio
+    </div>
+    <div class="port-close" onclick="closeAll()">✕</div>
+  </div>
+  <div class="port-stats" id="portStats"></div>
+  <div class="glass" style="margin:12px 14px;border-radius:14px;padding:14px">
+    <div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:11px">Withdrawal Method</div>
+    <div id="portUpiSection"></div>
+  </div>
+  <div style="padding:0 14px 6px;font-size:10px;color:#64748b;font-weight:700;letter-spacing:.8px;text-transform:uppercase">Transaction History</div>
+  <div style="padding:0 14px 80px" id="txList"></div>
+</div>
+
+<!-- NOTE: #betSheet removed — bet card is injected dynamically by openBet() -->
+
+<!-- DEPOSIT SHEET -->
+<div id="depSheet" class="sheet hidden">
+  <div class="handle"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,.55),transparent)"></div>
+  <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:#e8edf5">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="animation:bounceUp 2.2s infinite"><rect x="2" y="7" width="20" height="14" rx="3" stroke="#ffd700" stroke-width="2"/><path d="M16 7V5C16 3.9 15.1 3 14 3H10C8.9 3 8 3.9 8 5V7" stroke="#ffd700" stroke-width="2"/><line x1="12" y1="12" x2="12" y2="16" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/></svg>
+    Deposit Funds
+  </div>
+  <div style="font-size:12px;color:#64748b;margin-bottom:14px">Scan QR → Pay → Enter UTR number</div>
+  <div id="depStep1">
+    <input class="amt-inp" id="depAmtInp" type="number" placeholder="₹ 0"/>
+    <button class="neon-btn neon-gold-btn" onclick="generateQR()">Generate QR →</button>
+  </div>
+  <div id="depStep2" class="hidden">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:11px;margin:12px 0">
+      <div style="position:relative;border-radius:20px;padding:14px 14px 10px;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.06),rgba(0,212,255,.05));backdrop-filter:blur(20px);border:1.5px solid rgba(255,255,255,.18);box-shadow:0 6px 28px rgba(0,212,255,.2),inset 0 1px 0 rgba(255,255,255,.22);overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.7),rgba(255,215,0,.4),transparent)"></div>
+        <img src="qr.png" loading="lazy" alt="QR Code" style="width:155px;height:155px;border-radius:10px;display:block"/>
+        <div style="text-align:center;margin-top:7px">
+          <div style="font-size:11px;color:#00d4ff;font-weight:800;letter-spacing:1px" id="qrAmt">₹0</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:2px">PhonePe · Scan &amp; Pay</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:13px">
+        <div style="position:relative;width:58px;height:58px">
+          <svg width="58" height="58" style="transform:rotate(-90deg)">
+            <circle cx="29" cy="29" r="23" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="4"/>
+            <circle cx="29" cy="29" r="23" fill="none" stroke="#00d4ff" stroke-width="4" stroke-dasharray="144.5" id="timerCircle" stroke-linecap="round"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#00d4ff" id="timerNum">80</div>
+        </div>
+        <div>
+          <div style="font-weight:800;font-size:14px;color:#e8edf5" id="payAmt">Pay ₹0</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">GPay · PhonePe · Paytm</div>
+        </div>
+      </div>
+    </div>
+    <input class="amt-inp" id="utrInp" style="font-size:15px;letter-spacing:2px;margin-bottom:10px" placeholder="Enter 12-digit UTR" maxlength="12"/>
+    <button class="neon-btn neon-green-btn" onclick="submitUTR()">✓ Submit UTR</button>
+  </div>
+  <div class="sheet-cancel" onclick="closeAll()">Cancel</div>
+</div>
+
+<!-- WITHDRAW SHEET -->
+<div id="witSheet" class="sheet hidden">
+  <div class="handle"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.44),transparent)"></div>
+  <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:#e8edf5">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="animation:bounceUp 2.2s infinite"><path d="M12 5V19M5 12L12 5L19 12" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Withdraw Funds
+  </div>
+  <div style="font-size:12px;color:#64748b;margin-bottom:16px">Sent to your linked UPI within minutes</div>
+  <input class="amt-inp" id="witAmtInp" type="number" placeholder="₹ 0"/>
+  <button class="neon-btn neon-cyan-btn" onclick="handleWithdraw()">Send Withdrawal Request</button>
+  <div class="sheet-cancel" onclick="closeAll()">Cancel</div>
+</div>
+
+<script src="script.js" defer></script>
+
+<!-- FIREBASE MODULE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection,
+  query, where, onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyDVku-LXDpxjm_8mwsUJr5nUtwhsA3MSf8",
+  authDomain:"home-help-service.firebaseapp.com",
+  projectId:"home-help-service",
+  storageBucket:"home-help-service.firebasestorage.app",
+  messagingSenderId:"160722457510",
+  appId:"1:160722457510:web:f2c5fa0b922a0ccc58b567"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+let currentEmail=null,betsUnsub=null;
+
+onAuthStateChanged(auth,async(user)=>{
+  if(!user){window.location.href='login.html';return;}
+  currentEmail=user.email||localStorage.getItem('userEmail')||'guest';
+  LS.setKey(currentEmail);LS.load();
+  state.userEmail=currentEmail;LS.save();updateBal();
+  const eEl=document.getElementById('accEmail');if(eEl)eEl.textContent=currentEmail;
+
+  const wSnap=await getDoc(doc(db,"wallets",currentEmail));
+  if(wSnap.exists()){
+    const d=wSnap.data();
+    if(typeof d.balance==='number')state.bal=d.balance;
+    state.savedUpi=d.upiId||state.savedUpi;state.phone=d.phone||state.phone;
+    if(typeof d.totalDeposit==='number') state.totalDeposit=d.totalDeposit;
+    if(typeof d.totalWithdraw==='number')state.totalWithdraw=d.totalWithdraw;
+    LS.save();updateBal();
+  }
+
+  onSnapshot(doc(db,"wallets",currentEmail),(snap)=>{
+    if(snap.exists()){
+      const d=snap.data();
+      if(typeof d.balance==='number'){state.bal=d.balance;updateBal();LS.save();}
+      if(typeof d.totalDeposit==='number'){state.totalDeposit=d.totalDeposit;updateBal();}
+      if(typeof d.totalWithdraw==='number'){state.totalWithdraw=d.totalWithdraw;updateBal();}
+      const port=document.getElementById('portfolio');
+      if(port&&!port.classList.contains('hidden'))renderPortfolio();
+    }
+  });
+
+  if(betsUnsub)betsUnsub();
+  betsUnsub=onSnapshot(query(collection(db,"users"),where("email","==",currentEmail)),(snapshot)=>{
+    let changed=false;
+    snapshot.docChanges().forEach((change)=>{
+      if(change.type==='removed')return;
+      const data=change.doc.data(),docId=change.doc.id,raw=data.status||'PENDING',actionType=data.actionType||'';
+      /* Normalise — strip emojis and spaces for matching */
+      const up=raw.toUpperCase().replace(/[^A-Z]/g,'');
+      let tx=state.txList.find(t=>t.firestoreId===docId);
+      if(!tx&&actionType==='BET'){tx=state.txList.find(t=>t.type&&t.type.startsWith('BET')&&t.status==='PENDING'&&!t.firestoreId);if(tx)tx.firestoreId=docId;}
+      if(!tx&&actionType==='WITHDRAW'){tx=state.txList.find(t=>t.type==='WITHDRAW'&&t.status==='PENDING'&&!t.firestoreId);if(tx)tx.firestoreId=docId;}
+      if(!tx&&actionType==='DEPOSIT'){tx=state.txList.find(t=>t.type==='DEPOSIT'&&t.status==='PENDING'&&!t.firestoreId);if(tx)tx.firestoreId=docId;}
+      if(tx&&raw!=='PENDING'&&raw!=='AWAITING UTR ⏳'){
+        const prevStatus=tx.status;
+        tx.status=raw;
+        /* Handle withdraw completion */
+        if(actionType==='WITHDRAW'&&(up.includes('PAID')||up.includes('COMPLET')||up.includes('APPROV'))){
+          const wasOK=prevStatus.toUpperCase().replace(/[^A-Z]/g,'');
+          if(!wasOK.includes('PAID')&&!wasOK.includes('COMPLET')&&!wasOK.includes('APPROV')){
+            const amt=tx.withdrawAmt||parseFloat((tx.amt||'').replace('₹',''))||0;
+            state.totalWithdraw+=amt;
+            setDoc(doc(db,"wallets",currentEmail),{totalWithdraw:state.totalWithdraw},{merge:true}).catch(()=>{});
+          }
+        }
+        changed=true;
+      }
+    });
+    if(changed){LS.save();updateBal();const port=document.getElementById('portfolio');if(port&&!port.classList.contains('hidden'))renderPortfolio();if(state.activePage==='account')renderAccTab();}
+  });
+});
+
+/* Override placeBet for Firestore — calls bcPlaceBet logic then writes */
+window.placeBet=async function(){
+  const a=parseInt(state.betAmt);
+  if(!a||a<=0)return showToast('Enter a valid amount','info');
+  if(a>state.bal)return showToast('Insufficient balance 💸','info');
+  if(!currentEmail)return showToast('Please login first','info');
+  const wRef=doc(db,"wallets",currentEmail);const wSnap=await getDoc(wRef);
+  await setDoc(wRef,{balance:(wSnap.exists()?wSnap.data().balance:0)-a,upiId:wSnap.exists()?wSnap.data().upiId||'':'',phone:wSnap.exists()?wSnap.data().phone||'':''},{merge:true});
+  const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+'_'+Date.now();
+  await setDoc(doc(db,"users",logId),{email:currentEmail,password:'₹'+a,actionType:'BET',betSide:state.side,betQ:state.betInfo?state.betInfo.q:'',time:serverTimestamp(),status:'PENDING'});
+  state.bal-=a;
+  const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  state.txList.unshift({id:Date.now(),firestoreId:logId,type:`BET: ${state.side}`,q:state.betInfo?state.betInfo.q.slice(0,35)+'…':'',amt:`₹${a}`,status:'PENDING',time:now});
+  LS.save();closeAll();showToast(`${state.side==='YES'?'✅':'❌'} Bet placed — ₹${a} on ${state.side}`);updateBal();
+};
+
+window.submitUTR=async function(){
+  const utr=document.getElementById('utrInp').value;
+  if(!utr||utr.length<10)return showToast('Enter valid 12-digit UTR','info');
+  const rawAmt=document.getElementById('depAmtInp').value||document.getElementById('qrAmt').textContent.replace('₹','');
+  const a=parseFloat(rawAmt)||0;
+  if(!currentEmail)return showToast('Please login first','info');
+  const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+'_dep_'+Date.now();
+  await setDoc(doc(db,"users",logId),{email:currentEmail,password:'₹'+a,actionType:'DEPOSIT',utr,time:serverTimestamp(),status:'AWAITING UTR ⏳'});
+  state.totalDeposit+=a;
+  await setDoc(doc(db,"wallets",currentEmail),{totalDeposit:state.totalDeposit},{merge:true});
+  const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  state.txList.unshift({id:Date.now(),firestoreId:logId,type:'DEPOSIT',q:'UPI Payment',amt:`₹${a}`,status:'PENDING',time:now});
+  LS.save();clearInterval(state.timerInt);closeAll();showToast('✅ Deposit submitted! Processing…');updateBal();
+};
+
+window.handleWithdraw=async function(){
+  const a=parseInt(document.getElementById('witAmtInp').value);
+  if(!a||a<=0)return showToast('Enter a valid amount','info');
+  if(a>state.bal)return showToast('Insufficient balance 💸','info');
+  if(!currentEmail)return showToast('Please login first','info');
+  const wRef=doc(db,"wallets",currentEmail);const wSnap=await getDoc(wRef);
+  await setDoc(wRef,{balance:(wSnap.exists()?wSnap.data().balance:0)-a,upiId:wSnap.exists()?wSnap.data().upiId||'':'',phone:wSnap.exists()?wSnap.data().phone||'':''},{merge:true});
+  const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+'_wit_'+Date.now();
+  await setDoc(doc(db,"users",logId),{email:currentEmail,password:'₹'+a,actionType:'WITHDRAW',time:serverTimestamp(),status:'PENDING'});
+  state.bal-=a;
+  const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  state.txList.unshift({id:Date.now(),firestoreId:logId,type:'WITHDRAW',q:'To UPI',amt:`₹${a}`,status:'PENDING',time:now,withdrawAmt:a});
+  LS.save();closeAll();showToast('✅ Withdrawal request sent!');updateBal();
+};
+
+window.saveUpi=async function(){
+  if(!state.upi||!state.phone)return showToast('Enter UPI ID and phone','info');
+  state.savedUpi=state.upi;
+  if(currentEmail){const wRef=doc(db,"wallets",currentEmail);const wSnap=await getDoc(wRef);await setDoc(wRef,{balance:wSnap.exists()?wSnap.data().balance||0:0,upiId:state.upi,phone:state.phone},{merge:true});}
+  LS.save();showToast('✅ Payment info saved!');if(typeof renderAccTab==='function')renderAccTab();
+};
+window.saveUpiPort=async function(){
+  if(!state.upi||!state.phone)return showToast('Enter UPI ID and phone','info');
+  state.savedUpi=state.upi;
+  if(currentEmail){const wRef=doc(db,"wallets",currentEmail);const wSnap=await getDoc(wRef);await setDoc(wRef,{balance:wSnap.exists()?wSnap.data().balance||0:0,upiId:state.upi,phone:state.phone},{merge:true});}
+  LS.save();showToast('✅ Payment info saved!');renderPortfolio();
+};
+window.logout=async function(){
+  if(betsUnsub)betsUnsub();await auth.signOut();localStorage.removeItem('userEmail');window.location.href='login.html';
+};
+window.getUserEmail=()=>currentEmail||localStorage.getItem('userEmail')||'';
+</script>
+</body>
+</html>
