@@ -2006,105 +2006,117 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   100%{left:200%}
 }
 @keyframes balAmountPulse{
-  0%,100%{text-shadow:0 0 12px rgba(34,197,94,.7),0 0 24px rgba(34,197,94,.35)}
-  50%{text-shadow:0 0 20px rgba(34,197,94,1),0 0 40px rgba(34,197,94,.6),0 0 60px rgba(34,197,94,.2)}
+  0%,100%{text-shadow:0 0 10px rgba(180,80,0,.8),0 0 22px rgba(160,60,0,.45),0 2px 0 rgba(0,0,0,.6)}
+  50%{text-shadow:0 0 18px rgba(210,100,0,1),0 0 38px rgba(180,70,0,.7),0 0 55px rgba(150,50,0,.3),0 2px 0 rgba(0,0,0,.6)}
 }
-@keyframes balIconSpin{
-  0%{transform:rotate(0deg)}
-  100%{transform:rotate(360deg)}
+@keyframes goldBorderPulse{
+  0%,100%{box-shadow:
+    0 0 0 1px rgba(212,175,55,.3),
+    0 0 18px rgba(212,175,55,.35),
+    0 0 38px rgba(180,140,30,.18),
+    0 6px 22px rgba(0,0,0,.7),
+    inset 0 1px 0 rgba(255,245,180,.18),
+    inset 0 -1px 0 rgba(0,0,0,.4)}
+  50%{box-shadow:
+    0 0 0 1px rgba(255,215,0,.5),
+    0 0 28px rgba(255,200,0,.55),
+    0 0 55px rgba(212,175,55,.28),
+    0 6px 22px rgba(0,0,0,.7),
+    inset 0 1px 0 rgba(255,250,200,.25),
+    inset 0 -1px 0 rgba(0,0,0,.4)}
 }
 .cgz-balance-widget{
   position:relative;overflow:hidden;
   display:flex;align-items:center;justify-content:space-between;
-  margin:6px 12px 4px;
-  padding:10px 14px;
-  border-radius:16px;
+  margin:8px 12px 6px;
+  padding:14px 18px;
+  border-radius:18px;
   background:linear-gradient(135deg,
-    rgba(34,197,94,.14) 0%,
-    rgba(16,90,50,.22) 30%,
-    rgba(0,0,0,.55) 60%,
-    rgba(255,215,0,.06) 100%);
-  border:1.5px solid rgba(34,197,94,.35);
+    rgba(80,30,0,.55) 0%,
+    rgba(40,15,0,.7) 35%,
+    rgba(20,8,0,.8) 65%,
+    rgba(60,25,0,.5) 100%);
+  border:2.5px solid transparent;
+  background-clip:padding-box;
+  /* Conic gold metallic border */
+  outline:2.5px solid transparent;
   box-shadow:
-    0 0 0 1px rgba(34,197,94,.08),
-    0 0 22px rgba(34,197,94,.18),
-    0 4px 16px rgba(0,0,0,.6),
-    inset 0 1px 0 rgba(255,255,255,.07),
-    inset 0 -1px 0 rgba(0,0,0,.3);
-  will-change:transform;
+    0 0 0 2.5px #d4af37,
+    0 0 0 3.5px rgba(255,240,140,.18),
+    0 0 22px rgba(212,175,55,.4),
+    0 0 44px rgba(180,140,30,.2),
+    0 6px 22px rgba(0,0,0,.75),
+    inset 0 1px 0 rgba(255,245,180,.15),
+    inset 0 -1px 0 rgba(0,0,0,.5);
+  animation:goldBorderPulse 2.6s ease-in-out infinite;
+  will-change:box-shadow;
   flex-shrink:0;
+}
+/* Inner gold top line accent */
+.cgz-balance-widget::before{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:1.5px;
+  background:linear-gradient(90deg,transparent,rgba(255,240,120,.7),rgba(255,215,0,.9),rgba(255,240,120,.7),transparent);
+  border-radius:0 0 2px 2px;
 }
 .cgz-bal-shimmer{
   position:absolute;top:0;left:-100%;
   width:55%;height:100%;
-  background:linear-gradient(105deg,transparent,rgba(255,255,255,.06),transparent);
-  animation:balWidgetShimmer 3.5s ease-in-out infinite;
+  background:linear-gradient(105deg,transparent,rgba(255,240,160,.08),transparent);
+  animation:balWidgetShimmer 4s ease-in-out infinite;
   pointer-events:none;
-  border-radius:16px;
 }
 .cgz-bal-left{
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:center;gap:13px;
 }
 .cgz-bal-icon{
-  width:36px;height:36px;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.18),rgba(34,197,94,.08));
-  border:2px solid rgba(34,197,94,.5);
-  box-shadow:0 0 14px rgba(34,197,94,.35),inset 0 1px 0 rgba(255,255,255,.15);
+  width:52px;height:52px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,rgba(255,248,192,.35),rgba(212,175,55,.12));
+  border:2.5px solid #d4af37;
+  box-shadow:
+    0 0 18px rgba(212,175,55,.5),
+    0 0 36px rgba(180,140,30,.25),
+    inset 0 1px 0 rgba(255,245,180,.3),
+    inset 0 -1px 0 rgba(100,70,0,.4);
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
 }
 .cgz-bal-info{}
 .cgz-bal-label{
   font-family:'Oswald',sans-serif;
-  font-size:8px;font-weight:700;
-  color:rgba(34,197,94,.6);
-  letter-spacing:2px;
+  font-size:10px;font-weight:700;
+  color:#d4af37;
+  letter-spacing:2.5px;
   text-transform:uppercase;
-  margin-bottom:1px;
+  margin-bottom:3px;
+  text-shadow:0 0 8px rgba(212,175,55,.5);
 }
 .cgz-bal-amount{
   font-family:'Oswald',sans-serif;
-  font-size:22px;font-weight:900;
-  color:#22c55e;
-  letter-spacing:1px;
+  font-size:30px;font-weight:900;
+  color:#b54800;
+  letter-spacing:1.5px;
   line-height:1;
   animation:balAmountPulse 2.8s ease-in-out infinite;
 }
-.cgz-bal-right{
-  display:flex;flex-direction:column;align-items:flex-end;gap:4px;
-}
-.cgz-bal-bets-label{
+.cgz-bal-deposit-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:10px 16px;
+  border-radius:50px;
+  background:linear-gradient(135deg,rgba(212,175,55,.22),rgba(180,140,30,.12));
+  border:2px solid #d4af37;
+  box-shadow:0 0 12px rgba(212,175,55,.3),inset 0 1px 0 rgba(255,245,180,.15);
   font-family:'Oswald',sans-serif;
-  font-size:7.5px;font-weight:700;
-  color:rgba(255,215,0,.45);
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-}
-.cgz-bal-bets-row{
-  display:flex;align-items:center;gap:4px;
-}
-.cgz-bal-no-bets{
-  font-size:9px;color:rgba(255,255,255,.2);
-  font-style:italic;
-}
-.cgz-bal-bet-dot{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:20px;height:20px;border-radius:50%;
-  font-family:'Oswald',sans-serif;font-size:9px;font-weight:900;
-  border:1.5px solid;
+  font-size:12px;font-weight:900;
+  color:#7a3a00;
+  letter-spacing:2px;
+  cursor:pointer;
   flex-shrink:0;
+  text-shadow:0 1px 3px rgba(255,255,255,.15);
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s ease;
 }
-.cgz-dot-won{
-  background:linear-gradient(135deg,rgba(34,197,94,.3),rgba(34,197,94,.1));
-  border-color:rgba(34,197,94,.7);
-  color:#22c55e;
-  box-shadow:0 0 6px rgba(34,197,94,.4);
-}
-.cgz-dot-lost{
-  background:linear-gradient(135deg,rgba(239,68,68,.3),rgba(239,68,68,.1));
-  border-color:rgba(239,68,68,.7);
-  color:#ef4444;
-  box-shadow:0 0 6px rgba(239,68,68,.3);
+.cgz-bal-deposit-btn:active{
+  transform:scale(.93);
+  box-shadow:0 0 6px rgba(212,175,55,.2);
 }
 
 /* ── Performance: use transform instead of top/left for animations ── */

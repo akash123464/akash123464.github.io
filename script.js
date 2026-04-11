@@ -1769,9 +1769,17 @@ function renderGames(){
     <div class="cgz-balance-widget" id="cgzBalWidget">
       <div class="cgz-bal-left">
         <div class="cgz-bal-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" fill="rgba(255,215,0,.15)" stroke="#ffd700" stroke-width="1.5"/>
-            <text x="12" y="16.5" text-anchor="middle" font-size="13" font-weight="900" font-family="serif" fill="#ffd700">₹</text>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <defs>
+              <radialGradient id="coinGrad" cx="38%" cy="32%" r="65%">
+                <stop offset="0%" stop-color="#fff8c0"/>
+                <stop offset="40%" stop-color="#ffd700"/>
+                <stop offset="100%" stop-color="#b8860b"/>
+              </radialGradient>
+            </defs>
+            <circle cx="12" cy="12" r="11" fill="url(#coinGrad)" stroke="#d4af37" stroke-width="1.2"/>
+            <circle cx="12" cy="12" r="8.5" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="0.8"/>
+            <text x="12" y="16.8" text-anchor="middle" font-size="13" font-weight="900" font-family="serif" fill="#7a3a00">₹</text>
           </svg>
         </div>
         <div class="cgz-bal-info">
@@ -1779,14 +1787,9 @@ function renderGames(){
           <div class="cgz-bal-amount" id="cgzBalAmount">₹${(state.bal||0).toLocaleString('en-IN')}</div>
         </div>
       </div>
-      <div class="cgz-bal-right">
-        <div class="cgz-bal-bets-label">MY LAST 5 BETS</div>
-        <div class="cgz-bal-bets-row" id="cgzLastBetsMini">
-          ${GAME.betHistory.length===0
-            ? '<span class="cgz-bal-no-bets">Place a bet!</span>'
-            : GAME.betHistory.slice(0,5).map(b=>`<span class="cgz-bal-bet-dot ${b.won?'cgz-dot-won':'cgz-dot-lost'}" title="${b.won?'+₹'+b.payout:'-₹'+b.amt}">${b.won?'W':'L'}</span>`).join('')
-          }
-        </div>
+      <div class="cgz-bal-deposit-btn" onclick="openDeposit()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="#7a3a00" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="#7a3a00" stroke-width="2.5" stroke-linecap="round"/></svg>
+        ADD
       </div>
       <div class="cgz-bal-shimmer"></div>
     </div>
