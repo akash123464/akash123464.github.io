@@ -29,7 +29,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.05);opacity:.85}}
 @keyframes bounceUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes shimmerSlide{0%{background-position:-200% center}100%{background-position:200% center}}
-@keyframes scanline{0%{top:-4%}100%{top:104%}}
+@keyframes scanline{0%{transform:translateY(-4vh)}100%{transform:translateY(104vh)}}
 @keyframes cardIn{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 @keyframes slideUp{0%{transform:translateY(100%);opacity:0}100%{transform:translateY(0);opacity:1}}
 @keyframes slideInRight{0%{transform:translateX(100%);opacity:0}100%{transform:translateX(0);opacity:1}}
@@ -37,7 +37,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 @keyframes hotBlink{0%,100%{opacity:1}50%{opacity:.5}}
 @keyframes liveDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.5)}}
 @keyframes rupeeGlow{0%,100%{text-shadow:0 0 5px rgba(34,197,94,.4)}50%{text-shadow:0 0 12px rgba(34,197,94,.7),0 0 24px rgba(34,197,94,.25)}}
-@keyframes shineSwipe{0%{left:-110%}60%,100%{left:210%}}
+@keyframes shineSwipe{0%{transform:translateX(-110%)}60%,100%{transform:translateX(210%)}}
 @keyframes marquee{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
 @keyframes subtleGlow{0%,100%{opacity:.05}50%{opacity:.13}}
 @keyframes orangePulse{0%,100%{box-shadow:0 0 16px rgba(255,106,0,.4),0 0 32px rgba(255,106,0,.16),inset 0 1px 0 rgba(255,180,80,.28)}50%{box-shadow:0 0 26px rgba(255,106,0,.58),0 0 48px rgba(255,106,0,.24),inset 0 1px 0 rgba(255,200,100,.38)}}
@@ -83,10 +83,10 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 ════════════════════════════════════════ */
 /* The metallic shimmer sweep — ::before on .bet-card */
 @keyframes shimmerSweep{
-  0%   {left:-120%;opacity:0}
+  0%   {transform:translateX(-120%);opacity:0}
   8%   {opacity:1}
   60%  {opacity:.9}
-  100% {left:200%;opacity:0}
+  100% {transform:translateX(200%);opacity:0}
 }
 /* Card entrance pop */
 @keyframes betCardPop{
@@ -174,7 +174,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 .bet-card::before{
   content:'';
   position:absolute;
-  top:-15%;left:-120%;
+  top:-15%;left:0;
   width:55%;height:130%;
   background:linear-gradient(
     105deg,
@@ -186,7 +186,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
     rgba(255,255,255,.04) 75%,
     transparent 100%
   );
-  transform:skewX(-20deg);
+  transform:skewX(-20deg) translateX(-120%);
   animation:shimmerSweep 2.8s ease-in-out infinite;
   pointer-events:none;
   z-index:10;
@@ -312,11 +312,12 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 }
 .bc-btn::before{
   content:'';position:absolute;
-  top:0;left:-110%;width:55%;height:100%;
+  top:0;left:0;width:55%;height:100%;
   background:linear-gradient(105deg,transparent,rgba(255,255,255,.35),rgba(255,255,255,.55),rgba(255,255,255,.35),transparent);
-  transform:skewX(-20deg);
+  transform:skewX(-20deg) translateX(-110%);
   animation:shimmerSweep 1.8s ease-in-out infinite .4s;
   pointer-events:none;
+  will-change:transform;
 }
 .bc-btn{transition:transform .2s cubic-bezier(.34,1.56,.64,1),opacity .18s ease,box-shadow .22s ease}
 .bc-btn:active{transform:scale(.97)}
@@ -338,7 +339,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 .hidden{display:none!important}
 .page-content{padding:0}
 .shine-card{position:relative;overflow:hidden}
-.shine-card::before{content:'';position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.05),transparent);animation:shineSwipe 5.5s ease-in-out infinite;pointer-events:none;z-index:5}
+.shine-card::before{content:'';position:absolute;top:0;left:0;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.05),transparent);animation:shineSwipe 5.5s ease-in-out infinite;pointer-events:none;z-index:5;transform:translateX(-110%);will-change:transform;}
 
 /* ── LAYOUT ── */
 #app{min-height:100vh;padding-bottom:82px;overflow-x:hidden;position:relative;touch-action:pan-y}
@@ -357,7 +358,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 .nav-brand{display:flex;flex-direction:column;line-height:1}
 .brand-text-wrap{position:relative;display:inline-block}
 .brand-glass-bg{position:absolute;inset:-3px -8px;background:rgba(0,212,255,.05);backdrop-filter:blur(6px);border-radius:8px;border:1px solid rgba(0,212,255,.1);z-index:0}
-.brand-shine{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);animation:shineSwipe 4.5s ease-in-out infinite;z-index:1;border-radius:8px;pointer-events:none}
+.brand-shine{position:absolute;top:0;left:0;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);animation:shineSwipe 4.5s ease-in-out infinite;z-index:1;border-radius:8px;pointer-events:none;transform:translateX(-100%);will-change:transform;}
 .brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;letter-spacing:2.5px;font-style:italic;transform:skewX(-4deg);background:linear-gradient(105deg,#00d4ff 0%,#7dd3fc 30%,#fff 50%,#fbbf24 75%,#ffd700 100%);background-size:250% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmerSlide 3s linear infinite;display:inline-block;position:relative;z-index:2;filter:drop-shadow(0 0 7px rgba(0,212,255,.45));will-change:background-position}
 .brand-sub{font-size:7px;letter-spacing:3.5px;color:rgba(0,212,255,.48);font-weight:700;text-transform:uppercase;padding-left:3px;margin-top:1px;position:relative;z-index:2}
 .nav-right{display:flex;align-items:center;gap:8px}
@@ -381,7 +382,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 /* ── BALANCE CARD ── */
 #balCard{margin:12px 14px 0;border-radius:22px;padding:20px 18px;position:relative;overflow:hidden;cursor:pointer;background:linear-gradient(135deg,#3a0018 0%,#1a0535 25%,#051228 50%,#2a0640 75%,#3a0018 100%);background-size:300% 300%;animation:balCardGrad 7s ease infinite;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1.5px solid rgba(180,60,120,.45);box-shadow:0 0 0 1px rgba(120,20,80,.3),0 8px 40px rgba(80,0,40,.6),0 0 60px rgba(160,40,100,.18),0 0 100px rgba(0,180,255,.08),inset 0 1px 0 rgba(255,180,220,.22),inset 0 -1px 0 rgba(0,0,0,.4),inset 0 0 40px rgba(120,0,80,.1);will-change:transform;transition:box-shadow .25s ease;-webkit-user-select:none;user-select:none;transform:translateZ(0)}
 #balCard::after{content:'';position:absolute;top:0;left:0;right:0;height:40%;background:linear-gradient(180deg,rgba(255,180,220,.12) 0%,rgba(120,40,160,.04) 60%,transparent 100%);border-radius:22px 22px 60% 60%;pointer-events:none;z-index:0}
-#balCard .bc-sweep{position:absolute;top:0;left:-110%;width:55%;height:100%;background:linear-gradient(105deg,transparent,rgba(200,80,160,.12),rgba(0,200,255,.08),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1}
+#balCard .bc-sweep{position:absolute;top:0;left:0;width:55%;height:100%;background:linear-gradient(105deg,transparent,rgba(200,80,160,.12),rgba(0,200,255,.08),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1;transform:translateX(-110%);will-change:transform;}
 #balCard .bc-topline{position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(200,80,140,.8),rgba(0,200,255,.6),rgba(200,80,140,.5),transparent);box-shadow:0 0 12px rgba(200,80,160,.5);z-index:2;pointer-events:none}
 .bal-uid-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border-radius:50px;border:1px solid rgba(255,255,255,.18);font-size:10px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.5px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bal-view-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;background:linear-gradient(135deg,rgba(120,0,200,.7),rgba(80,0,160,.8));backdrop-filter:blur(8px);border-radius:50px;border:1px solid rgba(160,80,255,.45);font-size:11px;font-weight:800;color:#fff;letter-spacing:.5px;box-shadow:0 0 14px rgba(120,0,200,.4),inset 0 1px 0 rgba(255,255,255,.2);cursor:pointer;flex-shrink:0;transition:opacity .18s}
@@ -618,10 +619,10 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   100%{opacity:0;transform:translateX(-50%) translateY(-22px) scale(.88)}
 }
 @keyframes toastShimmer{
-  0%  {left:-120%;opacity:0}
+  0%  {transform:skewX(-18deg) translateX(-220%);opacity:0}
   10% {opacity:1}
   70% {opacity:.8}
-  100%{left:220%;opacity:0}
+  100%{transform:skewX(-18deg) translateX(320%);opacity:0}
 }
 .toast{
   position:fixed;top:22px;left:50%;
@@ -640,10 +641,11 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   text-align:center;
 }
 .toast::before{
-  content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;
+  content:'';position:absolute;top:0;left:0;width:55%;height:100%;
   background:linear-gradient(105deg,transparent,rgba(255,255,255,.25),rgba(255,255,255,.45),rgba(255,255,255,.25),transparent);
-  transform:skewX(-18deg);
+  transform:skewX(-18deg) translateX(-220%);
   pointer-events:none;
+  will-change:transform;
 }
 .toast.show{display:block;animation:toastBounceIn .48s cubic-bezier(.16,1,.3,1) forwards}
 .toast.show::before{animation:toastShimmer 1.6s ease-in-out .3s forwards}
@@ -849,9 +851,10 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   position:relative;overflow:hidden;
 }
 #betLedgerTrigger::before{
-  content:'';position:absolute;top:0;left:-110%;width:60%;height:100%;
+  content:'';position:absolute;top:0;left:0;width:60%;height:100%;
   background:linear-gradient(105deg,transparent,rgba(100,220,220,.08),transparent);
   animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;
+  transform:translateX(-110%);will-change:transform;
 }
 #betLedgerTrigger:active{transform:scale(.95);}
 #betLedgerTrigger.open{filter:brightness(1.15);}
@@ -1364,7 +1367,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   0%,100%{opacity:.2}50%{opacity:.32}
 }
 @keyframes cgzBtnShine{
-  0%{left:-130%}55%,100%{left:160%}
+  0%{transform:translateX(-130%)}55%,100%{transform:translateX(160%)}
 }
 @keyframes cgzBorderGold{
   0%,100%{box-shadow:0 0 0 2px rgba(212,175,55,.45),0 5px 28px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,240,160,.18)}
@@ -1516,10 +1519,12 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 .cgz-col-btn:active{transform:scale(.89);filter:brightness(.85);}
 /* Shine sweep */
 .cgz-col-shine{
-  position:absolute;top:0;left:-130%;width:60%;height:100%;
+  position:absolute;top:0;left:0;width:60%;height:100%;
   background:linear-gradient(105deg,transparent,rgba(255,255,255,.16),transparent);
   animation:cgzBtnShine 4s ease-in-out infinite;
   pointer-events:none;
+  transform:translateX(-130%);
+  will-change:transform;
 }
 /* Corner decorations — filigree look */
 .cgz-col-deco{
@@ -1721,9 +1726,10 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 
 /* Shine sweep */
 .cgz-sb-shine{
-  position:absolute;top:0;left:-130%;width:55%;height:100%;
+  position:absolute;top:0;left:0;width:55%;height:100%;
   background:linear-gradient(105deg,transparent,rgba(255,255,255,.1),transparent);
   animation:cgzBtnShine 5s ease-in-out infinite;pointer-events:none;
+  transform:translateX(-130%);will-change:transform;
 }
 
 /* Corner filigree ornaments — matching photo decorative corners */
@@ -2274,4 +2280,20 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 /* ── Performance ── */
 .cgz-timer-wrap,.cgz-balance-widget,.cgz-colour-row,.cgz-chip-grid{
   contain:layout style;
+}
+/* Force GPU layer for all animated shine elements */
+.cgz-col-shine,.cgz-sb-shine,.brand-shine,.bc-btn::before,
+.bet-card::before,.shine-card::before,#betLedgerTrigger::before{
+  will-change:transform;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+/* Reduce blob animation cost on mobile */
+.blob{
+  will-change:transform;
+  backface-visibility:hidden;
+}
+/* Disable expensive animations when tab is hidden */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }

@@ -961,6 +961,17 @@ function init(){
   if(savedEmail){LS.setKey(savedEmail);}
   LS.load();setCC(META[state.cat].color);updateBal();updateBlobs();
 
+  /* ── Pause timer when app goes to background, resume when visible ── */
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){
+      stopGameTimer();
+    } else if(state.activePage==='games'){
+      /* Re-sync and restart when coming back */
+      _rebuildSharedHistory();
+      startGameTimer();
+    }
+  });
+
   /* ── Backfill shared history so rounds always exist even with 0 users ── */
   _backfillHistory();
 
@@ -1137,22 +1148,18 @@ loadShared();
   }catch(e){ loadUser(); }
 })();
 
-/* ─── Timer — rAF based, GPU-synced, zero wasted CPU ─── */
+/* ─── Timer — 1s interval, only fires when second changes ─── */
 function stopGameTimer(){
-  if(GAME.rafId){ cancelAnimationFrame(GAME.rafId); GAME.rafId=null; }
-  clearInterval(GAME.timerInt); GAME.timerInt=null;
+  clearInterval(GAME.timerInt); GAME.timerInt = null;
+  if(GAME.rafId){ cancelAnimationFrame(GAME.rafId); GAME.rafId = null; }
 }
 
 function startGameTimer(){
   stopGameTimer();
-  let lastSec = -1;
-  function tick(){
-    const t = getSharedTimer();
-    /* Only touch DOM when the second actually changes */
-    if(t !== lastSec){ lastSec = t; gameTick(); }
-    GAME.rafId = requestAnimationFrame(tick);
-  }
-  GAME.rafId = requestAnimationFrame(tick);
+  /* Run immediately then every ~500ms — ensures we never miss a second tick
+     even if the interval fires slightly early. Much lighter than 60fps rAF. */
+  gameTick();
+  GAME.timerInt = setInterval(gameTick, 500);
 }
 
 /* ── Targeted DOM update — fast in-place refresh without full re-render ── */
