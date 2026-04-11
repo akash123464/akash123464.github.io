@@ -1063,19 +1063,21 @@ function uKey(){ return 'ww_gu_'+(state.userEmail||'guest').replace(/[^a-z0-9]/g
 function loadUser(){
   try{
     const s=JSON.parse(localStorage.getItem(uKey())||'{}');
-    /* Always restore betHistory (last 10 bets) regardless of login state */
     if(Array.isArray(s.bh)) GAME.betHistory=s.bh;
     if(typeof s.lrp==='number') GAME.lastResolvedPeriod=s.lrp;
-    /* Only restore current-round bets if they are from the current period */
-    if(Array.isArray(s.bets) && s.bp===getSharedPeriod()) GAME.bets=s.bets;
-    else GAME.bets=[];
+    if(typeof s.betAmt==='number') GAME.betAmt=s.betAmt;
+    /* Restore bets for this period — mark deducted:true so balance is NOT re-deducted */
+    if(Array.isArray(s.bets) && s.bp===getSharedPeriod()){
+      GAME.bets=s.bets.map(b=>({...b,deducted:true}));
+    } else { GAME.bets=[]; }
   }catch(e){}
 }
 function saveUser(){
   try{
     localStorage.setItem(uKey(),JSON.stringify({
-      bh:GAME.betHistory.slice(0,10),  /* keep last 10 permanently */
+      bh:GAME.betHistory.slice(0,10),
       lrp:GAME.lastResolvedPeriod,
+      betAmt:GAME.betAmt,
       bets:GAME.bets, bp:getSharedPeriod()
     }));
   }catch(e){}
@@ -1100,6 +1102,35 @@ function startGameTimer(){
   /* Poll every 200ms for snappy response */
   GAME.timerInt = setInterval(gameTick, 200);
   gameTick();
+}
+
+/* ── Targeted DOM update — fast in-place refresh without full re-render ── */
+function _quickUpdateGameUI(){
+  /* Update period */
+  const pEl=document.getElementById('cgzPeriodVal');
+  if(pEl) pEl.textContent=fmtPeriod(getSharedPeriod());
+
+  /* Update active-bets summary bar */
+  updateGameBetSummary();
+
+  /* Update last-bets strip */
+  const strip=document.getElementById('cgzLastBetsStrip');
+  if(strip){
+    if(GAME.betHistory.length===0){
+      strip.innerHTML='<div class="clb-empty">No bets placed yet — place your first bet!</div>';
+    } else {
+      strip.innerHTML=GAME.betHistory.slice(0,5).map(b=>{
+        const isBig=b.result==='big';
+        const colHex2=COL_HEX[b.colour]||'#fff';
+        return `<div class="clb-pill ${isBig?'clb-big':'clb-small'}">
+          <span class="clb-result">${isBig?'BIG':'SMALL'}</span>
+          <span class="clb-col" style="color:${colHex2}">${b.colour.charAt(0).toUpperCase()}</span>
+          <span class="clb-num">${b.num}</span>
+          <span class="clb-pnl ${b.won?'clb-won':'clb-lost'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</span>
+        </div>`;
+      }).join('');
+    }
+  }
 }
 
 function gameTick(){
@@ -1207,8 +1238,10 @@ function resolveGameRound(period){
     const winMsg = {totalWin, totalLost, net:totalWin-totalLost, count:settledBets.length, num, colour, result};
     showGameResult(num, colour, result, winMsg);
   } else {
-    /* No bets — silently refresh UI, no popup */
-    renderGames();
+    /* No bets — only update changed parts, no full re-render */
+    _quickUpdateGameUI();
+    /* Refresh history list in-place */
+    _refreshHistoryDOM();
   }
 }
 
@@ -1314,11 +1347,50 @@ window.closeGameResult = function(){
   GAME.resultAnimating = false;
   const pop = document.getElementById('wwResultPop');
   if(pop) pop.remove();
-  /* Also wipe the inline overlay inside page DOM */
   const ov = document.getElementById('gameResultOverlay');
   if(ov) ov.innerHTML = '';
-  renderGames();
+  /* Targeted refresh — no full re-render */
+  _quickUpdateGameUI();
+  _refreshHistoryDOM();
 };
+
+/* Rebuild only the history table in-place */
+function _refreshHistoryDOM(){
+  const CHIP_R=[
+    {face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',rim1:'#d4af37',numCol:'#86efac',glow:'rgba(34,197,94,1)'},
+    {face:'linear-gradient(145deg,#2e0a60 0%,#6d28d9 40%,#8b5cf6 60%,#3b0d7a 100%)',rim1:'#d4af37',numCol:'#ddd6fe',glow:'rgba(139,92,246,1)'},
+    {face:'linear-gradient(145deg,#450a0a 0%,#991b1b 40%,#dc2626 60%,#5c0d0d 100%)',rim1:'#d4af37',numCol:'#fca5a5',glow:'rgba(220,38,38,1)'},
+    {face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',rim1:'#d4af37',numCol:'#86efac',glow:'rgba(34,197,94,1)'},
+    {face:'linear-gradient(145deg,#374151 0%,#9ca3af 40%,#d1d5db 60%,#4b5563 100%)',rim1:'#e8e8e8',numCol:'#f9fafb',glow:'rgba(209,213,219,1)'},
+    {face:'linear-gradient(145deg,#2e0a60 0%,#6d28d9 40%,#8b5cf6 60%,#3b0d7a 100%)',rim1:'#d4af37',numCol:'#ddd6fe',glow:'rgba(139,92,246,1)'},
+    {face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',rim1:'#d4af37',numCol:'#86efac',glow:'rgba(34,197,94,1)'},
+    {face:'linear-gradient(145deg,#450a0a 0%,#991b1b 40%,#dc2626 60%,#5c0d0d 100%)',rim1:'#d4af37',numCol:'#fca5a5',glow:'rgba(220,38,38,1)'},
+    {face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',rim1:'#d4af37',numCol:'#86efac',glow:'rgba(34,197,94,1)'},
+    {face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',rim1:'#d4af37',numCol:'#86efac',glow:'rgba(34,197,94,1)'}
+  ];
+  const histEl=document.querySelector('.cgz-history');
+  if(!histEl) return;
+  const COL_HX={green:'#22c55e',red:'#ef4444',violet:'#a855f7'};
+  let html='<div class="cgz-history-hdr">LAST 20 ROUNDS · SAME FOR ALL USERS</div>';
+  if(GAME.history.length===0){
+    html+='<div style="text-align:center;color:rgba(255,255,255,.2);padding:24px;font-size:13px">Waiting for first round…</div>';
+  } else {
+    html+='<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;font-size:9px;color:rgba(212,175,55,.45);font-weight:700;letter-spacing:.8px;padding:0 4px 8px;border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:4px"><span>#</span><span>PERIOD</span><span style=\"text-align:center\">NO.</span><span style=\"text-align:right\">RESULT</span></div>';
+    GAME.history.slice(0,20).forEach((h,i)=>{
+      const c=CHIP_R[h.num];
+      html+=`<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.04)">
+        <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:'Oswald',sans-serif">${i+1}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.35);font-family:'Oswald',sans-serif">${h.period}</div>
+        <div style="width:30px;height:30px;border-radius:50%;background:${c.face};border:2px solid ${c.rim1};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:900;font-size:13px;color:${c.numCol};box-shadow:0 0 8px ${c.glow}">${h.num}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <div class="${h.result==='big'?'cgz-big-badge':'cgz-small-badge'}">${h.result.toUpperCase()}</div>
+          <div style="font-size:9px;color:${COL_HX[h.colour]||'#fff'};font-weight:800;text-transform:uppercase;letter-spacing:.5px;text-shadow:0 0 6px ${COL_HX[h.colour]||'#fff'}">${h.colour}</div>
+        </div>
+      </div>`;
+    });
+  }
+  histEl.innerHTML=html;
+}
 
 /* ─── Add a bet (multiple allowed) ─── */
 function addBet(type, side, num, amt){
@@ -1327,7 +1399,8 @@ function addBet(type, side, num, amt){
   if(amt > state.bal){ showToast('Insufficient balance 💸','info'); return false; }
   state.bal -= amt;
   LS.save(); updateBal();
-  GAME.bets.push({type, side, num, amt, mult: type==='number'?8:1.9});
+  /* deducted:true means balance already taken — won't re-deduct on refresh */
+  GAME.bets.push({type, side, num, amt, mult: type==='number'?8:1.9, deducted:true});
   saveUser();
   return true;
 }
@@ -1610,9 +1683,9 @@ function renderGames(){
     <div class="cgz-topbar">
       <div class="cgz-period">
         <div class="cgz-period-lbl">PERIOD</div>
-        <div class="cgz-period-val">${fmtPeriod(cur)}</div>
+        <div class="cgz-period-val" id="cgzPeriodVal">${fmtPeriod(cur)}</div>
       </div>
-      <div class="cgz-hist-chips">
+      <div class="cgz-hist-chips" id="cgzHistChips">
         ${GAME.history.slice(0,5).map(h=>{
           const c=CHIP[h.num];
           return `<div class="cgz-hist-chip" style="background:${c.face};border:2.5px solid ${c.rim1};box-shadow:0 0 10px ${c.glow},0 2px 6px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.18)">
@@ -1621,6 +1694,21 @@ function renderGames(){
           </div>`;
         }).join('')}
       </div>
+    </div>
+
+    <!-- ═══ LAST BETS STRIP — above timer ═══ -->
+    <div class="cgz-last-bets-strip" id="cgzLastBetsStrip">
+      ${GAME.betHistory.slice(0,5).map(b=>{
+        const isBig = b.result==='big';
+        const colHex2 = COL_HEX[b.colour]||'#fff';
+        return `<div class="clb-pill ${isBig?'clb-big':'clb-small'}">
+          <span class="clb-result">${isBig?'BIG':'SMALL'}</span>
+          <span class="clb-col" style="color:${colHex2}">${b.colour.charAt(0).toUpperCase()}</span>
+          <span class="clb-num">${b.num}</span>
+          <span class="clb-pnl ${b.won?'clb-won':'clb-lost'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</span>
+        </div>`;
+      }).join('')}
+      ${GAME.betHistory.length===0?'<div class="clb-empty">No bets placed yet — place your first bet!</div>':''}
     </div>
 
     <!-- ═══ GIANT GOLD TIMER ═══ -->
@@ -1786,9 +1874,9 @@ function renderGames(){
             <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:'Oswald',sans-serif">${i+1}</div>
             <div style="font-size:11px;color:rgba(255,255,255,.35);font-family:'Oswald',sans-serif">${h.period}</div>
             <div style="width:30px;height:30px;border-radius:50%;background:${c.face};border:2px solid ${c.rim1};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:900;font-size:13px;color:${c.numCol};box-shadow:0 0 8px ${c.glow}">${h.num}</div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-              <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result.toUpperCase()}</div>
-              <div style="font-size:9px;color:${COL_HEX[h.colour]};font-weight:700;text-transform:capitalize">${h.colour}</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+              <div class="${h.result==='big'?'cgz-big-badge':'cgz-small-badge'}">${h.result.toUpperCase()}</div>
+              <div style="font-size:9px;color:${COL_HEX[h.colour]};font-weight:800;text-transform:uppercase;letter-spacing:.5px;text-shadow:0 0 6px ${COL_HEX[h.colour]}">${h.colour}</div>
             </div>
           </div>`;
         }).join('')
