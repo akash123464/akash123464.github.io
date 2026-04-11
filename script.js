@@ -917,6 +917,9 @@ function updateBal(){
     const depEl=document.getElementById('totalDepositEl');const witEl=document.getElementById('totalWithdrawEl');
     if(depEl)depEl.textContent=fmtCur(state.totalDeposit);
     if(witEl)witEl.textContent=fmtCur(state.totalWithdraw);
+    /* Sync game balance widget */
+    const cgzBal=document.getElementById('cgzBalAmount');
+    if(cgzBal) cgzBal.textContent='₹'+(state.bal||0).toLocaleString('en-IN');
   });
 }
 
@@ -1159,25 +1162,18 @@ function _quickUpdateGameUI(){
         <span class="cgz-bs-tag">${isBig?'BIG':'SMALL'}</span>
       </div>`;
     }).join('');
-    bsStrip.innerHTML='<div class="cgz-bs-strip-label">LAST 5</div>'+(GAME.history.length===0?'<div class="clb-empty">Waiting...</div>':bsHtml);
+    bsStrip.innerHTML='<div class="cgz-bs-strip-label">LAST 5 B/S</div>'+(GAME.history.length===0?'<div class="clb-empty">Waiting...</div>':bsHtml);
   }
 
-  /* Update my last-bets strip */
-  const strip=document.getElementById('cgzLastBetsStrip');
-  if(strip){
+  /* Update balance widget */
+  const balEl=document.getElementById('cgzBalAmount');
+  if(balEl) balEl.textContent='₹'+(state.bal||0).toLocaleString('en-IN');
+  const lastBetsMini=document.getElementById('cgzLastBetsMini');
+  if(lastBetsMini){
     if(GAME.betHistory.length===0){
-      strip.innerHTML='<div class="clb-empty">No bets placed yet — place your first bet!</div>';
+      lastBetsMini.innerHTML='<span class="cgz-bal-no-bets">Place a bet!</span>';
     } else {
-      strip.innerHTML=GAME.betHistory.slice(0,5).map(b=>{
-        const isBig=b.result==='big';
-        const colHex2=COL_HEX[b.colour]||'#fff';
-        return `<div class="clb-pill ${isBig?'clb-big':'clb-small'}">
-          <span class="clb-result">${isBig?'BIG':'SMALL'}</span>
-          <span class="clb-col" style="color:${colHex2}">${b.colour.charAt(0).toUpperCase()}</span>
-          <span class="clb-num">${b.num}</span>
-          <span class="clb-pnl ${b.won?'clb-won':'clb-lost'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</span>
-        </div>`;
-      }).join('');
+      lastBetsMini.innerHTML=GAME.betHistory.slice(0,5).map(b=>`<span class="cgz-bal-bet-dot ${b.won?'cgz-dot-won':'cgz-dot-lost'}" title="${b.won?'+₹'+b.payout:'-₹'+b.amt}">${b.won?'W':'L'}</span>`).join('');
     }
   }
 }
@@ -1769,19 +1765,30 @@ function renderGames(){
       ${GAME.history.length===0?'<div class="clb-empty">Waiting...</div>':''}
     </div>
 
-    <!-- ═══ MY LAST BETS STRIP — above timer ═══ -->
-    <div class="cgz-last-bets-strip" id="cgzLastBetsStrip">
-      ${GAME.betHistory.slice(0,5).map(b=>{
-        const isBig = b.result==='big';
-        const colHex2 = COL_HEX[b.colour]||'#fff';
-        return `<div class="clb-pill ${isBig?'clb-big':'clb-small'}">
-          <span class="clb-result">${isBig?'BIG':'SMALL'}</span>
-          <span class="clb-col" style="color:${colHex2}">${b.colour.charAt(0).toUpperCase()}</span>
-          <span class="clb-num">${b.num}</span>
-          <span class="clb-pnl ${b.won?'clb-won':'clb-lost'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</span>
-        </div>`;
-      }).join('')}
-      ${GAME.betHistory.length===0?'<div class="clb-empty">No bets placed yet</div>':''}
+    <!-- ═══ PREMIUM BALANCE WIDGET — above timer ═══ -->
+    <div class="cgz-balance-widget" id="cgzBalWidget">
+      <div class="cgz-bal-left">
+        <div class="cgz-bal-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="rgba(255,215,0,.15)" stroke="#ffd700" stroke-width="1.5"/>
+            <text x="12" y="16.5" text-anchor="middle" font-size="13" font-weight="900" font-family="serif" fill="#ffd700">₹</text>
+          </svg>
+        </div>
+        <div class="cgz-bal-info">
+          <div class="cgz-bal-label">MY BALANCE</div>
+          <div class="cgz-bal-amount" id="cgzBalAmount">₹${(state.bal||0).toLocaleString('en-IN')}</div>
+        </div>
+      </div>
+      <div class="cgz-bal-right">
+        <div class="cgz-bal-bets-label">MY LAST 5 BETS</div>
+        <div class="cgz-bal-bets-row" id="cgzLastBetsMini">
+          ${GAME.betHistory.length===0
+            ? '<span class="cgz-bal-no-bets">Place a bet!</span>'
+            : GAME.betHistory.slice(0,5).map(b=>`<span class="cgz-bal-bet-dot ${b.won?'cgz-dot-won':'cgz-dot-lost'}" title="${b.won?'+₹'+b.payout:'-₹'+b.amt}">${b.won?'W':'L'}</span>`).join('')
+          }
+        </div>
+      </div>
+      <div class="cgz-bal-shimmer"></div>
     </div>
 
     <!-- ═══ GIANT GOLD TIMER ═══ -->

@@ -1997,3 +1997,118 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 }
 .cgz-bs-big .cgz-bs-tag{color:#fb923c}
 .cgz-bs-small .cgz-bs-tag{color:#60a5fa}
+
+/* ═══════════════════════════════════════════
+   PREMIUM BALANCE WIDGET — game page
+═══════════════════════════════════════════ */
+@keyframes balWidgetShimmer{
+  0%{left:-100%}
+  100%{left:200%}
+}
+@keyframes balAmountPulse{
+  0%,100%{text-shadow:0 0 12px rgba(34,197,94,.7),0 0 24px rgba(34,197,94,.35)}
+  50%{text-shadow:0 0 20px rgba(34,197,94,1),0 0 40px rgba(34,197,94,.6),0 0 60px rgba(34,197,94,.2)}
+}
+@keyframes balIconSpin{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+.cgz-balance-widget{
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:space-between;
+  margin:6px 12px 4px;
+  padding:10px 14px;
+  border-radius:16px;
+  background:linear-gradient(135deg,
+    rgba(34,197,94,.14) 0%,
+    rgba(16,90,50,.22) 30%,
+    rgba(0,0,0,.55) 60%,
+    rgba(255,215,0,.06) 100%);
+  border:1.5px solid rgba(34,197,94,.35);
+  box-shadow:
+    0 0 0 1px rgba(34,197,94,.08),
+    0 0 22px rgba(34,197,94,.18),
+    0 4px 16px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.07),
+    inset 0 -1px 0 rgba(0,0,0,.3);
+  will-change:transform;
+  flex-shrink:0;
+}
+.cgz-bal-shimmer{
+  position:absolute;top:0;left:-100%;
+  width:55%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.06),transparent);
+  animation:balWidgetShimmer 3.5s ease-in-out infinite;
+  pointer-events:none;
+  border-radius:16px;
+}
+.cgz-bal-left{
+  display:flex;align-items:center;gap:10px;
+}
+.cgz-bal-icon{
+  width:36px;height:36px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.18),rgba(34,197,94,.08));
+  border:2px solid rgba(34,197,94,.5);
+  box-shadow:0 0 14px rgba(34,197,94,.35),inset 0 1px 0 rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.cgz-bal-info{}
+.cgz-bal-label{
+  font-family:'Oswald',sans-serif;
+  font-size:8px;font-weight:700;
+  color:rgba(34,197,94,.6);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:1px;
+}
+.cgz-bal-amount{
+  font-family:'Oswald',sans-serif;
+  font-size:22px;font-weight:900;
+  color:#22c55e;
+  letter-spacing:1px;
+  line-height:1;
+  animation:balAmountPulse 2.8s ease-in-out infinite;
+}
+.cgz-bal-right{
+  display:flex;flex-direction:column;align-items:flex-end;gap:4px;
+}
+.cgz-bal-bets-label{
+  font-family:'Oswald',sans-serif;
+  font-size:7.5px;font-weight:700;
+  color:rgba(255,215,0,.45);
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+}
+.cgz-bal-bets-row{
+  display:flex;align-items:center;gap:4px;
+}
+.cgz-bal-no-bets{
+  font-size:9px;color:rgba(255,255,255,.2);
+  font-style:italic;
+}
+.cgz-bal-bet-dot{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:50%;
+  font-family:'Oswald',sans-serif;font-size:9px;font-weight:900;
+  border:1.5px solid;
+  flex-shrink:0;
+}
+.cgz-dot-won{
+  background:linear-gradient(135deg,rgba(34,197,94,.3),rgba(34,197,94,.1));
+  border-color:rgba(34,197,94,.7);
+  color:#22c55e;
+  box-shadow:0 0 6px rgba(34,197,94,.4);
+}
+.cgz-dot-lost{
+  background:linear-gradient(135deg,rgba(239,68,68,.3),rgba(239,68,68,.1));
+  border-color:rgba(239,68,68,.7);
+  color:#ef4444;
+  box-shadow:0 0 6px rgba(239,68,68,.3);
+}
+
+/* ── Performance: use transform instead of top/left for animations ── */
+.cgz-root *{will-change:auto}
+.cgz-timer-wrap,.cgz-balance-widget,.cgz-colour-row,.cgz-chip-grid{
+  contain:layout style;
+}
