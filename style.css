@@ -2110,16 +2110,17 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 }
 @keyframes balAmountPulse{
   0%,100%{
-    text-shadow:0 0 14px rgba(200,90,0,.9),
-      0 0 28px rgba(170,60,0,.55),
-      0 0 50px rgba(140,40,0,.25),
-      0 2px 0 rgba(0,0,0,.7);
+    text-shadow:0 0 16px rgba(255,140,30,1),
+      0 0 32px rgba(230,100,0,.8),
+      0 0 55px rgba(200,70,0,.45),
+      0 2px 0 rgba(0,0,0,.6);
   }
   50%{
-    text-shadow:0 0 22px rgba(230,110,0,1),
-      0 0 44px rgba(200,80,0,.75),
-      0 0 70px rgba(160,50,0,.4),
-      0 2px 0 rgba(0,0,0,.7);
+    text-shadow:0 0 26px rgba(255,170,60,1),
+      0 0 50px rgba(255,120,20,.9),
+      0 0 80px rgba(220,80,0,.55),
+      0 0 110px rgba(180,50,0,.25),
+      0 2px 0 rgba(0,0,0,.6);
   }
 }
 @keyframes goldBorderPulse{
@@ -2211,27 +2212,28 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 .cgz-bal-info{display:flex;flex-direction:column;gap:2px}
 .cgz-bal-label{
   font-family:'Oswald',sans-serif;
-  font-size:11px;font-weight:700;
-  color:#d4af37;
+  font-size:12px;font-weight:800;
+  color:#ffe566;
   letter-spacing:3px;
   text-transform:uppercase;
-  text-shadow:0 0 10px rgba(212,175,55,.6);
+  text-shadow:0 0 12px rgba(255,230,80,.9),0 0 28px rgba(255,200,0,.55),0 0 50px rgba(212,175,55,.25);
 }
 .cgz-bal-amount{
   font-family:'Oswald',sans-serif;
-  font-size:34px;font-weight:900;
-  color:#c85000;
+  font-size:36px;font-weight:900;
+  color:#ff7b1a;
   letter-spacing:2px;
   line-height:1;
   animation:balAmountPulse 2.8s ease-in-out infinite;
 }
 .cgz-bal-sub{
   font-family:'Space Grotesk',sans-serif;
-  font-size:9px;font-weight:600;
-  color:rgba(212,175,55,.45);
+  font-size:10px;font-weight:700;
+  color:rgba(255,220,80,.75);
   letter-spacing:1.5px;
   text-transform:uppercase;
-  margin-top:1px;
+  margin-top:2px;
+  text-shadow:0 0 8px rgba(255,200,0,.4);
 }
 .cgz-bal-deposit-btn{
   display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -2246,7 +2248,7 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
     inset 0 -1px 0 rgba(80,50,0,.35);
   font-family:'Oswald',sans-serif;
   font-size:10px;font-weight:900;
-  color:#8a4400;
+  color:#cc5500;
   letter-spacing:2px;
   cursor:pointer;
   flex-shrink:0;
