@@ -224,7 +224,11 @@ function setPage(page){
   if(page==='markets')renderMarkets();
   if(page==='support')renderSupport();
   if(page==='account')renderAccount();
-  if(page==='games'){stopGameTimer();renderGames();}
+  if(page==='games'){
+    /* Only do full render once — after that just restart the timer */
+    if(!document.querySelector('.cgz-root')) renderGames();
+    else startGameTimer();
+  }
   else stopGameTimer();
 }
 
@@ -1023,11 +1027,12 @@ function resultForPeriod(p){
 /* ─── State ─── */
 const GAME = {
   timerInt:           null,
-  displayTimer:       60,        // what we show (updates via rAF)
+  rafId:              null,
+  displayTimer:       60,
   lastDisplayPeriod:  -1,
-  history:            [],        // shared 20 rounds
-  betHistory:         [],        // user's permanent log
-  bets:               [],        // ARRAY — multiple bets this round [{type,side,num,amt,mult}]
+  history:            [],
+  betHistory:         [],
+  bets:               [],
   betAmt:             10,
   lastResolvedPeriod: -1,
   resultAnimating:    false,
@@ -1132,14 +1137,22 @@ loadShared();
   }catch(e){ loadUser(); }
 })();
 
-/* ─── Timer ─── */
-function stopGameTimer(){ clearInterval(GAME.timerInt); GAME.timerInt=null; }
+/* ─── Timer — rAF based, GPU-synced, zero wasted CPU ─── */
+function stopGameTimer(){
+  if(GAME.rafId){ cancelAnimationFrame(GAME.rafId); GAME.rafId=null; }
+  clearInterval(GAME.timerInt); GAME.timerInt=null;
+}
 
 function startGameTimer(){
   stopGameTimer();
-  /* Poll every 200ms for snappy response */
-  GAME.timerInt = setInterval(gameTick, 200);
-  gameTick();
+  let lastSec = -1;
+  function tick(){
+    const t = getSharedTimer();
+    /* Only touch DOM when the second actually changes */
+    if(t !== lastSec){ lastSec = t; gameTick(); }
+    GAME.rafId = requestAnimationFrame(tick);
+  }
+  GAME.rafId = requestAnimationFrame(tick);
 }
 
 /* ── Targeted DOM update — fast in-place refresh without full re-render ── */
@@ -1421,12 +1434,12 @@ function _refreshHistoryDOM(){
   const histEl=document.querySelector('.cgz-history');
   if(!histEl) return;
   const COL_HX={green:'#22c55e',red:'#ef4444',violet:'#a855f7'};
-  let html='<div class="cgz-history-hdr">LAST 20 ROUNDS · SAME FOR ALL USERS</div>';
+  let html='<div class="cgz-history-hdr">LAST 10 ROUNDS · SAME FOR ALL USERS</div>';
   if(GAME.history.length===0){
     html+='<div style="text-align:center;color:rgba(255,255,255,.2);padding:24px;font-size:13px">Waiting for first round…</div>';
   } else {
     html+='<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;font-size:9px;color:rgba(212,175,55,.45);font-weight:700;letter-spacing:.8px;padding:0 4px 8px;border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:4px"><span>#</span><span>PERIOD</span><span style=\"text-align:center\">NO.</span><span style=\"text-align:right\">RESULT</span></div>';
-    GAME.history.slice(0,20).forEach((h,i)=>{
+    GAME.history.slice(0,10).forEach((h,i)=>{
       const c=CHIP_R[h.num];
       html+=`<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.04)">
         <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:'Oswald',sans-serif">${i+1}</div>
@@ -2007,11 +2020,11 @@ function renderGames(){
 
     <!-- Last 20 rounds -->
     <div class="cgz-history">
-      <div class="cgz-history-hdr">LAST 20 ROUNDS · SAME FOR ALL USERS</div>
+      <div class="cgz-history-hdr">LAST 10 ROUNDS · SAME FOR ALL USERS</div>
       ${GAME.history.length===0
         ?`<div style="text-align:center;color:rgba(255,255,255,.2);padding:24px;font-size:13px">Waiting for first round…</div>`
         :`<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;font-size:9px;color:rgba(212,175,55,.45);font-weight:700;letter-spacing:.8px;padding:0 4px 8px;border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:4px"><span>#</span><span>PERIOD</span><span style="text-align:center">NO.</span><span style="text-align:right">RESULT</span></div>`+
-        GAME.history.slice(0,20).map((h,i)=>{
+        GAME.history.slice(0,10).map((h,i)=>{
           const c=CHIP[h.num];
           return `<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.04)">
             <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:'Oswald',sans-serif">${i+1}</div>
