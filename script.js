@@ -612,11 +612,14 @@ function saveUpi(){
   else showToast('Enter UPI ID and phone','info');
 }
 function logout(){
-  /* Save txList to localStorage BEFORE clearing state so history is preserved */
+  /* Save EVERYTHING including betHistory before clearing session */
   LS.save();
-  /* Clear in-memory session only — do NOT wipe localStorage so portfolio survives */
+  saveUser();  /* persist ledger bets under current user key */
+  /* Clear in-memory session only — do NOT wipe localStorage so portfolio/ledger survive */
   state.bal=0;state.txList=[];state.savedUpi='';state.upi='';state.phone='';
   state.totalDeposit=0;state.totalWithdraw=0;state.userEmail='';
+  /* Clear current-round bets but keep betHistory in memory until re-login */
+  GAME.bets=[];
   showToast('Logged out','info');renderAccTab();updateBal();
 }
 
@@ -973,23 +976,9 @@ function init(){
   ['support','account'].forEach(p=>{const pip=document.getElementById('pip-'+p);if(pip)pip.style.display='none';});
 }
 
-/* ── Backfill history: compute results for all missed periods ── */
+/* ── Backfill history: rebuild shared history from deterministic clock ── */
 function _backfillHistory(){
-  const cur = getSharedPeriod();
-  /* Build a set of periods we already have */
-  const have = new Set(GAME.history.map(h => parseInt(h.period)));
-  /* Fill back up to 20 periods starting from cur-1 */
-  for(let p = cur - 1; p >= cur - 20 && GAME.history.length < 20; p--){
-    if(!have.has(p)){
-      const r = resultForPeriod(p);
-      /* Insert in correct position (oldest at end, newest at start) */
-      GAME.history.push({period:fmtPeriod(p), num:r.num, result:r.result, colour:r.colour});
-      have.add(p);
-    }
-  }
-  /* Sort descending so newest period is first */
-  GAME.history.sort((a,b)=>parseInt(b.period)-parseInt(a.period));
-  GAME.history = GAME.history.slice(0,20);
+  _rebuildSharedHistory();
   saveShared();
 }
 /* ══════════════════════════════════════════════════════
@@ -1042,13 +1031,31 @@ const GAME = {
   showBetHistory:     false
 };
 
-/* ─── Storage: shared history (same key = same data for all users) ─── */
+/* ─── Shared history: always computed deterministically for all users ─── */
 const SH_KEY = 'ww_gh_v6';
 function loadShared(){
-  try{ const s=JSON.parse(localStorage.getItem(SH_KEY)||'{}'); if(Array.isArray(s.h)) GAME.history=s.h.slice(0,20); }catch(e){}
+  /* Build history purely from deterministic resultForPeriod —
+     this guarantees every user/device/browser sees the EXACT same
+     sequence even if they've never loaded the page before */
+  _rebuildSharedHistory();
 }
 function saveShared(){
   try{ localStorage.setItem(SH_KEY,JSON.stringify({h:GAME.history.slice(0,20)})); }catch(e){}
+}
+/* Always rebuild from the global clock — no localStorage dependency */
+function _rebuildSharedHistory(){
+  const cur = getSharedPeriod();
+  const seen = new Set(GAME.history.map(h=>parseInt(h.period)));
+  for(let p=cur-1; p>=cur-20 && GAME.history.length<20; p--){
+    if(!seen.has(p)){
+      const r=resultForPeriod(p);
+      GAME.history.push({period:fmtPeriod(p),num:r.num,result:r.result,colour:r.colour});
+      seen.add(p);
+    }
+  }
+  /* Sort newest first */
+  GAME.history.sort((a,b)=>parseInt(b.period)-parseInt(a.period));
+  GAME.history=GAME.history.slice(0,20);
 }
 
 /* ─── Storage: per-user bets/history ─── */
@@ -1056,18 +1063,30 @@ function uKey(){ return 'ww_gu_'+(state.userEmail||'guest').replace(/[^a-z0-9]/g
 function loadUser(){
   try{
     const s=JSON.parse(localStorage.getItem(uKey())||'{}');
+    /* Always restore betHistory (last 10 bets) regardless of login state */
     if(Array.isArray(s.bh)) GAME.betHistory=s.bh;
     if(typeof s.lrp==='number') GAME.lastResolvedPeriod=s.lrp;
+    /* Only restore current-round bets if they are from the current period */
     if(Array.isArray(s.bets) && s.bp===getSharedPeriod()) GAME.bets=s.bets;
+    else GAME.bets=[];
   }catch(e){}
 }
 function saveUser(){
   try{
     localStorage.setItem(uKey(),JSON.stringify({
-      bh:GAME.betHistory, lrp:GAME.lastResolvedPeriod,
+      bh:GAME.betHistory.slice(0,10),  /* keep last 10 permanently */
+      lrp:GAME.lastResolvedPeriod,
       bets:GAME.bets, bp:getSharedPeriod()
     }));
   }catch(e){}
+}
+/* Reload user data keyed to new email (called after login) */
+function reloadUserForEmail(email){
+  state.userEmail=email;
+  GAME.betHistory=[];
+  GAME.bets=[];
+  GAME.lastResolvedPeriod=-1;
+  loadUser();
 }
 
 /* Init */
@@ -1093,6 +1112,8 @@ function gameTick(){
   /* Detect period boundary: resolve when timer wraps back to 59-60 */
   if(cur !== GAME.lastResolvedPeriod && t >= 58){
     GAME.lastResolvedPeriod = cur;
+    /* Rebuild shared history from deterministic clock so all users stay in sync */
+    _rebuildSharedHistory();
     resolveGameRound(cur - 1);   // settle the period that just ended
   }
 }
@@ -1122,11 +1143,13 @@ function resolveGameRound(period){
   if(GAME.resultAnimating) return;
   const {num, colour, result} = resultForPeriod(period);
 
-  /* Always push to shared history (even if no bets) so all users see same sequence */
+  /* Always push to shared history (deterministic for all users) */
   const alreadyHave = GAME.history.find(h => h.period === fmtPeriod(period));
   if(!alreadyHave){
     GAME.history.unshift({period:fmtPeriod(period), num, result, colour});
     if(GAME.history.length>20) GAME.history.pop();
+    /* Re-sort to be sure (period numbers must stay descending) */
+    GAME.history.sort((a,b)=>parseInt(b.period)-parseInt(a.period));
     saveShared();
   }
 
@@ -1172,8 +1195,8 @@ function resolveGameRound(period){
         time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
       });
     });
-    if(GAME.betHistory.length>100) GAME.betHistory.length=100;
-    LS.save(); updateBal();
+    if(GAME.betHistory.length>10) GAME.betHistory.length=10;
+    LS.save(); saveUser(); updateBal();
   }
 
   GAME.bets = [];

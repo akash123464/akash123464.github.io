@@ -212,6 +212,8 @@ onAuthStateChanged(auth,async(user)=>{
   currentEmail=user.email||localStorage.getItem('userEmail')||'guest';
   LS.setKey(currentEmail);LS.load();
   state.userEmail=currentEmail;LS.save();updateBal();
+  /* Reload per-user game data (betHistory + current round bets) for this email */
+  if(typeof reloadUserForEmail==='function') reloadUserForEmail(currentEmail);
   const eEl=document.getElementById('accEmail');if(eEl)eEl.textContent=currentEmail;
 
   const wSnap=await getDoc(doc(db,"wallets",currentEmail));
@@ -325,7 +327,11 @@ window.saveUpiPort=async function(){
   LS.save();showToast('✅ Payment info saved!');renderPortfolio();
 };
 window.logout=async function(){
-  if(betsUnsub)betsUnsub();await auth.signOut();localStorage.removeItem('userEmail');window.location.href='login.html';
+  if(betsUnsub)betsUnsub();
+  /* Save ledger bets under current user key before signing out */
+  if(typeof saveUser==='function') saveUser();
+  LS.save();
+  await auth.signOut();localStorage.removeItem('userEmail');window.location.href='login.html';
 };
 window.getUserEmail=()=>currentEmail||localStorage.getItem('userEmail')||'';
 </script>
