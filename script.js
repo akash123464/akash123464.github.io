@@ -1516,18 +1516,28 @@ window.confirmGameBet = function(type, side, num){
 function updateGameBetSummary(){
   const totalBetAmt = GAME.bets.reduce((s,b)=>s+b.amt,0);
   const sumEl = document.getElementById('gameBetSummary');
-  if(sumEl && GAME.bets.length > 0){
-    sumEl.style.display='block';
-    sumEl.innerHTML=`<div class="cgz-bets-bar">
-      <span style="font-size:10px;color:#f5c518;font-weight:700;letter-spacing:.5px">${GAME.bets.length} bet${GAME.bets.length>1?'s':''} · ₹${totalBetAmt}</span>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-        ${GAME.bets.map(b=>{
-          const lbl = b.type==='number' ? 'No.'+b.num : (b.type==='colour' ? b.side.charAt(0).toUpperCase()+b.side.slice(1) : b.side.toUpperCase());
-          return `<span class="cgz-bet-pill">${lbl} ₹${b.amt}</span>`;
-        }).join('')}
-      </div>
-    </div>`;
+  if(!sumEl) return;
+  if(GAME.bets.length === 0){
+    sumEl.style.display='none';
+    sumEl.innerHTML='';
+    return;
   }
+  sumEl.style.display='block';
+  sumEl.innerHTML=`<div class="cgz-bets-bar">
+    <div class="cgz-bets-bar-header">
+      <span class="cgz-bets-count">🎯 ${GAME.bets.length} Active Bet${GAME.bets.length>1?'s':''}</span>
+      <span class="cgz-bets-total">₹${totalBetAmt} placed</span>
+    </div>
+    <div class="cgz-bets-pills">
+      ${GAME.bets.map(b=>{
+        const lbl = b.type==='number' ? 'No.'+b.num : (b.type==='colour' ? b.side.charAt(0).toUpperCase()+b.side.slice(1) : b.side.toUpperCase());
+        const isBig = b.side==='big';
+        const isSmall = b.side==='small';
+        const pillClass = isBig ? 'cgz-bet-pill cgz-pill-big' : isSmall ? 'cgz-bet-pill cgz-pill-small' : 'cgz-bet-pill';
+        return `<span class="${pillClass}">${lbl} ₹${b.amt}</span>`;
+      }).join('')}
+    </div>
+  </div>`;
 }
 
 window.setGameBetAmt = function(amt){
@@ -1719,12 +1729,20 @@ function renderGames(){
       <div class="cgz-particles" id="cgzParticles"></div>
     </div>
 
-    <!-- Active bets bar -->
+    <!-- Active bets bar — always rendered, updateGameBetSummary fills it -->
     <div id="gameBetSummary" style="${GAME.bets.length===0?'display:none':'display:block'}">
       ${GAME.bets.length>0?`<div class="cgz-bets-bar">
-        <span style="font-size:10px;color:#f5c518;font-weight:700;letter-spacing:.5px">${GAME.bets.length} bet${GAME.bets.length>1?'s':''} · ₹${totalBetAmt}</span>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-          ${GAME.bets.map(b=>`<span class="cgz-bet-pill">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</span>`).join('')}
+        <div class="cgz-bets-bar-header">
+          <span class="cgz-bets-count">🎯 ${GAME.bets.length} Active Bet${GAME.bets.length>1?'s':''}</span>
+          <span class="cgz-bets-total">₹${totalBetAmt} placed</span>
+        </div>
+        <div class="cgz-bets-pills">
+          ${GAME.bets.map(b=>{
+            const lbl=b.type==='number'?'No.'+b.num:(b.type==='colour'?b.side.charAt(0).toUpperCase()+b.side.slice(1):b.side.toUpperCase());
+            const isBig=b.side==='big', isSmall=b.side==='small';
+            const pc=isBig?'cgz-bet-pill cgz-pill-big':isSmall?'cgz-bet-pill cgz-pill-small':'cgz-bet-pill';
+            return \`<span class="\${pc}">\${lbl} ₹\${b.amt}</span>\`;
+          }).join('')}
         </div>
       </div>`:''}
     </div>
@@ -1887,6 +1905,8 @@ function renderGames(){
   <div id="gameResultOverlay"></div>`;
 
   if(!GAME.timerInt) startGameTimer();
+  /* Ensure bet summary and last-bets strip are correct after full render */
+  requestAnimationFrame(()=>{ updateGameBetSummary(); _quickUpdateGameUI(); });
 }
 
 /* ── RESIZE: debounced setBetsHeight ── */

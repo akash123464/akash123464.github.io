@@ -216,10 +216,24 @@ onAuthStateChanged(auth,async(user)=>{
   if(typeof reloadUserForEmail==='function') reloadUserForEmail(currentEmail);
   const eEl=document.getElementById('accEmail');if(eEl)eEl.textContent=currentEmail;
 
+  /* Helper: compute total of active game bets already deducted from localStorage
+     but NOT yet reflected in Firestore (placed this round on this device) */
+  function _activeBetDeduction(){
+    if(typeof GAME==='undefined'||!Array.isArray(GAME.bets)) return 0;
+    return GAME.bets.filter(b=>b.deducted).reduce((s,b)=>s+b.amt,0);
+  }
+
   const wSnap=await getDoc(doc(db,"wallets",currentEmail));
   if(wSnap.exists()){
     const d=wSnap.data();
-    if(typeof d.balance==='number')state.bal=d.balance;
+    if(typeof d.balance==='number'){
+      /* Firestore balance may still include the amounts we already deducted locally
+         for active game bets — subtract them to avoid inflating the display */
+      const firestoreBal = d.balance;
+      const localBal = state.bal; /* already has bets deducted via LS.load() */
+      /* Use whichever is lower (most deducted) to be accurate */
+      state.bal = Math.min(firestoreBal, localBal >= 0 ? localBal : firestoreBal);
+    }
     state.savedUpi=d.upiId||state.savedUpi;state.phone=d.phone||state.phone;
     if(typeof d.totalDeposit==='number') state.totalDeposit=d.totalDeposit;
     if(typeof d.totalWithdraw==='number')state.totalWithdraw=d.totalWithdraw;
@@ -229,7 +243,20 @@ onAuthStateChanged(auth,async(user)=>{
   onSnapshot(doc(db,"wallets",currentEmail),(snap)=>{
     if(snap.exists()){
       const d=snap.data();
-      if(typeof d.balance==='number'){state.bal=d.balance;updateBal();LS.save();}
+      if(typeof d.balance==='number'){
+        /* Always subtract active game bet amounts from Firestore balance
+           because those were deducted locally but Firestore may not reflect them yet */
+        const deducted=_activeBetDeduction();
+        const corrected=d.balance-deducted;
+        /* Only apply if it makes balance go DOWN or bets have been cleared */
+        if(deducted===0){
+          state.bal=d.balance;
+        } else {
+          /* Use the minimum of local and Firestore-minus-deduction to avoid jumps */
+          state.bal=Math.min(state.bal, Math.max(0, corrected));
+        }
+        updateBal();LS.save();
+      }
       if(typeof d.totalDeposit==='number'){state.totalDeposit=d.totalDeposit;updateBal();}
       if(typeof d.totalWithdraw==='number'){state.totalWithdraw=d.totalWithdraw;updateBal();}
       const port=document.getElementById('portfolio');
