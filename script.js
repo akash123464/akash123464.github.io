@@ -1416,17 +1416,18 @@ function renderGames(){
   const totalBetAmt = GAME.bets.reduce((s,b)=>s+b.amt,0);
 
   /* ── Chip data: colour, gold rim, glow, face‑gradient, number tint ── */
+  /* Photo mapping: 0=green, 1=violet, 2=red/maroon, 3=green, 4=silver, 5=silver/violet, 6=green, 7=red/maroon, 8=green, 9=green */
   const CHIP=[
-    /* 0 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
-    /* 1 */ {outer:'#5b1fa8',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#3b0d7a 0%,#6d28d9 45%,#2e0a60 100%)',numCol:'#e9d5ff',glow:'rgba(168,85,247,.9)'},
-    /* 2 */ {outer:'#8b1a1a',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#5c0d0d 0%,#b91c1c 45%,#450a0a 100%)',numCol:'#fca5a5',glow:'rgba(239,68,68,.9)'},
-    /* 3 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
-    /* 4 */ {outer:'#7a7a7a',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#4a4a4a 0%,#9ca3af 45%,#374151 100%)',numCol:'#f9fafb',glow:'rgba(200,210,220,.85)'},
-    /* 5 */ {outer:'#5b1fa8',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#3b0d7a 0%,#6d28d9 45%,#2e0a60 100%)',numCol:'#e9d5ff',glow:'rgba(168,85,247,.9)'},
-    /* 6 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
-    /* 7 */ {outer:'#8b1a1a',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#5c0d0d 0%,#b91c1c 45%,#450a0a 100%)',numCol:'#fca5a5',glow:'rgba(239,68,68,.9)'},
-    /* 8 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
-    /* 9 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
+    /* 0 */ {outer:'#0e6b28',rim1:'#d4af37',rim2:'#ffe87a',notch:'#0a5020',face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',numCol:'#86efac',glow:'rgba(34,197,94,1)',glowSoft:'rgba(34,197,94,.45)'},
+    /* 1 */ {outer:'#4c1d95',rim1:'#d4af37',rim2:'#ffe87a',notch:'#35126e',face:'linear-gradient(145deg,#2e0a60 0%,#6d28d9 40%,#8b5cf6 60%,#3b0d7a 100%)',numCol:'#ddd6fe',glow:'rgba(139,92,246,1)',glowSoft:'rgba(139,92,246,.45)'},
+    /* 2 */ {outer:'#7f1d1d',rim1:'#d4af37',rim2:'#ffe87a',notch:'#5a0f0f',face:'linear-gradient(145deg,#450a0a 0%,#991b1b 40%,#dc2626 60%,#5c0d0d 100%)',numCol:'#fca5a5',glow:'rgba(220,38,38,1)',glowSoft:'rgba(220,38,38,.45)'},
+    /* 3 */ {outer:'#0e6b28',rim1:'#d4af37',rim2:'#ffe87a',notch:'#0a5020',face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',numCol:'#86efac',glow:'rgba(34,197,94,1)',glowSoft:'rgba(34,197,94,.45)'},
+    /* 4 */ {outer:'#6b7280',rim1:'#e8e8e8',rim2:'#ffffff',notch:'#4b5563',face:'linear-gradient(145deg,#374151 0%,#9ca3af 40%,#d1d5db 60%,#4b5563 100%)',numCol:'#f9fafb',glow:'rgba(209,213,219,1)',glowSoft:'rgba(209,213,219,.5)'},
+    /* 5 */ {outer:'#4c1d95',rim1:'#d4af37',rim2:'#ffe87a',notch:'#35126e',face:'linear-gradient(145deg,#2e0a60 0%,#6d28d9 40%,#8b5cf6 60%,#3b0d7a 100%)',numCol:'#ddd6fe',glow:'rgba(139,92,246,1)',glowSoft:'rgba(139,92,246,.45)'},
+    /* 6 */ {outer:'#0e6b28',rim1:'#d4af37',rim2:'#ffe87a',notch:'#0a5020',face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',numCol:'#86efac',glow:'rgba(34,197,94,1)',glowSoft:'rgba(34,197,94,.45)'},
+    /* 7 */ {outer:'#7f1d1d',rim1:'#d4af37',rim2:'#ffe87a',notch:'#5a0f0f',face:'linear-gradient(145deg,#450a0a 0%,#991b1b 40%,#dc2626 60%,#5c0d0d 100%)',numCol:'#fca5a5',glow:'rgba(220,38,38,1)',glowSoft:'rgba(220,38,38,.45)'},
+    /* 8 */ {outer:'#0e6b28',rim1:'#d4af37',rim2:'#ffe87a',notch:'#0a5020',face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',numCol:'#86efac',glow:'rgba(34,197,94,1)',glowSoft:'rgba(34,197,94,.45)'},
+    /* 9 */ {outer:'#0e6b28',rim1:'#d4af37',rim2:'#ffe87a',notch:'#0a5020',face:'linear-gradient(145deg,#0a4a1c 0%,#16a34a 40%,#22c55e 60%,#0d5c25 100%)',numCol:'#86efac',glow:'rgba(34,197,94,1)',glowSoft:'rgba(34,197,94,.45)'},
   ];
 
   const timerCol  = isLow ? '#ff3333' : '#f5c518';
@@ -1534,30 +1535,34 @@ function renderGames(){
           ${[0,1,2,3,4,5,6,7,8,9].map(n=>{
             const c=CHIP[n];
             return `<button class="cgz-chip" onclick="placeBetOnNumber(${n})"
-              style="--chip-outer:${c.outer};--chip-glow:${c.glow};--chip-rim1:${c.rim1};--chip-rim2:${c.rim2}">
-              <!-- Gold outer ring -->
-              <div class="cgz-chip-outer" style="background:radial-gradient(circle,${c.rim2} 0%,${c.rim1} 40%,#8a6200 100%)">
-                <!-- Notch tabs around rim (like real poker chip) -->
-                <div class="cgz-chip-notch cgz-notch-n" style="background:${c.outer}"></div>
-                <div class="cgz-chip-notch cgz-notch-s" style="background:${c.outer}"></div>
-                <div class="cgz-chip-notch cgz-notch-w" style="background:${c.outer}"></div>
-                <div class="cgz-chip-notch cgz-notch-e" style="background:${c.outer}"></div>
-                <div class="cgz-chip-notch cgz-notch-nw" style="background:${c.outer}"></div>
-                <div class="cgz-chip-notch cgz-notch-ne" style="background:${c.outer}"></div>
-                <div class="cgz-chip-notch cgz-notch-sw" style="background:${c.outer}"></div>
-                <div class="cgz-chip-notch cgz-notch-se" style="background:${c.outer}"></div>
+              style="--chip-glow:${c.glow}">
+              <!-- Deep shadow base -->
+              <div class="cgz-chip-shadow" style="box-shadow:0 8px 24px ${c.glowSoft},0 4px 12px rgba(0,0,0,.8)"></div>
+              <!-- Gold outer rim with radial shine -->
+              <div class="cgz-chip-outer" style="background:conic-gradient(from 0deg,#8a6200,${c.rim1},#ffe87a,${c.rim1},#8a6200,${c.rim1},#ffe87a,${c.rim1},#8a6200)">
+                <!-- 8 colour notches cutting through gold rim -->
+                <div class="cgz-chip-notch cgz-notch-n" style="background:${c.notch}"></div>
+                <div class="cgz-chip-notch cgz-notch-s" style="background:${c.notch}"></div>
+                <div class="cgz-chip-notch cgz-notch-w" style="background:${c.notch}"></div>
+                <div class="cgz-chip-notch cgz-notch-e" style="background:${c.notch}"></div>
+                <div class="cgz-chip-notch cgz-notch-nw" style="background:${c.notch}"></div>
+                <div class="cgz-chip-notch cgz-notch-ne" style="background:${c.notch}"></div>
+                <div class="cgz-chip-notch cgz-notch-sw" style="background:${c.notch}"></div>
+                <div class="cgz-chip-notch cgz-notch-se" style="background:${c.notch}"></div>
               </div>
-              <!-- Coloured face -->
-              <div class="cgz-chip-face" style="background:${c.face}">
-                <!-- Inner gold ring on face -->
-                <div class="cgz-chip-inner-ring" style="border:1.5px solid ${c.rim1}88"></div>
-                <!-- Highlight -->
+              <!-- Main coloured face -->
+              <div class="cgz-chip-face" style="background:${c.face};box-shadow:inset 0 4px 14px rgba(255,255,255,.18),inset 0 -5px 14px rgba(0,0,0,.7),0 0 0 2px ${c.rim1}44">
+                <!-- Thin inner gold ring -->
+                <div class="cgz-chip-inner-ring" style="border:2px solid ${c.rim1};box-shadow:0 0 6px ${c.rim1}55,inset 0 0 4px rgba(0,0,0,.4)"></div>
+                <!-- Gloss specular highlight -->
                 <div class="cgz-chip-highlight"></div>
+                <!-- Secondary subtle highlight -->
+                <div class="cgz-chip-highlight2"></div>
                 <!-- Number -->
-                <span class="cgz-chip-num" style="color:${c.numCol};text-shadow:0 0 14px ${c.glow},0 0 28px ${c.glow.replace('.9','.5')},0 2px 6px rgba(0,0,0,.95)">${n}</span>
+                <span class="cgz-chip-num" style="color:${c.numCol};text-shadow:0 0 12px ${c.glow},0 0 26px ${c.glowSoft},0 2px 0 rgba(0,0,0,.9),0 -1px 0 rgba(255,255,255,.15)">${n}</span>
               </div>
-              <!-- Outer glow -->
-              <div class="cgz-chip-glow" style="box-shadow:0 0 20px ${c.glow},0 0 40px ${c.glow.replace('.9','.4')},0 4px 16px rgba(0,0,0,.8)"></div>
+              <!-- Outer glow halo -->
+              <div class="cgz-chip-glow" style="box-shadow:0 0 18px ${c.glowSoft},0 0 36px ${c.glowSoft.replace('.45','.2')},inset 0 0 0 2px ${c.rim1}22"></div>
             </button>`;
           }).join('')}
         </div>
