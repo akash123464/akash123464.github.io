@@ -1338,378 +1338,404 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
 }
 
 
-/* ═══════════════════════════════════════════════════════════════
-   CASINO GAME ZONE  —  Premium felt table, gold chips, 3D timer
-   Matches reference image: dark green felt, gold borders, vivid chips
-═══════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   CGZ — CASINO GAME ZONE  v2  (pixel-perfect to reference image)
+   Dark green felt · gold borders · 3D timer · real poker chips
+════════════════════════════════════════════════════════════════ */
 
 /* ── Keyframes ── */
-@keyframes casinoGoldPulse{
-  0%,100%{text-shadow:0 0 24px rgba(245,200,66,.9),0 0 48px rgba(245,180,40,.5),0 4px 0 rgba(120,80,0,.9),0 2px 0 #6b4400}
-  50%{text-shadow:0 0 36px rgba(255,220,80,1),0 0 72px rgba(255,200,60,.7),0 4px 0 rgba(150,100,0,.9),0 2px 0 #8a5a00}
+@keyframes cgzGoldTimer{
+  0%,100%{text-shadow:0 0 30px rgba(255,210,40,.95),0 0 60px rgba(220,160,20,.55),0 6px 0 #5a3a00,0 3px 0 #3a2500}
+  50%{text-shadow:0 0 50px rgba(255,230,60,1),0 0 100px rgba(255,200,30,.7),0 6px 0 #7a5000,0 3px 0 #503500}
 }
-@keyframes casinoRedPulse{
-  0%,100%{text-shadow:0 0 20px #ff4444,0 0 40px rgba(255,68,68,.6),0 4px 0 rgba(180,0,0,.8)}
-  50%{text-shadow:0 0 32px #ff0000,0 0 64px rgba(255,40,40,.8),0 4px 0 #900000}
+@keyframes cgzRedTimer{
+  0%,100%{text-shadow:0 0 30px rgba(255,50,50,.95),0 0 60px rgba(255,0,0,.5),0 6px 0 #5a0000,0 3px 0 #3a0000}
+  50%{text-shadow:0 0 50px rgba(255,80,80,1),0 0 100px rgba(255,20,20,.75),0 6px 0 #7a0000,0 3px 0 #500000}
 }
-@keyframes casinoLockPulse{
-  0%,100%{box-shadow:0 0 8px rgba(255,60,60,.3)}
-  50%{box-shadow:0 0 20px rgba(255,60,60,.6)}
+@keyframes cgzLockPulse{
+  0%,100%{box-shadow:0 0 8px rgba(255,60,60,.3)}50%{box-shadow:0 0 22px rgba(255,60,60,.65)}
 }
-@keyframes chipFloat{
+@keyframes cgzChipFloat{
   0%,100%{transform:translateY(0) rotate(0deg)}
-  33%{transform:translateY(-3px) rotate(.8deg)}
-  66%{transform:translateY(-1px) rotate(-.5deg)}
+  30%{transform:translateY(-4px) rotate(.6deg)}
+  65%{transform:translateY(-2px) rotate(-.4deg)}
 }
-@keyframes feltShimmer{
-  0%{background-position:0% 0%}
-  100%{background-position:100% 100%}
+@keyframes cgzSpotlight{
+  0%,100%{opacity:.2}50%{opacity:.32}
 }
-@keyframes spotlightPulse{
-  0%,100%{opacity:.18}
-  50%{opacity:.28}
+@keyframes cgzBtnShine{
+  0%{left:-130%}55%,100%{left:160%}
 }
-@keyframes goldBorderGlow{
-  0%,100%{box-shadow:0 0 0 2px rgba(212,175,55,.4),0 4px 24px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,240,160,.2)}
-  50%{box-shadow:0 0 0 2px rgba(255,210,80,.7),0 4px 32px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,250,180,.35)}
+@keyframes cgzBorderGold{
+  0%,100%{box-shadow:0 0 0 2px rgba(212,175,55,.45),0 5px 28px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,240,160,.18)}
+  50%{box-shadow:0 0 0 2.5px rgba(255,215,80,.75),0 5px 36px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,250,190,.3)}
 }
-@keyframes chipPressAnim{
-  0%{transform:scale(1)}
-  40%{transform:scale(.88)}
-  100%{transform:scale(1)}
+@keyframes cgzChipPress{
+  0%{transform:scale(1) translateY(0)}
+  40%{transform:scale(.86) translateY(3px)}
+  100%{transform:scale(1) translateY(0)}
 }
-@keyframes sparkleFloat{
-  0%{opacity:1;transform:translateY(0) scale(1)}
-  100%{opacity:0;transform:translateY(-40px) scale(0)}
-}
-@keyframes ccbShine{
-  0%{left:-120%}
-  60%,100%{left:160%}
+@keyframes cgzParticle{
+  0%{opacity:.9;transform:translateY(0) scale(1)}
+  100%{opacity:0;transform:translateY(-60px) scale(0) rotate(45deg)}
 }
 
-/* ── Wrapper ── */
-.casino-game-wrap{
+/* ── Root wrapper ── */
+.cgz-root{
   position:relative;
   min-height:100vh;
-  padding:0 0 100px;
-  overflow:hidden;
+  padding:0 0 110px;
+  overflow-x:hidden;
 }
 
-/* ── Casino felt background ── */
-.casino-felt-bg{
-  position:absolute;inset:0;z-index:0;
+/* ── Background layers ── */
+.cgz-bg-felt{
+  position:fixed;inset:0;z-index:0;
   background:
-    radial-gradient(ellipse at 50% 0%,rgba(0,80,30,.9) 0%,rgba(0,50,20,.7) 40%,rgba(0,20,8,1) 100%),
-    repeating-linear-gradient(
-      45deg,
-      transparent 0px,transparent 2px,
-      rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px
-    );
-  background-color:#011a08;
+    radial-gradient(ellipse 120% 60% at 50% 0%,rgba(5,90,35,.95) 0%,rgba(2,55,18,.85) 38%,rgba(1,22,7,1) 85%),
+    radial-gradient(ellipse 80% 40% at 50% 100%,rgba(2,40,12,.8) 0%,transparent 60%);
+  background-color:#011205;
   pointer-events:none;
 }
-.casino-vignette{
-  position:absolute;inset:0;z-index:1;
-  background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(0,0,0,.65) 100%);
+.cgz-bg-grain{
+  position:fixed;inset:0;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size:200px 200px;
+  opacity:.5;pointer-events:none;
+}
+.cgz-bg-vignette{
+  position:fixed;inset:0;z-index:2;
+  background:radial-gradient(ellipse at 50% 50%,transparent 25%,rgba(0,0,0,.72) 100%);
   pointer-events:none;
 }
-.casino-spotlight{
-  position:absolute;top:-10%;left:50%;transform:translateX(-50%);
-  width:80%;height:60%;z-index:1;
-  background:radial-gradient(ellipse at 50% 0%,rgba(255,220,100,.12) 0%,transparent 70%);
-  animation:spotlightPulse 4s ease-in-out infinite;
+.cgz-spotlight{
+  position:fixed;top:-5%;left:50%;transform:translateX(-50%);
+  width:75%;height:55%;z-index:2;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,220,80,.13) 0%,rgba(255,200,60,.04) 40%,transparent 70%);
+  animation:cgzSpotlight 5s ease-in-out infinite;
   pointer-events:none;
+}
+.cgz-spotlight2{
+  width:50%;height:30%;
+  background:radial-gradient(ellipse at 50% 0%,rgba(120,255,160,.06) 0%,transparent 70%);
+  animation-delay:2.5s;
 }
 
 /* ── Top bar ── */
-.casino-topbar{
-  position:relative;z-index:2;
+.cgz-topbar{
+  position:relative;z-index:3;
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px 10px;
+  padding:14px 16px 8px;
 }
-.casino-period-box{}
-.casino-period-lbl{
-  font-size:9px;color:rgba(212,175,55,.6);font-weight:700;letter-spacing:2px;text-transform:uppercase;
+.cgz-period-lbl{
+  font-size:9px;color:rgba(212,175,55,.6);font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
 }
-.casino-period-val{
-  font-family:'Oswald',sans-serif;font-size:12px;color:rgba(255,235,140,.75);
-  font-weight:600;letter-spacing:.5px;margin-top:1px;
+.cgz-period-val{
+  font-family:'Oswald',sans-serif;font-size:12px;color:rgba(255,235,140,.8);
+  font-weight:600;letter-spacing:.5px;margin-top:2px;
 }
-.casino-chips-row{
-  display:flex;gap:6px;align-items:center;
-}
-.casino-hist-chip{
-  width:34px;height:34px;border-radius:50%;
+.cgz-hist-chips{display:flex;gap:7px;align-items:center;}
+.cgz-hist-chip{
+  width:36px;height:36px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-  position:relative;
+  position:relative;flex-shrink:0;
+}
+.cgz-hchip-rim{
+  position:absolute;inset:3px;border-radius:50%;pointer-events:none;
 }
 
-/* ── GIANT GOLD TIMER ── */
-.casino-timer-section{
-  position:relative;z-index:2;
+/* ── Giant Gold Timer ── */
+.cgz-timer-wrap{
+  position:relative;z-index:3;
   text-align:center;
-  padding:10px 16px 16px;
-  margin:0 12px 14px;
-  border-radius:20px;
-  background:linear-gradient(160deg,rgba(0,50,20,.6),rgba(0,20,8,.85));
-  border:1.5px solid rgba(212,175,55,.35);
-  box-shadow:0 0 0 1px rgba(212,175,55,.15),0 8px 40px rgba(0,0,0,.5);
+  padding:8px 16px 18px;
+  margin:0 10px 12px;
+  border-radius:22px;
+  background:linear-gradient(170deg,rgba(0,55,18,.55),rgba(0,25,8,.7));
+  border:1.5px solid rgba(212,175,55,.28);
+  box-shadow:0 0 0 1px rgba(212,175,55,.1),0 10px 50px rgba(0,0,0,.55);
 }
-.casino-timer-section.timer-low{
-  border-color:rgba(255,60,60,.7);
-  box-shadow:0 0 0 1px rgba(255,60,60,.3),0 8px 40px rgba(0,0,0,.5),0 0 40px rgba(255,60,60,.15);
-  animation:casinoLockPulse 1s ease-in-out infinite;
+.cgz-timer-wrap.cgz-timer-low{
+  border-color:rgba(255,60,60,.55);
+  box-shadow:0 0 0 1px rgba(255,40,40,.2),0 10px 50px rgba(0,0,0,.55),0 0 50px rgba(255,40,40,.12);
+  animation:cgzLockPulse 1s ease-in-out infinite;
 }
-.casino-timer-label{
-  font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
-  color:rgba(212,175,55,.7);margin-bottom:4px;
-  font-family:'Oswald',sans-serif;
+.cgz-timer-label-row{
+  font-size:11px;font-weight:800;letter-spacing:3.5px;text-transform:uppercase;
+  color:rgba(212,175,55,.65);margin-bottom:2px;font-family:'Oswald',sans-serif;
 }
-.casino-timer-digits{
+.cgz-timer-digits{
   font-family:'Oswald',sans-serif;
   font-weight:900;
-  font-size:96px;
-  line-height:1;
-  letter-spacing:8px;
-  color:#f5c842;
-  animation:casinoGoldPulse 2s ease-in-out infinite;
-  /* 3D extrude effect */
-  -webkit-text-stroke:1px rgba(120,80,0,.5);
+  font-size:104px;
+  line-height:.95;
+  letter-spacing:10px;
   display:block;
+  animation:cgzGoldTimer 2.5s ease-in-out infinite;
+  /* Deep 3D layered text extrusion */
+  -webkit-text-stroke:1.5px rgba(80,50,0,.4);
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.5));
 }
-.casino-timer-section.timer-low .casino-timer-digits{
-  animation:casinoRedPulse 0.7s ease-in-out infinite;
+.cgz-timer-wrap.cgz-timer-low .cgz-timer-digits{
+  animation:cgzRedTimer .8s ease-in-out infinite;
 }
-.casino-sparkles{
-  position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:20px;
+.cgz-particles{
+  position:absolute;inset:0;border-radius:22px;overflow:hidden;pointer-events:none;
 }
 
-/* ── Active bets summary ── */
-.casino-bets-summary{
-  position:relative;z-index:2;
-  margin:0 12px 12px;
-  padding:10px 14px;
-  border-radius:14px;
-  background:rgba(212,175,55,.06);
+/* ── Bets bar ── */
+.cgz-bets-bar{
+  position:relative;z-index:3;
+  margin:0 12px 10px;
+  padding:9px 13px;
+  border-radius:12px;
+  background:rgba(212,175,55,.07);
   border:1px solid rgba(212,175,55,.22);
 }
+.cgz-bet-pill{
+  padding:3px 9px;border-radius:50px;
+  background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.3);
+  font-size:11px;font-weight:700;color:#f5c518;
+}
 
-/* ── Colour buttons: Green/Violet/Red ── */
-.casino-colour-grid{
-  position:relative;z-index:2;
+/* ── Green / Violet / Red buttons ── */
+.cgz-colour-row{
+  position:relative;z-index:3;
   display:grid;grid-template-columns:1fr 1fr 1fr;
-  gap:10px;padding:0 12px;margin-bottom:12px;
+  gap:9px;padding:0 12px;margin-bottom:11px;
 }
-.casino-colour-btn{
+.cgz-col-btn{
   position:relative;overflow:hidden;
-  border-radius:12px;
+  border:none;cursor:pointer;
+  border-radius:13px;
   padding:18px 6px 14px;
-  cursor:pointer;
-  border:2px solid transparent;
-  background:transparent;
   display:flex;flex-direction:column;align-items:center;
-  transition:transform .12s cubic-bezier(.34,1.56,.64,1);
   -webkit-tap-highlight-color:transparent;
+  transition:transform .12s cubic-bezier(.34,1.56,.64,1),filter .12s;
 }
-.casino-colour-btn:active{transform:scale(.91);}
-/* Decorative corners like reference image */
-.ccb-corner{
-  position:absolute;width:10px;height:10px;
-  border-color:rgba(255,255,255,.25);border-style:solid;
-}
-.ccb-tl{top:5px;left:5px;border-width:1.5px 0 0 1.5px;}
-.ccb-tr{top:5px;right:5px;border-width:1.5px 1.5px 0 0;}
-.ccb-bl{bottom:5px;left:5px;border-width:0 0 1.5px 1.5px;}
-.ccb-br{bottom:5px;right:5px;border-width:0 1.5px 1.5px 0;}
-.ccb-inner{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;z-index:1;}
-.ccb-name{
-  font-family:'Oswald',sans-serif;font-weight:800;font-size:18px;color:#fff;
-  text-shadow:0 1px 6px rgba(0,0,0,.8),0 0 20px currentColor;
-  letter-spacing:.5px;
-}
-.ccb-odds{font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px;}
+.cgz-col-btn:active{transform:scale(.89);filter:brightness(.85);}
 /* Shine sweep */
-.casino-colour-btn::before{
-  content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;
-  background:linear-gradient(105deg,transparent,rgba(255,255,255,.14),transparent);
-  animation:ccbShine 3.5s ease-in-out infinite;
+.cgz-col-shine{
+  position:absolute;top:0;left:-130%;width:60%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.16),transparent);
+  animation:cgzBtnShine 4s ease-in-out infinite;
   pointer-events:none;
 }
-.casino-green-btn{
-  background:linear-gradient(145deg,#134a20,#0a2e12,#0d3818);
-  border-color:rgba(50,180,80,.7);
-  box-shadow:0 0 20px rgba(34,197,94,.2),0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(100,220,120,.2);
-  animation:goldBorderGlow 3s ease-in-out infinite;
+/* Corner decorations — filigree look */
+.cgz-col-deco{
+  position:absolute;width:12px;height:12px;
+  border-color:rgba(255,255,255,.22);border-style:solid;pointer-events:none;
 }
-.casino-violet-btn{
-  background:linear-gradient(145deg,#2d1054,#1a0830,#220d42);
-  border-color:rgba(168,85,247,.7);
-  box-shadow:0 0 20px rgba(168,85,247,.2),0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(200,140,255,.2);
+.cgz-col-deco-tl{top:5px;left:5px;border-width:1.5px 0 0 1.5px;border-radius:2px 0 0 0;}
+.cgz-col-deco-tr{top:5px;right:5px;border-width:1.5px 1.5px 0 0;border-radius:0 2px 0 0;}
+.cgz-col-deco-bl{bottom:5px;left:5px;border-width:0 0 1.5px 1.5px;border-radius:0 0 0 2px;}
+.cgz-col-deco-br{bottom:5px;right:5px;border-width:0 1.5px 1.5px 0;border-radius:0 0 2px 0;}
+.cgz-col-inner{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;z-index:1;}
+.cgz-col-name{
+  font-family:'Oswald',sans-serif;font-weight:800;font-size:19px;
+  color:#fff;letter-spacing:.5px;
+  text-shadow:0 2px 8px rgba(0,0,0,.9),0 0 24px rgba(255,255,255,.25);
 }
-.casino-red-btn{
-  background:linear-gradient(145deg,#4a0e0e,#2e0808,#3a0a0a);
-  border-color:rgba(239,68,68,.7);
-  box-shadow:0 0 20px rgba(239,68,68,.2),0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,120,120,.2);
+.cgz-col-odds{font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.8px;}
+/* Button themes */
+.cgz-green{
+  background:linear-gradient(160deg,#0f4a20 0%,#1a6b2e 40%,#0b3516 100%);
+  border:2px solid rgba(60,190,80,.65);
+  box-shadow:0 0 0 1px rgba(40,160,60,.3),0 5px 24px rgba(0,0,0,.65),inset 0 1px 0 rgba(100,220,120,.18),inset 0 -2px 0 rgba(0,0,0,.3);
+  animation:cgzBorderGold 4s ease-in-out infinite;
+}
+.cgz-violet{
+  background:linear-gradient(160deg,#2a0e5c 0%,#4c1d95 40%,#1e0844 100%);
+  border:2px solid rgba(150,80,240,.65);
+  box-shadow:0 0 0 1px rgba(130,60,220,.3),0 5px 24px rgba(0,0,0,.65),inset 0 1px 0 rgba(200,150,255,.18),inset 0 -2px 0 rgba(0,0,0,.3);
+}
+.cgz-red{
+  background:linear-gradient(160deg,#450a0a 0%,#7f1d1d 40%,#320808 100%);
+  border:2px solid rgba(200,50,50,.65);
+  box-shadow:0 0 0 1px rgba(180,30,30,.3),0 5px 24px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,120,120,.18),inset 0 -2px 0 rgba(0,0,0,.3);
 }
 
-/* ── Number section ── */
-.casino-number-section{
-  position:relative;z-index:2;
-  margin:0 12px 12px;
-  background:rgba(0,0,0,.25);
-  border:1px solid rgba(212,175,55,.2);
+/* ── Number chip section ── */
+.cgz-num-section{
+  position:relative;z-index:3;
+  margin:0 12px 11px;
+  background:rgba(0,0,0,.28);
+  border:1.5px solid rgba(212,175,55,.22);
   border-radius:18px;
-  padding:12px;
+  padding:11px 10px 13px;
+  box-shadow:inset 0 2px 12px rgba(0,0,0,.35),0 4px 24px rgba(0,0,0,.4);
 }
-.casino-number-label{
-  text-align:center;margin-bottom:12px;
+.cgz-num-label{
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  font-size:9px;color:rgba(212,175,55,.6);font-weight:700;
+  letter-spacing:1.5px;text-align:center;margin-bottom:12px;
+  text-transform:uppercase;
 }
-.casino-chip-grid{
+.cgz-num-label-icon{font-size:11px;}
+.cgz-chip-grid{
   display:grid;
   grid-template-columns:repeat(5,1fr);
   gap:10px;
 }
 
-/* ── Poker Chip buttons ── */
-.casino-chip-btn{
+/* ── Poker chip button ── */
+.cgz-chip{
   position:relative;
   width:100%;
   aspect-ratio:1/1;
   border-radius:50%;
   cursor:pointer;
-  padding:0;
-  background:transparent;
-  border:none;
+  border:none;background:transparent;padding:0;
   -webkit-tap-highlight-color:transparent;
   transition:transform .15s cubic-bezier(.34,1.56,.64,1);
-  animation:chipFloat 3s ease-in-out infinite;
+  animation:cgzChipFloat 3.2s ease-in-out infinite;
 }
-.casino-chip-btn:nth-child(2){animation-delay:.3s}
-.casino-chip-btn:nth-child(3){animation-delay:.6s}
-.casino-chip-btn:nth-child(4){animation-delay:.9s}
-.casino-chip-btn:nth-child(5){animation-delay:1.2s}
-.casino-chip-btn:nth-child(6){animation-delay:.15s}
-.casino-chip-btn:nth-child(7){animation-delay:.45s}
-.casino-chip-btn:nth-child(8){animation-delay:.75s}
-.casino-chip-btn:nth-child(9){animation-delay:1.05s}
-.casino-chip-btn:nth-child(10){animation-delay:1.35s}
-.casino-chip-btn:active{animation:chipPressAnim .25s ease forwards}
+.cgz-chip:nth-child(1){animation-delay:0s}
+.cgz-chip:nth-child(2){animation-delay:.32s}
+.cgz-chip:nth-child(3){animation-delay:.64s}
+.cgz-chip:nth-child(4){animation-delay:.96s}
+.cgz-chip:nth-child(5){animation-delay:1.28s}
+.cgz-chip:nth-child(6){animation-delay:.16s}
+.cgz-chip:nth-child(7){animation-delay:.48s}
+.cgz-chip:nth-child(8){animation-delay:.80s}
+.cgz-chip:nth-child(9){animation-delay:1.12s}
+.cgz-chip:nth-child(10){animation-delay:1.44s}
+.cgz-chip:active{animation:cgzChipPress .28s ease forwards;}
 
-/* Outer rim of chip */
-.chip-rim{
+/* Gold outer ring — the entire button background */
+.cgz-chip-outer{
   position:absolute;inset:0;border-radius:50%;
 }
-/* Notches on rim */
-.chip-notch{position:absolute;width:6px;height:10px;border-radius:3px;}
-.chip-notch-t{top:2px;left:50%;transform:translateX(-50%);}
-.chip-notch-b{bottom:2px;left:50%;transform:translateX(-50%);}
-.chip-notch-l{left:2px;top:50%;transform:translateY(-50%) rotate(90deg);}
-.chip-notch-r{right:2px;top:50%;transform:translateY(-50%) rotate(90deg);}
+/* 8 notch cutouts in the gold ring */
+.cgz-chip-notch{
+  position:absolute;border-radius:3px;
+}
+/* N/S notches */
+.cgz-notch-n{width:18%;height:10%;top:2%;left:41%;}
+.cgz-notch-s{width:18%;height:10%;bottom:2%;left:41%;}
+/* W/E notches */
+.cgz-notch-w{width:10%;height:18%;top:41%;left:2%;}
+.cgz-notch-e{width:10%;height:18%;top:41%;right:2%;}
+/* Diagonal notches */
+.cgz-notch-nw{width:13%;height:13%;top:8%;left:8%;border-radius:50%;}
+.cgz-notch-ne{width:13%;height:13%;top:8%;right:8%;border-radius:50%;}
+.cgz-notch-sw{width:13%;height:13%;bottom:8%;left:8%;border-radius:50%;}
+.cgz-notch-se{width:13%;height:13%;bottom:8%;right:8%;border-radius:50%;}
 
-/* Inner face of chip */
-.chip-face{
-  position:absolute;inset:6px;border-radius:50%;
+/* Coloured face inside the gold ring */
+.cgz-chip-face{
+  position:absolute;inset:14%;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 3px 10px rgba(255,255,255,.14),inset 0 -4px 10px rgba(0,0,0,.6);
 }
-.chip-num{
-  font-family:'Oswald',sans-serif;font-weight:900;font-size:22px;
-  position:relative;z-index:1;
-  letter-spacing:0;
+/* Inner gold ring on the face */
+.cgz-chip-inner-ring{
+  position:absolute;inset:8%;border-radius:50%;pointer-events:none;
 }
-/* Outer glow ring */
-.chip-glow-ring{
-  position:absolute;inset:-3px;border-radius:50%;
-  pointer-events:none;
+/* Highlight gloss */
+.cgz-chip-highlight{
+  position:absolute;top:8%;left:15%;width:40%;height:35%;
+  background:radial-gradient(ellipse at 40% 30%,rgba(255,255,255,.38) 0%,transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+/* Number */
+.cgz-chip-num{
+  font-family:'Oswald',sans-serif;font-weight:900;
+  font-size:clamp(16px,4.5vw,24px);
+  position:relative;z-index:1;letter-spacing:0;
+}
+/* Outer glow underneath chip */
+.cgz-chip-glow{
+  position:absolute;inset:-4px;border-radius:50%;pointer-events:none;
+  z-index:-1;
 }
 
-/* ── Bet amount chips ── */
-.casino-amount-section{
-  position:relative;z-index:2;
-  padding:0 12px;margin-bottom:12px;
+/* ── Bet amount row ── */
+.cgz-amt-section{
+  position:relative;z-index:3;
+  padding:0 12px;margin-bottom:11px;
 }
-.casino-amount-lbl{
-  font-size:9px;color:rgba(212,175,55,.5);font-weight:700;letter-spacing:1.5px;
-  text-transform:uppercase;margin-bottom:8px;
+.cgz-amt-lbl{
+  font-size:9px;color:rgba(212,175,55,.5);font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;
 }
-.casino-amount-chips{
-  display:flex;gap:7px;flex-wrap:wrap;
-}
-.casino-amt-chip{
+.cgz-amt-row{display:flex;gap:7px;flex-wrap:wrap;}
+.cgz-amt-pill{
   padding:8px 14px;border-radius:50px;
-  background:rgba(255,255,255,.06);
-  border:1.5px solid rgba(212,175,55,.2);
-  color:rgba(255,255,255,.5);
+  background:rgba(0,0,0,.35);
+  border:1.5px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.45);
   font-weight:700;font-size:12px;cursor:pointer;
   font-family:'Oswald',sans-serif;letter-spacing:.5px;
   transition:all .18s ease;
 }
-.casino-amt-chip.active{
-  background:rgba(212,175,55,.15);
+.cgz-amt-pill.cgz-amt-active{
+  background:rgba(212,175,55,.14);
   border-color:rgba(212,175,55,.8);
-  color:#f5c842;
-  box-shadow:0 0 14px rgba(212,175,55,.3);
+  color:#f5c518;
+  box-shadow:0 0 14px rgba(212,175,55,.25),inset 0 1px 0 rgba(255,240,160,.1);
 }
 
 /* ── SMALL / BIG buttons ── */
-.casino-sb-grid{
-  position:relative;z-index:2;
+.cgz-sb-row{
+  position:relative;z-index:3;
   display:grid;grid-template-columns:1fr 1fr;
-  gap:12px;padding:0 12px;margin-bottom:14px;
+  gap:11px;padding:0 12px;margin-bottom:14px;
 }
-.casino-sb-btn{
+.cgz-sb-btn{
   position:relative;overflow:hidden;
-  border-radius:14px;
+  border:none;cursor:pointer;border-radius:15px;
   padding:22px 10px 16px;
-  cursor:pointer;
-  border:2px solid transparent;
-  background:transparent;
   display:flex;flex-direction:column;align-items:center;gap:5px;
-  transition:transform .12s cubic-bezier(.34,1.56,.64,1);
   -webkit-tap-highlight-color:transparent;
-  animation:goldBorderGlow 3.5s ease-in-out infinite;
+  transition:transform .12s cubic-bezier(.34,1.56,.64,1),filter .12s;
+  animation:cgzBorderGold 4s ease-in-out infinite;
 }
-.casino-sb-btn:active{transform:scale(.93);}
-/* Corner decorations */
-.csb-corner{
-  position:absolute;width:14px;height:14px;
-  border-color:rgba(255,255,255,.2);border-style:solid;
+.cgz-sb-btn:active{transform:scale(.91);filter:brightness(.85);}
+.cgz-sb-shine{
+  position:absolute;top:0;left:-130%;width:55%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.12),transparent);
+  animation:cgzBtnShine 5s ease-in-out infinite;pointer-events:none;
 }
-.csb-tl{top:6px;left:6px;border-width:1.5px 0 0 1.5px;}
-.csb-tr{top:6px;right:6px;border-width:1.5px 1.5px 0 0;}
-.csb-bl{bottom:6px;left:6px;border-width:0 0 1.5px 1.5px;}
-.csb-br{bottom:6px;right:6px;border-width:0 1.5px 1.5px 0;}
-.casino-sb-btn::before{
-  content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;
-  background:linear-gradient(105deg,transparent,rgba(255,255,255,.1),transparent);
-  animation:ccbShine 4s ease-in-out infinite;pointer-events:none;
+/* Corner decos */
+.cgz-sb-deco{
+  position:absolute;width:16px;height:16px;
+  border-color:rgba(255,255,255,.2);border-style:solid;pointer-events:none;
 }
-.csb-name{
-  font-family:'Oswald',sans-serif;font-weight:900;font-size:28px;color:#fff;
-  text-shadow:0 2px 8px rgba(0,0,0,.8);letter-spacing:2px;
+.cgz-sb-deco-tl{top:7px;left:7px;border-width:1.5px 0 0 1.5px;border-radius:2px 0 0 0;}
+.cgz-sb-deco-tr{top:7px;right:7px;border-width:1.5px 1.5px 0 0;border-radius:0 2px 0 0;}
+.cgz-sb-deco-bl{bottom:7px;left:7px;border-width:0 0 1.5px 1.5px;border-radius:0 0 0 2px;}
+.cgz-sb-deco-br{bottom:7px;right:7px;border-width:0 1.5px 1.5px 0;border-radius:0 0 2px 0;}
+.cgz-sb-name{
+  font-family:'Oswald',sans-serif;font-weight:900;font-size:30px;color:#fff;
+  text-shadow:0 2px 10px rgba(0,0,0,.9);letter-spacing:2px;
   position:relative;z-index:1;
 }
-.csb-odds{
-  font-size:11px;font-weight:700;color:rgba(255,255,255,.55);
-  letter-spacing:1px;position:relative;z-index:1;
+.cgz-sb-sub{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.5);
+  letter-spacing:1.2px;position:relative;z-index:1;
 }
-.casino-small-btn{
-  background:linear-gradient(145deg,#0e1f4a,#071028,#0a1535);
-  border-color:rgba(100,160,255,.65);
-  box-shadow:0 0 24px rgba(96,165,250,.18),0 6px 20px rgba(0,0,0,.6),inset 0 1px 0 rgba(130,180,255,.2);
+.cgz-sb-small{
+  background:linear-gradient(155deg,#0e1f52 0%,#162a75 40%,#0a1438 100%);
+  border:2.5px solid rgba(212,175,55,.6);
+  box-shadow:0 0 0 1px rgba(212,175,55,.2),0 6px 28px rgba(0,0,0,.7),inset 0 1px 0 rgba(180,200,255,.15);
 }
-.casino-big-btn{
-  background:linear-gradient(145deg,#4a0e0e,#2e0808,#3a0a0a);
-  border-color:rgba(220,80,60,.65);
-  box-shadow:0 0 24px rgba(239,68,68,.18),0 6px 20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,120,100,.2);
+.cgz-sb-big{
+  background:linear-gradient(155deg,#451010 0%,#7a1a1a 40%,#320a0a 100%);
+  border:2.5px solid rgba(212,175,55,.6);
+  box-shadow:0 0 0 1px rgba(212,175,55,.2),0 6px 28px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,160,160,.12);
 }
 
 /* ── History section ── */
-.casino-history-section{
-  position:relative;z-index:2;
+.cgz-history{
+  position:relative;z-index:3;
   margin:0 12px;
-  background:rgba(0,0,0,.25);
-  border:1px solid rgba(212,175,55,.15);
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(212,175,55,.14);
   border-radius:18px;
-  padding:14px;
+  padding:13px;
+}
+.cgz-history-hdr{
+  font-size:9px;color:rgba(212,175,55,.55);font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;
 }

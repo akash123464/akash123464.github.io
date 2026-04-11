@@ -1062,19 +1062,17 @@ function updateTimerUI(t){
   const isLow = t <= 10;
   el.textContent = String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
   if(isLow){
-    el.style.color      = '#ff4444';
-    el.style.textShadow = '0 0 20px #ff4444,0 0 40px rgba(255,68,68,.6),0 4px 0 rgba(180,0,0,.8),0 2px 0 #800000';
+    el.style.color='#ff3333';
+    el.style.textShadow='0 0 30px rgba(255,50,50,.95),0 0 60px rgba(255,0,0,.5),0 6px 0 #5a0000,0 3px 0 #3a0000';
   } else {
-    el.style.color      = '#f5c842';
-    el.style.textShadow = '0 0 24px rgba(245,200,66,.9),0 0 48px rgba(245,180,40,.5),0 4px 0 rgba(120,80,0,.9),0 2px 0 #6b4400';
+    el.style.color='#f5c518';
+    el.style.textShadow='0 0 30px rgba(255,210,40,.95),0 0 60px rgba(220,160,20,.55),0 6px 0 #5a3a00,0 3px 0 #3a2500';
   }
-  const card = document.getElementById('gameTimerCard');
-  if(card){
-    card.classList.toggle('timer-low', isLow);
-  }
+  const wrap = document.getElementById('gameTimerCard');
+  if(wrap) wrap.classList.toggle('cgz-timer-low', isLow);
   const area = document.getElementById('gameBetArea');
   const lock = document.getElementById('gameLock');
-  if(area){ area.style.opacity=isLow?'.3':'1'; area.style.pointerEvents=isLow?'none':'auto'; }
+  if(area){ area.style.opacity=isLow?'.28':'1'; area.style.pointerEvents=isLow?'none':'auto'; }
   if(lock) lock.style.display=isLow?'flex':'none';
 }
 
@@ -1376,14 +1374,13 @@ function updateGameBetSummary(){
   const totalBetAmt = GAME.bets.reduce((s,b)=>s+b.amt,0);
   const sumEl = document.getElementById('gameBetSummary');
   if(sumEl && GAME.bets.length > 0){
-    sumEl.style.display = 'block';
-    sumEl.innerHTML = `
-      <div class="casino-bets-summary">
-        <span style="font-size:10px;color:rgba(255,215,0,.7);font-weight:700;letter-spacing:1px">${GAME.bets.length} BET${GAME.bets.length>1?'S':''} · ₹${totalBetAmt}</span>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">
-          ${GAME.bets.map(b=>`<span style="padding:3px 9px;border-radius:50px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);font-size:11px;font-weight:700;color:#ffd700">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</span>`).join('')}
-        </div>
-      </div>`;
+    sumEl.style.display='block';
+    sumEl.innerHTML=`<div class="cgz-bets-bar">
+      <span style="font-size:10px;color:#f5c518;font-weight:700;letter-spacing:.5px">${GAME.bets.length} bet${GAME.bets.length>1?'s':''} · ₹${totalBetAmt}</span>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+        ${GAME.bets.map(b=>`<span class="cgz-bet-pill">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</span>`).join('')}
+      </div>
+    </div>`;
   }
 }
 
@@ -1418,152 +1415,189 @@ function renderGames(){
   const cur    = getSharedPeriod();
   const totalBetAmt = GAME.bets.reduce((s,b)=>s+b.amt,0);
 
-  /* chip colours per number — casino poker chip style */
-  const chipStyle = n => {
-    if(n===0) return {bg:'linear-gradient(145deg,#16a34a,#052e16)',rim:'#22c55e',glow:'rgba(34,197,94,.8)',inner:'#bbf7d0'};
-    if(n===1) return {bg:'linear-gradient(145deg,#7c3aed,#2e1065)',rim:'#a855f7',glow:'rgba(168,85,247,.8)',inner:'#e9d5ff'};
-    if(n===2) return {bg:'linear-gradient(145deg,#991b1b,#3b0000)',rim:'#ef4444',glow:'rgba(239,68,68,.8)',inner:'#fecaca'};
-    if(n===3) return {bg:'linear-gradient(145deg,#166534,#052e16)',rim:'#22c55e',glow:'rgba(34,197,94,.8)',inner:'#bbf7d0'};
-    if(n===4) return {bg:'linear-gradient(145deg,#9ca3af,#374151)',rim:'#d1d5db',glow:'rgba(209,213,219,.7)',inner:'#f9fafb'};
-    if(n===5) return {bg:'linear-gradient(145deg,#7c3aed,#2e1065)',rim:'#a855f7',glow:'rgba(168,85,247,.8)',inner:'#e9d5ff'};
-    if(n===6) return {bg:'linear-gradient(145deg,#16a34a,#052e16)',rim:'#22c55e',glow:'rgba(34,197,94,.8)',inner:'#bbf7d0'};
-    if(n===7) return {bg:'linear-gradient(145deg,#991b1b,#3b0000)',rim:'#ef4444',glow:'rgba(239,68,68,.8)',inner:'#fecaca'};
-    if(n===8) return {bg:'linear-gradient(145deg,#16a34a,#052e16)',rim:'#22c55e',glow:'rgba(34,197,94,.8)',inner:'#bbf7d0'};
-    return      {bg:'linear-gradient(145deg,#16a34a,#052e16)',rim:'#22c55e',glow:'rgba(34,197,94,.8)',inner:'#bbf7d0'};
-  };
+  /* ── Chip data: colour, gold rim, glow, face‑gradient, number tint ── */
+  const CHIP=[
+    /* 0 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
+    /* 1 */ {outer:'#5b1fa8',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#3b0d7a 0%,#6d28d9 45%,#2e0a60 100%)',numCol:'#e9d5ff',glow:'rgba(168,85,247,.9)'},
+    /* 2 */ {outer:'#8b1a1a',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#5c0d0d 0%,#b91c1c 45%,#450a0a 100%)',numCol:'#fca5a5',glow:'rgba(239,68,68,.9)'},
+    /* 3 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
+    /* 4 */ {outer:'#7a7a7a',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#4a4a4a 0%,#9ca3af 45%,#374151 100%)',numCol:'#f9fafb',glow:'rgba(200,210,220,.85)'},
+    /* 5 */ {outer:'#5b1fa8',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#3b0d7a 0%,#6d28d9 45%,#2e0a60 100%)',numCol:'#e9d5ff',glow:'rgba(168,85,247,.9)'},
+    /* 6 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
+    /* 7 */ {outer:'#8b1a1a',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#5c0d0d 0%,#b91c1c 45%,#450a0a 100%)',numCol:'#fca5a5',glow:'rgba(239,68,68,.9)'},
+    /* 8 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
+    /* 9 */ {outer:'#1a7a35',rim1:'#d4af37',rim2:'#f5e07a',face:'linear-gradient(145deg,#0d5c25 0%,#1a8c38 45%,#0a4a1e 100%)',numCol:'#7fffaa',glow:'rgba(34,197,94,.9)'},
+  ];
 
-  const timerColor = isLow ? '#ff4444' : '#f5c842';
-  const timerShadow = isLow
-    ? '0 0 20px #ff4444,0 0 40px rgba(255,68,68,.6),0 4px 0 rgba(180,0,0,.8),0 2px 0 #800000'
-    : '0 0 24px rgba(245,200,66,.9),0 0 48px rgba(245,180,40,.5),0 4px 0 rgba(120,80,0,.9),0 2px 0 #6b4400';
+  const timerCol  = isLow ? '#ff3333' : '#f5c518';
+  const timerGlow = isLow
+    ? '0 0 30px rgba(255,50,50,.95),0 0 60px rgba(255,0,0,.5),0 6px 0 #5a0000,0 3px 0 #3a0000'
+    : '0 0 30px rgba(255,210,40,.95),0 0 60px rgba(220,160,20,.55),0 6px 0 #5a3a00,0 3px 0 #3a2500';
 
   /* MAIN GAME VIEW */
   el.innerHTML=`
-  <div class="casino-game-wrap">
+  <div class="cgz-root">
 
-    <!-- Casino felt background layer -->
-    <div class="casino-felt-bg"></div>
-    <div class="casino-vignette"></div>
-    <div class="casino-spotlight"></div>
+    <!-- Layered casino table background -->
+    <div class="cgz-bg-felt"></div>
+    <div class="cgz-bg-grain"></div>
+    <div class="cgz-bg-vignette"></div>
+    <div class="cgz-spotlight"></div>
+    <div class="cgz-spotlight cgz-spotlight2"></div>
 
-    <!-- Top bar: period + last chip results -->
-    <div class="casino-topbar">
-      <div class="casino-period-box">
-        <div class="casino-period-lbl">PERIOD</div>
-        <div class="casino-period-val">${fmtPeriod(cur)}</div>
+    <!-- ═══ TOP BAR ═══ -->
+    <div class="cgz-topbar">
+      <div class="cgz-period">
+        <div class="cgz-period-lbl">PERIOD</div>
+        <div class="cgz-period-val">${fmtPeriod(cur)}</div>
       </div>
-      <div class="casino-chips-row">
+      <div class="cgz-hist-chips">
         ${GAME.history.slice(0,5).map(h=>{
-          const cs=chipStyle(h.num);
-          return `<div class="casino-hist-chip" style="background:${cs.bg};border:2px solid ${cs.rim};box-shadow:0 0 10px ${cs.glow},inset 0 1px 0 rgba(255,255,255,.25)"><span style="color:${cs.inner};font-family:'Oswald',sans-serif;font-weight:900;font-size:13px;text-shadow:0 1px 4px rgba(0,0,0,.8)">${h.num}</span></div>`;
-        }).join('')||''}
+          const c=CHIP[h.num];
+          return `<div class="cgz-hist-chip" style="background:${c.face};border:2.5px solid ${c.rim1};box-shadow:0 0 10px ${c.glow},0 2px 6px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.18)">
+            <div class="cgz-hchip-rim" style="border:1.5px solid ${c.rim2}33"></div>
+            <span style="font-family:'Oswald',sans-serif;font-weight:900;font-size:12px;color:${c.numCol};text-shadow:0 0 8px ${c.glow},0 1px 3px rgba(0,0,0,.9);position:relative;z-index:1">${h.num}</span>
+          </div>`;
+        }).join('')}
       </div>
     </div>
 
-    <!-- GIANT Gold Casino Timer -->
-    <div id="gameTimerCard" class="casino-timer-section ${isLow?'timer-low':''}">
-      <div class="casino-timer-label">TIME REMAINING</div>
-      <div id="gameTimerNum" class="casino-timer-digits" style="color:${timerColor};text-shadow:${timerShadow}">${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
-      <!-- Particle sparkles -->
-      <div class="casino-sparkles" id="casinoSparkles"></div>
+    <!-- ═══ GIANT GOLD TIMER ═══ -->
+    <div id="gameTimerCard" class="cgz-timer-wrap ${isLow?'cgz-timer-low':''}">
+      <div class="cgz-timer-label-row">TIME REMAINING</div>
+      <div id="gameTimerNum" class="cgz-timer-digits" style="color:${timerCol};text-shadow:${timerGlow}">${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}</div>
+      <!-- ambient particles -->
+      <div class="cgz-particles" id="cgzParticles"></div>
     </div>
 
-    <!-- Active bets summary -->
+    <!-- Active bets bar -->
     <div id="gameBetSummary" style="${GAME.bets.length===0?'display:none':'display:block'}">
-      ${GAME.bets.length>0?`
-      <div class="casino-bets-summary">
-        <span style="font-size:10px;color:rgba(255,215,0,.7);font-weight:700;letter-spacing:1px">${GAME.bets.length} BET${GAME.bets.length>1?'S':''} · ₹${totalBetAmt}</span>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">
-          ${GAME.bets.map(b=>`<span style="padding:3px 9px;border-radius:50px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);font-size:11px;font-weight:700;color:#ffd700">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</span>`).join('')}
+      ${GAME.bets.length>0?`<div class="cgz-bets-bar">
+        <span style="font-size:10px;color:#f5c518;font-weight:700;letter-spacing:.5px">${GAME.bets.length} bet${GAME.bets.length>1?'s':''} · ₹${totalBetAmt}</span>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+          ${GAME.bets.map(b=>`<span class="cgz-bet-pill">${b.type==='number'?'No.'+b.num:b.side.toUpperCase()} ₹${b.amt}</span>`).join('')}
         </div>
       </div>`:''}
     </div>
 
-    <!-- Bet area -->
-    <div id="gameBetArea" style="opacity:${isLow?.3:1};pointer-events:${isLow?'none':'auto'};transition:opacity .3s">
+    <!-- ═══ BET AREA ═══ -->
+    <div id="gameBetArea" style="opacity:${isLow?.28:1};pointer-events:${isLow?'none':'auto'};transition:opacity .3s ease">
 
-      <!-- Green / Violet / Red casino buttons -->
-      <div class="casino-colour-grid">
-        <button class="casino-colour-btn casino-green-btn" onclick="placeBetGame('small')">
-          <div class="ccb-corner ccb-tl"></div><div class="ccb-corner ccb-tr"></div>
-          <div class="ccb-corner ccb-bl"></div><div class="ccb-corner ccb-br"></div>
-          <div class="ccb-inner">
-            <span class="ccb-name">Green</span>
-            <span class="ccb-odds">1.9×</span>
-          </div>
-        </button>
-        <button class="casino-colour-btn casino-violet-btn" onclick="placeBetGame('small')">
-          <div class="ccb-corner ccb-tl"></div><div class="ccb-corner ccb-tr"></div>
-          <div class="ccb-corner ccb-bl"></div><div class="ccb-corner ccb-br"></div>
-          <div class="ccb-inner">
-            <span class="ccb-name">Violet</span>
-            <span class="ccb-odds">1.9×</span>
-          </div>
-        </button>
-        <button class="casino-colour-btn casino-red-btn" onclick="placeBetGame('big')">
-          <div class="ccb-corner ccb-tl"></div><div class="ccb-corner ccb-tr"></div>
-          <div class="ccb-corner ccb-bl"></div><div class="ccb-corner ccb-br"></div>
-          <div class="ccb-inner">
-            <span class="ccb-name">Red</span>
-            <span class="ccb-odds">1.9×</span>
-          </div>
-        </button>
-      </div>
+      <!-- ── Green / Violet / Red buttons ── -->
+      <div class="cgz-colour-row">
 
-      <!-- Number chip grid -->
-      <div class="casino-number-section">
-        <div class="casino-number-label">
-          <span style="color:rgba(255,215,0,.55);font-size:9px;letter-spacing:1.5px">🎯 NUMBER BET — EXACT MATCH = 8× PAYOUT</span>
+        <button class="cgz-col-btn cgz-green" onclick="placeBetGame('small')">
+          <div class="cgz-col-deco cgz-col-deco-tl"></div>
+          <div class="cgz-col-deco cgz-col-deco-tr"></div>
+          <div class="cgz-col-deco cgz-col-deco-bl"></div>
+          <div class="cgz-col-deco cgz-col-deco-br"></div>
+          <div class="cgz-col-shine"></div>
+          <div class="cgz-col-inner">
+            <span class="cgz-col-name">Green</span>
+            <span class="cgz-col-odds">1.9×</span>
+          </div>
+        </button>
+
+        <button class="cgz-col-btn cgz-violet" onclick="placeBetGame('small')">
+          <div class="cgz-col-deco cgz-col-deco-tl"></div>
+          <div class="cgz-col-deco cgz-col-deco-tr"></div>
+          <div class="cgz-col-deco cgz-col-deco-bl"></div>
+          <div class="cgz-col-deco cgz-col-deco-br"></div>
+          <div class="cgz-col-shine"></div>
+          <div class="cgz-col-inner">
+            <span class="cgz-col-name">Violet</span>
+            <span class="cgz-col-odds">1.9×</span>
+          </div>
+        </button>
+
+        <button class="cgz-col-btn cgz-red" onclick="placeBetGame('big')">
+          <div class="cgz-col-deco cgz-col-deco-tl"></div>
+          <div class="cgz-col-deco cgz-col-deco-tr"></div>
+          <div class="cgz-col-deco cgz-col-deco-bl"></div>
+          <div class="cgz-col-deco cgz-col-deco-br"></div>
+          <div class="cgz-col-shine"></div>
+          <div class="cgz-col-inner">
+            <span class="cgz-col-name">Red</span>
+            <span class="cgz-col-odds">1.9×</span>
+          </div>
+        </button>
+
+      </div><!-- /colour row -->
+
+      <!-- ── Number chip section ── -->
+      <div class="cgz-num-section">
+        <div class="cgz-num-label">
+          <span class="cgz-num-label-icon">🎯</span>
+          <span>NUMBER BET — EXACT MATCH = 8× PAYOUT</span>
         </div>
-        <div class="casino-chip-grid">
+        <div class="cgz-chip-grid">
           ${[0,1,2,3,4,5,6,7,8,9].map(n=>{
-            const cs=chipStyle(n);
-            return `<button class="casino-chip-btn" onclick="placeBetOnNumber(${n})"
-              style="background:${cs.bg};border:3px solid ${cs.rim};">
-              <!-- Chip rim notches -->
-              <div class="chip-rim" style="border:2px solid ${cs.rim};box-shadow:inset 0 0 8px rgba(0,0,0,.5)">
-                <div class="chip-notch chip-notch-t" style="background:${cs.rim}"></div>
-                <div class="chip-notch chip-notch-b" style="background:${cs.rim}"></div>
-                <div class="chip-notch chip-notch-l" style="background:${cs.rim}"></div>
-                <div class="chip-notch chip-notch-r" style="background:${cs.rim}"></div>
+            const c=CHIP[n];
+            return `<button class="cgz-chip" onclick="placeBetOnNumber(${n})"
+              style="--chip-outer:${c.outer};--chip-glow:${c.glow};--chip-rim1:${c.rim1};--chip-rim2:${c.rim2}">
+              <!-- Gold outer ring -->
+              <div class="cgz-chip-outer" style="background:radial-gradient(circle,${c.rim2} 0%,${c.rim1} 40%,#8a6200 100%)">
+                <!-- Notch tabs around rim (like real poker chip) -->
+                <div class="cgz-chip-notch cgz-notch-n" style="background:${c.outer}"></div>
+                <div class="cgz-chip-notch cgz-notch-s" style="background:${c.outer}"></div>
+                <div class="cgz-chip-notch cgz-notch-w" style="background:${c.outer}"></div>
+                <div class="cgz-chip-notch cgz-notch-e" style="background:${c.outer}"></div>
+                <div class="cgz-chip-notch cgz-notch-nw" style="background:${c.outer}"></div>
+                <div class="cgz-chip-notch cgz-notch-ne" style="background:${c.outer}"></div>
+                <div class="cgz-chip-notch cgz-notch-sw" style="background:${c.outer}"></div>
+                <div class="cgz-chip-notch cgz-notch-se" style="background:${c.outer}"></div>
               </div>
-              <div class="chip-face" style="background:${cs.bg};box-shadow:inset 0 2px 8px rgba(255,255,255,.15),inset 0 -3px 8px rgba(0,0,0,.5)">
-                <span class="chip-num" style="color:${cs.inner};text-shadow:0 0 12px ${cs.glow},0 2px 4px rgba(0,0,0,.9)">${n}</span>
+              <!-- Coloured face -->
+              <div class="cgz-chip-face" style="background:${c.face}">
+                <!-- Inner gold ring on face -->
+                <div class="cgz-chip-inner-ring" style="border:1.5px solid ${c.rim1}88"></div>
+                <!-- Highlight -->
+                <div class="cgz-chip-highlight"></div>
+                <!-- Number -->
+                <span class="cgz-chip-num" style="color:${c.numCol};text-shadow:0 0 14px ${c.glow},0 0 28px ${c.glow.replace('.9','.5')},0 2px 6px rgba(0,0,0,.95)">${n}</span>
               </div>
-              <div class="chip-glow-ring" style="box-shadow:0 0 18px ${cs.glow},0 0 36px ${cs.glow.replace('.8','.3')}"></div>
+              <!-- Outer glow -->
+              <div class="cgz-chip-glow" style="box-shadow:0 0 20px ${c.glow},0 0 40px ${c.glow.replace('.9','.4')},0 4px 16px rgba(0,0,0,.8)"></div>
             </button>`;
           }).join('')}
         </div>
-      </div>
+      </div><!-- /num section -->
 
-      <!-- Bet amount chips -->
-      <div class="casino-amount-section">
-        <div class="casino-amount-lbl">BET AMOUNT [tap to change]</div>
-        <div class="casino-amount-chips">
-          ${[10,50,100,500,1000].map(a=>`<button class="casino-amt-chip ${GAME.betAmt===a?'active':''}" data-amt="${a}"
-            onclick="GAME.betAmt=${a};document.querySelectorAll('.casino-amt-chip').forEach(c=>c.classList.toggle('active',parseInt(c.dataset.amt)===${a}))">₹${a>=1000?'1K':a}</button>`).join('')}
+      <!-- ── Bet amount chips ── -->
+      <div class="cgz-amt-section">
+        <div class="cgz-amt-lbl">BET AMOUNT [tap to change]</div>
+        <div class="cgz-amt-row">
+          ${[10,50,100,500,1000].map(a=>`<button class="cgz-amt-pill ${GAME.betAmt===a?'cgz-amt-active':''}" data-amt="${a}"
+            onclick="GAME.betAmt=${a};document.querySelectorAll('.cgz-amt-pill').forEach(p=>p.classList.toggle('cgz-amt-active',parseInt(p.dataset.amt)===${a}))">₹${a>=1000?'1K':a}</button>`).join('')}
         </div>
       </div>
 
-      <!-- SMALL / BIG casino buttons -->
-      <div class="casino-sb-grid">
-        <button class="casino-sb-btn casino-small-btn" onclick="placeBetGame('small')">
-          <div class="csb-corner csb-tl"></div><div class="csb-corner csb-tr"></div>
-          <div class="csb-corner csb-bl"></div><div class="csb-corner csb-br"></div>
-          <span class="csb-name">SMALL</span>
-          <span class="csb-odds">0–5 · 1.9×</span>
+      <!-- ── SMALL / BIG buttons ── -->
+      <div class="cgz-sb-row">
+        <button class="cgz-sb-btn cgz-sb-small" onclick="placeBetGame('small')">
+          <div class="cgz-sb-deco cgz-sb-deco-tl"></div>
+          <div class="cgz-sb-deco cgz-sb-deco-tr"></div>
+          <div class="cgz-sb-deco cgz-sb-deco-bl"></div>
+          <div class="cgz-sb-deco cgz-sb-deco-br"></div>
+          <div class="cgz-sb-shine"></div>
+          <span class="cgz-sb-name">SMALL</span>
+          <span class="cgz-sb-sub">0–5 · 1.9×</span>
         </button>
-        <button class="casino-sb-btn casino-big-btn" onclick="placeBetGame('big')">
-          <div class="csb-corner csb-tl"></div><div class="csb-corner csb-tr"></div>
-          <div class="csb-corner csb-bl"></div><div class="csb-corner csb-br"></div>
-          <span class="csb-name">BIG</span>
-          <span class="csb-odds">6–9 · 1.9×</span>
+        <button class="cgz-sb-btn cgz-sb-big" onclick="placeBetGame('big')">
+          <div class="cgz-sb-deco cgz-sb-deco-tl"></div>
+          <div class="cgz-sb-deco cgz-sb-deco-tr"></div>
+          <div class="cgz-sb-deco cgz-sb-deco-bl"></div>
+          <div class="cgz-sb-deco cgz-sb-deco-br"></div>
+          <div class="cgz-sb-shine"></div>
+          <span class="cgz-sb-name">BIG</span>
+          <span class="cgz-sb-sub">6–9 · 1.9×</span>
         </button>
       </div>
 
     </div><!-- /gameBetArea -->
 
-    <div id="gameLock" style="display:${isLow?'flex':'none'};align-items:center;justify-content:center;gap:8px;padding:12px;background:rgba(255,40,40,.12);border:1.5px solid rgba(255,60,60,.4);border-radius:14px;margin:0 0 12px;font-size:13px;font-weight:700;color:#ff4d6d;animation:casinoLockPulse 1s ease-in-out infinite">🔒 Betting closed — last 10 seconds</div>
+    <!-- Lock bar -->
+    <div id="gameLock" style="display:${isLow?'flex':'none'};align-items:center;justify-content:center;gap:8px;padding:11px;margin:0 12px 10px;background:rgba(200,20,20,.14);border:1.5px solid rgba(255,60,60,.5);border-radius:14px;font-size:13px;font-weight:700;color:#ff4040;animation:cgzLockPulse 1s ease-in-out infinite">🔒 Betting closed — last 10 seconds</div>
 
     <!-- Ledger trigger -->
     <div id="betLedgerTrigger" onclick="toggleLedger()" role="button" aria-label="Open Bet History Ledger">
@@ -1576,17 +1610,17 @@ function renderGames(){
     </div>
 
     <!-- Last 20 rounds -->
-    <div class="casino-history-section">
-      <div style="font-size:10px;color:rgba(212,175,55,.6);font-weight:700;letter-spacing:1.5px;margin-bottom:12px;text-transform:uppercase">Last 20 Rounds · Same For All Users</div>
+    <div class="cgz-history">
+      <div class="cgz-history-hdr">LAST 20 ROUNDS · SAME FOR ALL USERS</div>
       ${GAME.history.length===0
         ?`<div style="text-align:center;color:rgba(255,255,255,.2);padding:24px;font-size:13px">Waiting for first round…</div>`
-        :`<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;font-size:9px;color:rgba(212,175,55,.4);font-weight:700;letter-spacing:.8px;padding:0 4px 8px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:4px"><span>#</span><span>PERIOD</span><span style="text-align:center">NO.</span><span style="text-align:right">RESULT</span></div>`+
+        :`<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;font-size:9px;color:rgba(212,175,55,.45);font-weight:700;letter-spacing:.8px;padding:0 4px 8px;border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:4px"><span>#</span><span>PERIOD</span><span style="text-align:center">NO.</span><span style="text-align:right">RESULT</span></div>`+
         GAME.history.slice(0,20).map((h,i)=>{
-          const cs2=chipStyle(h.num);
+          const c=CHIP[h.num];
           return `<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.04)">
             <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:'Oswald',sans-serif">${i+1}</div>
             <div style="font-size:11px;color:rgba(255,255,255,.35);font-family:'Oswald',sans-serif">${h.period}</div>
-            <div style="width:32px;height:32px;border-radius:50%;background:${cs2.bg};border:2px solid ${cs2.rim};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:14px;color:${cs2.inner};box-shadow:0 0 10px ${cs2.glow}">${h.num}</div>
+            <div style="width:30px;height:30px;border-radius:50%;background:${c.face};border:2px solid ${c.rim1};display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:900;font-size:13px;color:${c.numCol};box-shadow:0 0 8px ${c.glow}">${h.num}</div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
               <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;color:${h.result==='big'?'#fb923c':'#60a5fa'}">${h.result.toUpperCase()}</div>
               <div style="font-size:9px;color:${COL_HEX[h.colour]};font-weight:700;text-transform:capitalize">${h.colour}</div>
@@ -1596,7 +1630,7 @@ function renderGames(){
       }
     </div>
 
-  </div><!-- /casino-game-wrap -->
+  </div><!-- /cgz-root -->
   <div id="gameResultOverlay"></div>`;
 
   if(!GAME.timerInt) startGameTimer();
