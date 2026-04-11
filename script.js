@@ -1537,10 +1537,10 @@ function renderGames(){
             return `<button class="cgz-chip" onclick="placeBetOnNumber(${n})"
               style="--chip-glow:${c.glow}">
               <!-- Deep shadow base -->
-              <div class="cgz-chip-shadow" style="box-shadow:0 8px 24px ${c.glowSoft},0 4px 12px rgba(0,0,0,.8)"></div>
-              <!-- Gold outer rim with radial shine -->
-              <div class="cgz-chip-outer" style="background:conic-gradient(from 0deg,#8a6200,${c.rim1},#ffe87a,${c.rim1},#8a6200,${c.rim1},#ffe87a,${c.rim1},#8a6200)">
-                <!-- 8 colour notches cutting through gold rim -->
+              <div class="cgz-chip-shadow" style="box-shadow:0 8px 24px ${c.glowSoft},0 4px 12px rgba(0,0,0,.85)"></div>
+              <!-- Gold outer rim: conic metallic segments -->
+              <div class="cgz-chip-outer" style="background:conic-gradient(from 0deg,#7a5500 0deg,${c.rim1} 20deg,${c.rim2} 45deg,${c.rim1} 70deg,#7a5500 90deg,${c.rim1} 110deg,${c.rim2} 135deg,${c.rim1} 160deg,#7a5500 180deg,${c.rim1} 200deg,${c.rim2} 225deg,${c.rim1} 250deg,#7a5500 270deg,${c.rim1} 290deg,${c.rim2} 315deg,${c.rim1} 340deg,#7a5500 360deg)">
+                <!-- Rectangular bar notches — matching photo -->
                 <div class="cgz-chip-notch cgz-notch-n" style="background:${c.notch}"></div>
                 <div class="cgz-chip-notch cgz-notch-s" style="background:${c.notch}"></div>
                 <div class="cgz-chip-notch cgz-notch-w" style="background:${c.notch}"></div>
@@ -1550,19 +1550,19 @@ function renderGames(){
                 <div class="cgz-chip-notch cgz-notch-sw" style="background:${c.notch}"></div>
                 <div class="cgz-chip-notch cgz-notch-se" style="background:${c.notch}"></div>
               </div>
-              <!-- Main coloured face -->
-              <div class="cgz-chip-face" style="background:${c.face};box-shadow:inset 0 4px 14px rgba(255,255,255,.18),inset 0 -5px 14px rgba(0,0,0,.7),0 0 0 2px ${c.rim1}44">
-                <!-- Thin inner gold ring -->
-                <div class="cgz-chip-inner-ring" style="border:2px solid ${c.rim1};box-shadow:0 0 6px ${c.rim1}55,inset 0 0 4px rgba(0,0,0,.4)"></div>
-                <!-- Gloss specular highlight -->
+              <!-- Coloured face -->
+              <div class="cgz-chip-face" style="background:${c.face};box-shadow:inset 0 5px 16px rgba(255,255,255,.2),inset 0 -6px 16px rgba(0,0,0,.7),0 0 0 2.5px ${c.rim1}">
+                <!-- Inner gold ring -->
+                <div class="cgz-chip-inner-ring" style="border:2px solid ${c.rim1}99;box-shadow:0 0 8px ${c.rim1}44,inset 0 0 6px rgba(0,0,0,.5)"></div>
+                <!-- Top-left gloss specular highlight -->
                 <div class="cgz-chip-highlight"></div>
-                <!-- Secondary subtle highlight -->
+                <!-- Bottom soft fill -->
                 <div class="cgz-chip-highlight2"></div>
                 <!-- Number -->
-                <span class="cgz-chip-num" style="color:${c.numCol};text-shadow:0 0 12px ${c.glow},0 0 26px ${c.glowSoft},0 2px 0 rgba(0,0,0,.9),0 -1px 0 rgba(255,255,255,.15)">${n}</span>
+                <span class="cgz-chip-num" style="color:${c.numCol};text-shadow:0 0 14px ${c.glow},0 0 30px ${c.glowSoft},0 2px 0 rgba(0,0,0,.95),0 -1px 0 rgba(255,255,255,.12)">${n}</span>
               </div>
-              <!-- Outer glow halo -->
-              <div class="cgz-chip-glow" style="box-shadow:0 0 18px ${c.glowSoft},0 0 36px ${c.glowSoft.replace('.45','.2')},inset 0 0 0 2px ${c.rim1}22"></div>
+              <!-- Outer colour glow halo -->
+              <div class="cgz-chip-glow" style="box-shadow:0 0 16px ${c.glowSoft},0 0 32px ${c.glowSoft.replace('.45','.18')}"></div>
             </button>`;
           }).join('')}
         </div>
@@ -1586,7 +1586,7 @@ function renderGames(){
           <div class="cgz-sb-deco cgz-sb-deco-br"></div>
           <div class="cgz-sb-shine"></div>
           <span class="cgz-sb-name">SMALL</span>
-          <span class="cgz-sb-sub">0–5 · 1.9×</span>
+          <span class="cgz-sb-sub">0–5 &nbsp;·&nbsp; 1.9<span style="font-size:9px;vertical-align:super">×</span></span>
         </button>
         <button class="cgz-sb-btn cgz-sb-big" onclick="placeBetGame('big')">
           <div class="cgz-sb-deco cgz-sb-deco-tl"></div>
@@ -1595,7 +1595,7 @@ function renderGames(){
           <div class="cgz-sb-deco cgz-sb-deco-br"></div>
           <div class="cgz-sb-shine"></div>
           <span class="cgz-sb-name">BIG</span>
-          <span class="cgz-sb-sub">6–9 · 1.9×</span>
+          <span class="cgz-sb-sub">6–9 &nbsp;·&nbsp; 1.9<span style="font-size:9px;vertical-align:super">×</span></span>
         </button>
       </div>
 
