@@ -1151,31 +1151,9 @@ function _quickUpdateGameUI(){
   /* Update active-bets summary bar */
   updateGameBetSummary();
 
-  /* Update BIG/SMALL results strip */
-  const bsStrip=document.getElementById('cgzBSResultsStrip');
-  if(bsStrip){
-    const bsHtml = GAME.history.slice(0,5).map(h=>{
-      const isBig=h.result==='big';
-      const colHx=COL_HEX[h.colour]||'#fff';
-      return `<div class="cgz-bs-pill ${isBig?'cgz-bs-big':'cgz-bs-small'}">
-        <span class="cgz-bs-num" style="color:${colHx}">${h.num}</span>
-        <span class="cgz-bs-tag">${isBig?'BIG':'SMALL'}</span>
-      </div>`;
-    }).join('');
-    bsStrip.innerHTML='<div class="cgz-bs-strip-label">LAST 5 B/S</div>'+(GAME.history.length===0?'<div class="clb-empty">Waiting...</div>':bsHtml);
-  }
-
   /* Update balance widget */
   const balEl=document.getElementById('cgzBalAmount');
   if(balEl) balEl.textContent='₹'+(state.bal||0).toLocaleString('en-IN');
-  const lastBetsMini=document.getElementById('cgzLastBetsMini');
-  if(lastBetsMini){
-    if(GAME.betHistory.length===0){
-      lastBetsMini.innerHTML='<span class="cgz-bal-no-bets">Place a bet!</span>';
-    } else {
-      lastBetsMini.innerHTML=GAME.betHistory.slice(0,5).map(b=>`<span class="cgz-bal-bet-dot ${b.won?'cgz-dot-won':'cgz-dot-lost'}" title="${b.won?'+₹'+b.payout:'-₹'+b.amt}">${b.won?'W':'L'}</span>`).join('');
-    }
-  }
 }
 
 function gameTick(){
@@ -1751,45 +1729,92 @@ function renderGames(){
       </div>
     </div>
 
-    <!-- ═══ LAST 5 BIG/SMALL RESULTS — above timer ═══ -->
-    <div class="cgz-bs-results-strip" id="cgzBSResultsStrip">
-      <div class="cgz-bs-strip-label">LAST 5</div>
-      ${GAME.history.slice(0,5).map(h=>{
-        const isBig = h.result==='big';
-        const colHx = COL_HEX[h.colour]||'#fff';
-        return `<div class="cgz-bs-pill ${isBig?'cgz-bs-big':'cgz-bs-small'}">
-          <span class="cgz-bs-num" style="color:${colHx}">${h.num}</span>
-          <span class="cgz-bs-tag">${isBig?'BIG':'SMALL'}</span>
-        </div>`;
-      }).join('')}
-      ${GAME.history.length===0?'<div class="clb-empty">Waiting...</div>':''}
+    <!-- ═══ CASHOUT MARQUEE BAR ═══ -->
+    <div class="cgz-cashout-bar">
+      <div class="cgz-cashout-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></svg>
+        CASHOUT
+      </div>
+      <div class="cgz-cashout-track">
+        <div class="cgz-cashout-inner" id="cgzCashoutInner">
+          <span class="cgz-co-item"><span class="cgz-co-user">user83741</span> withdrew <span class="cgz-co-amt">₹4,250</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">player29183</span> withdrew <span class="cgz-co-amt">₹1,800</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">user57204</span> withdrew <span class="cgz-co-amt">₹9,500</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">win_king91</span> withdrew <span class="cgz-co-amt">₹3,100</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">user44812</span> withdrew <span class="cgz-co-amt">₹6,750</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">lucky_star7</span> withdrew <span class="cgz-co-amt">₹2,570</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">user72937</span> withdrew <span class="cgz-co-amt">₹2,570</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">player66031</span> withdrew <span class="cgz-co-amt">₹12,000</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">user19274</span> withdrew <span class="cgz-co-amt">₹5,400</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">bigwin_44</span> withdrew <span class="cgz-co-amt">₹8,300</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <!-- duplicate for seamless loop -->
+          <span class="cgz-co-item"><span class="cgz-co-user">user83741</span> withdrew <span class="cgz-co-amt">₹4,250</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">player29183</span> withdrew <span class="cgz-co-amt">₹1,800</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">user57204</span> withdrew <span class="cgz-co-amt">₹9,500</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">win_king91</span> withdrew <span class="cgz-co-amt">₹3,100</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">user44812</span> withdrew <span class="cgz-co-amt">₹6,750</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">lucky_star7</span> withdrew <span class="cgz-co-amt">₹2,570</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">user72937</span> withdrew <span class="cgz-co-amt">₹2,570</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">player66031</span> withdrew <span class="cgz-co-amt">₹12,000</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">user19274</span> withdrew <span class="cgz-co-amt">₹5,400</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+          <span class="cgz-co-item"><span class="cgz-co-user">bigwin_44</span> withdrew <span class="cgz-co-amt">₹8,300</span> successfully 🎉</span>
+          <span class="cgz-co-sep">✦</span>
+        </div>
+      </div>
     </div>
 
     <!-- ═══ PREMIUM BALANCE WIDGET — above timer ═══ -->
     <div class="cgz-balance-widget" id="cgzBalWidget">
       <div class="cgz-bal-left">
         <div class="cgz-bal-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <svg width="38" height="38" viewBox="0 0 48 48" fill="none">
             <defs>
-              <radialGradient id="coinGrad" cx="38%" cy="32%" r="65%">
-                <stop offset="0%" stop-color="#fff8c0"/>
-                <stop offset="40%" stop-color="#ffd700"/>
-                <stop offset="100%" stop-color="#b8860b"/>
+              <radialGradient id="coinGrad2" cx="38%" cy="28%" r="68%">
+                <stop offset="0%" stop-color="#fffde0"/>
+                <stop offset="25%" stop-color="#ffe566"/>
+                <stop offset="60%" stop-color="#ffc200"/>
+                <stop offset="100%" stop-color="#8a5c00"/>
+              </radialGradient>
+              <radialGradient id="coinShine" cx="30%" cy="25%" r="50%">
+                <stop offset="0%" stop-color="rgba(255,255,255,.55)"/>
+                <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
               </radialGradient>
             </defs>
-            <circle cx="12" cy="12" r="11" fill="url(#coinGrad)" stroke="#d4af37" stroke-width="1.2"/>
-            <circle cx="12" cy="12" r="8.5" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="0.8"/>
-            <text x="12" y="16.8" text-anchor="middle" font-size="13" font-weight="900" font-family="serif" fill="#7a3a00">₹</text>
+            <circle cx="24" cy="24" r="22" fill="url(#coinGrad2)"/>
+            <circle cx="24" cy="24" r="22" fill="url(#coinShine)"/>
+            <circle cx="24" cy="24" r="19.5" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+            <circle cx="24" cy="24" r="22" fill="none" stroke="#b8860b" stroke-width="1.8"/>
+            <text x="24" y="32" text-anchor="middle" font-size="22" font-weight="900" font-family="serif" fill="#5a2800" style="paint-order:stroke" stroke="#7a3a00" stroke-width="0.5">₹</text>
           </svg>
         </div>
         <div class="cgz-bal-info">
           <div class="cgz-bal-label">MY BALANCE</div>
           <div class="cgz-bal-amount" id="cgzBalAmount">₹${(state.bal||0).toLocaleString('en-IN')}</div>
+          <div class="cgz-bal-sub">Available to bet</div>
         </div>
       </div>
       <div class="cgz-bal-deposit-btn" onclick="openDeposit()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="#7a3a00" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="#7a3a00" stroke-width="2.5" stroke-linecap="round"/></svg>
-        ADD
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>
+        ADD FUNDS
       </div>
       <div class="cgz-bal-shimmer"></div>
     </div>
