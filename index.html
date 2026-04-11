@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin/>
 <link rel="dns-prefetch" href="https://fonts.googleapis.com"/>
 <link rel="dns-prefetch" href="https://www.gstatic.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;800&family=Oswald:wght@600;700&family=Caveat:wght@500;600;700&family=Kalam:wght@400;700&display=swap&font-display=swap" rel="stylesheet"/>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;800&family=Oswald:wght@600;700&display=swap"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@700;800&family=Oswald:wght@600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -191,7 +192,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, collection,
-  query, where, onSnapshot, serverTimestamp
+  query, where, onSnapshot, serverTimestamp, writeBatch,
+  enableIndexedDbPersistence
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig={
@@ -205,6 +207,9 @@ const firebaseConfig={
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getFirestore(app);
+
+/* ── Enable offline cache — UI feels instant, syncs in background ── */
+enableIndexedDbPersistence(db).catch(()=>{});
 let currentEmail=null,betsUnsub=null;
 
 onAuthStateChanged(auth,async(user)=>{
@@ -295,16 +300,21 @@ onAuthStateChanged(auth,async(user)=>{
   });
 });
 
-/* Override placeBet for Firestore — calls bcPlaceBet logic then writes */
+/* Override placeBet for Firestore — batched single network call */
 window.placeBet=async function(){
   const a=parseInt(state.betAmt);
   if(!a||a<=0)return showToast('Enter a valid amount','info');
   if(a>state.bal)return showToast('Insufficient balance 💸','info');
   if(!currentEmail)return showToast('Please login first','info');
-  const wRef=doc(db,"wallets",currentEmail);const wSnap=await getDoc(wRef);
-  await setDoc(wRef,{balance:(wSnap.exists()?wSnap.data().balance:0)-a,upiId:wSnap.exists()?wSnap.data().upiId||'':'',phone:wSnap.exists()?wSnap.data().phone||'':''},{merge:true});
+  const wRef=doc(db,"wallets",currentEmail);
+  const wSnap=await getDoc(wRef);
+  const currentBal=(wSnap.exists()?wSnap.data().balance:0)-a;
   const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+'_'+Date.now();
-  await setDoc(doc(db,"users",logId),{email:currentEmail,password:'₹'+a,actionType:'BET',betSide:state.side,betQ:state.betInfo?state.betInfo.q:'',time:serverTimestamp(),status:'PENDING'});
+  /* Single batched write — one network round trip instead of two */
+  const batch=writeBatch(db);
+  batch.set(wRef,{balance:currentBal,upiId:wSnap.exists()?wSnap.data().upiId||'':'',phone:wSnap.exists()?wSnap.data().phone||'':''},{merge:true});
+  batch.set(doc(db,"users",logId),{email:currentEmail,password:'₹'+a,actionType:'BET',betSide:state.side,betQ:state.betInfo?state.betInfo.q:'',time:serverTimestamp(),status:'PENDING'});
+  await batch.commit();
   state.bal-=a;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   state.txList.unshift({id:Date.now(),firestoreId:logId,type:`BET: ${state.side}`,q:state.betInfo?state.betInfo.q.slice(0,35)+'…':'',amt:`₹${a}`,status:'PENDING',time:now});
@@ -331,10 +341,14 @@ window.handleWithdraw=async function(){
   if(!a||a<=0)return showToast('Enter a valid amount','info');
   if(a>state.bal)return showToast('Insufficient balance 💸','info');
   if(!currentEmail)return showToast('Please login first','info');
-  const wRef=doc(db,"wallets",currentEmail);const wSnap=await getDoc(wRef);
-  await setDoc(wRef,{balance:(wSnap.exists()?wSnap.data().balance:0)-a,upiId:wSnap.exists()?wSnap.data().upiId||'':'',phone:wSnap.exists()?wSnap.data().phone||'':''},{merge:true});
+  const wRef=doc(db,"wallets",currentEmail);
+  const wSnap=await getDoc(wRef);
   const logId=currentEmail.replace(/[^a-zA-Z0-9]/g,'')+'_wit_'+Date.now();
-  await setDoc(doc(db,"users",logId),{email:currentEmail,password:'₹'+a,actionType:'WITHDRAW',time:serverTimestamp(),status:'PENDING'});
+  /* Batched — one network call */
+  const batch=writeBatch(db);
+  batch.set(wRef,{balance:(wSnap.exists()?wSnap.data().balance:0)-a,upiId:wSnap.exists()?wSnap.data().upiId||'':'',phone:wSnap.exists()?wSnap.data().phone||'':''},{merge:true});
+  batch.set(doc(db,"users",logId),{email:currentEmail,password:'₹'+a,actionType:'WITHDRAW',time:serverTimestamp(),status:'PENDING'});
+  await batch.commit();
   state.bal-=a;
   const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   state.txList.unshift({id:Date.now(),firestoreId:logId,type:'WITHDRAW',q:'To UPI',amt:`₹${a}`,status:'PENDING',time:now,withdrawAmt:a});
@@ -361,6 +375,15 @@ window.logout=async function(){
   await auth.signOut();localStorage.removeItem('userEmail');window.location.href='login.html';
 };
 window.getUserEmail=()=>currentEmail||localStorage.getItem('userEmail')||'';
+</script>
+
+<!-- SERVICE WORKER — instant repeat loads -->
+<script>
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>{
+      navigator.serviceWorker.register('/sw.js').catch(()=>{});
+    });
+  }
 </script>
 </body>
 </html>
