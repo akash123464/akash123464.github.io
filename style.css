@@ -1947,3 +1947,53 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   color:#60a5fa;
   box-shadow:0 0 8px rgba(96,165,250,.2);
 }
+
+/* ─── BIG/SMALL Results Strip (above timer) ─── */
+.cgz-bs-results-strip{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;
+  overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(10,6,28,.8),rgba(0,0,0,.6));
+  border-top:1px solid rgba(255,255,255,.06);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  min-height:34px;
+  flex-shrink:0;
+}
+.cgz-bs-results-strip::-webkit-scrollbar{display:none}
+.cgz-bs-strip-label{
+  font-family:'Oswald',sans-serif;
+  font-size:9px;font-weight:700;
+  color:rgba(255,215,0,.5);
+  letter-spacing:1.5px;
+  white-space:nowrap;
+  flex-shrink:0;
+  margin-right:2px;
+}
+.cgz-bs-pill{
+  display:flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:50px;
+  flex-shrink:0;white-space:nowrap;
+  font-family:'Oswald',sans-serif;
+  font-weight:700;
+  border:1.5px solid;
+  transition:transform .15s ease;
+}
+.cgz-bs-big{
+  background:linear-gradient(135deg,rgba(234,88,12,.25),rgba(251,146,60,.12));
+  border-color:rgba(251,146,60,.6);
+  box-shadow:0 0 6px rgba(251,146,60,.28);
+}
+.cgz-bs-small{
+  background:linear-gradient(135deg,rgba(29,78,216,.25),rgba(96,165,250,.12));
+  border-color:rgba(96,165,250,.6);
+  box-shadow:0 0 6px rgba(96,165,250,.28);
+}
+.cgz-bs-num{
+  font-size:13px;font-weight:900;
+}
+.cgz-bs-tag{
+  font-size:9px;font-weight:900;letter-spacing:.8px;
+}
+.cgz-bs-big .cgz-bs-tag{color:#fb923c}
+.cgz-bs-small .cgz-bs-tag{color:#60a5fa}

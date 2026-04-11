@@ -1089,10 +1089,45 @@ function reloadUserForEmail(email){
   GAME.bets=[];
   GAME.lastResolvedPeriod=-1;
   loadUser();
+  /* If we restored bets for this period, re-apply their deductions to balance
+     (balance from Firestore may not reflect them yet) */
+  if(GAME.bets.length > 0){
+    const alreadyDeducted = GAME.bets.filter(b=>b.deducted).reduce((s,b)=>s+b.amt,0);
+    /* Don't double-deduct — balance was already reduced by LS.load() */
+    /* Just make sure the active bets summary is shown */
+    requestAnimationFrame(()=>{
+      if(typeof updateGameBetSummary==='function') updateGameBetSummary();
+      if(typeof _quickUpdateGameUI==='function') _quickUpdateGameUI();
+    });
+  }
 }
 
-/* Init */
-loadShared(); loadUser();
+/* Init — loadShared is safe (no user key); loadUser is deferred until
+   reloadUserForEmail() is called with the real email after Firebase auth.
+   A best-effort guest load runs here so the UI isn't blank before login. */
+loadShared();
+/* Try loading from whatever email was persisted in localStorage last session */
+(function(){
+  try{
+    const stored = localStorage.getItem('userEmail') || '';
+    if(stored){ state.userEmail = stored; }
+    const gd = JSON.parse(localStorage.getItem('ww_guest') || '{}');
+    const em = stored || gd.userEmail || '';
+    if(em){
+      const k = 'ww_gu_' + em.replace(/[^a-z0-9]/gi,'_');
+      const s = JSON.parse(localStorage.getItem(k) || '{}');
+      if(Array.isArray(s.bh)) GAME.betHistory = s.bh;
+      if(typeof s.lrp === 'number') GAME.lastResolvedPeriod = s.lrp;
+      if(typeof s.betAmt === 'number') GAME.betAmt = s.betAmt;
+      const cp = getSharedPeriod();
+      if(Array.isArray(s.bets) && s.bp === cp){
+        GAME.bets = s.bets.map(b=>({...b, deducted:true}));
+      } else { GAME.bets = []; }
+    } else {
+      loadUser(); /* fallback guest load */
+    }
+  }catch(e){ loadUser(); }
+})();
 
 /* ─── Timer ─── */
 function stopGameTimer(){ clearInterval(GAME.timerInt); GAME.timerInt=null; }
@@ -1113,7 +1148,21 @@ function _quickUpdateGameUI(){
   /* Update active-bets summary bar */
   updateGameBetSummary();
 
-  /* Update last-bets strip */
+  /* Update BIG/SMALL results strip */
+  const bsStrip=document.getElementById('cgzBSResultsStrip');
+  if(bsStrip){
+    const bsHtml = GAME.history.slice(0,5).map(h=>{
+      const isBig=h.result==='big';
+      const colHx=COL_HEX[h.colour]||'#fff';
+      return `<div class="cgz-bs-pill ${isBig?'cgz-bs-big':'cgz-bs-small'}">
+        <span class="cgz-bs-num" style="color:${colHx}">${h.num}</span>
+        <span class="cgz-bs-tag">${isBig?'BIG':'SMALL'}</span>
+      </div>`;
+    }).join('');
+    bsStrip.innerHTML='<div class="cgz-bs-strip-label">LAST 5</div>'+(GAME.history.length===0?'<div class="clb-empty">Waiting...</div>':bsHtml);
+  }
+
+  /* Update my last-bets strip */
   const strip=document.getElementById('cgzLastBetsStrip');
   if(strip){
     if(GAME.betHistory.length===0){
@@ -1706,7 +1755,21 @@ function renderGames(){
       </div>
     </div>
 
-    <!-- ═══ LAST BETS STRIP — above timer ═══ -->
+    <!-- ═══ LAST 5 BIG/SMALL RESULTS — above timer ═══ -->
+    <div class="cgz-bs-results-strip" id="cgzBSResultsStrip">
+      <div class="cgz-bs-strip-label">LAST 5</div>
+      ${GAME.history.slice(0,5).map(h=>{
+        const isBig = h.result==='big';
+        const colHx = COL_HEX[h.colour]||'#fff';
+        return `<div class="cgz-bs-pill ${isBig?'cgz-bs-big':'cgz-bs-small'}">
+          <span class="cgz-bs-num" style="color:${colHx}">${h.num}</span>
+          <span class="cgz-bs-tag">${isBig?'BIG':'SMALL'}</span>
+        </div>`;
+      }).join('')}
+      ${GAME.history.length===0?'<div class="clb-empty">Waiting...</div>':''}
+    </div>
+
+    <!-- ═══ MY LAST BETS STRIP — above timer ═══ -->
     <div class="cgz-last-bets-strip" id="cgzLastBetsStrip">
       ${GAME.betHistory.slice(0,5).map(b=>{
         const isBig = b.result==='big';
@@ -1718,7 +1781,7 @@ function renderGames(){
           <span class="clb-pnl ${b.won?'clb-won':'clb-lost'}">${b.won?'+₹'+b.payout:'-₹'+b.amt}</span>
         </div>`;
       }).join('')}
-      ${GAME.betHistory.length===0?'<div class="clb-empty">No bets placed yet — place your first bet!</div>':''}
+      ${GAME.betHistory.length===0?'<div class="clb-empty">No bets placed yet</div>':''}
     </div>
 
     <!-- ═══ GIANT GOLD TIMER ═══ -->
