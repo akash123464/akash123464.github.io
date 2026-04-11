@@ -1741,7 +1741,7 @@ function renderGames(){
             const lbl=b.type==='number'?'No.'+b.num:(b.type==='colour'?b.side.charAt(0).toUpperCase()+b.side.slice(1):b.side.toUpperCase());
             const isBig=b.side==='big', isSmall=b.side==='small';
             const pc=isBig?'cgz-bet-pill cgz-pill-big':isSmall?'cgz-bet-pill cgz-pill-small':'cgz-bet-pill';
-            return \`<span class="\${pc}">\${lbl} ₹\${b.amt}</span>\`;
+            return `<span class="${pc}">${lbl} ₹${b.amt}</span>`;
           }).join('')}
         </div>
       </div>`:''}
