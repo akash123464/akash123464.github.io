@@ -1337,3 +1337,379 @@ button{cursor:pointer;border:none;transition:opacity .2s ease,transform .18s cub
   text-shadow:0 0 6px rgba(80,210,220,.4);
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   CASINO GAME ZONE  —  Premium felt table, gold chips, 3D timer
+   Matches reference image: dark green felt, gold borders, vivid chips
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ── */
+@keyframes casinoGoldPulse{
+  0%,100%{text-shadow:0 0 24px rgba(245,200,66,.9),0 0 48px rgba(245,180,40,.5),0 4px 0 rgba(120,80,0,.9),0 2px 0 #6b4400}
+  50%{text-shadow:0 0 36px rgba(255,220,80,1),0 0 72px rgba(255,200,60,.7),0 4px 0 rgba(150,100,0,.9),0 2px 0 #8a5a00}
+}
+@keyframes casinoRedPulse{
+  0%,100%{text-shadow:0 0 20px #ff4444,0 0 40px rgba(255,68,68,.6),0 4px 0 rgba(180,0,0,.8)}
+  50%{text-shadow:0 0 32px #ff0000,0 0 64px rgba(255,40,40,.8),0 4px 0 #900000}
+}
+@keyframes casinoLockPulse{
+  0%,100%{box-shadow:0 0 8px rgba(255,60,60,.3)}
+  50%{box-shadow:0 0 20px rgba(255,60,60,.6)}
+}
+@keyframes chipFloat{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  33%{transform:translateY(-3px) rotate(.8deg)}
+  66%{transform:translateY(-1px) rotate(-.5deg)}
+}
+@keyframes feltShimmer{
+  0%{background-position:0% 0%}
+  100%{background-position:100% 100%}
+}
+@keyframes spotlightPulse{
+  0%,100%{opacity:.18}
+  50%{opacity:.28}
+}
+@keyframes goldBorderGlow{
+  0%,100%{box-shadow:0 0 0 2px rgba(212,175,55,.4),0 4px 24px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,240,160,.2)}
+  50%{box-shadow:0 0 0 2px rgba(255,210,80,.7),0 4px 32px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,250,180,.35)}
+}
+@keyframes chipPressAnim{
+  0%{transform:scale(1)}
+  40%{transform:scale(.88)}
+  100%{transform:scale(1)}
+}
+@keyframes sparkleFloat{
+  0%{opacity:1;transform:translateY(0) scale(1)}
+  100%{opacity:0;transform:translateY(-40px) scale(0)}
+}
+@keyframes ccbShine{
+  0%{left:-120%}
+  60%,100%{left:160%}
+}
+
+/* ── Wrapper ── */
+.casino-game-wrap{
+  position:relative;
+  min-height:100vh;
+  padding:0 0 100px;
+  overflow:hidden;
+}
+
+/* ── Casino felt background ── */
+.casino-felt-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(0,80,30,.9) 0%,rgba(0,50,20,.7) 40%,rgba(0,20,8,1) 100%),
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px,transparent 2px,
+      rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px
+    );
+  background-color:#011a08;
+  pointer-events:none;
+}
+.casino-vignette{
+  position:absolute;inset:0;z-index:1;
+  background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(0,0,0,.65) 100%);
+  pointer-events:none;
+}
+.casino-spotlight{
+  position:absolute;top:-10%;left:50%;transform:translateX(-50%);
+  width:80%;height:60%;z-index:1;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,220,100,.12) 0%,transparent 70%);
+  animation:spotlightPulse 4s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* ── Top bar ── */
+.casino-topbar{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 10px;
+}
+.casino-period-box{}
+.casino-period-lbl{
+  font-size:9px;color:rgba(212,175,55,.6);font-weight:700;letter-spacing:2px;text-transform:uppercase;
+}
+.casino-period-val{
+  font-family:'Oswald',sans-serif;font-size:12px;color:rgba(255,235,140,.75);
+  font-weight:600;letter-spacing:.5px;margin-top:1px;
+}
+.casino-chips-row{
+  display:flex;gap:6px;align-items:center;
+}
+.casino-hist-chip{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  position:relative;
+}
+
+/* ── GIANT GOLD TIMER ── */
+.casino-timer-section{
+  position:relative;z-index:2;
+  text-align:center;
+  padding:10px 16px 16px;
+  margin:0 12px 14px;
+  border-radius:20px;
+  background:linear-gradient(160deg,rgba(0,50,20,.6),rgba(0,20,8,.85));
+  border:1.5px solid rgba(212,175,55,.35);
+  box-shadow:0 0 0 1px rgba(212,175,55,.15),0 8px 40px rgba(0,0,0,.5);
+}
+.casino-timer-section.timer-low{
+  border-color:rgba(255,60,60,.7);
+  box-shadow:0 0 0 1px rgba(255,60,60,.3),0 8px 40px rgba(0,0,0,.5),0 0 40px rgba(255,60,60,.15);
+  animation:casinoLockPulse 1s ease-in-out infinite;
+}
+.casino-timer-label{
+  font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(212,175,55,.7);margin-bottom:4px;
+  font-family:'Oswald',sans-serif;
+}
+.casino-timer-digits{
+  font-family:'Oswald',sans-serif;
+  font-weight:900;
+  font-size:96px;
+  line-height:1;
+  letter-spacing:8px;
+  color:#f5c842;
+  animation:casinoGoldPulse 2s ease-in-out infinite;
+  /* 3D extrude effect */
+  -webkit-text-stroke:1px rgba(120,80,0,.5);
+  display:block;
+}
+.casino-timer-section.timer-low .casino-timer-digits{
+  animation:casinoRedPulse 0.7s ease-in-out infinite;
+}
+.casino-sparkles{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:20px;
+}
+
+/* ── Active bets summary ── */
+.casino-bets-summary{
+  position:relative;z-index:2;
+  margin:0 12px 12px;
+  padding:10px 14px;
+  border-radius:14px;
+  background:rgba(212,175,55,.06);
+  border:1px solid rgba(212,175,55,.22);
+}
+
+/* ── Colour buttons: Green/Violet/Red ── */
+.casino-colour-grid{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:10px;padding:0 12px;margin-bottom:12px;
+}
+.casino-colour-btn{
+  position:relative;overflow:hidden;
+  border-radius:12px;
+  padding:18px 6px 14px;
+  cursor:pointer;
+  border:2px solid transparent;
+  background:transparent;
+  display:flex;flex-direction:column;align-items:center;
+  transition:transform .12s cubic-bezier(.34,1.56,.64,1);
+  -webkit-tap-highlight-color:transparent;
+}
+.casino-colour-btn:active{transform:scale(.91);}
+/* Decorative corners like reference image */
+.ccb-corner{
+  position:absolute;width:10px;height:10px;
+  border-color:rgba(255,255,255,.25);border-style:solid;
+}
+.ccb-tl{top:5px;left:5px;border-width:1.5px 0 0 1.5px;}
+.ccb-tr{top:5px;right:5px;border-width:1.5px 1.5px 0 0;}
+.ccb-bl{bottom:5px;left:5px;border-width:0 0 1.5px 1.5px;}
+.ccb-br{bottom:5px;right:5px;border-width:0 1.5px 1.5px 0;}
+.ccb-inner{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;z-index:1;}
+.ccb-name{
+  font-family:'Oswald',sans-serif;font-weight:800;font-size:18px;color:#fff;
+  text-shadow:0 1px 6px rgba(0,0,0,.8),0 0 20px currentColor;
+  letter-spacing:.5px;
+}
+.ccb-odds{font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px;}
+/* Shine sweep */
+.casino-colour-btn::before{
+  content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.14),transparent);
+  animation:ccbShine 3.5s ease-in-out infinite;
+  pointer-events:none;
+}
+.casino-green-btn{
+  background:linear-gradient(145deg,#134a20,#0a2e12,#0d3818);
+  border-color:rgba(50,180,80,.7);
+  box-shadow:0 0 20px rgba(34,197,94,.2),0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(100,220,120,.2);
+  animation:goldBorderGlow 3s ease-in-out infinite;
+}
+.casino-violet-btn{
+  background:linear-gradient(145deg,#2d1054,#1a0830,#220d42);
+  border-color:rgba(168,85,247,.7);
+  box-shadow:0 0 20px rgba(168,85,247,.2),0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(200,140,255,.2);
+}
+.casino-red-btn{
+  background:linear-gradient(145deg,#4a0e0e,#2e0808,#3a0a0a);
+  border-color:rgba(239,68,68,.7);
+  box-shadow:0 0 20px rgba(239,68,68,.2),0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,120,120,.2);
+}
+
+/* ── Number section ── */
+.casino-number-section{
+  position:relative;z-index:2;
+  margin:0 12px 12px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(212,175,55,.2);
+  border-radius:18px;
+  padding:12px;
+}
+.casino-number-label{
+  text-align:center;margin-bottom:12px;
+}
+.casino-chip-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+}
+
+/* ── Poker Chip buttons ── */
+.casino-chip-btn{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1;
+  border-radius:50%;
+  cursor:pointer;
+  padding:0;
+  background:transparent;
+  border:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1);
+  animation:chipFloat 3s ease-in-out infinite;
+}
+.casino-chip-btn:nth-child(2){animation-delay:.3s}
+.casino-chip-btn:nth-child(3){animation-delay:.6s}
+.casino-chip-btn:nth-child(4){animation-delay:.9s}
+.casino-chip-btn:nth-child(5){animation-delay:1.2s}
+.casino-chip-btn:nth-child(6){animation-delay:.15s}
+.casino-chip-btn:nth-child(7){animation-delay:.45s}
+.casino-chip-btn:nth-child(8){animation-delay:.75s}
+.casino-chip-btn:nth-child(9){animation-delay:1.05s}
+.casino-chip-btn:nth-child(10){animation-delay:1.35s}
+.casino-chip-btn:active{animation:chipPressAnim .25s ease forwards}
+
+/* Outer rim of chip */
+.chip-rim{
+  position:absolute;inset:0;border-radius:50%;
+}
+/* Notches on rim */
+.chip-notch{position:absolute;width:6px;height:10px;border-radius:3px;}
+.chip-notch-t{top:2px;left:50%;transform:translateX(-50%);}
+.chip-notch-b{bottom:2px;left:50%;transform:translateX(-50%);}
+.chip-notch-l{left:2px;top:50%;transform:translateY(-50%) rotate(90deg);}
+.chip-notch-r{right:2px;top:50%;transform:translateY(-50%) rotate(90deg);}
+
+/* Inner face of chip */
+.chip-face{
+  position:absolute;inset:6px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.chip-num{
+  font-family:'Oswald',sans-serif;font-weight:900;font-size:22px;
+  position:relative;z-index:1;
+  letter-spacing:0;
+}
+/* Outer glow ring */
+.chip-glow-ring{
+  position:absolute;inset:-3px;border-radius:50%;
+  pointer-events:none;
+}
+
+/* ── Bet amount chips ── */
+.casino-amount-section{
+  position:relative;z-index:2;
+  padding:0 12px;margin-bottom:12px;
+}
+.casino-amount-lbl{
+  font-size:9px;color:rgba(212,175,55,.5);font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;margin-bottom:8px;
+}
+.casino-amount-chips{
+  display:flex;gap:7px;flex-wrap:wrap;
+}
+.casino-amt-chip{
+  padding:8px 14px;border-radius:50px;
+  background:rgba(255,255,255,.06);
+  border:1.5px solid rgba(212,175,55,.2);
+  color:rgba(255,255,255,.5);
+  font-weight:700;font-size:12px;cursor:pointer;
+  font-family:'Oswald',sans-serif;letter-spacing:.5px;
+  transition:all .18s ease;
+}
+.casino-amt-chip.active{
+  background:rgba(212,175,55,.15);
+  border-color:rgba(212,175,55,.8);
+  color:#f5c842;
+  box-shadow:0 0 14px rgba(212,175,55,.3);
+}
+
+/* ── SMALL / BIG buttons ── */
+.casino-sb-grid{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:12px;padding:0 12px;margin-bottom:14px;
+}
+.casino-sb-btn{
+  position:relative;overflow:hidden;
+  border-radius:14px;
+  padding:22px 10px 16px;
+  cursor:pointer;
+  border:2px solid transparent;
+  background:transparent;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  transition:transform .12s cubic-bezier(.34,1.56,.64,1);
+  -webkit-tap-highlight-color:transparent;
+  animation:goldBorderGlow 3.5s ease-in-out infinite;
+}
+.casino-sb-btn:active{transform:scale(.93);}
+/* Corner decorations */
+.csb-corner{
+  position:absolute;width:14px;height:14px;
+  border-color:rgba(255,255,255,.2);border-style:solid;
+}
+.csb-tl{top:6px;left:6px;border-width:1.5px 0 0 1.5px;}
+.csb-tr{top:6px;right:6px;border-width:1.5px 1.5px 0 0;}
+.csb-bl{bottom:6px;left:6px;border-width:0 0 1.5px 1.5px;}
+.csb-br{bottom:6px;right:6px;border-width:0 1.5px 1.5px 0;}
+.casino-sb-btn::before{
+  content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.1),transparent);
+  animation:ccbShine 4s ease-in-out infinite;pointer-events:none;
+}
+.csb-name{
+  font-family:'Oswald',sans-serif;font-weight:900;font-size:28px;color:#fff;
+  text-shadow:0 2px 8px rgba(0,0,0,.8);letter-spacing:2px;
+  position:relative;z-index:1;
+}
+.csb-odds{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.55);
+  letter-spacing:1px;position:relative;z-index:1;
+}
+.casino-small-btn{
+  background:linear-gradient(145deg,#0e1f4a,#071028,#0a1535);
+  border-color:rgba(100,160,255,.65);
+  box-shadow:0 0 24px rgba(96,165,250,.18),0 6px 20px rgba(0,0,0,.6),inset 0 1px 0 rgba(130,180,255,.2);
+}
+.casino-big-btn{
+  background:linear-gradient(145deg,#4a0e0e,#2e0808,#3a0a0a);
+  border-color:rgba(220,80,60,.65);
+  box-shadow:0 0 24px rgba(239,68,68,.18),0 6px 20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,120,100,.2);
+}
+
+/* ── History section ── */
+.casino-history-section{
+  position:relative;z-index:2;
+  margin:0 12px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(212,175,55,.15);
+  border-radius:18px;
+  padding:14px;
+}
