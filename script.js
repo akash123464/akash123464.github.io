@@ -41,7 +41,7 @@ let state={
   totalDeposit:0,totalWithdraw:0,userEmail:''
 };
 
-let jellyRAF=null;
+let _resizeTimer;
 
 /* ── DATA ── */
 const BETS={
@@ -168,11 +168,6 @@ function normalizeStatus(raw){
 }
 function cc(){return META[state.cat].color;}
 function setCC(c){document.documentElement.style.setProperty('--cc',c);}
-function jellyTapBalCard(){
-  const card=document.getElementById('balCard');if(!card)return;
-  card.classList.remove('bal-jelly');void card.offsetWidth;card.classList.add('bal-jelly');
-  card.addEventListener('animationend',()=>card.classList.remove('bal-jelly'),{once:true});
-}
 function fmtCur(n){return '₹'+(Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
 
 /* ── TOAST ── */
@@ -265,108 +260,6 @@ function updateBlobs(){
 /* ═══════════════════════════════════════
    JELLY SLIDER (unchanged)
 ═══════════════════════════════════════ */
-function initJellySlider(){
-  if(jellyRAF){cancelAnimationFrame(jellyRAF);jellyRAF=null;}
-  const wrap=document.getElementById('jellyTrackWrap');
-  const canvas=document.getElementById('jellyCanvas');
-  const betsEl=document.getElementById('betsContainer');
-  if(!wrap||!canvas||!betsEl)return;
-  const dpr=Math.min(window.devicePixelRatio||1,2);
-  const W_CSS=wrap.offsetWidth,H_CSS=wrap.offsetHeight;
-  canvas.width=W_CSS*dpr;canvas.height=H_CSS*dpr;
-  canvas.style.width=W_CSS+'px';canvas.style.height=H_CSS+'px';
-  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
-  const W=W_CSS,H=H_CSS,PAD=9,TR=(H-PAD*2)/2,RANGE=W-PAD*2-TR*2;
-  let targetPos=0,displayPos=0,springVel=0,pointerVel=0;
-  let isDragging=false,dragStartX=0,dragStartPos=0,lastMoveX=0;
-  const posToX=p=>PAD+TR+p*RANGE;
-  function pillPath(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
-  function jellyFillPath(lx,rx,cy,r){
-    if(rx-lx<2){ctx.beginPath();ctx.arc(lx,cy,Math.max(r,3),0,Math.PI*2);return;}
-    ctx.beginPath();ctx.moveTo(lx,cy-r);ctx.lineTo(rx,cy-r);ctx.arc(rx,cy,r,-Math.PI/2,Math.PI/2);ctx.lineTo(lx,cy+r);ctx.arc(lx,cy,r,Math.PI/2,-Math.PI/2,true);ctx.closePath();
-  }
-  function drawTrack(){
-    const TX=PAD,TY=PAD,TW=W-PAD*2,TH=H-PAD*2;
-    pillPath(TX,TY,TW,TH,TR);
-    const tg=ctx.createLinearGradient(TX,TY,TX,TY+TH);tg.addColorStop(0,'rgba(0,0,0,.60)');tg.addColorStop(.45,'rgba(8,14,32,.74)');tg.addColorStop(1,'rgba(18,26,52,.64)');
-    ctx.fillStyle=tg;ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-    pillPath(TX,TY,TW,TH*.5,TR);const is=ctx.createLinearGradient(TX,TY,TX,TY+TH*.45);is.addColorStop(0,'rgba(0,0,0,.38)');is.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=is;ctx.fill();
-    pillPath(TX+1,TY+TH*.74,TW-2,TH*.26,TR*.5);const bs=ctx.createLinearGradient(TX,TY+TH*.74,TX,TY+TH);bs.addColorStop(0,'rgba(255,255,255,0)');bs.addColorStop(1,'rgba(255,255,255,.05)');ctx.fillStyle=bs;ctx.fill();
-    pillPath(TX,TY,TW,TH,TR);ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;ctx.stroke();
-  }
-  function drawJelly(cx,pv){
-    const cy=H/2,lx=PAD+TR,fillW=cx-lx;if(fillW<3)return;
-    const trackH=H-PAD*2,r=trackH/2-2,topY=cy-r,botY=cy+r;
-    const vel=Math.max(-12,Math.min(12,pv)),absPv=Math.abs(vel);
-    ctx.save();pillPath(PAD+1,PAD+1,W-PAD*2-2,H-PAD*2-2,TR-1);ctx.clip();
-    jellyFillPath(lx,cx,cy,r+7);const ambG=ctx.createLinearGradient(lx,cy,cx+r,cy);ambG.addColorStop(0,'rgba(120,30,0,0.06)');ambG.addColorStop(.55,'rgba(200,80,0,0.16)');ambG.addColorStop(1,'rgba(255,140,0,0.28)');ctx.fillStyle=ambG;ctx.fill();
-    ctx.shadowColor='rgba(0,0,0,0.58)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
-    jellyFillPath(lx,cx,cy,r);const bodyG=ctx.createLinearGradient(lx,topY,lx,botY);bodyG.addColorStop(0,'#ffe085');bodyG.addColorStop(0.10,'#ffb830');bodyG.addColorStop(0.35,'#ff7200');bodyG.addColorStop(0.70,'#cc4400');bodyG.addColorStop(1,'#7a1e00');ctx.fillStyle=bodyG;ctx.fill();
-    ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-    /* Outer orange neon glow ring */
-    jellyFillPath(lx,cx,cy,r);ctx.save();ctx.shadowColor='rgba(255,120,0,0.9)';ctx.shadowBlur=18;ctx.strokeStyle='rgba(255,160,40,0.5)';ctx.lineWidth=2.5;ctx.stroke();ctx.restore();
-    ctx.beginPath();ctx.moveTo(lx+3,topY+1.5);ctx.lineTo(cx-3,topY+1.5);ctx.strokeStyle='rgba(255,240,160,0.65)';ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();
-    const spFrac=Math.min(0.58,Math.max(0.2,fillW*0.0035)),spCX=lx+fillW*0.24,spCY=topY+r*0.25,spRX=fillW*spFrac,spRY=r*0.32;
-    ctx.beginPath();ctx.ellipse(spCX,spCY,Math.max(spRX,4),Math.max(spRY,3),-0.06,0,Math.PI*2);
-    const specG=ctx.createRadialGradient(spCX-spRX*0.22,spCY-spRY*0.28,0,spCX,spCY,Math.max(spRX,spRY));specG.addColorStop(0,'rgba(255,255,220,0.97)');specG.addColorStop(0.20,'rgba(255,240,180,0.88)');specG.addColorStop(0.52,'rgba(255,200,80,0.42)');specG.addColorStop(0.80,'rgba(255,150,20,0.10)');specG.addColorStop(1,'rgba(255,100,0,0)');ctx.fillStyle=specG;ctx.fill();
-    const s2X=cx-r*0.20,s2Y=cy-r*0.42;ctx.beginPath();ctx.ellipse(s2X,s2Y,r*0.13,r*0.09,-0.22,0,Math.PI*2);const s2G=ctx.createRadialGradient(s2X-r*.04,s2Y-r*.03,0,s2X,s2Y,r*.14);s2G.addColorStop(0,'rgba(255,255,200,0.82)');s2G.addColorStop(1,'rgba(255,200,80,0)');ctx.fillStyle=s2G;ctx.fill();
-    const lgG=ctx.createRadialGradient(lx+r*0.22,cy-r*0.20,0,lx+r*0.28,cy,r*0.58);lgG.addColorStop(0,'rgba(255,200,100,0.30)');lgG.addColorStop(1,'rgba(255,120,0,0)');ctx.beginPath();ctx.arc(lx,cy,r,0,Math.PI*2);ctx.fillStyle=lgG;ctx.fill();
-    jellyFillPath(lx,cx,cy,r);const depG=ctx.createLinearGradient(lx,cy+r*0.32,lx,botY);depG.addColorStop(0,'rgba(40,5,0,0)');depG.addColorStop(1,'rgba(30,4,0,0.45)');ctx.fillStyle=depG;ctx.fill();
-    /* Neon edge glow on moving side */
-    if(absPv>1.5){const sA=Math.min(absPv/14,0.55),sX=cx-r*0.18;const sG=ctx.createRadialGradient(sX,cy-r*0.28,0,sX,cy,r*0.65);sG.addColorStop(0,`rgba(255,200,50,${sA})`);sG.addColorStop(0.5,`rgba(255,120,0,${sA*0.6})`);sG.addColorStop(1,'rgba(255,80,0,0)');ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=sG;ctx.fill();}
-    /* Drip edge highlight */
-    const dripG=ctx.createRadialGradient(cx,cy,r*0.82,cx,cy,r+4);dripG.addColorStop(0,'rgba(255,130,0,0)');dripG.addColorStop(1,`rgba(255,110,0,${Math.min(absPv*0.04+0.12,0.35)})`);ctx.beginPath();ctx.arc(cx,cy,r+2,0,Math.PI*2);ctx.fillStyle=dripG;ctx.fill();
-    ctx.restore();
-  }
-  function drawTicks(){ctx.save();ctx.font='700 8.5px "Space Grotesk",sans-serif';ctx.fillStyle='rgba(255,255,255,.22)';ctx.textAlign='left';ctx.fillText('▲ TOP',PAD+TR+4,H-PAD-3);ctx.textAlign='right';ctx.fillText('BOTTOM ▼',W-PAD-TR-4,H-PAD-3);ctx.restore();}
-  function loop(){
-    const diff=targetPos-displayPos;springVel=springVel*0.72+diff*0.22;displayPos+=springVel;
-    if(Math.abs(diff)<.0004&&Math.abs(springVel)<.0004){displayPos=targetPos;springVel=0;}
-    if(!isDragging)pointerVel*=0.76;
-    ctx.clearRect(0,0,W,H);drawTrack();drawJelly(posToX(displayPos),pointerVel);drawTicks();
-    jellyRAF=requestAnimationFrame(loop);
-  }
-  function getLocalX(e){const r=canvas.getBoundingClientRect();return(e.touches?e.touches[0].clientX:e.clientX)-r.left;}
-  function onStart(e){isDragging=true;dragStartX=getLocalX(e);dragStartPos=targetPos;lastMoveX=dragStartX;pointerVel=0;if(e.cancelable)e.preventDefault();}
-  function getBetsRange(){return null;}// unused
-  function onMove(e){
-    if(!isDragging)return;
-    const x=getLocalX(e);
-    pointerVel=(x-lastMoveX)*1.15;lastMoveX=x;
-    const raw=dragStartPos+(x-dragStartX)/RANGE;
-    targetPos=Math.max(0,Math.min(1,raw));
-    /* Scroll ONLY the bets list, not the page */
-    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
-    if(maxS>0)betsEl.scrollTop=targetPos*maxS;
-  }
-  function onEnd(){isDragging=false;}
-  canvas.addEventListener('mousedown',onStart,{passive:false});
-  canvas.addEventListener('touchstart',onStart,{passive:false,capture:false});
-  window.addEventListener('mousemove',onMove);
-  window.addEventListener('touchmove',(e)=>{if(!isDragging)return;onMove(e);},{passive:true});
-  window.addEventListener('mouseup',onEnd);
-  window.addEventListener('touchend',onEnd);
-  /* Sync slider when user finger-scrolls inside betsContainer */
-  betsEl.addEventListener('scroll',()=>{
-    if(isDragging)return;
-    const maxS=betsEl.scrollHeight-betsEl.clientHeight;
-    if(maxS>0)targetPos=betsEl.scrollTop/maxS;
-  },{passive:true});
-  loop();
-}
-function setBetsHeight(){
-  const betsEl=document.getElementById('betsContainer');if(!betsEl)return;
-  /* Use a fixed height: full viewport minus bottom nav (82px) minus jelly section height */
-  const jellySection=document.querySelector('.jelly-section');
-  const jellyH=jellySection?jellySection.offsetHeight:200;
-  const avail=window.innerHeight-jellyH-82;
-  betsEl.style.height=Math.max(200,avail)+'px';
-  betsEl.style.overflowY='scroll';
-  betsEl.style.overflowX='hidden';
-  betsEl.style.webkitOverflowScrolling='touch';
-  betsEl.style.touchAction='pan-y';
-}
-
 /* ── MARKETS PAGE ── */
 function renderMarkets(){
   const m=META[state.cat],color=m.color;
@@ -447,43 +340,35 @@ function renderMarkets(){
 
   html+=`
   <div id="marketSticky">
-  <div class="jelly-section">
-    <div class="jelly-header">
-      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
-        <div class="jelly-icon-box" style="filter:brightness(1.5) saturate(1.6)">${m.icon}</div>
-        <div style="min-width:0">
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px">
-            ${m.label} <span style="font-family:'Syne',sans-serif;font-weight:900;color:#00e5cc;text-shadow:0 0 12px rgba(0,229,204,.8),0 0 28px rgba(0,200,180,.5);letter-spacing:.5px">Markets</span>
-          </div>
-          <div class="jelly-chips">
-            <div class="chip-live"><span style="width:5px;height:5px;border-radius:50%;background:#ef4444;animation:liveDot 1.1s infinite;display:inline-block;flex-shrink:0"></span><span class="chip-text" style="color:#ff6b6b;font-size:9px">LIVE</span></div>
-            <div class="chip-vol"><span class="chip-text" style="color:#00c8ff;font-size:9px">₹4.2L+ VOL</span></div>
-            <div class="chip-hot" style="position:relative;overflow:visible">
-              <span class="fire-emoji-wrap" style="position:relative;display:inline-block;width:18px;height:22px;flex-shrink:0">
-                <svg class="fire-svg" width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <radialGradient id="fg1" cx="50%" cy="80%" r="60%"><stop offset="0%" stop-color="#fff7a0"/><stop offset="30%" stop-color="#ffcc00"/><stop offset="60%" stop-color="#ff6600"/><stop offset="100%" stop-color="#cc1100" stop-opacity="0"/></radialGradient>
-                    <radialGradient id="fg2" cx="50%" cy="70%" r="55%"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffaa00"/><stop offset="100%" stop-color="#ff3300" stop-opacity="0"/></radialGradient>
-                    <filter id="ff1"><feGaussianBlur stdDeviation="0.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                  </defs>
-                  <path class="fire-outer" d="M9 1 C9 1 13 5 13 9 C14 7 14 5 13 3 C16 5 17 9 16 13 C17 11 17.5 9 17 7 C18 10 18 14 16 17 C15 19.5 12.5 21 9 21 C5.5 21 3 19.5 2 17 C0 14 0 10 1 7 C0.5 9 1 11 2 13 C1 9 2 5 5 3 C4 5 4 7 5 9 C5 5 7 1 9 1Z" fill="url(#fg1)" filter="url(#ff1)"/>
-                  <path class="fire-inner" d="M9 7 C9 7 11.5 10 11 13 C12 11.5 12 10 11.5 8.5 C13 10 13 13 12 15.5 C11 17.5 10 18.5 9 18.5 C8 18.5 7 17.5 6 15.5 C5 13 5 10 6.5 8.5 C6 10 6 11.5 7 13 C6.5 10 7 7 9 7Z" fill="url(#fg2)"/>
-                  <ellipse class="fire-core" cx="9" cy="17" rx="2.5" ry="2" fill="#fffde0" opacity="0.9"/>
-                </svg>
-              </span>
-              <span class="chip-text" style="color:#ffa040;font-size:9px">${BETS[state.cat].filter(b=>b.hot).length} HOT</span>
-            </div>
+  <div class="market-header-bar">
+    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+      <div class="jelly-icon-box" style="filter:brightness(1.5) saturate(1.6)">${m.icon}</div>
+      <div style="min-width:0">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px">
+          ${m.label} <span style="font-family:'Syne',sans-serif;font-weight:900;color:#00e5cc;text-shadow:0 0 12px rgba(0,229,204,.8),0 0 28px rgba(0,200,180,.5);letter-spacing:.5px">Markets</span>
+        </div>
+        <div class="jelly-chips">
+          <div class="chip-live"><span style="width:5px;height:5px;border-radius:50%;background:#ef4444;animation:liveDot 1.1s infinite;display:inline-block;flex-shrink:0"></span><span class="chip-text" style="color:#ff6b6b;font-size:9px">LIVE</span></div>
+          <div class="chip-vol"><span class="chip-text" style="color:#00c8ff;font-size:9px">₹4.2L+ VOL</span></div>
+          <div class="chip-hot" style="position:relative;overflow:visible">
+            <span class="fire-emoji-wrap" style="position:relative;display:inline-block;width:18px;height:22px;flex-shrink:0">
+              <svg class="fire-svg" width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="fg1" cx="50%" cy="80%" r="60%"><stop offset="0%" stop-color="#fff7a0"/><stop offset="30%" stop-color="#ffcc00"/><stop offset="60%" stop-color="#ff6600"/><stop offset="100%" stop-color="#cc1100" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="fg2" cx="50%" cy="70%" r="55%"><stop offset="0%" stop-color="#fffde0"/><stop offset="40%" stop-color="#ffaa00"/><stop offset="100%" stop-color="#ff3300" stop-opacity="0"/></radialGradient>
+                  <filter id="ff1"><feGaussianBlur stdDeviation="0.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                </defs>
+                <path class="fire-outer" d="M9 1 C9 1 13 5 13 9 C14 7 14 5 13 3 C16 5 17 9 16 13 C17 11 17.5 9 17 7 C18 10 18 14 16 17 C15 19.5 12.5 21 9 21 C5.5 21 3 19.5 2 17 C0 14 0 10 1 7 C0.5 9 1 11 2 13 C1 9 2 5 5 3 C4 5 4 7 5 9 C5 5 7 1 9 1Z" fill="url(#fg1)" filter="url(#ff1)"/>
+                <path class="fire-inner" d="M9 7 C9 7 11.5 10 11 13 C12 11.5 12 10 11.5 8.5 C13 10 13 13 12 15.5 C11 17.5 10 18.5 9 18.5 C8 18.5 7 17.5 6 15.5 C5 13 5 10 6.5 8.5 C6 10 6 11.5 7 13 C6.5 10 7 7 9 7Z" fill="url(#fg2)"/>
+                <ellipse class="fire-core" cx="9" cy="17" rx="2.5" ry="2" fill="#fffde0" opacity="0.9"/>
+              </svg>
+            </span>
+            <span class="chip-text" style="color:#ffa040;font-size:9px">${BETS[state.cat].filter(b=>b.hot).length} HOT</span>
           </div>
         </div>
       </div>
-      <div class="count-pill">${BETS[state.cat].length}<span style="font-size:9px;opacity:.75;letter-spacing:1.5px"> MKT</span></div>
     </div>
-    <div class="jelly-track-wrap" id="jellyTrackWrap"><canvas id="jellyCanvas"></canvas></div>
-    <div class="jelly-hints">
-      <span class="jelly-hint">◀ TOP</span>
-      <span class="jelly-hint" style="color:rgba(255,150,50,.25);font-size:8px;align-self:center">DRAG TO NAVIGATE</span>
-      <span class="jelly-hint">BOTTOM ▶</span>
-    </div>
+    <div class="count-pill">${BETS[state.cat].length}<span style="font-size:9px;opacity:.75;letter-spacing:1.5px"> MKT</span></div>
   </div>`;
 
   const bc=BADGE_COLORS[state.cat];
@@ -532,7 +417,6 @@ function renderMarkets(){
   </div>`;
   container.innerHTML=html;
   updateBal();
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{setBetsHeight();initJellySlider();}));
 }
 
 /* ── SUPPORT ── */
@@ -2053,13 +1937,6 @@ function renderGames(){
   /* Ensure bet summary and last-bets strip are correct after full render */
   requestAnimationFrame(()=>{ updateGameBetSummary(); _quickUpdateGameUI(); });
 }
-
-/* ── RESIZE: debounced setBetsHeight ── */
-let _resizeTimer;
-window.addEventListener('resize',()=>{
-  clearTimeout(_resizeTimer);
-  _resizeTimer=setTimeout(setBetsHeight,120);
-},{passive:true});
 
 /* ═══════════════════════════════════════════════
    BET HISTORY LEDGER BOOK — User Bets Only
