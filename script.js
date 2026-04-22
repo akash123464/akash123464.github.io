@@ -274,7 +274,7 @@ function renderMarkets(){
     box-shadow:0 0 18px rgba(255,100,0,.4),0 0 6px rgba(255,130,0,.3),inset 0 1px 0 rgba(255,200,80,.32);
     animation:orangePulse 3s ease-in-out infinite;display:flex;align-items:center;">
     <div style="position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,180,60,.95),rgba(255,220,100,.7),rgba(255,180,60,.95),transparent)"></div>
-    <div style="position:absolute;top:0;left:-110%;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,160,60,.12),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1"></div>
+    <div style="position:absolute;top:0;left:0;width:45%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,160,60,.12),transparent);animation:shineSwipe 4s ease-in-out infinite;pointer-events:none;z-index:1;transform:translateX(-110%);will-change:transform"></div>
     <div style="position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:6px;height:100%;padding:0 14px;background:linear-gradient(160deg,rgba(255,100,0,.88),rgba(200,55,0,.92));border-right:1px solid rgba(255,140,40,.5);">
       <span style="width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff6666,#ff0000 55%,#cc0000);flex-shrink:0;animation:redBreath 1.4s ease-in-out infinite;box-shadow:0 0 10px #ff0000,0 0 22px #ff0000,0 0 38px rgba(255,0,0,.5)"></span>
       <span class="trending-word">TRENDING</span>
@@ -310,7 +310,7 @@ function renderMarkets(){
 
   const uidDisplay=state.userEmail||'Login required';
   html+=`
-  <div id="balCard" onclick="jellyTapBalCard()" style="position:relative">
+  <div id="balCard" style="position:relative">
     <div class="bc-sweep"></div><div class="bc-topline"></div>
     <div style="position:relative;z-index:3">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px">
