@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Service — TASKD</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="book-page">
+
+  <!-- NAV -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">TASKD<span class="dot">.</span></a>
+    <div class="nav-links">
+      <a href="index.html#services">Services</a>
+      <a href="index.html#how">How it works</a>
+      <a href="book.html" class="nav-cta active">Book Now ↗</a>
+    </div>
+    <button class="hamburger" id="hamburger">&#9776;</button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#services" onclick="closeMobileMenu()">Services</a>
+    <a href="index.html#how" onclick="closeMobileMenu()">How it works</a>
+    <a href="book.html" class="mobile-cta">Book Now ↗</a>
+  </div>
+
+  <!-- BOOK HERO -->
+  <section class="book-hero">
+    <div class="hero-bg-blob blob1"></div>
+    <div class="book-hero-content">
+      <div class="section-tag">Submit a request</div>
+      <h1>Tell us your<br /><span class="gradient-text">problem.</span></h1>
+      <p>No task too weird. Describe what you need and we'll find the right person for it.</p>
+    </div>
+  </section>
+
+  <!-- FORM -->
+  <section class="book-section">
+    <div class="book-container">
+
+      <!-- Service Selector -->
+      <div class="form-block">
+        <label class="form-label">What kind of help do you need?</label>
+        <div class="service-pills" id="servicePills">
+          <button class="pill" data-service="moving">📦 Moving Help</button>
+          <button class="pill" data-service="delivery">🚀 Special Delivery</button>
+          <button class="pill" data-service="bodyguard">🛡️ Bodyguard</button>
+          <button class="pill" data-service="errand">🛒 Personal Errand</button>
+          <button class="pill" data-service="repair">🔧 Odd Jobs</button>
+          <button class="pill" data-service="custom">✨ Something Else</button>
+        </div>
+        <input type="hidden" id="selectedService" name="service" />
+      </div>
+
+      <!-- Main Form -->
+      <div class="booking-form" id="bookingForm">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="name">Your Name</label>
+            <input class="form-input" type="text" id="name" placeholder="e.g. Ravi Kumar" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone Number</label>
+            <input class="form-input" type="tel" id="phone" placeholder="+91 98765 43210" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="description">Describe your task</label>
+          <textarea class="form-input form-textarea" id="description" placeholder="Be as detailed as you want — what needs to be done, any special requirements, what outcome you're expecting..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="location">Location / Area</label>
+            <input class="form-input" type="text" id="location" placeholder="e.g. Koramangala, Bangalore" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="date">When do you need it?</label>
+            <input class="form-input" type="date" id="date" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="budget">Budget (optional)</label>
+          <input class="form-input" type="text" id="budget" placeholder="e.g. ₹500–₹1000 or 'flexible'" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Urgency</label>
+          <div class="urgency-pills">
+            <button class="urgency-pill active" data-urgency="flexible">🌿 Flexible</button>
+            <button class="urgency-pill" data-urgency="today">⚡ Today</button>
+            <button class="urgency-pill" data-urgency="asap">🔥 ASAP</button>
+          </div>
+          <input type="hidden" id="urgency" value="flexible" />
+        </div>
+
+        <button class="btn-primary submit-btn" id="submitBtn" onclick="submitRequest()">
+          Submit My Request ✓
+        </button>
+
+      </div>
+
+      <!-- Success State (hidden by default) -->
+      <div class="success-state" id="successState">
+        <div class="success-icon">🎉</div>
+        <h2>Request Submitted!</h2>
+        <p>We've received your request. Our team will reach out to you within 24 hours to confirm and match you with the right person.</p>
+        <div class="success-ref" id="successRef"></div>
+        <a href="index.html" class="btn-primary" style="display:inline-block;margin-top:2rem;">Back to Home</a>
+      </div>
+
+    </div>
+
+    <!-- Side Info -->
+    <div class="book-side">
+      <div class="side-card">
+        <h3>Why TASKD?</h3>
+        <ul class="side-list">
+          <li>✦ No task too unusual</li>
+          <li>✦ Real humans, not bots</li>
+          <li>✦ Fast response within 24h</li>
+          <li>✦ Pay only when job is done</li>
+          <li>✦ Your details stay private</li>
+        </ul>
+      </div>
+      <div class="side-card side-card-alt">
+        <h3>Popular right now</h3>
+        <div class="popular-items">
+          <div class="pop-item">📦 House shifting help</div>
+          <div class="pop-item">🛒 Grocery runs</div>
+          <div class="pop-item">🛡️ Event security</div>
+          <div class="pop-item">🔧 IKEA assembly</div>
+          <div class="pop-item">🚀 Same-day delivery</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="nav-logo">TASKD<span class="dot">.</span></div>
+        <p>Real help for real problems.</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how">How it works</a>
+        <a href="book.html">Book a Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 TASKD. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
