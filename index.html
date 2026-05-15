@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TASKD — Get Anything Done</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="nav-logo">TASKD<span class="dot">.</span></div>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#how">How it works</a>
+      <a href="book.html" class="nav-cta">Book Now ↗</a>
+    </div>
+    <button class="hamburger" id="hamburger">&#9776;</button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services" onclick="closeMobileMenu()">Services</a>
+    <a href="#how" onclick="closeMobileMenu()">How it works</a>
+    <a href="book.html" class="mobile-cta">Book Now ↗</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-blob blob1"></div>
+    <div class="hero-bg-blob blob2"></div>
+    <div class="hero-content">
+      <div class="hero-tag">✦ On-demand help, anytime</div>
+      <h1 class="hero-title">
+        Got a problem?<br />
+        <span class="gradient-text">We've got people.</span>
+      </h1>
+      <p class="hero-sub">
+        Moving help, special deliveries, security, odd jobs — submit your need and we'll get someone on it. No hassle, no agency, just real help.
+      </p>
+      <div class="hero-actions">
+        <a href="book.html" class="btn-primary">Submit a Request →</a>
+        <a href="#services" class="btn-ghost">Browse Services</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">500+</span><span class="stat-label">Tasks Done</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">24h</span><span class="stat-label">Response Time</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Custom Jobs</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="floating-card card-a">📦 <span>Special Delivery</span></div>
+      <div class="floating-card card-b">🏋️ <span>Moving Help</span></div>
+      <div class="floating-card card-c">🛡️ <span>Bodyguard for a Day</span></div>
+      <div class="floating-card card-d">🔧 <span>Odd Jobs</span></div>
+      <div class="hero-circle"></div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>MOVING HELP</span><span class="bull">✦</span>
+      <span>SPECIAL DELIVERY</span><span class="bull">✦</span>
+      <span>BODYGUARD FOR A DAY</span><span class="bull">✦</span>
+      <span>ODD JOBS</span><span class="bull">✦</span>
+      <span>PERSONAL ERRAND</span><span class="bull">✦</span>
+      <span>HEAVY LIFTING</span><span class="bull">✦</span>
+      <span>ESCORT SERVICE</span><span class="bull">✦</span>
+      <span>CUSTOM REQUEST</span><span class="bull">✦</span>
+      <!-- duplicate for seamless loop -->
+      <span>MOVING HELP</span><span class="bull">✦</span>
+      <span>SPECIAL DELIVERY</span><span class="bull">✦</span>
+      <span>BODYGUARD FOR A DAY</span><span class="bull">✦</span>
+      <span>ODD JOBS</span><span class="bull">✦</span>
+      <span>PERSONAL ERRAND</span><span class="bull">✦</span>
+      <span>HEAVY LIFTING</span><span class="bull">✦</span>
+      <span>ESCORT SERVICE</span><span class="bull">✦</span>
+      <span>CUSTOM REQUEST</span><span class="bull">✦</span>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <div class="section-header">
+      <div class="section-tag">What we do</div>
+      <h2>Pick your <span class="gradient-text">service</span></h2>
+      <p>Or describe anything custom on the booking page — if it's legal, we'll figure it out.</p>
+    </div>
+    <div class="services-grid">
+
+      <a href="book.html?service=moving" class="service-card">
+        <div class="card-icon">📦</div>
+        <h3>Moving Help</h3>
+        <p>Need muscle to shift furniture, boxes, or heavy stuff? We send reliable helpers to you.</p>
+        <div class="card-arrow">→</div>
+      </a>
+
+      <a href="book.html?service=delivery" class="service-card featured">
+        <div class="card-badge">Popular</div>
+        <div class="card-icon">🚀</div>
+        <h3>Special Delivery</h3>
+        <p>Something that regular couriers won't handle? We'll get it where it needs to go, safely.</p>
+        <div class="card-arrow">→</div>
+      </a>
+
+      <a href="book.html?service=bodyguard" class="service-card">
+        <div class="card-icon">🛡️</div>
+        <h3>Bodyguard for a Day</h3>
+        <p>Event, meeting, or just peace of mind — get a trained professional by your side.</p>
+        <div class="card-arrow">→</div>
+      </a>
+
+      <a href="book.html?service=errand" class="service-card">
+        <div class="card-icon">🛒</div>
+        <h3>Personal Errand</h3>
+        <p>Grocery runs, pickups, waiting in queues — whatever you'd rather not do yourself.</p>
+        <div class="card-arrow">→</div>
+      </a>
+
+      <a href="book.html?service=repair" class="service-card">
+        <div class="card-icon">🔧</div>
+        <h3>Odd Jobs & Repairs</h3>
+        <p>Assembling furniture, fixing things, handyman tasks — bring the chaos, we bring tools.</p>
+        <div class="card-arrow">→</div>
+      </a>
+
+      <a href="book.html?service=custom" class="service-card card-custom">
+        <div class="card-icon">✨</div>
+        <h3>Something Else?</h3>
+        <p>Just describe your problem in your own words. We'll match you with the right person.</p>
+        <div class="card-arrow">→</div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <div class="section-header">
+      <div class="section-tag">The process</div>
+      <h2>Three steps, <span class="gradient-text">that's it</span></h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Tell us what you need</h3>
+        <p>Fill in a quick form — describe your task, when you need it, where you are.</p>
+      </div>
+      <div class="step-connector">— — —</div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>We confirm & match</h3>
+        <p>Our team reviews your request and finds the right person for the job.</p>
+      </div>
+      <div class="step-connector">— — —</div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Job gets done</h3>
+        <p>Your helper shows up, does the work. Simple, reliable, sorted.</p>
+      </div>
+    </div>
+    <div class="how-cta">
+      <a href="book.html" class="btn-primary">Start a Request →</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="nav-logo">TASKD<span class="dot">.</span></div>
+        <p>Real help for real problems.<br/>Any task, anywhere, anytime.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#services">Services</a>
+        <a href="#how">How it works</a>
+        <a href="book.html">Book a Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 TASKD. All rights reserved.</span>
+      <span>Made for real people with real problems.</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
