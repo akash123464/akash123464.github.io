@@ -3,161 +3,209 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Book a Service — TASKD</title>
+  <title>Book a Service — WISHWORK</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,700;1,900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
 </head>
 <body class="book-page">
 
   <!-- NAV -->
-  <nav class="navbar">
-    <a href="index.html" class="nav-logo">TASKD<span class="dot">.</span></a>
-    <div class="nav-links">
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="6" fill="white"/>
+        <path d="M7 23L16 9L25 23H20L16 16.5L12 23H7Z" fill="black"/>
+      </svg>
+      <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
+    </a>
+    <div class="nav-links" id="navLinks">
       <a href="index.html#services">Services</a>
-      <a href="index.html#how">How it works</a>
-      <a href="book.html" class="nav-cta active">Book Now ↗</a>
+      <a href="index.html#hire">Hire a Worker</a>
+      <a href="index.html#process">How It Works</a>
+      <a href="book.html" class="nav-cta active-cta">Book Now</a>
     </div>
-    <button class="hamburger" id="hamburger">&#9776;</button>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
 
   <!-- MOBILE MENU -->
   <div class="mobile-menu" id="mobileMenu">
     <a href="index.html#services" onclick="closeMobileMenu()">Services</a>
-    <a href="index.html#how" onclick="closeMobileMenu()">How it works</a>
-    <a href="book.html" class="mobile-cta">Book Now ↗</a>
+    <a href="index.html#hire"     onclick="closeMobileMenu()">Hire a Worker</a>
+    <a href="index.html#process"  onclick="closeMobileMenu()">How It Works</a>
+    <a href="book.html" class="mobile-cta" onclick="closeMobileMenu()">Book Now →</a>
   </div>
 
   <!-- BOOK HERO -->
   <section class="book-hero">
-    <div class="hero-bg-blob blob1"></div>
-    <div class="book-hero-content">
-      <div class="section-tag">Submit a request</div>
-      <h1>Tell us your<br /><span class="gradient-text">problem.</span></h1>
-      <p>No task too weird. Describe what you need and we'll find the right person for it.</p>
+    <div class="hero-noise"></div>
+    <div class="bh-content">
+      <div class="sect-label">Submit a request</div>
+      <h1 class="bh-title">Tell us your<br><em>problem.</em></h1>
+      <p class="bh-sub">No task too unusual. Describe what you need — we'll find the right person for it.</p>
     </div>
   </section>
 
-  <!-- FORM -->
-  <section class="book-section">
-    <div class="book-container">
+  <!-- BOOKING LAYOUT -->
+  <section class="book-layout">
 
-      <!-- Service Selector -->
+    <!-- LEFT: FORM -->
+    <div class="book-main">
+
+      <!-- Service Type Selector -->
       <div class="form-block">
-        <label class="form-label">What kind of help do you need?</label>
-        <div class="service-pills" id="servicePills">
-          <button class="pill" data-service="moving">📦 Moving Help</button>
-          <button class="pill" data-service="delivery">🚀 Special Delivery</button>
-          <button class="pill" data-service="bodyguard">🛡️ Bodyguard</button>
-          <button class="pill" data-service="errand">🛒 Personal Errand</button>
-          <button class="pill" data-service="repair">🔧 Odd Jobs</button>
-          <button class="pill" data-service="custom">✨ Something Else</button>
+        <div class="fblock-label">What kind of help do you need?</div>
+        <div class="spills" id="servicePills">
+          <button class="spill" data-service="moving">📦 Moving Help</button>
+          <button class="spill" data-service="delivery">🚀 Special Delivery</button>
+          <button class="spill" data-service="bodyguard">🛡️ Bodyguard</button>
+          <button class="spill" data-service="errand">🛒 Personal Errand</button>
+          <button class="spill" data-service="repair">🔧 Odd Jobs</button>
+          <button class="spill spill-hire" data-service="hire">👷 Hire a Worker</button>
+          <button class="spill" data-service="custom">✦ Something Else</button>
         </div>
-        <input type="hidden" id="selectedService" name="service" />
+        <input type="hidden" id="selectedService" />
+      </div>
+
+      <!-- Hire a Worker Extra Fields (shown only when hire selected) -->
+      <div class="hire-extra" id="hireExtra">
+        <div class="hire-info-box">
+          <strong>👷 Hiring a Worker</strong>
+          <p>Specify the skill, duration, and any experience needed. We'll assign someone directly to you.</p>
+        </div>
+        <div class="form-row">
+          <div class="fgroup">
+            <label class="flabel" for="workerSkill">Skill / Role Needed</label>
+            <input class="finput" type="text" id="workerSkill" placeholder="e.g. Painter, Cleaner, Driver, Labourer" />
+          </div>
+          <div class="fgroup">
+            <label class="flabel" for="duration">Duration</label>
+            <select class="finput" id="duration">
+              <option value="">Select duration</option>
+              <option>A few hours</option>
+              <option>Full day (8 hrs)</option>
+              <option>Multiple days</option>
+              <option>Weekly recurring</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <!-- Main Form -->
       <div class="booking-form" id="bookingForm">
 
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="name">Your Name</label>
-            <input class="form-input" type="text" id="name" placeholder="e.g. Ravi Kumar" />
+          <div class="fgroup">
+            <label class="flabel" for="name">Your Name</label>
+            <input class="finput" type="text" id="name" placeholder="e.g. Ravi Kumar" />
           </div>
-          <div class="form-group">
-            <label class="form-label" for="phone">Phone Number</label>
-            <input class="form-input" type="tel" id="phone" placeholder="+91 98765 43210" />
+          <div class="fgroup">
+            <label class="flabel" for="phone">Phone Number</label>
+            <input class="finput" type="tel" id="phone" placeholder="+91 98765 43210" />
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="description">Describe your task</label>
-          <textarea class="form-input form-textarea" id="description" placeholder="Be as detailed as you want — what needs to be done, any special requirements, what outcome you're expecting..."></textarea>
+        <div class="fgroup">
+          <label class="flabel" for="description">Describe your task</label>
+          <textarea class="finput ftarea" id="description" placeholder="Be as detailed as you want — what needs doing, any special requirements, expected outcome..."></textarea>
         </div>
 
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="location">Location / Area</label>
-            <input class="form-input" type="text" id="location" placeholder="e.g. Koramangala, Bangalore" />
+          <div class="fgroup">
+            <label class="flabel" for="location">Location / Area</label>
+            <input class="finput" type="text" id="location" placeholder="e.g. Koramangala, Bangalore" />
           </div>
-          <div class="form-group">
-            <label class="form-label" for="date">When do you need it?</label>
-            <input class="form-input" type="date" id="date" />
+          <div class="fgroup">
+            <label class="flabel" for="date">When do you need it?</label>
+            <input class="finput" type="date" id="date" />
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="budget">Budget (optional)</label>
-          <input class="form-input" type="text" id="budget" placeholder="e.g. ₹500–₹1000 or 'flexible'" />
+        <div class="fgroup">
+          <label class="flabel" for="budget">Budget (optional)</label>
+          <input class="finput" type="text" id="budget" placeholder="e.g. ₹500–₹1000 or 'flexible'" />
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Urgency</label>
-          <div class="urgency-pills">
-            <button class="urgency-pill active" data-urgency="flexible">🌿 Flexible</button>
-            <button class="urgency-pill" data-urgency="today">⚡ Today</button>
-            <button class="urgency-pill" data-urgency="asap">🔥 ASAP</button>
+        <div class="fgroup">
+          <label class="flabel">Urgency</label>
+          <div class="urgency-row">
+            <button class="upill active" data-u="flexible">🌿 Flexible</button>
+            <button class="upill" data-u="today">⚡ Today</button>
+            <button class="upill" data-u="asap">🔥 ASAP</button>
           </div>
           <input type="hidden" id="urgency" value="flexible" />
         </div>
 
-        <button class="btn-primary submit-btn" id="submitBtn" onclick="submitRequest()">
+        <button class="btn-solid submit-full" id="submitBtn" onclick="submitRequest()">
           Submit My Request ✓
         </button>
 
       </div>
 
-      <!-- Success State (hidden by default) -->
-      <div class="success-state" id="successState">
-        <div class="success-icon">🎉</div>
+      <!-- Success -->
+      <div class="success-box" id="successState">
+        <div class="succ-icon">🎉</div>
         <h2>Request Submitted!</h2>
-        <p>We've received your request. Our team will reach out to you within 24 hours to confirm and match you with the right person.</p>
-        <div class="success-ref" id="successRef"></div>
-        <a href="index.html" class="btn-primary" style="display:inline-block;margin-top:2rem;">Back to Home</a>
+        <p>We've received your request. Our team will contact you within 24 hours to confirm and assign the right person.</p>
+        <div class="succ-ref" id="successRef"></div>
+        <a href="index.html" class="btn-solid" style="margin-top:2rem;display:inline-block;">← Back to Home</a>
       </div>
 
     </div>
 
-    <!-- Side Info -->
-    <div class="book-side">
-      <div class="side-card">
-        <h3>Why TASKD?</h3>
-        <ul class="side-list">
-          <li>✦ No task too unusual</li>
-          <li>✦ Real humans, not bots</li>
-          <li>✦ Fast response within 24h</li>
-          <li>✦ Pay only when job is done</li>
-          <li>✦ Your details stay private</li>
+    <!-- RIGHT: SIDEBAR -->
+    <aside class="book-aside">
+      <div class="aside-card">
+        <h3>Why WISHWORK?</h3>
+        <ul class="aside-list">
+          <li><span>✦</span> No task too unusual</li>
+          <li><span>✦</span> Real humans, not bots</li>
+          <li><span>✦</span> Response within 24h</li>
+          <li><span>✦</span> Pay only when done</li>
+          <li><span>✦</span> Your details stay private</li>
         </ul>
       </div>
-      <div class="side-card side-card-alt">
+      <div class="aside-card aside-card-2">
         <h3>Popular right now</h3>
-        <div class="popular-items">
+        <div class="pop-list">
           <div class="pop-item">📦 House shifting help</div>
+          <div class="pop-item">👷 Day labourer hire</div>
           <div class="pop-item">🛒 Grocery runs</div>
           <div class="pop-item">🛡️ Event security</div>
           <div class="pop-item">🔧 IKEA assembly</div>
           <div class="pop-item">🚀 Same-day delivery</div>
         </div>
       </div>
-    </div>
+    </aside>
 
   </section>
 
   <!-- FOOTER -->
   <footer class="footer">
-    <div class="footer-top">
+    <div class="footer-inner">
       <div class="footer-brand">
-        <div class="nav-logo">TASKD<span class="dot">.</span></div>
-        <p>Real help for real problems.</p>
+        <a href="index.html" class="nav-brand" style="display:inline-flex;margin-bottom:0.8rem;">
+          <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="6" fill="white"/>
+            <path d="M7 23L16 9L25 23H20L16 16.5L12 23H7Z" fill="black"/>
+          </svg>
+          <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
+        </a>
+        <p>Real people. Real help.</p>
       </div>
-      <div class="footer-links">
-        <a href="index.html#services">Services</a>
-        <a href="index.html#how">How it works</a>
-        <a href="book.html">Book a Service</a>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <div class="fc-title">Services</div>
+          <a href="book.html?service=moving">Moving Help</a>
+          <a href="book.html?service=delivery">Special Delivery</a>
+          <a href="book.html?service=hire">Hire a Worker</a>
+          <a href="book.html?service=custom">Custom Request</a>
+        </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2025 TASKD. All rights reserved.</span>
+      <span>© 2025 WISHWORK.online · All rights reserved.</span>
     </div>
   </footer>
 

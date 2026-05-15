@@ -1,12 +1,18 @@
 // ========================
-// TASKD — script.js
+// WISHWORK.online — script.js
 // ========================
 
-// Mobile menu
+// ── Navbar scroll effect
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ── Mobile menu
 const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobileMenu');
 
-if (hamburger) {
+if (hamburger && mobileMenu) {
   hamburger.addEventListener('click', () => {
     mobileMenu.classList.toggle('open');
   });
@@ -16,108 +22,126 @@ function closeMobileMenu() {
   if (mobileMenu) mobileMenu.classList.remove('open');
 }
 
-// ========================
-// SERVICE PILLS (book page)
-// ========================
-const pills = document.querySelectorAll('.pill');
-const selectedServiceInput = document.getElementById('selectedService');
+// Close on outside click
+document.addEventListener('click', (e) => {
+  if (mobileMenu && !mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
+    mobileMenu.classList.remove('open');
+  }
+});
 
-// Pre-select from URL param
+// ── Service Pills
+const spills = document.querySelectorAll('.spill');
+const selectedInput = document.getElementById('selectedService');
+const hireExtra = document.getElementById('hireExtra');
+
+// Pre-select from URL
 const urlParams = new URLSearchParams(window.location.search);
-const preSelected = urlParams.get('service');
+const preSelect = urlParams.get('service');
 
-pills.forEach(pill => {
-  if (preSelected && pill.dataset.service === preSelected) {
+spills.forEach(pill => {
+  if (preSelect && pill.dataset.service === preSelect) {
     pill.classList.add('active');
-    if (selectedServiceInput) selectedServiceInput.value = preSelected;
+    if (selectedInput) selectedInput.value = preSelect;
+    if (preSelect === 'hire' && hireExtra) hireExtra.classList.add('show');
   }
 
   pill.addEventListener('click', () => {
-    pills.forEach(p => p.classList.remove('active'));
+    spills.forEach(p => p.classList.remove('active'));
     pill.classList.add('active');
-    if (selectedServiceInput) selectedServiceInput.value = pill.dataset.service;
+    const svc = pill.dataset.service;
+    if (selectedInput) selectedInput.value = svc;
+    // Toggle hire-a-worker extra fields
+    if (hireExtra) hireExtra.classList.toggle('show', svc === 'hire');
   });
 });
 
-// ========================
-// URGENCY PILLS
-// ========================
-const urgencyPills = document.querySelectorAll('.urgency-pill');
+// ── Urgency Pills
+const upills = document.querySelectorAll('.upill');
 const urgencyInput = document.getElementById('urgency');
 
-urgencyPills.forEach(p => {
+upills.forEach(p => {
   p.addEventListener('click', () => {
-    urgencyPills.forEach(x => x.classList.remove('active'));
+    upills.forEach(x => x.classList.remove('active'));
     p.classList.add('active');
-    if (urgencyInput) urgencyInput.value = p.dataset.urgency;
+    if (urgencyInput) urgencyInput.value = p.dataset.u;
   });
 });
 
-// ========================
-// FORM SUBMISSION
-// ========================
+// ── Form Submit
 function submitRequest() {
   const name        = document.getElementById('name')?.value.trim();
   const phone       = document.getElementById('phone')?.value.trim();
   const description = document.getElementById('description')?.value.trim();
   const location    = document.getElementById('location')?.value.trim();
   const date        = document.getElementById('date')?.value;
-  const service     = document.getElementById('selectedService')?.value;
-  const urgency     = document.getElementById('urgency')?.value || 'flexible';
   const budget      = document.getElementById('budget')?.value.trim();
+  const service     = document.getElementById('selectedService')?.value || 'custom';
+  const urgency     = document.getElementById('urgency')?.value || 'flexible';
+  const workerSkill = document.getElementById('workerSkill')?.value.trim();
+  const duration    = document.getElementById('duration')?.value;
 
-  // Basic validation
-  if (!name) { alert('Please enter your name.'); return; }
-  if (!phone) { alert('Please enter your phone number.'); return; }
-  if (!description) { alert('Please describe your task.'); return; }
-  if (!location) { alert('Please enter your location.'); return; }
+  if (!name)        { shake('name');        return; }
+  if (!phone)       { shake('phone');       return; }
+  if (!description) { shake('description'); return; }
+  if (!location)    { shake('location');    return; }
 
-  // Build request object (ready to send to backend later)
   const request = {
-    id: 'TASKD-' + Date.now().toString(36).toUpperCase(),
-    name,
-    phone,
-    description,
-    location,
+    id: 'WW-' + Date.now().toString(36).toUpperCase(),
+    name, phone, description, location,
     date: date || 'Flexible',
-    service: service || 'custom',
-    urgency,
     budget: budget || 'Not specified',
+    service, urgency,
+    workerSkill: workerSkill || null,
+    duration: duration || null,
     submittedAt: new Date().toISOString()
   };
 
-  console.log('📋 Request submitted:', request);
-  // TODO: Replace with Firebase / API call here
+  console.log('📋 WISHWORK request:', request);
+  // ↑ Replace this with Firebase addDoc() when ready
 
-  // Show success state
+  // Show success
   const form = document.getElementById('bookingForm');
+  const block = document.querySelector('.form-block');
+  const extra = document.getElementById('hireExtra');
   const success = document.getElementById('successState');
   const ref = document.getElementById('successRef');
 
-  if (form) form.style.display = 'none';
+  if (form)    form.style.display = 'none';
+  if (block)   block.style.display = 'none';
+  if (extra)   extra.style.display = 'none';
   if (success) success.classList.add('show');
-  if (ref) ref.textContent = `Reference ID: ${request.id}`;
+  if (ref)     ref.textContent = 'Reference ID: ' + request.id;
 
-  // Hide service pills too
-  const formBlock = document.querySelector('.form-block');
-  if (formBlock) formBlock.style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ========================
-// SCROLL REVEAL (simple)
-// ========================
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
+// Shake animation for validation feedback
+function shake(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.animation = 'none';
+  el.offsetHeight; // reflow
+  el.style.animation = 'shake 0.35s ease';
+  el.focus();
+}
+
+// ── Scroll reveal
+const revealItems = document.querySelectorAll('.scard, .pstep, .wcard, .aside-card, .ti');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
     if (entry.isIntersecting) {
-      entry.target.style.opacity = '1';
-      entry.target.style.transform = 'translateY(0)';
+      setTimeout(() => {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }, i * 60);
+      revealObs.unobserve(entry.target);
     }
   });
-}, { threshold: 0.1 });
+}, { threshold: 0.08 });
 
-document.querySelectorAll('.service-card, .step, .side-card').forEach(el => {
+revealItems.forEach(el => {
   el.style.opacity = '0';
-  el.style.transform = 'translateY(24px)';
-  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-  observer.observe(el);
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.55s ease, transform 0.55s ease';
+  revealObs.observe(el);
 });
