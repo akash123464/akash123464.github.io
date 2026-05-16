@@ -1,278 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WISHWORK — On-Demand Services</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,700;1,900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WISHWORK — Get Real Help, Right Now</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav class="navbar" id="navbar">
-    <a href="index.html" class="nav-brand">
-      <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
-        <rect width="32" height="32" rx="6" fill="white"/>
-        <path d="M7 23L16 9L25 23H20L16 16.5L12 23H7Z" fill="black"/>
-      </svg>
-      <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
+<!-- ── NAVBAR ── -->
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-brand">
+    <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="7" fill="#c8972a"/>
+      <path d="M7 23L16 9L25 23H20L16 16.5L12 23H7Z" fill="#0d1b2a"/>
+    </svg>
+    <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="#services">Services</a>
+    <a href="#hire">Hire a Worker</a>
+    <a href="#process">How It Works</a>
+    <a href="book.html" class="nav-cta">Book Now</a>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#services" onclick="closeMobileMenu()">Services</a>
+  <a href="#hire"     onclick="closeMobileMenu()">Hire a Worker</a>
+  <a href="#process"  onclick="closeMobileMenu()">How It Works</a>
+  <a href="book.html" onclick="closeMobileMenu()" class="mobile-cta">Book Now →</a>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-eyebrow"><span class="live-dot"></span>Real people. Real help. Right now.</p>
+    <h1 class="hero-h1">
+      Whatever you need<br>done — <em>consider<br>it handled.</em>
+    </h1>
+    <p class="hero-sub">
+      You have a problem. We have the person for it. Moving, deliveries, security, hired help — just tell us what's needed and we take it from there.
+    </p>
+    <div class="hero-btns">
+      <a href="book.html" class="btn-gold">Submit a Request</a>
+      <a href="#services" class="btn-outline">See All Services ↓</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hs"><span class="hs-n">500+</span><span class="hs-l">Jobs Completed</span></div>
+    <div class="hs-sep"></div>
+    <div class="hs"><span class="hs-n">&lt;24h</span><span class="hs-l">Response Time</span></div>
+    <div class="hs-sep"></div>
+    <div class="hs"><span class="hs-n">Any</span><span class="hs-l">Task Accepted</span></div>
+    <div class="hs-sep"></div>
+    <div class="hs"><span class="hs-n">100%</span><span class="hs-l">Pay On Completion</span></div>
+  </div>
+</section>
+
+<!-- ── TICKER ── -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span>MOVING HELP</span><b>·</b>
+    <span>SPECIAL DELIVERY</span><b>·</b>
+    <span>BODYGUARD FOR A DAY</span><b>·</b>
+    <span>HIRE A WORKER</span><b>·</b>
+    <span>ODD JOBS</span><b>·</b>
+    <span>PERSONAL ERRAND</span><b>·</b>
+    <span>HEAVY LIFTING</span><b>·</b>
+    <span>CUSTOM REQUEST</span><b>·</b>
+    <span>MOVING HELP</span><b>·</b>
+    <span>SPECIAL DELIVERY</span><b>·</b>
+    <span>BODYGUARD FOR A DAY</span><b>·</b>
+    <span>HIRE A WORKER</span><b>·</b>
+    <span>ODD JOBS</span><b>·</b>
+    <span>PERSONAL ERRAND</span><b>·</b>
+    <span>HEAVY LIFTING</span><b>·</b>
+    <span>CUSTOM REQUEST</span><b>·</b>
+  </div>
+</div>
+
+<!-- ── SERVICES ── -->
+<section class="sect" id="services">
+  <div class="sect-title-row">
+    <div>
+      <div class="sect-label">What we do</div>
+      <h2>Pick your situation</h2>
+    </div>
+    <a href="book.html" class="text-link">Book any service →</a>
+  </div>
+
+  <div class="sgrid">
+
+    <a href="book.html?service=moving" class="scard">
+      <div class="scard-no">01</div>
+      <div class="scard-ico">📦</div>
+      <h3>I need help moving stuff</h3>
+      <p>Shifting houses, moving heavy furniture, carrying boxes up stairs — send us the address and we'll send the muscle. No truck required from your side.</p>
+      <span class="scard-arr">↗</span>
     </a>
-    <div class="nav-links" id="navLinks">
-      <a href="#services">Services</a>
-      <a href="#hire">Hire a Worker</a>
-      <a href="#process">How It Works</a>
-      <a href="book.html" class="nav-cta">Get Started</a>
-    </div>
-    <button class="hamburger" id="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
 
-  <!-- MOBILE MENU -->
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#services"  onclick="closeMobileMenu()">Services</a>
-    <a href="#hire"      onclick="closeMobileMenu()">Hire a Worker</a>
-    <a href="#process"   onclick="closeMobileMenu()">How It Works</a>
-    <a href="book.html"  onclick="closeMobileMenu()" class="mobile-cta">Get Started →</a>
+    <a href="book.html?service=delivery" class="scard scard-hi">
+      <div class="scard-badge">Most Booked</div>
+      <div class="scard-no">02</div>
+      <div class="scard-ico">🚀</div>
+      <h3>I need something delivered — fast</h3>
+      <p>Something too big, too fragile, or too urgent for regular couriers. We pick it up and get it there the same day, handled with care from start to finish.</p>
+      <span class="scard-arr">↗</span>
+    </a>
+
+    <a href="book.html?service=bodyguard" class="scard">
+      <div class="scard-no">03</div>
+      <div class="scard-ico">🛡️</div>
+      <h3>I need someone by my side</h3>
+      <p>Big meeting, public event, solo travel, or just feeling unsafe — we assign a trained, professional person to accompany you for as long as you need.</p>
+      <span class="scard-arr">↗</span>
+    </a>
+
+    <a href="book.html?service=errand" class="scard">
+      <div class="scard-no">04</div>
+      <div class="scard-ico">🛒</div>
+      <h3>I need someone to run an errand</h3>
+      <p>Groceries, pharmacy, a pickup from the other side of town, waiting in a long queue — whatever you'd rather not do yourself, we do it for you.</p>
+      <span class="scard-arr">↗</span>
+    </a>
+
+    <a href="book.html?service=repair" class="scard">
+      <div class="scard-no">05</div>
+      <div class="scard-ico">🔧</div>
+      <h3>I need something fixed or assembled</h3>
+      <p>Furniture that won't build itself, a tap that's been dripping for weeks, shelves that need mounting — we send someone handy who gets it sorted.</p>
+      <span class="scard-arr">↗</span>
+    </a>
+
+    <a href="book.html?service=hire" class="scard scard-hire">
+      <div class="scard-no">06</div>
+      <div class="scard-ico">👷</div>
+      <h3>I need a worker for the day</h3>
+      <p>Need an extra pair of hands for hours or a full day? Tell us the skill, we assign a reliable worker directly to you. You're the boss — they execute.</p>
+      <span class="scard-arr">↗</span>
+    </a>
+
   </div>
 
-  <!-- ─── HERO ─── -->
-  <section class="hero">
-    <div class="hero-noise"></div>
-    <div class="hero-content">
-      <p class="hero-eyebrow"><span class="live-dot"></span>On-demand human services</p>
-      <h1 class="hero-h1">Any task.<br>Any time.<br><em>Handled.</em></h1>
-      <p class="hero-sub">Moving help, special deliveries, hired security, odd jobs — describe your problem and we put the right person on it.</p>
-      <div class="hero-btns">
-        <a href="book.html" class="btn-solid">Submit a Request</a>
-        <a href="#services" class="btn-ghost">Explore Services ↓</a>
-      </div>
+  <!-- Custom Request teaser -->
+  <div style="margin-top:1.5rem;background:var(--navy-card);border:1px solid var(--border);border-radius:var(--r);padding:1.8rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem;">Don't see your situation?</div>
+      <div style="font-size:1rem;font-weight:600;color:var(--cream);">Just describe your problem in plain words. If it's legal, we'll handle it. ✦</div>
     </div>
-    <div class="hero-stats">
-      <div class="hs"><span class="hs-n">500+</span><span class="hs-l">Tasks Done</span></div>
-      <div class="hs-sep"></div>
-      <div class="hs"><span class="hs-n">&lt;24h</span><span class="hs-l">Response</span></div>
-      <div class="hs-sep"></div>
-      <div class="hs"><span class="hs-n">100%</span><span class="hs-l">Custom OK</span></div>
-      <div class="hs-sep"></div>
-      <div class="hs"><span class="hs-n">Any</span><span class="hs-l">Task Accepted</span></div>
-    </div>
-  </section>
+    <a href="book.html?service=custom" class="btn-gold" style="flex-shrink:0;">Tell Us What You Need</a>
+  </div>
+</section>
 
-  <!-- TICKER -->
-  <div class="ticker">
-    <div class="ticker-track">
-      <span>MOVING HELP</span><b>—</b>
-      <span>SPECIAL DELIVERY</span><b>—</b>
-      <span>BODYGUARD FOR A DAY</span><b>—</b>
-      <span>HIRE A WORKER</span><b>—</b>
-      <span>ODD JOBS</span><b>—</b>
-      <span>PERSONAL ERRAND</span><b>—</b>
-      <span>HEAVY LIFTING</span><b>—</b>
-      <span>CUSTOM REQUEST</span><b>—</b>
-      <span>MOVING HELP</span><b>—</b>
-      <span>SPECIAL DELIVERY</span><b>—</b>
-      <span>BODYGUARD FOR A DAY</span><b>—</b>
-      <span>HIRE A WORKER</span><b>—</b>
-      <span>ODD JOBS</span><b>—</b>
-      <span>PERSONAL ERRAND</span><b>—</b>
-      <span>HEAVY LIFTING</span><b>—</b>
-      <span>CUSTOM REQUEST</span><b>—</b>
+<!-- ── HIRE A WORKER ── -->
+<section class="hire-sect" id="hire">
+  <div class="hire-left">
+    <div class="sect-label">Flexible workforce</div>
+    <h2 class="hire-title">Need an extra pair<br>of hands? <em>We've got them.</em></h2>
+    <p class="hire-desc">
+      Sometimes you just need someone reliable to show up and work. Tell us the skill needed, how long, and where — we assign a vetted worker to you directly. You manage the task, we handle the sourcing.
+    </p>
+    <ul class="hire-list">
+      <li><span class="chk">✓</span> Hire for a few hours or the whole day</li>
+      <li><span class="chk">✓</span> Every worker is vetted and reliable</li>
+      <li><span class="chk">✓</span> Physical labour, cleaning, driving, assisting</li>
+      <li><span class="chk">✓</span> They come to your location, on time</li>
+      <li><span class="chk">✓</span> You give the instructions, they get it done</li>
+    </ul>
+    <a href="book.html?service=hire" class="btn-gold" style="margin-top:2.5rem;display:inline-block;">Hire a Worker Now</a>
+  </div>
+  <div class="hire-right">
+    <div class="worker-stack">
+      <div class="wcard">
+        <div class="wc-avatar">RK</div>
+        <div class="wc-info">
+          <div class="wc-name">Rahul K.</div>
+          <div class="wc-role">General Helper · 4.9 ★</div>
+          <div class="wc-tags"><span>Moving</span><span>Lifting</span><span>Delivery</span></div>
+        </div>
+        <div class="wc-badge">Available</div>
+      </div>
+      <div class="wcard wcard-2">
+        <div class="wc-avatar av2">PS</div>
+        <div class="wc-info">
+          <div class="wc-name">Priya S.</div>
+          <div class="wc-role">Errand Runner · 4.8 ★</div>
+          <div class="wc-tags"><span>Errands</span><span>Shopping</span><span>Pickups</span></div>
+        </div>
+        <div class="wc-badge">Available</div>
+      </div>
+      <div class="wcard wcard-3">
+        <div class="wc-avatar av3">AM</div>
+        <div class="wc-info">
+          <div class="wc-name">Arjun M.</div>
+          <div class="wc-role">Security · 5.0 ★</div>
+          <div class="wc-tags"><span>Security</span><span>Escort</span><span>Events</span></div>
+        </div>
+        <div class="wc-badge">Available</div>
+      </div>
+      <div class="stack-glow"></div>
     </div>
   </div>
+</section>
 
-  <!-- ─── SERVICES ─── -->
-  <section class="sect" id="services">
-    <div class="sect-head">
-      <div class="sect-label">What we offer</div>
-      <div class="sect-title-row">
-        <h2>Our Services</h2>
-        <a href="book.html" class="text-link">Book any service →</a>
-      </div>
-    </div>
-    <div class="sgrid">
-
-      <a href="book.html?service=moving" class="scard">
-        <div class="scard-no">01</div>
-        <div class="scard-ico">📦</div>
-        <h3>Moving Help</h3>
-        <p>Reliable helpers for furniture, boxes, and heavy items.</p>
-        <span class="scard-arr">↗</span>
-      </a>
-
-      <a href="book.html?service=delivery" class="scard scard-hi">
-        <div class="scard-badge">Most Booked</div>
-        <div class="scard-no">02</div>
-        <div class="scard-ico">🚀</div>
-        <h3>Special Delivery</h3>
-        <p>Items regular couriers refuse. Handled with speed and discretion.</p>
-        <span class="scard-arr">↗</span>
-      </a>
-
-      <a href="book.html?service=bodyguard" class="scard">
-        <div class="scard-no">03</div>
-        <div class="scard-ico">🛡️</div>
-        <h3>Bodyguard for a Day</h3>
-        <p>Events, meetings, or peace of mind. Trained professionals.</p>
-        <span class="scard-arr">↗</span>
-      </a>
-
-      <a href="book.html?service=errand" class="scard">
-        <div class="scard-no">04</div>
-        <div class="scard-ico">🛒</div>
-        <h3>Personal Errand</h3>
-        <p>Groceries, pickups, waiting in lines — anything you'd rather delegate.</p>
-        <span class="scard-arr">↗</span>
-      </a>
-
-      <a href="book.html?service=repair" class="scard">
-        <div class="scard-no">05</div>
-        <div class="scard-ico">🔧</div>
-        <h3>Odd Jobs & Repairs</h3>
-        <p>Assembly, handyman work, fixing things around the house.</p>
-        <span class="scard-arr">↗</span>
-      </a>
-
-      <a href="book.html?service=custom" class="scard scard-custom">
-        <div class="scard-no">06</div>
-        <div class="scard-ico">✦</div>
-        <h3>Custom Request</h3>
-        <p>Describe anything in plain words. If it's legal, we'll handle it.</p>
-        <span class="scard-arr">↗</span>
-      </a>
-
-    </div>
-  </section>
-
-  <!-- ─── HIRE A WORKER ─── -->
-  <section class="hire-sect" id="hire">
-    <div class="hire-left">
-      <div class="sect-label">Flexible workforce</div>
-      <h2 class="hire-title">Hire a Worker<br><em>on your terms</em></h2>
-      <p class="hire-desc">Need someone for a few hours, a full day, or recurring? Tell us the skills, duration, and location — we assign a reliable worker directly to you.</p>
-      <ul class="hire-list">
-        <li><span class="chk">✓</span>Hourly, daily, or weekly</li>
-        <li><span class="chk">✓</span>Vetted & dependable</li>
-        <li><span class="chk">✓</span>Physical, practical, or skilled tasks</li>
-        <li><span class="chk">✓</span>Comes to your location</li>
-        <li><span class="chk">✓</span>You direct — they execute</li>
-      </ul>
-      <a href="book.html?service=hire" class="btn-solid" style="margin-top:2.5rem">Hire a Worker Now</a>
-    </div>
-    <div class="hire-right">
-      <div class="worker-stack">
-        <div class="wcard">
-          <div class="wc-avatar">RK</div>
-          <div class="wc-info">
-            <div class="wc-name">Rahul K.</div>
-            <div class="wc-role">General Helper · 4.9 ★</div>
-            <div class="wc-tags"><span>Moving</span><span>Lifting</span><span>Delivery</span></div>
-          </div>
-          <div class="wc-badge">Available</div>
-        </div>
-        <div class="wcard wcard-2">
-          <div class="wc-avatar av2">PS</div>
-          <div class="wc-info">
-            <div class="wc-name">Priya S.</div>
-            <div class="wc-role">Errand Runner · 4.8 ★</div>
-            <div class="wc-tags"><span>Errands</span><span>Shopping</span><span>Pickups</span></div>
-          </div>
-          <div class="wc-badge">Available</div>
-        </div>
-        <div class="wcard wcard-3">
-          <div class="wc-avatar av3">AM</div>
-          <div class="wc-info">
-            <div class="wc-name">Arjun M.</div>
-            <div class="wc-role">Security · 5.0 ★</div>
-            <div class="wc-tags"><span>Security</span><span>Escort</span><span>Events</span></div>
-          </div>
-          <div class="wc-badge">Available</div>
-        </div>
-        <div class="stack-glow"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── PROCESS ─── -->
-  <section class="sect process-sect" id="process">
-    <div class="sect-head">
-      <div class="sect-label">The process</div>
-      <h2>Three steps.<br>Zero friction.</h2>
-    </div>
-    <div class="psteps">
-      <div class="pstep">
-        <div class="ps-bar"></div>
-        <div class="ps-num">01</div>
-        <h3>Describe your need</h3>
-        <p>Quick form — what, when, where. Any task accepted, no judgement.</p>
-      </div>
-      <div class="pstep">
-        <div class="ps-bar"></div>
-        <div class="ps-num">02</div>
-        <h3>We match & confirm</h3>
-        <p>Our team reviews and finds the right person. Hear back in under 24h.</p>
-      </div>
-      <div class="pstep">
-        <div class="ps-bar"></div>
-        <div class="ps-num">03</div>
-        <h3>Job done</h3>
-        <p>Your person shows up, gets it done. Pay only when satisfied.</p>
-      </div>
-    </div>
-    <div class="proc-cta">
-      <a href="book.html" class="btn-solid">Start a Request →</a>
-    </div>
-  </section>
-
-  <!-- TRUST BAR -->
-  <div class="trust-bar">
-    <div class="ti"><span>⚡</span><div><strong>Fast Response</strong><small>Under 24 hours</small></div></div>
-    <div class="ti-sep"></div>
-    <div class="ti"><span>🔒</span><div><strong>Private & Secure</strong><small>Your data stays yours</small></div></div>
-    <div class="ti-sep"></div>
-    <div class="ti"><span>✦</span><div><strong>Any Task</strong><small>If it's legal, we do it</small></div></div>
-    <div class="ti-sep"></div>
-    <div class="ti"><span>💳</span><div><strong>Pay on Completion</strong><small>No upfront required</small></div></div>
+<!-- ── PROCESS ── -->
+<section class="sect process-sect" id="process">
+  <div class="sect-head" style="margin-bottom:3.5rem;">
+    <div class="sect-label">How it works</div>
+    <h2 class="section-h2">Simple. Fast. Done.</h2>
   </div>
+  <div class="psteps">
+    <div class="pstep">
+      <div class="ps-num">01</div>
+      <h3>Tell us what you need</h3>
+      <p>Fill a short form — describe the task in your own words, tell us when and where. Takes less than 2 minutes.</p>
+    </div>
+    <div class="pstep">
+      <div class="ps-num">02</div>
+      <h3>We confirm and match you</h3>
+      <p>Our team reviews your request and finds the right person for the job. We call or message you to confirm everything before anyone moves.</p>
+    </div>
+    <div class="pstep">
+      <div class="ps-num">03</div>
+      <h3>Task done. You pay. Simple.</h3>
+      <p>Your person shows up, gets the job done. You only pay once you're satisfied. No surprises, no hidden charges.</p>
+    </div>
+  </div>
+  <div class="proc-cta">
+    <a href="book.html" class="btn-gold">Submit a Request →</a>
+  </div>
+</section>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <a href="index.html" class="nav-brand" style="margin-bottom:1rem;display:inline-flex">
-          <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="6" fill="white"/>
-            <path d="M7 23L16 9L25 23H20L16 16.5L12 23H7Z" fill="black"/>
-          </svg>
-          <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
-        </a>
-        <p>Real people. Real help.<br>Any task, anywhere.</p>
+<!-- ── TRUST BAR ── -->
+<div class="trust-bar">
+  <div class="ti">
+    <div class="ti-ico">⚡</div>
+    <div class="ti-text"><strong>Fast Response</strong><small>We reply within 24 hours</small></div>
+  </div>
+  <div class="ti">
+    <div class="ti-ico">🔒</div>
+    <div class="ti-text"><strong>Private & Safe</strong><small>Your details stay with us</small></div>
+  </div>
+  <div class="ti">
+    <div class="ti-ico">✦</div>
+    <div class="ti-text"><strong>Any Task Accepted</strong><small>If it's legal, we do it</small></div>
+  </div>
+  <div class="ti">
+    <div class="ti-ico">💳</div>
+    <div class="ti-text"><strong>Pay on Completion</strong><small>No upfront payment needed</small></div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-brand" style="display:inline-flex;">
+        <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="7" fill="#c8972a"/>
+          <path d="M7 23L16 9L25 23H20L16 16.5L12 23H7Z" fill="#0d1b2a"/>
+        </svg>
+        <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
+      </a>
+      <p>Real people solving real problems.<br>Any task, any time, anywhere.</p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="fc-title">Services</div>
+        <a href="book.html?service=moving">Moving Help</a>
+        <a href="book.html?service=delivery">Special Delivery</a>
+        <a href="book.html?service=bodyguard">Personal Security</a>
+        <a href="book.html?service=errand">Personal Errand</a>
+        <a href="book.html?service=repair">Odd Jobs & Repairs</a>
+        <a href="book.html?service=hire">Hire a Worker</a>
       </div>
-      <div class="footer-cols">
-        <div class="footer-col">
-          <div class="fc-title">Services</div>
-          <a href="book.html?service=moving">Moving Help</a>
-          <a href="book.html?service=delivery">Special Delivery</a>
-          <a href="book.html?service=bodyguard">Bodyguard</a>
-          <a href="book.html?service=errand">Personal Errand</a>
-          <a href="book.html?service=repair">Odd Jobs</a>
-          <a href="book.html?service=hire">Hire a Worker</a>
-        </div>
-        <div class="footer-col">
-          <div class="fc-title">Company</div>
-          <a href="#process">How It Works</a>
-          <a href="#hire">Hire a Worker</a>
-          <a href="book.html">Book a Service</a>
-        </div>
+      <div class="footer-col">
+        <div class="fc-title">Company</div>
+        <a href="#process">How It Works</a>
+        <a href="#hire">Hire a Worker</a>
+        <a href="book.html">Book a Service</a>
       </div>
     </div>
-    <div class="footer-bottom">
-      <span>© 2025 WISHWORK.online · All rights reserved.</span>
-      <span>Built for real people with real problems.</span>
-    </div>
-  </footer>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 WISHWORK.online · All rights reserved.</span>
+    <span>Built for real people with real problems.</span>
+  </div>
+</footer>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

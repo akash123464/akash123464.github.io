@@ -2,29 +2,23 @@
 // WISHWORK.online — script.js
 // ========================
 
-// ── Navbar scroll effect
+// ── Navbar scroll
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
-  if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 40);
+  if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
 });
 
 // ── Mobile menu
 const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobileMenu');
-
 if (hamburger && mobileMenu) {
-  hamburger.addEventListener('click', () => {
-    mobileMenu.classList.toggle('open');
-  });
+  hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
 }
-
 function closeMobileMenu() {
   if (mobileMenu) mobileMenu.classList.remove('open');
 }
-
-// Close on outside click
 document.addEventListener('click', (e) => {
-  if (mobileMenu && !mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
+  if (mobileMenu && hamburger && !mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
     mobileMenu.classList.remove('open');
   }
 });
@@ -34,23 +28,18 @@ const spills = document.querySelectorAll('.spill');
 const selectedInput = document.getElementById('selectedService');
 const hireExtra = document.getElementById('hireExtra');
 
-// Pre-select from URL
-const urlParams = new URLSearchParams(window.location.search);
-const preSelect = urlParams.get('service');
-
+const preSelect = new URLSearchParams(window.location.search).get('service');
 spills.forEach(pill => {
   if (preSelect && pill.dataset.service === preSelect) {
     pill.classList.add('active');
     if (selectedInput) selectedInput.value = preSelect;
     if (preSelect === 'hire' && hireExtra) hireExtra.classList.add('show');
   }
-
   pill.addEventListener('click', () => {
     spills.forEach(p => p.classList.remove('active'));
     pill.classList.add('active');
     const svc = pill.dataset.service;
     if (selectedInput) selectedInput.value = svc;
-    // Toggle hire-a-worker extra fields
     if (hireExtra) hireExtra.classList.toggle('show', svc === 'hire');
   });
 });
@@ -58,7 +47,6 @@ spills.forEach(pill => {
 // ── Urgency Pills
 const upills = document.querySelectorAll('.upill');
 const urgencyInput = document.getElementById('urgency');
-
 upills.forEach(p => {
   p.addEventListener('click', () => {
     upills.forEach(x => x.classList.remove('active'));
@@ -67,7 +55,7 @@ upills.forEach(p => {
   });
 });
 
-// ── Form Submit
+// ── Submit
 function submitRequest() {
   const name        = document.getElementById('name')?.value.trim();
   const phone       = document.getElementById('phone')?.value.trim();
@@ -96,52 +84,51 @@ function submitRequest() {
     submittedAt: new Date().toISOString()
   };
 
-  console.log('📋 WISHWORK request:', request);
-  // ↑ Replace this with Firebase addDoc() when ready
+  console.log('📋 WISHWORK request submitted:', request);
+  // → Replace console.log with Firebase addDoc() when ready
 
-  // Show success
-  const form = document.getElementById('bookingForm');
-  const block = document.querySelector('.form-block');
-  const extra = document.getElementById('hireExtra');
+  const form    = document.getElementById('bookingForm');
+  const block   = document.querySelector('.form-block');
+  const extra   = document.getElementById('hireExtra');
   const success = document.getElementById('successState');
-  const ref = document.getElementById('successRef');
+  const ref     = document.getElementById('successRef');
 
   if (form)    form.style.display = 'none';
   if (block)   block.style.display = 'none';
   if (extra)   extra.style.display = 'none';
   if (success) success.classList.add('show');
-  if (ref)     ref.textContent = 'Reference ID: ' + request.id;
+  if (ref)     ref.textContent = 'Your Reference: ' + request.id;
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Shake animation for validation feedback
+// ── Input shake on validation fail
 function shake(id) {
   const el = document.getElementById(id);
   if (!el) return;
   el.style.animation = 'none';
-  el.offsetHeight; // reflow
+  el.offsetHeight;
   el.style.animation = 'shake 0.35s ease';
   el.focus();
 }
 
 // ── Scroll reveal
-const revealItems = document.querySelectorAll('.scard, .pstep, .wcard, .aside-card, .ti');
-const revealObs = new IntersectionObserver((entries) => {
+const toReveal = document.querySelectorAll('.scard, .pstep, .wcard, .aside-card, .ti');
+const obs = new IntersectionObserver((entries) => {
   entries.forEach((entry, i) => {
     if (entry.isIntersecting) {
       setTimeout(() => {
         entry.target.style.opacity = '1';
         entry.target.style.transform = 'translateY(0)';
-      }, i * 60);
-      revealObs.unobserve(entry.target);
+      }, i * 70);
+      obs.unobserve(entry.target);
     }
   });
 }, { threshold: 0.08 });
 
-revealItems.forEach(el => {
+toReveal.forEach(el => {
   el.style.opacity = '0';
-  el.style.transform = 'translateY(20px)';
-  el.style.transition = 'opacity 0.55s ease, transform 0.55s ease';
-  revealObs.observe(el);
+  el.style.transform = 'translateY(18px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  obs.observe(el);
 });
