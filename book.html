@@ -3,210 +3,277 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Book a Service — WISHWORK</title>
+  <title>Submit a Request — WISHWORK</title>
   <link rel="stylesheet" href="style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body class="book-page">
 
+<!-- ANNOUNCE -->
+<div class="announce-bar">
+  🔒 Trusted by 500+ customers · Pay only after job is done · <strong>Officials respond within minutes</strong>
+</div>
+
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
-  <a href="index.html" class="nav-brand">
-    <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="7" fill="#c8972a"/>
-      <path d="M7 23L16 9L25 23H20L16 16.5L12 23H7Z" fill="#0d1b2a"/>
-    </svg>
-    <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
-  </a>
-  <div class="nav-links" id="navLinks">
-    <a href="index.html#services">Services</a>
-    <a href="index.html#hire">Hire a Worker</a>
-    <a href="index.html#process">How It Works</a>
-    <a href="book.html" class="nav-cta active-cta">Book Now</a>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <svg class="brand-icon" viewBox="0 0 34 34" fill="none">
+        <rect width="34" height="34" rx="8" fill="#f0a500"/>
+        <path d="M8 25L17 10L26 25H21L17 18L13 25H8Z" fill="#0d1f35"/>
+      </svg>
+      <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
+    </a>
+    <div class="nav-search">
+      <input type="text" placeholder="Search for a service..."/>
+      <button class="search-btn">🔍</button>
+    </div>
+    <div class="nav-actions">
+      <a href="index.html" class="nav-btn-cta" style="background:var(--navy);color:var(--gold-light);">← Back to Home</a>
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
   </div>
-  <button class="hamburger" id="hamburger" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
 </nav>
+
+<div class="cat-bar">
+  <div class="cat-bar-inner">
+    <a href="book.html?service=cleaning"  class="cat-link">🧹 Cleaning</a>
+    <a href="book.html?service=painting"  class="cat-link">🎨 Painting</a>
+    <a href="book.html?service=moving"    class="cat-link">📦 Moving</a>
+    <a href="book.html?service=delivery"  class="cat-link">🚀 Delivery</a>
+    <a href="book.html?service=plumbing"  class="cat-link">🔧 Plumbing</a>
+    <a href="book.html?service=electric"  class="cat-link">💡 Electrical</a>
+    <a href="book.html?service=bodyguard" class="cat-link">🛡️ Security</a>
+    <a href="book.html?service=hire"      class="cat-link">👷 Hire a Worker</a>
+    <a href="book.html?service=custom"    class="cat-link active">✦ Custom</a>
+  </div>
+</div>
+
 <div class="mobile-menu" id="mobileMenu">
-  <a href="index.html#services" onclick="closeMobileMenu()">Services</a>
-  <a href="index.html#hire"     onclick="closeMobileMenu()">Hire a Worker</a>
-  <a href="index.html#process"  onclick="closeMobileMenu()">How It Works</a>
-  <a href="book.html" class="mobile-cta" onclick="closeMobileMenu()">Book Now →</a>
+  <a href="index.html" onclick="closeMobileMenu()">🏠 Home</a>
+  <a href="book.html?service=cleaning" onclick="closeMobileMenu()">🧹 House Cleaning</a>
+  <a href="book.html?service=moving"   onclick="closeMobileMenu()">📦 Moving Help</a>
+  <a href="book.html?service=hire"     onclick="closeMobileMenu()">👷 Hire a Worker</a>
 </div>
 
 <!-- BOOK HERO -->
-<section class="book-hero">
-  <div class="bh-content">
-    <div class="sect-label">Submit a request</div>
-    <h1 class="bh-title">Tell us your<br><em>problem.</em></h1>
-    <p class="bh-sub">Describe what you need in plain words — no jargon, no forms to decode. We'll figure it out and get back to you.</p>
+<div class="book-hero">
+  <div class="book-hero-inner">
+    <div class="bh-tag">Submit a Request</div>
+    <h1 class="bh-title">Just write what you need —<br><em>officials will handle it for you.</em></h1>
+    <p class="bh-sub">No jargon, no complicated forms. Write it like you'd explain it to a friend. Our team personally reads every request and responds in minutes.</p>
+    <div class="bh-trust">
+      <div class="bht"><strong>✓</strong> Officials respond in minutes</div>
+      <div class="bht"><strong>✓</strong> Any task accepted</div>
+      <div class="bht"><strong>✓</strong> Pay only on completion</div>
+    </div>
   </div>
-</section>
+</div>
 
-<!-- BOOKING LAYOUT -->
-<section class="book-layout">
+<!-- LAYOUT -->
+<div class="book-layout">
 
-  <!-- MAIN FORM -->
+  <!-- MAIN -->
   <div class="book-main">
-
-    <!-- Service Selector -->
-    <div class="form-block">
-      <div class="fblock-label">What's your situation?</div>
-      <div class="spills" id="servicePills">
-        <button class="spill" data-service="moving">📦 Need to move stuff</button>
-        <button class="spill" data-service="delivery">🚀 Need something delivered</button>
-        <button class="spill" data-service="bodyguard">🛡️ Need someone by my side</button>
-        <button class="spill" data-service="errand">🛒 Need an errand done</button>
-        <button class="spill" data-service="repair">🔧 Need something fixed</button>
-        <button class="spill spill-hire" data-service="hire">👷 Need a worker for the day</button>
-        <button class="spill" data-service="custom">✦ Something else entirely</button>
-      </div>
-      <input type="hidden" id="selectedService"/>
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> › Submit a Request
     </div>
 
-    <!-- Hire Extra Fields -->
-    <div class="hire-extra" id="hireExtra">
-      <div class="hire-info-box">
-        <strong>👷 Hiring a Worker</strong>
-        <p>Tell us what type of worker you need and for how long. We'll assign someone reliable directly to you.</p>
-      </div>
-      <div class="form-row">
-        <div class="fgroup">
-          <label class="flabel" for="workerSkill">What skill or role do you need?</label>
-          <input class="finput" type="text" id="workerSkill" placeholder="e.g. Cleaner, Painter, Driver, Labourer"/>
-        </div>
-        <div class="fgroup">
-          <label class="flabel" for="duration">How long do you need them?</label>
-          <select class="finput" id="duration">
-            <option value="">Select duration</option>
-            <option>A few hours (2–4 hrs)</option>
-            <option>Half day (4–5 hrs)</option>
-            <option>Full day (8 hrs)</option>
-            <option>Multiple days</option>
-            <option>Weekly recurring</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Form -->
-    <div class="booking-form" id="bookingForm">
-
-      <div class="form-row">
-        <div class="fgroup">
-          <label class="flabel" for="name">Your Name</label>
-          <input class="finput" type="text" id="name" placeholder="e.g. Ravi Kumar"/>
-        </div>
-        <div class="fgroup">
-          <label class="flabel" for="phone">Phone Number</label>
-          <input class="finput" type="tel" id="phone" placeholder="+91 98765 43210"/>
-        </div>
-      </div>
-
-      <div class="fgroup">
-        <label class="flabel" for="description">Describe your task — in your own words</label>
-        <textarea class="finput ftarea" id="description" placeholder="Just write like you'd explain it to a friend. What needs to happen, when, any important details we should know..."></textarea>
-      </div>
-
-      <div class="form-row">
-        <div class="fgroup">
-          <label class="flabel" for="location">Your Location / Area</label>
-          <input class="finput" type="text" id="location" placeholder="e.g. Koramangala, Bangalore"/>
-        </div>
-        <div class="fgroup">
-          <label class="flabel" for="date">When do you need this?</label>
-          <input class="finput" type="date" id="date"/>
-        </div>
-      </div>
-
-      <div class="fgroup">
-        <label class="flabel" for="budget">Your Budget (optional)</label>
-        <input class="finput" type="text" id="budget" placeholder="e.g. ₹500–₹1000, or just say 'flexible'"/>
-      </div>
-
-      <div class="fgroup">
-        <label class="flabel">How urgent is this?</label>
-        <div class="urgency-row">
-          <button class="upill active" data-u="flexible">🌿 No rush, flexible</button>
-          <button class="upill" data-u="today">⚡ Needs to happen today</button>
-          <button class="upill" data-u="asap">🔥 ASAP — urgent</button>
-        </div>
-        <input type="hidden" id="urgency" value="flexible"/>
-      </div>
-
-      <button class="btn-gold submit-full" id="submitBtn" onclick="submitRequest()">
-        Submit My Request →
-      </button>
-      <p style="text-align:center;font-size:0.78rem;color:var(--cream-mute);margin-top:-0.5rem;">
-        We'll call or message you within 24 hours to confirm. No spam, ever.
-      </p>
-
-    </div>
-
-    <!-- Success State -->
+    <!-- Success -->
     <div class="success-box" id="successState">
       <div class="succ-icon">🎉</div>
       <h2>Request Submitted!</h2>
-      <p>We've got your request. Our team will reach out to you within 24 hours to confirm and match you with the right person for the job.</p>
+      <p>Our officials have received your request and will reach out to you within minutes to confirm and assign the right expert. Sit back — it's being handled.</p>
       <div class="succ-ref" id="successRef"></div>
-      <a href="index.html" class="btn-gold" style="display:inline-block;margin-top:2rem;">← Back to Home</a>
+      <a href="index.html" class="nav-btn-cta" style="display:inline-block;margin-top:1.8rem;padding:0.85rem 2.2rem;">← Back to Home</a>
     </div>
 
+    <!-- Form -->
+    <div class="form-card" id="formCard">
+      <div class="form-card-head">
+        <span>📋</span>
+        <h2>Tell us what you need done</h2>
+      </div>
+      <div class="form-card-body">
+
+        <!-- BIG primary input — the star of the page -->
+        <div class="big-need-block">
+          <label class="big-need-label" for="description">✏️ Just write what you need to be done</label>
+          <textarea
+            class="big-need-input"
+            id="description"
+            placeholder="Write anything — 'Paint my apartment blue', 'Fix the tap in my bathroom', 'Move my sofa to a new house', 'Deliver this package urgently'...
+
+Our officials will read this personally and get back to you in minutes."
+          ></textarea>
+          <div class="big-need-note">💬 Write it exactly like you'd tell a friend. The more detail, the faster we can help.</div>
+        </div>
+
+        <!-- Service type (optional, secondary) -->
+        <div class="form-block-wrap" id="serviceBlock">
+          <span class="fblock-label">Or pick the type of help (optional)</span>
+          <div class="spills" id="servicePills">
+            <button class="spill" data-service="cleaning">🧹 Clean my house</button>
+            <button class="spill" data-service="painting">🎨 Paint my apartment</button>
+            <button class="spill" data-service="moving">📦 Move my furniture</button>
+            <button class="spill" data-service="plumbing">🚿 Fix my house</button>
+            <button class="spill" data-service="delivery">🚀 Deliver something</button>
+            <button class="spill" data-service="electric">💡 Electrical work</button>
+            <button class="spill" data-service="errand">🛒 Run an errand</button>
+            <button class="spill" data-service="bodyguard">🛡️ Security / escort</button>
+            <button class="spill" data-service="repair">🔧 Fix / assemble</button>
+            <button class="spill spill-hire" data-service="hire">👷 Hire a worker</button>
+            <button class="spill" data-service="custom">✦ Something else</button>
+          </div>
+          <input type="hidden" id="selectedService"/>
+        </div>
+
+        <!-- Hire extra -->
+        <div class="hire-extra" id="hireExtra">
+          <div class="hire-info-box">
+            <strong>👷 Hiring a Worker</strong>
+            <p>Tell us the skill and duration. We assign a vetted worker directly to you.</p>
+          </div>
+          <div class="form-row">
+            <div class="fgroup">
+              <label class="flabel" for="workerSkill">Skill / Role needed</label>
+              <input class="finput" type="text" id="workerSkill" placeholder="e.g. Painter, Cleaner, Driver"/>
+            </div>
+            <div class="fgroup">
+              <label class="flabel" for="duration">How long?</label>
+              <select class="finput" id="duration">
+                <option value="">Select duration</option>
+                <option>A few hours (2–4 hrs)</option>
+                <option>Half day (4–5 hrs)</option>
+                <option>Full day (8 hrs)</option>
+                <option>Multiple days</option>
+                <option>Weekly recurring</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="form-row">
+          <div class="fgroup">
+            <label class="flabel" for="name">Your Name</label>
+            <input class="finput" type="text" id="name" placeholder="e.g. Ravi Kumar"/>
+          </div>
+          <div class="fgroup">
+            <label class="flabel" for="phone">Phone / WhatsApp Number</label>
+            <input class="finput" type="tel" id="phone" placeholder="+91 98765 43210"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="fgroup">
+            <label class="flabel" for="location">Your Location / Area</label>
+            <input class="finput" type="text" id="location" placeholder="e.g. Koramangala, Bangalore"/>
+          </div>
+          <div class="fgroup">
+            <label class="flabel" for="date">When do you need this?</label>
+            <input class="finput" type="date" id="date"/>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel" for="budget">Budget (optional)</label>
+          <input class="finput" type="text" id="budget" placeholder="e.g. ₹500–₹1000, or 'flexible'"/>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel">How urgent is this?</label>
+          <div class="urgency-row">
+            <button class="upill active" data-u="flexible">🌿 No rush</button>
+            <button class="upill" data-u="today">⚡ Today</button>
+            <button class="upill" data-u="asap">🔥 ASAP — urgent</button>
+          </div>
+          <input type="hidden" id="urgency" value="flexible"/>
+        </div>
+
+        <button class="submit-btn-full" onclick="submitRequest()">
+          Submit Request — Officials Will Handle It ✓
+        </button>
+        <p class="form-footnote">We'll call or WhatsApp you within minutes. No spam. No junk. Ever.</p>
+
+      </div>
+    </div>
   </div>
 
   <!-- ASIDE -->
   <aside class="book-aside">
     <div class="aside-card">
-      <h3>Why WISHWORK?</h3>
-      <ul class="aside-list">
-        <li><span>✦</span>Describe any problem — we figure it out</li>
-        <li><span>✦</span>Real humans, not bots or apps</li>
-        <li><span>✦</span>We reply within 24 hours</li>
-        <li><span>✦</span>Pay only once the job is done</li>
-        <li><span>✦</span>Your details stay private, always</li>
-      </ul>
+      <div class="aside-card-head">Why people trust WISHWORK</div>
+      <div class="aside-card-body">
+        <ul class="aside-list">
+          <li><span class="chk">✓</span>Write anything — we figure it out</li>
+          <li><span class="chk">✓</span>Officials review every request personally</li>
+          <li><span class="chk">✓</span>We respond within minutes</li>
+          <li><span class="chk">✓</span>Pay only after the job is done right</li>
+          <li><span class="chk">✓</span>Your details stay completely private</li>
+          <li><span class="chk">✓</span>500+ happy customers across the city</li>
+        </ul>
+      </div>
     </div>
-    <div class="aside-card aside-card-2">
-      <h3>People are booking right now</h3>
-      <div class="pop-list">
-        <div class="pop-item">📦 Help shifting a 2BHK</div>
-        <div class="pop-item">👷 Day labourer for construction site</div>
-        <div class="pop-item">🛒 Weekly grocery runs</div>
-        <div class="pop-item">🛡️ Security for a family event</div>
-        <div class="pop-item">🔧 Assemble 4 pieces of IKEA furniture</div>
-        <div class="pop-item">🚀 Deliver fragile item across city</div>
+
+    <div class="aside-card">
+      <div class="aside-card-head">People booking right now</div>
+      <div class="aside-card-body">
+        <div class="pop-list">
+          <div class="pop-item">🧹 Full house deep clean, 3BHK</div>
+          <div class="pop-item">🎨 Paint a 2BHK apartment</div>
+          <div class="pop-item">📦 Shift furniture, 2nd floor</div>
+          <div class="pop-item">🚿 Fix bathroom leakage</div>
+          <div class="pop-item">👷 Day labourer for site work</div>
+          <div class="pop-item">🚀 Same-day fragile delivery</div>
+          <div class="pop-item">🛡️ Security for family event</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="aside-card" style="border-color:var(--gold-border);">
+      <div class="aside-card-head" style="background:var(--gold);color:var(--navy);">How it works</div>
+      <div class="aside-card-body">
+        <ul class="aside-list">
+          <li><span style="color:var(--gold-dark);font-weight:900;font-size:1.1rem;">1</span>Write what you need — 2 minutes</li>
+          <li><span style="color:var(--gold-dark);font-weight:900;font-size:1.1rem;">2</span>Officials confirm and match you</li>
+          <li><span style="color:var(--gold-dark);font-weight:900;font-size:1.1rem;">3</span>Expert arrives. Job done. Pay.</li>
+        </ul>
       </div>
     </div>
   </aside>
 
-</section>
+</div>
 
 <!-- FOOTER -->
 <footer class="footer">
   <div class="footer-inner">
-    <div class="footer-brand">
-      <a href="index.html" class="nav-brand" style="display:inline-flex;margin-bottom:0.8rem;">
-        <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
-          <rect width="32" height="32" rx="7" fill="#c8972a"/>
-          <path d="M7 23L16 9L25 23H20L16 16.5L12 23H7Z" fill="#0d1b2a"/>
-        </svg>
-        <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
-      </a>
-      <p>Real people. Real help. Any task.</p>
-    </div>
-    <div class="footer-cols">
-      <div class="footer-col">
-        <div class="fc-title">Services</div>
-        <a href="book.html?service=moving">Moving Help</a>
-        <a href="book.html?service=delivery">Special Delivery</a>
-        <a href="book.html?service=hire">Hire a Worker</a>
-        <a href="book.html?service=custom">Custom Request</a>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-brand" style="display:inline-flex;margin-bottom:0.7rem;">
+          <svg class="brand-icon" viewBox="0 0 34 34" fill="none">
+            <rect width="34" height="34" rx="8" fill="#f0a500"/>
+            <path d="M8 25L17 10L26 25H21L17 18L13 25H8Z" fill="#0d1f35"/>
+          </svg>
+          <span class="brand-name">WISHWORK<span class="brand-ext">.online</span></span>
+        </a>
+        <p>Real experts. Real results. Any task, any time.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <div class="fc-title">Services</div>
+          <a href="book.html?service=cleaning">House Cleaning</a>
+          <a href="book.html?service=painting">Apartment Painting</a>
+          <a href="book.html?service=moving">Moving Help</a>
+          <a href="book.html?service=plumbing">Repairs & Plumbing</a>
+          <a href="book.html?service=hire">Hire a Worker</a>
+          <a href="book.html?service=custom">Custom Request</a>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2025 WISHWORK.online · All rights reserved.</span>
+    <div class="footer-bottom">
+      <span>© 2025 WISHWORK.online · All rights reserved.</span>
+    </div>
   </div>
 </footer>
 

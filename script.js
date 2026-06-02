@@ -1,14 +1,12 @@
-// ========================
 // WISHWORK.online — script.js
-// ========================
 
-// ── Navbar scroll
+// Navbar scroll
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
-  if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
+  if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 30);
 });
 
-// ── Mobile menu
+// Mobile menu
 const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobileMenu');
 if (hamburger && mobileMenu) {
@@ -23,12 +21,37 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ── Service Pills
+// Hero search / quick request
+function submitHeroRequest() {
+  const val = document.getElementById('heroReqInput')?.value.trim();
+  if (!val) { document.getElementById('heroReqInput')?.focus(); return; }
+  window.location.href = 'book.html?prefill=' + encodeURIComponent(val);
+}
+document.getElementById('heroReqInput')?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitHeroRequest();
+});
+
+function navSearch() {
+  const val = document.getElementById('navSearchInput')?.value.trim();
+  if (val) window.location.href = 'book.html?prefill=' + encodeURIComponent(val);
+}
+document.getElementById('navSearchInput')?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') navSearch();
+});
+
+// Service Pills
 const spills = document.querySelectorAll('.spill');
 const selectedInput = document.getElementById('selectedService');
 const hireExtra = document.getElementById('hireExtra');
 
-const preSelect = new URLSearchParams(window.location.search).get('service');
+const params = new URLSearchParams(window.location.search);
+const preSelect = params.get('service');
+const prefill   = params.get('prefill');
+
+if (prefill && document.getElementById('description')) {
+  document.getElementById('description').value = prefill;
+}
+
 spills.forEach(pill => {
   if (preSelect && pill.dataset.service === preSelect) {
     pill.classList.add('active');
@@ -44,7 +67,7 @@ spills.forEach(pill => {
   });
 });
 
-// ── Urgency Pills
+// Urgency
 const upills = document.querySelectorAll('.upill');
 const urgencyInput = document.getElementById('urgency');
 upills.forEach(p => {
@@ -55,7 +78,7 @@ upills.forEach(p => {
   });
 });
 
-// ── Submit
+// Submit
 function submitRequest() {
   const name        = document.getElementById('name')?.value.trim();
   const phone       = document.getElementById('phone')?.value.trim();
@@ -84,51 +107,43 @@ function submitRequest() {
     submittedAt: new Date().toISOString()
   };
 
-  console.log('📋 WISHWORK request submitted:', request);
-  // → Replace console.log with Firebase addDoc() when ready
+  console.log('WISHWORK request:', request);
+  // → Replace with Firebase addDoc() when ready
 
-  const form    = document.getElementById('bookingForm');
-  const block   = document.querySelector('.form-block');
-  const extra   = document.getElementById('hireExtra');
-  const success = document.getElementById('successState');
-  const ref     = document.getElementById('successRef');
-
-  if (form)    form.style.display = 'none';
-  if (block)   block.style.display = 'none';
-  if (extra)   extra.style.display = 'none';
-  if (success) success.classList.add('show');
-  if (ref)     ref.textContent = 'Your Reference: ' + request.id;
-
+  document.getElementById('formCard')?.style.setProperty('display','none');
+  document.querySelector('.form-block-wrap')?.style.setProperty('display','none');
+  const s = document.getElementById('successState');
+  const r = document.getElementById('successRef');
+  if (s) s.classList.add('show');
+  if (r) r.textContent = 'Your Reference: ' + request.id;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ── Input shake on validation fail
 function shake(id) {
   const el = document.getElementById(id);
   if (!el) return;
   el.style.animation = 'none';
   el.offsetHeight;
-  el.style.animation = 'shake 0.35s ease';
+  el.style.animation = 'shake 0.4s ease';
   el.focus();
 }
 
-// ── Scroll reveal
-const toReveal = document.querySelectorAll('.scard, .pstep, .wcard, .aside-card, .ti');
+// Scroll reveal
+const toReveal = document.querySelectorAll('.svc-card, .step-card, .wmc, .pb-card, .aside-card');
 const obs = new IntersectionObserver((entries) => {
   entries.forEach((entry, i) => {
     if (entry.isIntersecting) {
       setTimeout(() => {
         entry.target.style.opacity = '1';
         entry.target.style.transform = 'translateY(0)';
-      }, i * 70);
+      }, i * 60);
       obs.unobserve(entry.target);
     }
   });
-}, { threshold: 0.08 });
-
+}, { threshold: 0.07 });
 toReveal.forEach(el => {
   el.style.opacity = '0';
-  el.style.transform = 'translateY(18px)';
+  el.style.transform = 'translateY(20px)';
   el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
   obs.observe(el);
 });
