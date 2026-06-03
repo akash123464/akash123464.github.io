@@ -50,51 +50,145 @@
       text-transform: uppercase;
     }
 
-    /* ── LV Editorial Label ── */
-    .lv-label-block {
+    /* ── Professional Bold Label ── */
+    .pro-label-block {
       display: flex;
-      align-items: center;
-      gap: 1.2rem;
-      margin-bottom: 1.8rem;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.6rem;
+      padding: 1.4rem 1.6rem;
+      background: linear-gradient(135deg, rgba(240,165,0,0.08) 0%, rgba(13,31,53,0) 100%);
+      border-left: 4px solid #f0a500;
+      border-radius: 0 10px 10px 0;
     }
-    .lv-label-line {
+    .pro-label-accent {
+      display: none;
+    }
+    .pro-label-content {
       flex: 1;
-      height: 1px;
-      background: linear-gradient(to right, transparent, rgba(240,165,0,0.5), transparent);
     }
-    .lv-label-inner {
-      text-align: center;
-      flex-shrink: 0;
-    }
-    .lv-label-eyebrow {
+    .pro-label-tag {
       display: block;
       font-family: 'Inter', sans-serif;
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       font-weight: 800;
-      letter-spacing: 0.3em;
+      letter-spacing: 0.28em;
       color: #f0a500;
       text-transform: uppercase;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.4rem;
     }
-    .lv-label-headline {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 6vw, 3rem);
+    .pro-label-headline {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(1.75rem, 5.5vw, 2.6rem);
       font-weight: 900;
       line-height: 1.05;
       color: #ffffff;
-      margin: 0 0 0.4rem 0;
-      letter-spacing: -0.01em;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
     }
-    .lv-label-headline em {
-      font-style: italic;
-      color: #f0a500;
-    }
-    .lv-label-sub {
+    .pro-label-sub {
       font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.45);
-      letter-spacing: 0.06em;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.02em;
       margin: 0;
+      line-height: 1.5;
+    }
+
+    /* ── Workers Preview Block ── */
+    .workers-preview-block {
+      margin-top: 1.4rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .wpb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .wpb-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+    .wpb-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #22c55e;
+      letter-spacing: 0.05em;
+    }
+    .wpb-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .wpb-card {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .wpb-card:last-child { border-bottom: none; }
+    .wpb-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .wpb-info { flex: 1; min-width: 0; }
+    .wpb-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.18rem;
+    }
+    .wpb-role { color: rgba(255,255,255,0.5); font-weight: 500; }
+    .wpb-rating { color: #f0a500; font-weight: 700; }
+    .wpb-skills {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .wpb-status {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #22c55e;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 20px;
+      padding: 0.25rem 0.65rem;
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+    .wpb-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      padding: 0.6rem 1rem;
+      margin: 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      background: rgba(240,165,0,0.03);
     }
   </style>
 </head>
@@ -199,15 +293,14 @@
             </div>
           </div>
 
-          <!-- LV-style editorial label -->
-          <div class="lv-label-block">
-            <div class="lv-label-line"></div>
-            <div class="lv-label-inner">
-              <span class="lv-label-eyebrow">YOUR REQUEST</span>
-              <h2 class="lv-label-headline">Write Your<br><em>Problem.</em></h2>
-              <p class="lv-label-sub">Speak freely. Our officials read every word personally.</p>
+          <!-- Bold Professional Label -->
+          <div class="pro-label-block">
+            <div class="pro-label-accent"></div>
+            <div class="pro-label-content">
+              <span class="pro-label-tag">STEP 01 · YOUR REQUEST</span>
+              <h2 class="pro-label-headline">Write Your Problem</h2>
+              <p class="pro-label-sub">Be direct. Our officials personally read every submission and respond within minutes.</p>
             </div>
-            <div class="lv-label-line"></div>
           </div>
 
           <textarea
@@ -218,6 +311,42 @@
 Our officials will read this personally and get back to you in minutes."
           ></textarea>
           <div class="big-need-note">💬 Write it exactly like you'd tell a friend. The more detail, the faster we can help.</div>
+
+          <!-- Available Workers Preview -->
+          <div class="workers-preview-block">
+            <div class="wpb-header">
+              <span class="wpb-title">Available Workers Right Now</span>
+              <span class="wpb-badge">● Live</span>
+            </div>
+            <div class="wpb-list">
+              <div class="wpb-card">
+                <div class="wpb-avatar" style="background:#f0a500;color:#0d1f35;">RK</div>
+                <div class="wpb-info">
+                  <div class="wpb-name">Rahul K. <span class="wpb-role">· General Helper</span> <span class="wpb-rating">4.9★</span></div>
+                  <div class="wpb-skills">Moving · Lifting · Delivery · Cleaning</div>
+                </div>
+                <span class="wpb-status">Available</span>
+              </div>
+              <div class="wpb-card">
+                <div class="wpb-avatar" style="background:#22c55e;color:#fff;">PS</div>
+                <div class="wpb-info">
+                  <div class="wpb-name">Priya S. <span class="wpb-role">· Errand Runner</span> <span class="wpb-rating">4.8★</span></div>
+                  <div class="wpb-skills">Errands · Shopping · Pickups · Queues</div>
+                </div>
+                <span class="wpb-status">Available</span>
+              </div>
+              <div class="wpb-card">
+                <div class="wpb-avatar" style="background:#60a5fa;color:#fff;">AM</div>
+                <div class="wpb-info">
+                  <div class="wpb-name">Arjun M. <span class="wpb-role">· Security</span> <span class="wpb-rating">5.0★</span></div>
+                  <div class="wpb-skills">Security · Escort · Events · Travel</div>
+                </div>
+                <span class="wpb-status">Available</span>
+              </div>
+            </div>
+            <p class="wpb-note">Submit your request and we'll match you with the right person instantly.</p>
+          </div>
+
         </div>
 
         <!-- Service type (optional, secondary) -->
