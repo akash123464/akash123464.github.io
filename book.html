@@ -5,7 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Submit a Request — WISHWORK</title>
   <link rel="stylesheet" href="style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── LV Image Banner ── */
+    .lv-image-banner {
+      position: relative;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+      border: 1.5px solid rgba(240,165,0,0.25);
+    }
+    .lv-banner-img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      max-height: 340px;
+      filter: brightness(0.72) saturate(1.1);
+    }
+    .lv-banner-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 1.2rem 1.4rem;
+      background: linear-gradient(to top, rgba(13,31,53,0.85) 0%, transparent 55%);
+    }
+    .lv-banner-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      color: #f0a500;
+      text-transform: uppercase;
+    }
+    .lv-banner-stamp {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase;
+    }
+
+    /* ── LV Editorial Label ── */
+    .lv-label-block {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 1.8rem;
+    }
+    .lv-label-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(240,165,0,0.5), transparent);
+    }
+    .lv-label-inner {
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .lv-label-eyebrow {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.3em;
+      color: #f0a500;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+    .lv-label-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 900;
+      line-height: 1.05;
+      color: #ffffff;
+      margin: 0 0 0.4rem 0;
+      letter-spacing: -0.01em;
+    }
+    .lv-label-headline em {
+      font-style: italic;
+      color: #f0a500;
+    }
+    .lv-label-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.06em;
+      margin: 0;
+    }
+  </style>
 </head>
 <body class="book-page">
 
@@ -98,7 +189,27 @@
 
         <!-- BIG primary input — the star of the page -->
         <div class="big-need-block">
-          <label class="big-need-label" for="description">✏️ Just write what you need to be done</label>
+
+          <!-- LV-style hero image banner -->
+          <div class="lv-image-banner">
+            <img src="1000150836.png" alt="WISHWORK — Flexible Workforce" class="lv-banner-img"/>
+            <div class="lv-banner-overlay">
+              <span class="lv-banner-eyebrow">WISHWORK · OFFICIAL</span>
+              <span class="lv-banner-stamp">EST. 2025</span>
+            </div>
+          </div>
+
+          <!-- LV-style editorial label -->
+          <div class="lv-label-block">
+            <div class="lv-label-line"></div>
+            <div class="lv-label-inner">
+              <span class="lv-label-eyebrow">YOUR REQUEST</span>
+              <h2 class="lv-label-headline">Write Your<br><em>Problem.</em></h2>
+              <p class="lv-label-sub">Speak freely. Our officials read every word personally.</p>
+            </div>
+            <div class="lv-label-line"></div>
+          </div>
+
           <textarea
             class="big-need-input"
             id="description"
