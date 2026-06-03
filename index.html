@@ -80,19 +80,34 @@
       Just tell us what you need, and the best talent in your city will get it done. Cleaning, painting, moving, delivery, security — any task, any time.
     </p>
 
-    <!-- Quick request box -->
+    <!-- Quick request box — RayBan Edition -->
     <div class="hero-box">
-      <div class="hbox-label">✏️ Just write what you need to be done</div>
-      <div class="hbox-row">
+      <div class="hbox-eyebrow">
+        <span class="hbox-eyebrow-line"></span>
+        <span class="hbox-eyebrow-text">YOUR REQUEST</span>
+        <span class="hbox-eyebrow-line"></span>
+      </div>
+      <div class="hbox-headline-wrap">
+        <div class="hbox-step">01</div>
+        <div class="hbox-headline-text">
+          <span class="hbox-headline-main">WRITE YOUR</span>
+          <span class="hbox-headline-accent">PROBLEM.</span>
+        </div>
+      </div>
+      <div class="hbox-divider"></div>
+      <div class="hbox-input-group">
         <input
           class="hbox-input"
           id="heroReqInput"
           type="text"
-          placeholder="e.g. Paint my apartment, fix my bathroom tap, move my sofa..."
+          placeholder="e.g. Paint my apartment, fix my tap, move my sofa..."
         />
-        <button class="hbox-btn" onclick="submitHeroRequest()">Get Help Now →</button>
       </div>
-      <div class="hbox-note">Officials will handle it for you — we respond within minutes. No signup needed.</div>
+      <button class="hbox-btn" onclick="submitHeroRequest()">
+        <span>Get Help Now</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="hbox-note">Officials handle it personally — response in minutes. Zero signup.</div>
     </div>
 
     <div class="hero-trust">

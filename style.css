@@ -274,21 +274,97 @@ body {
 /* Quick request box */
 .hero-box {
   background: #fff;
-  border-radius: var(--r);
-  padding: 1.6rem 1.8rem;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-  max-width: 660px;
+  border-radius: 4px;
+  padding: 2.2rem 2rem 1.8rem;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.06);
+  max-width: 620px;
   margin: 0 auto 1.8rem;
   text-align: left;
   animation: fadeUp 0.55s 0.2s ease both;
+  position: relative;
+  overflow: hidden;
 }
-.hbox-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+.hero-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #f0a500 0%, #d48a00 50%, #f0a500 100%);
+}
+
+/* Eyebrow row */
+.hbox-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.1rem;
+}
+.hbox-eyebrow-line {
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+.hbox-eyebrow-text {
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--gold-dark);
-  margin-bottom: 0.6rem;
+  color: #f0a500;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+
+/* Big headline */
+.hbox-headline-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.hbox-step {
+  font-size: 3.2rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #f0f0f0;
+  font-family: var(--font-disp);
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
+  margin-top: -0.1rem;
+  user-select: none;
+}
+.hbox-headline-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.hbox-headline-main {
+  font-family: var(--font-disp);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #111;
+  text-transform: uppercase;
+}
+.hbox-headline-accent {
+  font-family: var(--font-disp);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #f0a500;
+  text-transform: uppercase;
+}
+
+/* Divider */
+.hbox-divider {
+  height: 2px;
+  background: #111;
+  width: 40px;
+  margin-bottom: 1.2rem;
+}
+
+/* Input group */
+.hbox-input-group {
+  margin-bottom: 0.85rem;
 }
 .hbox-row {
   display: flex;
@@ -296,39 +372,52 @@ body {
   align-items: center;
 }
 .hbox-input {
-  flex: 1;
-  border: 1.5px solid var(--border2);
-  border-radius: var(--r-sm);
-  padding: 0.82rem 1rem;
+  width: 100%;
+  border: 2px solid #111;
+  border-radius: 3px;
+  padding: 0.9rem 1.1rem;
   font-size: 0.95rem;
   font-family: var(--font);
-  color: var(--text);
+  color: #111;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: var(--bg);
+  background: #fafafa;
+  box-sizing: border-box;
+  letter-spacing: 0.01em;
 }
-.hbox-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(240,165,0,0.1); }
-.hbox-input::placeholder { color: var(--text-soft); }
+.hbox-input:focus {
+  border-color: #f0a500;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(240,165,0,0.12);
+}
+.hbox-input::placeholder { color: #aaa; font-weight: 400; }
 .hbox-btn {
-  background: var(--gold);
-  color: var(--navy);
+  width: 100%;
+  background: #111;
+  color: #f0a500;
   border: none;
-  padding: 0.82rem 1.6rem;
-  border-radius: var(--r-sm);
-  font-weight: 800;
-  font-size: 0.92rem;
+  padding: 1rem 1.6rem;
+  border-radius: 3px;
+  font-weight: 900;
+  font-size: 1rem;
   cursor: pointer;
   font-family: var(--font-disp);
-  white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   transition: background 0.2s, transform 0.15s;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
 }
-.hbox-btn:hover { background: var(--gold-dark); transform: scale(1.02); }
+.hbox-btn:hover { background: #f0a500; color: #111; transform: translateY(-1px); }
 .hbox-note {
-  font-size: 0.73rem;
-  color: var(--text-soft);
-  margin-top: 0.7rem;
+  font-size: 0.7rem;
+  color: #999;
   text-align: center;
+  letter-spacing: 0.04em;
+  font-weight: 500;
 }
 
 .hero-trust {
