@@ -80,27 +80,58 @@
       Just tell us what you need, and the best talent in your city will get it done. Cleaning, painting, moving, delivery, security — any task, any time.
     </p>
 
-    <!-- Quick request box -->
+    <!-- Quick request box — GOD MODE -->
     <div class="hero-box">
+      <div class="hbox-shimmer"></div>
+      <div class="hbox-glow-orb"></div>
+
+      <!-- Header row -->
       <div class="hbox-top">
         <div class="hbox-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f0a500" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f0a500" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </div>
-        <span class="hbox-label">Tell us what you need done</span>
+        <div class="hbox-title-group">
+          <div class="hbox-title-top">Tell us what</div>
+          <div class="hbox-title-bottom">you need done</div>
+          <div class="hbox-title-sub">Describe your task. Get it done. Sit back.</div>
+        </div>
+        <div class="hbox-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#f0a500"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+          GODMODE
+        </div>
       </div>
-      <input
-        class="hbox-input"
-        id="heroReqInput"
-        type="text"
-        placeholder="e.g. Paint my apartment, fix my bathroom tap..."
-      />
+
+      <!-- Input -->
+      <div class="hbox-input-wrap">
+        <span class="hbox-input-star">✦</span>
+        <input class="hbox-input" id="heroReqInput" type="text"
+          placeholder="e.g. Paint my apartment, fix my bathroom..."/>
+        <button class="hbox-mic" aria-label="Voice input">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+
+      <!-- CTA Button -->
       <button class="hbox-btn" onclick="submitHeroRequest()">
+        <span class="hbox-btn-shine"></span>
         Get Help Now
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
+
+      <!-- Trust pills -->
       <div class="hbox-footer">
-        <span class="hbox-trust-dot"></span>
-        Officials respond in minutes · No signup · Pay after completion
+        <div class="hbox-pill">
+          <span class="hbox-pill-icon">⚡</span>
+          <span>Officials respond<br><b>in minutes</b></span>
+        </div>
+        <div class="hbox-pill">
+          <span class="hbox-pill-icon">🛡</span>
+          <span>No signup<br>required</span>
+        </div>
+        <div class="hbox-pill">
+          <span class="hbox-pill-icon">💳</span>
+          <span>Pay after<br><b>completion</b></span>
+        </div>
       </div>
     </div>
 
