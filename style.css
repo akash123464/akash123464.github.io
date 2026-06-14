@@ -296,11 +296,7 @@ body {
 .pi-icon { font-size: 0.9rem; margin-bottom: 0.1rem; display: block; }
 .pi-sep { display: none; }
 
-@media(max-width: 760px) {
-  .proof-items { justify-content: flex-start; gap: 0; overflow-x: auto; scrollbar-width: none; }
-  .proof-items::-webkit-scrollbar { display: none; }
-  .pi { padding: 0 1rem; flex-shrink: 0; }
-}
+
 
 /* ─── HERO ─── */
 .hero {
@@ -881,23 +877,117 @@ select.finput option { background:#fff; }
 @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
 
 /* ─── RESPONSIVE ─── */
+/* ── TABLET ── */
 @media(max-width:1024px){
   .pb-grid { grid-template-columns:repeat(2,1fr); }
   .steps-grid { grid-template-columns:1fr; gap:1rem; }
   .hire-inner { flex-direction:column; }
 }
+
+/* ── MOBILE — matches desktop appearance ── */
 @media(max-width:760px){
+
+  /* Navbar */
+  .nav-inner { padding:0 4vw; height:58px; gap:0.8rem; }
   .nav-search { display:none; }
-  .hamburger { display:flex; }
+  .nav-actions { display:none; }
+  .hamburger { display:flex; margin-left:auto; }
+  .brand-name { font-size:1rem; }
+  .brand-icon { width:30px; height:30px; }
+
+  /* Announce bar */
+  .announce-bar { font-size:0.7rem; padding:0.4rem 1rem; }
+
+  /* Cat bar — horizontal pill scroll */
+  .cat-bar-inner {
+    padding:0.5rem 3vw;
+    gap:0.3rem;
+  }
+  .cat-link {
+    font-size:0.7rem;
+    padding:0.35rem 0.75rem;
+  }
+
+  /* Proof strip — horizontal scroll on mobile */
+  .proof-strip { padding:0.5rem 0; overflow:hidden; }
+  .proof-track { overflow-x:auto; scrollbar-width:none; padding:0 4vw; }
+  .proof-track::-webkit-scrollbar { display:none; }
+  .proof-items {
+    justify-content:flex-start;
+    flex-wrap:nowrap;
+    gap:0;
+    width:max-content;
+  }
+  .pi {
+    padding:0 0.9rem;
+    font-size:0.65rem;
+    flex-shrink:0;
+  }
+  .pi strong { font-size:0.75rem; }
+
+  /* Hero — full bleed, no side margin */
+  .hero {
+    padding:3rem 5vw 2.5rem;
+    width:100%;
+    box-sizing:border-box;
+  }
+  .hero-inner { max-width:100%; padding:0; }
+  .hero-h1 { font-size:clamp(1.9rem,8vw,3rem); letter-spacing:-0.02em; }
+  .hero-sub { font-size:0.9rem; margin-bottom:1.8rem; max-width:100%; }
+  .hero-badge { font-size:0.65rem; padding:0.32rem 0.85rem; }
+
+  /* God Mode box — full width on mobile */
+  .hero-box {
+    max-width:100%;
+    width:100%;
+    border-radius:16px;
+    margin:0 0 1.5rem;
+  }
+  .hbox-inner { padding:1.2rem 1.2rem 1.1rem; }
+  .hbox-icon { width:42px; height:42px; border-radius:11px; }
+  .hbox-title-top, .hbox-title-bottom { font-size:1rem; }
+  .hbox-title-sub { font-size:0.65rem; }
+  .hbox-badge { font-size:0.5rem; padding:0.22rem 0.5rem; }
+  .hbox-input-wrap { border-radius:11px; padding:0 0.7rem; }
+  .hbox-input { font-size:0.85rem; padding:0.78rem 0; }
+  .hbox-btn { font-size:0.92rem; padding:0.85rem 1rem; border-radius:11px; }
+  .hbox-footer { gap:0.3rem; }
+  .hbox-pill { padding:0.5rem 0.3rem; border-radius:8px; }
+  .hbox-pill-icon { font-size:0.85rem; }
+  .hbox-pill-text { font-size:0.55rem; }
+
+  /* Hero trust row */
+  .hero-trust {
+    gap:0.8rem 1.5rem;
+    justify-content:center;
+  }
+  .ht { font-size:0.72rem; }
+
+  /* What we provide */
+  .provide-sect { padding:2.5rem 4vw; }
   .pb-grid { grid-template-columns:1fr; }
+  .sect-hd-title { font-size:1.35rem; }
+  .custom-banner { padding:1.4rem 1.4rem; }
+
+  /* Hire section */
+  .hire-sect { padding:2rem 4vw; }
+  .hire-inner { padding:2rem 1.5rem; flex-direction:column; }
+  .worker-cards { min-width:unset; width:100%; }
+
+  /* Steps */
+  .steps-sect { padding:2.5rem 4vw; }
+  .steps-grid { grid-template-columns:1fr; }
+
+  /* Trust strip */
+  .trust-inner { justify-content:flex-start; gap:1.2rem; flex-wrap:wrap; }
+
+  /* Footer */
+  .footer-top { flex-direction:column; gap:2rem; }
+  .footer-cols { gap:2rem; }
+  .footer-bottom { flex-direction:column; gap:0.3rem; text-align:center; }
+
+  /* Book page */
   .book-layout { flex-direction:column; padding:1.5rem 4vw 4rem; }
   .book-aside { position:static; }
   .form-row { grid-template-columns:1fr; }
-  .trust-inner { justify-content:flex-start; gap:1.2rem; }
-  .footer-top { flex-direction:column; gap:2rem; }
-  .footer-cols { gap:2rem; }
-  .hero-trust { gap:1.2rem; }
-  .hire-inner { padding:2rem 1.8rem; }
-  .hbox-footer { gap:0.35rem; }
-  .hbox-pill-text { font-size: 0.55rem; }
 }
