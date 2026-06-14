@@ -36,7 +36,7 @@
   --r-xs: 6px;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; }
 
 body {
   background: var(--bg);
@@ -45,7 +45,9 @@ body {
   font-size: 15px;
   line-height: 1.65;
   overflow-x: hidden;
+  overflow-y: auto;
   width: 100%;
+  max-width: 100%;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -261,37 +263,44 @@ body {
 .mobile-menu a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 1rem; font-weight: 500; }
 .mobile-cta { color: var(--gold) !important; font-weight: 700 !important; }
 
-/* ─── PREMIUM SOCIAL PROOF TICKER ─── */
+/* ─── PREMIUM STAT STRIP ─── */
 .proof-strip {
-  background: linear-gradient(90deg, #0a1929 0%, #0d1f35 50%, #0a1929 100%);
+  background: linear-gradient(90deg, #0a1929 0%, #0d2240 50%, #0a1929 100%);
   border-bottom: 1px solid rgba(240,165,0,0.15);
-  overflow: hidden;
-  padding: 0.5rem 0;
+  padding: 0.65rem 4vw;
   width: 100%;
+  overflow: hidden;
 }
-.proof-track { overflow: hidden; width: 100%; }
+.proof-track { max-width: 1360px; margin: 0 auto; }
 .proof-items {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
-  white-space: nowrap;
-  animation: ticker-scroll 32s linear infinite;
-  width: max-content;
-}
-.proof-items:hover { animation-play-state: paused; }
-@keyframes ticker-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  justify-content: center;
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 .pi {
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.5);
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.42);
   font-family: var(--font);
   font-weight: 500;
-  flex-shrink: 0;
+  padding: 0 1.4rem;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+  line-height: 1.2;
+  text-align: center;
 }
-.pi strong { color: var(--gold-light); font-weight: 700; }
-.pi-sep { color: rgba(240,165,0,0.25); font-size: 1rem; flex-shrink: 0; }
+.pi:last-child { border-right: none; }
+.pi strong { color: var(--gold-light); font-weight: 700; display: block; font-size: 0.82rem; }
+.pi-icon { font-size: 0.9rem; margin-bottom: 0.1rem; display: block; }
+.pi-sep { display: none; }
+
+@media(max-width: 760px) {
+  .proof-items { justify-content: flex-start; gap: 0; overflow-x: auto; scrollbar-width: none; }
+  .proof-items::-webkit-scrollbar { display: none; }
+  .pi { padding: 0 1rem; flex-shrink: 0; }
+}
 
 /* ─── HERO ─── */
 .hero {
