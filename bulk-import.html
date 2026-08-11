@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wishwork — Bulk import</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Login gate (same pattern as admin.html) -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <a href="index.html" class="wordmark"><span class="seal">W</span>Wishwork</a>
+    <p class="sub">Admin sign in</p>
+    <form id="loginForm">
+      <div class="form-msg error" id="loginMsg" style="display:none;"></div>
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" name="email" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<!-- Import shell -->
+<div class="admin-shell" id="adminShell" style="display:none;">
+  <div class="admin-topbar">
+    <a href="index.html" class="wordmark"><span class="seal">W</span>Wishwork</a>
+    <div class="admin-tabs">
+      <a href="admin.html" class="admin-tab" style="text-decoration:none; display:inline-flex; align-items:center;">Products &amp; Orders</a>
+      <button class="admin-tab active">Bulk import</button>
+    </div>
+    <button class="btn btn-outline" id="logoutBtn" style="border-color:var(--paper); color:var(--paper); padding:8px 16px;">Sign out</button>
+  </div>
+
+  <main class="admin-main">
+    <div class="admin-panel-head"><h1>Bulk import starter catalog</h1></div>
+
+    <div class="admin-card" style="max-width:640px;">
+      <p class="muted" style="margin-bottom:14px; line-height:1.6;">
+        This loads <strong id="countLabel">500</strong> ready-made grocery products (name, price,
+        category, stock, description) across 15 categories — fruits &amp; veg, dairy, snacks,
+        beverages, personal care, home &amp; cleaning, and more — so your store looks fully
+        stocked right away.
+      </p>
+      <p class="muted" style="margin-bottom:20px; line-height:1.6;">
+        Each product ships with a clean, generated placeholder image (not a real product
+        photo — no photo library has 500 licensed images I could hand you). Swap any image
+        for a real one any time from <a href="admin.html">Products → Edit</a>. Nothing here
+        touches products you've already added.
+      </p>
+
+      <div id="importMsg" class="form-msg" style="display:none;"></div>
+
+      <div id="progressWrap" style="display:none; margin-bottom:16px;">
+        <div style="height:8px; background:var(--paper-dim); border-radius:99px; overflow:hidden;">
+          <div id="progressBar" style="height:100%; width:0%; background:var(--jade); transition:width .2s;"></div>
+        </div>
+        <p class="muted" style="margin-top:8px; font-size:13px;" id="progressText">0 / 500</p>
+      </div>
+
+      <button class="btn btn-primary" id="importBtn">Import 500 products</button>
+    </div>
+  </main>
+</div>
+
+<!-- Firebase Compat SDK — global `firebase` namespace, no ES module imports -->
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="products-data.js"></script>
+<script src="bulk-import.js"></script>
+</body>
+</html>
