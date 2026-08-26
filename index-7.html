@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAJVA — Royal Events & Experiences</title>
+  <meta name="description" content="A cinematic royal events booking experience for weddings, celebrations and grand occasions." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            royal: "#c9a45b",
+            ink: "#07080a",
+            velvet: "#0d0b0d"
+          },
+          fontFamily: {
+            display: ["Cormorant Garamond", "serif"],
+            sans: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --gold:#c9a45b; --cream:#eee5d2; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:#07080a; color:#eee5d2; font-family:Inter,sans-serif; overflow-x:hidden; }
+    .grain::after {
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:60; opacity:.055;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E");
+    }
+    .gold-line { background:linear-gradient(90deg,transparent,var(--gold),transparent); height:1px; }
+    .hero-vignette { background:radial-gradient(circle at 50% 45%,rgba(201,164,91,.12),transparent 35%),linear-gradient(180deg,rgba(0,0,0,.1),#07080a 95%); }
+    .video-mask { mask-image:linear-gradient(to bottom,black 70%,transparent 100%); -webkit-mask-image:linear-gradient(to bottom,black 70%,transparent 100%); }
+    .glass { background:rgba(13,11,13,.54); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border:1px solid rgba(201,164,91,.18); }
+    .hover-lift { transition:transform .45s cubic-bezier(.2,.8,.2,1), border-color .45s; }
+    .hover-lift:hover { transform:translateY(-8px); border-color:rgba(201,164,91,.5); }
+    .reveal { opacity:0; transform:translateY(30px); transition:opacity .8s ease,transform .8s ease; }
+    .reveal.visible { opacity:1; transform:none; }
+    .marquee { animation:marquee 24s linear infinite; white-space:nowrap; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .royal-band { box-shadow:0 -12px 50px rgba(0,0,0,.5),0 0 40px rgba(201,164,91,.06); }
+    .sound-wave span { display:block; width:2px; background:var(--gold); border-radius:2px; animation:wave 1s ease-in-out infinite; }
+    .sound-wave span:nth-child(2){animation-delay:.15s}.sound-wave span:nth-child(3){animation-delay:.3s}.sound-wave span:nth-child(4){animation-delay:.45s}
+    @keyframes wave {0%,100%{height:5px}50%{height:17px}}
+    .paused .sound-wave span { animation-play-state:paused; height:5px; }
+  </style>
+</head>
+
+<body class="grain selection:bg-[#c9a45b] selection:text-black">
+  <!-- HERO -->
+  <header id="home" class="relative min-h-screen overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,#2b2115_0%,#0d0b0d_38%,#07080a_78%)]"></div>
+    <div class="absolute inset-0 hero-vignette"></div>
+
+    <nav class="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-7 lg:px-10">
+      <a href="#home" class="font-display text-3xl tracking-[.18em] text-[#eee5d2]">RAJVA<span class="text-[#c9a45b]">.</span></a>
+      <div class="hidden items-center gap-9 text-[11px] font-semibold uppercase tracking-[.28em] text-white/65 md:flex">
+        <a href="#experiences" class="transition hover:text-[#c9a45b]">Experiences</a>
+        <a href="#venues" class="transition hover:text-[#c9a45b]">Venues</a>
+        <a href="#process" class="transition hover:text-[#c9a45b]">Our Way</a>
+      </div>
+      <a href="#book" class="rounded-full border border-[#c9a45b]/50 px-5 py-3 text-[10px] font-bold uppercase tracking-[.25em] text-[#eee5d2] transition hover:bg-[#c9a45b] hover:text-black">Book an Occasion</a>
+    </nav>
+
+    <!-- Real animal footage: Wikimedia Commons -->
+    <div class="absolute inset-x-0 bottom-0 top-[16%] z-10 flex items-end justify-center gap-0 px-3 md:px-10">
+      <div class="relative h-[52vh] w-[48vw] max-w-[760px] overflow-hidden video-mask">
+        <video class="h-full w-full object-cover object-center mix-blend-screen opacity-[.72]" autoplay muted loop playsinline preload="metadata"
+          poster="https://commons.wikimedia.org/wiki/Special:Redirect/file/Elephant_marching_along.webm">
+          <source src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Elephant_marching_along.webm" type="video/webm">
+        </video>
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#07080a]/80"></div>
+      </div>
+      <div class="relative -ml-6 h-[48vh] w-[46vw] max-w-[700px] overflow-hidden video-mask md:-ml-14">
+        <video class="h-full w-full object-cover object-center mix-blend-screen opacity-[.78]" autoplay muted loop playsinline preload="metadata"
+          poster="https://commons.wikimedia.org/wiki/Special:Redirect/file/Horses_running_in_a_pasture.webm">
+          <source src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Horses_running_in_a_pasture.webm" type="video/webm">
+        </video>
+        <div class="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#07080a]/80"></div>
+      </div>
+    </div>
+
+    <div class="absolute inset-0 z-[12] bg-gradient-to-b from-[#07080a]/20 via-transparent to-[#07080a]"></div>
+
+    <div class="relative z-20 mx-auto flex min-h-[calc(100vh-105px)] max-w-7xl items-end px-6 pb-28 lg:px-10">
+      <div class="max-w-4xl">
+        <div class="mb-6 flex items-center gap-4 text-[10px] font-semibold uppercase tracking-[.38em] text-[#c9a45b]">
+          <span class="h-px w-12 bg-[#c9a45b]"></span> Royal Events & Experiences
+        </div>
+        <h1 class="font-display text-[clamp(4rem,10vw,9.5rem)] font-medium leading-[.78] tracking-[-.045em] text-[#f2eadb]">
+          Make it<br><em class="font-normal text-[#c9a45b]">legendary.</em>
+        </h1>
+        <p class="mt-8 max-w-xl text-sm leading-7 text-white/55 md:text-base">
+          Extraordinary celebrations, palatial venues and impeccable production —
+          composed around your story and delivered without compromise.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href="#book" class="rounded-full bg-[#c9a45b] px-7 py-4 text-[10px] font-bold uppercase tracking-[.25em] text-black transition hover:bg-[#e0bd75]">Plan Your Event</a>
+          <a href="#experiences" class="rounded-full border border-white/20 px-7 py-4 text-[10px] font-bold uppercase tracking-[.25em] text-white transition hover:border-[#c9a45b]/70">Explore</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- INTRO -->
+  <section class="relative border-t border-white/5 bg-[#09090b] py-28 md:py-40">
+    <div class="mx-auto grid max-w-7xl gap-14 px-6 md:grid-cols-[1fr_1.2fr] lg:px-10">
+      <div class="reveal">
+        <p class="text-[10px] font-bold uppercase tracking-[.35em] text-[#c9a45b]">01 / The Standard</p>
+        <h2 class="mt-5 font-display text-5xl leading-none md:text-7xl">Not just an event.<br><span class="text-white/35">A memory with a pulse.</span></h2>
+      </div>
+      <div class="reveal self-end">
+        <p class="max-w-2xl text-lg leading-9 text-white/55 md:text-xl">
+          From the first invitation to the final note, RAJVA brings together design,
+          hospitality, entertainment and production as one seamless experience.
+          Every detail is intentional. Every entrance has a little theatre.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCES -->
+  <section id="experiences" class="bg-[#0b0a0c] py-28 md:py-36">
+    <div class="mx-auto max-w-7xl px-6 lg:px-10">
+      <div class="reveal flex items-end justify-between gap-6">
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-[.35em] text-[#c9a45b]">02 / Experiences</p>
+          <h2 class="mt-4 font-display text-5xl md:text-7xl">Choose your grand.</h2>
+        </div>
+        <span class="hidden pb-2 text-[10px] uppercase tracking-[.25em] text-white/30 md:block">Curated • Bespoke • Unforgettable</span>
+      </div>
+
+      <div class="mt-14 grid gap-5 md:grid-cols-3">
+        <article class="hover-lift reveal glass rounded-[2rem] p-8 md:p-10">
+          <div class="mb-16 text-[#c9a45b]">✦</div>
+          <p class="text-[10px] uppercase tracking-[.3em] text-white/35">01</p>
+          <h3 class="mt-3 font-display text-4xl">Royal Weddings</h3>
+          <p class="mt-5 text-sm leading-7 text-white/45">Ceremonies that feel cinematic — from intimate mehendis to full-scale palace celebrations.</p>
+          <a href="#book" class="mt-8 inline-flex text-[10px] font-bold uppercase tracking-[.25em] text-[#c9a45b]">Enquire ↗</a>
+        </article>
+        <article class="hover-lift reveal glass rounded-[2rem] p-8 md:p-10" style="transition-delay:.08s">
+          <div class="mb-16 text-[#c9a45b]">♜</div>
+          <p class="text-[10px] uppercase tracking-[.3em] text-white/35">02</p>
+          <h3 class="mt-3 font-display text-4xl">Grand Celebrations</h3>
+          <p class="mt-5 text-sm leading-7 text-white/45">Milestones, anniversaries and private soirées engineered to become the story everyone tells.</p>
+          <a href="#book" class="mt-8 inline-flex text-[10px] font-bold uppercase tracking-[.25em] text-[#c9a45b]">Enquire ↗</a>
+        </article>
+        <article class="hover-lift reveal glass rounded-[2rem] p-8 md:p-10" style="transition-delay:.16s">
+          <div class="mb-16 text-[#c9a45b]">♕</div>
+          <p class="text-[10px] uppercase tracking-[.3em] text-white/35">03</p>
+          <h3 class="mt-3 font-display text-4xl">Corporate Royalty</h3>
+          <p class="mt-5 text-sm leading-7 text-white/45">Launches, awards and leadership gatherings with presence, precision and unmistakable polish.</p>
+          <a href="#book" class="mt-8 inline-flex text-[10px] font-bold uppercase tracking-[.25em] text-[#c9a45b]">Enquire ↗</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- VENUES -->
+  <section id="venues" class="relative overflow-hidden border-y border-white/5 bg-[#07080a] py-28 md:py-36">
+    <div class="mx-auto max-w-7xl px-6 lg:px-10">
+      <div class="reveal max-w-3xl">
+        <p class="text-[10px] font-bold uppercase tracking-[.35em] text-[#c9a45b]">03 / The Stage</p>
+        <h2 class="mt-4 font-display text-5xl md:text-7xl">Places worthy of<br><em class="text-[#c9a45b]">your occasion.</em></h2>
+      </div>
+
+      <div class="mt-14 grid gap-5 md:grid-cols-2">
+        <div class="reveal group relative min-h-[430px] overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#302416] via-[#17120d] to-[#09090b] p-8">
+          <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full border border-[#c9a45b]/20"></div>
+          <div class="absolute -right-5 -top-5 h-44 w-44 rounded-full border border-[#c9a45b]/15"></div>
+          <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div class="relative z-10 flex h-full flex-col justify-end">
+            <p class="text-[10px] uppercase tracking-[.3em] text-[#c9a45b]">Palaces & Heritage</p>
+            <h3 class="mt-2 font-display text-5xl">Old-world grandeur.</h3>
+            <p class="mt-4 max-w-lg text-sm leading-7 text-white/45">Historic architecture, courtyards and ceremonial spaces transformed for modern luxury.</p>
+          </div>
+        </div>
+
+        <div class="reveal group relative min-h-[430px] overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#171c22] via-[#0e1115] to-[#08090b] p-8" style="transition-delay:.1s">
+          <div class="absolute right-12 top-16 h-52 w-52 rounded-full bg-[#c9a45b]/8 blur-3xl"></div>
+          <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent"></div>
+          <div class="relative z-10 flex h-full flex-col justify-end">
+            <p class="text-[10px] uppercase tracking-[.3em] text-[#c9a45b]">Modern Estates</p>
+            <h3 class="mt-2 font-display text-5xl">Contemporary drama.</h3>
+            <p class="mt-4 max-w-lg text-sm leading-7 text-white/45">Private estates, destination resorts and architectural canvases for a more modern kind of royal.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process" class="bg-[#0b0a0c] py-28 md:py-36">
+    <div class="mx-auto max-w-7xl px-6 lg:px-10">
+      <div class="reveal mb-16">
+        <p class="text-[10px] font-bold uppercase tracking-[.35em] text-[#c9a45b]">04 / Our Way</p>
+        <h2 class="mt-4 font-display text-5xl md:text-7xl">Quietly obsessive.</h2>
+      </div>
+      <div class="grid border-y border-white/10 md:grid-cols-4">
+        <div class="reveal border-b border-white/10 py-10 md:border-b-0 md:border-r md:px-8 md:first:pl-0">
+          <span class="text-sm text-[#c9a45b]">01</span><h3 class="mt-5 font-display text-3xl">Listen</h3><p class="mt-3 text-sm leading-6 text-white/40">Your vision, your people, your non-negotiables.</p>
+        </div>
+        <div class="reveal border-b border-white/10 py-10 md:border-b-0 md:border-r md:px-8">
+          <span class="text-sm text-[#c9a45b]">02</span><h3 class="mt-5 font-display text-3xl">Compose</h3><p class="mt-3 text-sm leading-6 text-white/40">A world of design, food, music and movement.</p>
+        </div>
+        <div class="reveal border-b border-white/10 py-10 md:border-b-0 md:border-r md:px-8">
+          <span class="text-sm text-[#c9a45b]">03</span><h3 class="mt-5 font-display text-3xl">Produce</h3><p class="mt-3 text-sm leading-6 text-white/40">One team. One timeline. Zero loose ends.</p>
+        </div>
+        <div class="reveal py-10 md:px-8 md:pr-0">
+          <span class="text-sm text-[#c9a45b]">04</span><h3 class="mt-5 font-display text-3xl">Reveal</h3><p class="mt-3 text-sm leading-6 text-white/40">The doors open. The room changes. You enjoy it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOK -->
+  <section id="book" class="relative overflow-hidden bg-[#0a090b] py-32 md:py-44">
+    <div class="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#c9a45b]/5 blur-[100px]"></div>
+    <div class="relative z-10 mx-auto max-w-4xl px-6 text-center">
+      <p class="reveal text-[10px] font-bold uppercase tracking-[.35em] text-[#c9a45b]">05 / Begin</p>
+      <h2 class="reveal mt-5 font-display text-6xl leading-[.9] md:text-8xl">Your occasion.<br><em class="text-[#c9a45b]">Our craft.</em></h2>
+      <p class="reveal mx-auto mt-8 max-w-xl text-sm leading-7 text-white/45">Tell us what you are imagining. We will return with a considered direction, venue possibilities and a production plan.</p>
+      <form class="reveal mx-auto mt-10 grid max-w-2xl gap-3 text-left md:grid-cols-2" onsubmit="event.preventDefault(); document.getElementById('formMsg').textContent='Thank you — our concierge will be in touch.';">
+        <input required class="rounded-2xl border border-white/10 bg-white/[.03] px-5 py-4 text-sm outline-none placeholder:text-white/25 focus:border-[#c9a45b]/60" placeholder="Your name" />
+        <input required type="email" class="rounded-2xl border border-white/10 bg-white/[.03] px-5 py-4 text-sm outline-none placeholder:text-white/25 focus:border-[#c9a45b]/60" placeholder="Email address" />
+        <select class="rounded-2xl border border-white/10 bg-[#111014] px-5 py-4 text-sm text-white/65 outline-none focus:border-[#c9a45b]/60 md:col-span-2">
+          <option>What are you planning?</option><option>Wedding</option><option>Private celebration</option><option>Corporate event</option><option>Other</option>
+        </select>
+        <button class="rounded-2xl bg-[#c9a45b] px-6 py-4 text-[10px] font-bold uppercase tracking-[.25em] text-black transition hover:bg-[#e0bd75] md:col-span-2">Request a Private Consultation</button>
+      </form>
+      <p id="formMsg" class="mt-5 text-xs text-[#c9a45b]"></p>
+    </div>
+  </section>
+
+  <footer class="border-t border-white/5 bg-[#07080a] px-6 py-12 pb-36 lg:px-10">
+    <div class="mx-auto flex max-w-7xl flex-col justify-between gap-6 md:flex-row md:items-end">
+      <div><div class="font-display text-3xl tracking-[.18em]">RAJVA<span class="text-[#c9a45b]">.</span></div><p class="mt-2 text-xs text-white/25">Royal events, reimagined.</p></div>
+      <p class="text-[9px] uppercase tracking-[.22em] text-white/20">© 2026 RAJVA Events • Demo concept</p>
+    </div>
+  </footer>
+
+  <!-- STICKY ROYAL BAND -->
+  <aside id="royalBand" class="royal-band fixed bottom-0 left-0 right-0 z-50 border-t border-[#c9a45b]/25 bg-[#0c0a0b]/90 backdrop-blur-xl">
+    <div class="mx-auto flex h-16 max-w-[1600px] items-center gap-5 px-4 md:h-[70px] md:px-8">
+      <button id="soundBtn" aria-label="Toggle sound" class="paused glass flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+        <div class="sound-wave flex h-5 items-center gap-[3px]"><span></span><span></span><span></span><span></span></div>
+      </button>
+      <div class="hidden shrink-0 items-center gap-3 text-[#c9a45b] sm:flex"><span>♜</span><span class="h-4 w-px bg-white/10"></span><span>♕</span><span class="h-4 w-px bg-white/10"></span><span>✦</span></div>
+      <div class="overflow-hidden border-l border-white/10 pl-5">
+        <div class="marquee text-[9px] font-semibold uppercase tracking-[.32em] text-white/50">
+          ROYAL WEDDINGS &nbsp; • &nbsp; PALATIAL VENUES &nbsp; • &nbsp; BESPOKE CELEBRATIONS &nbsp; • &nbsp; IMPECCABLE PRODUCTION &nbsp; • &nbsp;
+          ROYAL WEDDINGS &nbsp; • &nbsp; PALATIAL VENUES &nbsp; • &nbsp; BESPOKE CELEBRATIONS &nbsp; • &nbsp; IMPECCABLE PRODUCTION &nbsp; • &nbsp;
+        </div>
+      </div>
+      <a href="#book" class="ml-auto hidden shrink-0 rounded-full border border-[#c9a45b]/40 px-5 py-2.5 text-[9px] font-bold uppercase tracking-[.22em] text-[#c9a45b] transition hover:bg-[#c9a45b] hover:text-black sm:block">Book</a>
+    </div>
+  </aside>
+
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Sticky band subtly reacts to scroll
+    const band = document.getElementById('royalBand');
+    let lastY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      band.style.transform = y > lastY && y > 120 ? 'translateY(3px)' : 'translateY(0)';
+      lastY = y;
+    }, { passive:true });
+
+    // Audio toggle: browser-safe UI state; no forced autoplay audio.
+    const soundBtn = document.getElementById('soundBtn');
+    soundBtn.addEventListener('click', () => {
+      soundBtn.classList.toggle('paused');
+      soundBtn.setAttribute('aria-label', soundBtn.classList.contains('paused') ? 'Enable sound' : 'Disable sound');
+    });
+  </script>
+</body>
+</html>
