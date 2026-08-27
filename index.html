@@ -14,9 +14,10 @@
     --burgundy:#1A0507;
     --burgundy-2:#2A0A0D;
     --gold:#D4AF37;
-    --gold-bright:#F4D06F;
+    --gold-bright:#F9DE7E;
     --champagne:#F3E5AB;
     --crimson:#6B0F1A;
+    --crimson-hot:#C4102E;
     --ink:#EDE3D0;
     --muted:#B8A98C;
   }
@@ -32,6 +33,32 @@
     font-family:'Plus Jakarta Sans', sans-serif;
     overflow-x:hidden;
     position:relative;
+    cursor:auto;
+  }
+
+  /* Aurora / mesh glow layer, drifting slowly behind everything */
+  .aurora{
+    position:fixed; inset:-10%; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(38% 30% at 18% 22%, rgba(196,16,46,0.35), transparent 60%),
+      radial-gradient(32% 28% at 82% 18%, rgba(212,175,55,0.22), transparent 60%),
+      radial-gradient(36% 32% at 55% 85%, rgba(107,15,26,0.4), transparent 60%);
+    filter:blur(60px) saturate(140%);
+    animation:auroraDrift 18s ease-in-out infinite alternate;
+  }
+  @keyframes auroraDrift{
+    0%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(2%,-3%) scale(1.06); }
+    100%{ transform:translate(-2%,2%) scale(1); }
+  }
+
+  /* cursor glow trail */
+  .cursor-glow{
+    position:fixed; width:26px; height:26px; border-radius:50%;
+    background:radial-gradient(circle, rgba(212,175,55,0.55), transparent 70%);
+    pointer-events:none; z-index:200; transform:translate(-50%,-50%);
+    transition:opacity .3s ease; opacity:0; mix-blend-mode:screen;
+    filter:blur(1px);
   }
   h1,h2,h3,h4,.font-display{font-family:'Cinzel', serif;}
   .font-decorative{font-family:'Cinzel Decorative', serif;}
@@ -71,6 +98,11 @@
   }
   .glass-glow{
     box-shadow:0 0 24px -4px rgba(212,175,55,0.35), 0 0 0 1px rgba(212,175,55,0.15), 0 20px 60px -24px rgba(0,0,0,0.8);
+    animation:glowPulse 4s ease-in-out infinite;
+  }
+  @keyframes glowPulse{
+    0%,100%{ box-shadow:0 0 24px -4px rgba(212,175,55,0.35), 0 0 0 1px rgba(212,175,55,0.15), 0 20px 60px -24px rgba(0,0,0,0.8); }
+    50%{ box-shadow:0 0 40px -2px rgba(212,175,55,0.6), 0 0 0 1px rgba(212,175,55,0.3), 0 20px 60px -24px rgba(0,0,0,0.8); }
   }
   .glass:hover{ border-color:rgba(212,175,55,0.55); }
 
@@ -80,11 +112,21 @@
     color:#1A0507;
     font-weight:700;
     letter-spacing:.03em;
-    box-shadow:0 8px 30px -8px rgba(212,175,55,0.55);
+    box-shadow:0 8px 34px -6px rgba(212,175,55,0.7);
     position:relative;
     overflow:hidden;
+    animation:btnPulse 3.2s ease-in-out infinite;
   }
-  .btn-gold:hover{ box-shadow:0 10px 40px -6px rgba(212,175,55,0.8); transform:translateY(-1px); }
+  .btn-gold::before{
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.75) 48%, transparent 65%);
+    transform:translateX(-120%);
+    animation:shimmerSweep 3.2s ease-in-out infinite;
+  }
+  @keyframes shimmerSweep{ 0%,55%{ transform:translateX(-120%); } 75%{ transform:translateX(120%); } 100%{ transform:translateX(120%); } }
+  @keyframes btnPulse{ 0%,100%{ box-shadow:0 8px 34px -6px rgba(212,175,55,0.7); } 50%{ box-shadow:0 10px 50px -4px rgba(212,175,55,1); } }
+  .btn-gold:hover{ box-shadow:0 12px 50px -4px rgba(212,175,55,1); transform:translateY(-2px) scale(1.015); }
   .btn-outline{
     border:1px solid rgba(212,175,55,0.55);
     color:var(--champagne);
@@ -106,7 +148,34 @@
   /* glow text */
   .glow-text{
     color:var(--gold-bright);
-    text-shadow:0 0 12px rgba(212,175,55,0.55), 0 0 36px rgba(212,175,55,0.28);
+    text-shadow:0 0 16px rgba(212,175,55,0.75), 0 0 44px rgba(212,175,55,0.4), 0 0 80px rgba(196,16,46,0.35);
+    animation:textGlowPulse 5s ease-in-out infinite;
+  }
+  @keyframes textGlowPulse{
+    0%,100%{ text-shadow:0 0 16px rgba(212,175,55,0.75), 0 0 44px rgba(212,175,55,0.4), 0 0 80px rgba(196,16,46,0.35); }
+    50%{ text-shadow:0 0 26px rgba(212,175,55,1), 0 0 60px rgba(212,175,55,0.6), 0 0 110px rgba(196,16,46,0.55); }
+  }
+
+  /* 3D tilt for cards */
+  .tilt-wrap{ perspective:900px; }
+  .card-tilt{ transform-style:preserve-3d; will-change:transform; }
+
+  /* stat counters */
+  .stat-num{
+    font-family:'Cinzel', serif;
+    background:linear-gradient(135deg, var(--gold-bright), var(--champagne));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 30px rgba(212,175,55,0.35);
+  }
+
+  /* floating motif orbs */
+  .orb{
+    position:absolute; border-radius:50%; filter:blur(50px); pointer-events:none;
+    animation:orbFloat 12s ease-in-out infinite;
+  }
+  @keyframes orbFloat{
+    0%,100%{ transform:translateY(0) translateX(0); }
+    50%{ transform:translateY(-30px) translateX(20px); }
   }
 
   /* particles canvas */
@@ -122,8 +191,8 @@
   .fade-up{ opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s ease; }
   .fade-up.in{ opacity:1; transform:translateY(0); }
 
-  .card-tilt{ transition:transform .45s ease, box-shadow .45s ease; }
-  .card-tilt:hover{ transform:translateY(-6px); }
+  .card-tilt{ transition:transform .2s ease, box-shadow .45s ease; }
+  .card-tilt:hover{ box-shadow:0 30px 60px -20px rgba(212,175,55,0.35); }
 
   .img-zoom{ overflow:hidden; }
   .img-zoom img{ transition:transform .8s cubic-bezier(.2,.7,.2,1), filter .5s ease; }
@@ -157,6 +226,8 @@
 </head>
 <body class="antialiased">
 
+<div class="aurora"></div>
+<div class="cursor-glow" id="cursor-glow"></div>
 <canvas id="ember-canvas"></canvas>
 
 <!-- ============ NAV ============ -->
@@ -189,6 +260,9 @@
   <div class="absolute inset-0 -z-10">
     <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=2400&auto=format&fit=crop" alt="" class="w-full h-full object-cover opacity-25">
     <div class="absolute inset-0" style="background:radial-gradient(ellipse 90% 70% at 50% 30%, rgba(107,15,26,0.35), transparent 60%), linear-gradient(180deg, rgba(11,11,12,0.55) 0%, rgba(11,11,12,0.85) 70%, var(--obsidian) 100%);"></div>
+    <div class="orb w-72 h-72 bg-[var(--crimson-hot)]/25 top-10 left-[8%]" style="animation-delay:0s;"></div>
+    <div class="orb w-96 h-96 bg-[var(--gold)]/15 top-1/3 right-[6%]" style="animation-delay:3s;"></div>
+    <div class="orb w-64 h-64 bg-[var(--crimson)]/25 bottom-10 left-1/3" style="animation-delay:6s;"></div>
   </div>
 
   <div class="max-w-7xl mx-auto w-full grid lg:grid-cols-[1.3fr,0.7fr] gap-12 items-center">
@@ -245,6 +319,28 @@
         <span>★ Chhatra-Chanwar Royal Escort</span>
         <span>★ Serving Rajasthan · Madhya Pradesh · All-India</span>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS STRIP ============ -->
+<section class="relative z-10 px-5 -mt-2 mb-6">
+  <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="glass rounded-2xl py-6 text-center fade-up">
+      <div class="stat-num text-3xl md:text-4xl" data-count="18">0</div>
+      <div class="text-[10px] md:text-xs text-[var(--muted)] tracking-widest uppercase mt-2">Years Legacy</div>
+    </div>
+    <div class="glass rounded-2xl py-6 text-center fade-up">
+      <div class="stat-num text-3xl md:text-4xl" data-count="650">0</div>
+      <div class="text-[10px] md:text-xs text-[var(--muted)] tracking-widest uppercase mt-2">Processions Curated</div>
+    </div>
+    <div class="glass rounded-2xl py-6 text-center fade-up">
+      <div class="stat-num text-3xl md:text-4xl" data-count="40">0</div>
+      <div class="text-[10px] md:text-xs text-[var(--muted)] tracking-widest uppercase mt-2">Royal Elephants</div>
+    </div>
+    <div class="glass rounded-2xl py-6 text-center fade-up">
+      <div class="stat-num text-3xl md:text-4xl" data-count="2">0</div>
+      <div class="text-[10px] md:text-xs text-[var(--muted)] tracking-widest uppercase mt-2">States, All-India Reach</div>
     </div>
   </div>
 </section>
@@ -427,6 +523,73 @@
     if(!reduce) requestAnimationFrame(tick);
   }
   tick();
+})();
+
+/* ================= CURSOR GLOW ================= */
+(function(){
+  const glow = document.getElementById('cursor-glow');
+  const isTouch = window.matchMedia('(hover: none)').matches;
+  if(isTouch || !glow) return;
+  window.addEventListener('mousemove', (e)=>{
+    glow.style.opacity = '1';
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+  window.addEventListener('mouseleave', ()=> glow.style.opacity = '0');
+})();
+
+/* ================= 3D TILT ON CARDS ================= */
+(function(){
+  const isTouch = window.matchMedia('(hover: none)').matches;
+  if(isTouch) return;
+  document.addEventListener('mousemove', (e)=>{
+    const el = e.target.closest('.card-tilt');
+    if(!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.transform = `translateY(-6px) rotateX(${(-py*7).toFixed(2)}deg) rotateY(${(px*9).toFixed(2)}deg)`;
+  }, {passive:true});
+  document.addEventListener('mouseout', (e)=>{
+    const el = e.target.closest('.card-tilt');
+    if(el && !el.contains(e.relatedTarget)) el.style.transform = '';
+  });
+})();
+
+/* ================= HERO SEAL PARALLAX ================= */
+(function(){
+  const seal = document.getElementById('hero-seal');
+  const isTouch = window.matchMedia('(hover: none)').matches;
+  if(isTouch || !seal) return;
+  window.addEventListener('mousemove', (e)=>{
+    const x = (e.clientX / window.innerWidth - 0.5) * 24;
+    const y = (e.clientY / window.innerHeight - 0.5) * 24;
+    seal.style.transform = `translate(${x}px, ${y}px)`;
+    seal.style.transition = 'transform .3s ease-out';
+  });
+})();
+
+/* ================= STAT COUNT-UP ================= */
+(function(){
+  const stats = document.querySelectorAll('.stat-num');
+  const statIO = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(!en.isIntersecting) return;
+      const el = en.target;
+      const target = parseInt(el.dataset.count, 10);
+      const dur = 1400;
+      const start = performance.now();
+      function step(now){
+        const p = Math.min((now-start)/dur, 1);
+        const eased = 1 - Math.pow(1-p, 3);
+        el.textContent = Math.round(eased * target) + (target >= 100 ? '+' : '');
+        if(p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+      statIO.unobserve(el);
+    });
+  }, {threshold:0.4});
+  stats.forEach(el=>statIO.observe(el));
 })();
 
 /* ================= RIPPLE ================= */
