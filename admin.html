@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · WishWork</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="brand"><span class="brand-mark"></span>WishWork</a>
+  <div class="nav-actions">
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">☀️</button>
+    <div class="nav-actions" id="navAuthArea"></div>
+  </div>
+</nav>
+
+<!-- Shown to signed-out users or non-admin accounts -->
+<div id="gateSection" class="container" style="display:none;">
+  <div class="glass gate">
+    <div class="glow-icon">🔒</div>
+    <h2 style="font-size:1.2rem; margin-bottom:8px;">Admin access required</h2>
+    <p id="gateMessage" style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:20px;"></p>
+    <div id="gateAction"></div>
+  </div>
+</div>
+
+<!-- Shown only to the admin account -->
+<div id="adminSection" class="container" style="display:none;">
+  <div class="admin-header">
+    <h1>Review queue</h1>
+    <p><span id="pendingCount">0</span> post(s) waiting for approval</p>
+  </div>
+  <div id="pendingLoader" class="loader"></div>
+  <div id="pendingList"></div>
+</div>
+
+<footer class="site-footer">
+  <p>WishWork admin · <a href="index.html">Back to feed</a></p>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
