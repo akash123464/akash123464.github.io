@@ -3,78 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WishWork — ideas for a better Earth</title>
-<meta name="description" content="A community space to connect, share ideas for a better Earth, help each other, and debate philosophy.">
-<link rel="icon" href="data:,">
+<title>Wishwork — Feed</title>
+<meta name="description" content="A community wall for mutual help, kindness, and shared philosophy.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="feed">
 
-<nav class="topnav">
-  <a href="index.html" class="brand"><span class="brand-mark"></span>WishWork</a>
-  <div class="nav-actions">
-    <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">☀️</button>
-    <div class="nav-actions" id="navAuthArea"></div>
+  <div class="ambient-ripples" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <div id="authGate" style="min-height:100vh; display:flex; align-items:center; justify-content:center;">
+    <div class="spinner"></div>
   </div>
-</nav>
 
-<div class="hero">
-  <div class="wish-orb"></div>
-  <h1>A wish, put to work.</h1>
-  <p>Connect with people building a better Earth — share ideas, lend a hand, and debate the philosophy behind it.</p>
-</div>
+  <div id="appShell" class="hidden">
 
-<div class="container">
+    <nav class="navbar">
+      <div class="navbar-inner glass-panel">
+        <div class="navbar-logo">
+          <svg class="ripple-mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="24" cy="24" r="5" fill="#6C5CE7"/>
+            <circle cx="24" cy="24" r="14" stroke="#8B7CF6" stroke-width="2" opacity="0.55"/>
+            <circle cx="24" cy="24" r="22" stroke="#2BD9C9" stroke-width="1.5" opacity="0.35"/>
+          </svg>
+          <span class="navbar-logo-text">Wishwork</span>
+        </div>
 
-  <!-- Composer: only shown to signed-in users -->
-  <div id="composerSection" class="glass composer" style="display:none;">
-    <div class="composer-head">
-      <div id="composerAvatarSlot"></div>
-      <textarea id="postText" placeholder="What's an idea worth sharing today?" maxlength="2000"></textarea>
-    </div>
-    <div class="image-preview-wrap" id="imagePreviewWrap">
-      <img id="imagePreview" class="image-preview" alt="Selected image preview">
-      <button class="image-remove" id="removeImageBtn" aria-label="Remove image">✕</button>
-    </div>
-    <div class="composer-foot">
-      <div class="composer-tools">
-        <label class="file-label">
-          📷 Add image
-          <input type="file" id="imageInput" accept="image/*">
-        </label>
+        <div class="nav-tabs">
+          <button type="button" class="pill active" id="navFeedTab">Feed</button>
+          <button type="button" class="pill" id="navMessagesTab">Messages</button>
+        </div>
+
+        <div class="navbar-right">
+          <button type="button" class="navbar-avatar-btn" id="userAvatarBtn" aria-haspopup="true" aria-expanded="false">
+            <div class="avatar" id="navAvatar" style="width:38px;height:38px;font-size:0.85rem;"></div>
+          </button>
+
+          <div class="user-menu glass-panel-strong" id="userMenu">
+            <div class="user-menu-header">
+              <div class="user-menu-name" id="userMenuName"></div>
+              <div class="user-menu-email" id="userMenuEmail"></div>
+            </div>
+            <button type="button" class="user-menu-item hidden" id="adminLink">
+              <span>🛠️</span> Admin dashboard
+            </button>
+            <button type="button" class="user-menu-item" id="logoutBtn">
+              <span>👋</span> Log out
+            </button>
+          </div>
+        </div>
       </div>
-      <button class="btn btn-primary btn-sm" id="postSubmitBtn">Share</button>
-    </div>
+    </nav>
+
+    <!-- ============ FEED ============ -->
+    <main class="app-main" id="feedSection">
+      <div class="feed-column">
+
+        <section class="composer-card glass-panel">
+          <div id="composerNormalContent">
+            <div class="composer-top">
+              <div class="avatar" id="composerAvatar" style="width:44px;height:44px;font-size:1rem;"></div>
+              <textarea id="postComposerText" placeholder="Share a thought, offer a hand, or ask for one…" maxlength="500"></textarea>
+            </div>
+            <div class="composer-footer">
+              <div class="category-pills" id="categoryPills">
+                <button type="button" class="pill active" data-category="thought">💭 Thought</button>
+                <button type="button" class="pill" data-category="offer">🤝 Offering help</button>
+                <button type="button" class="pill" data-category="ask">🙏 Asking for help</button>
+                <button type="button" class="pill" data-category="gratitude">✨ Gratitude</button>
+              </div>
+              <button type="button" class="btn btn-primary" id="submitPostBtn">Post</button>
+            </div>
+          </div>
+        </section>
+
+        <div id="feedLoading" class="spinner"></div>
+        <ul id="postsList"></ul>
+        <div id="feedEmpty" class="empty-state hidden glass-panel">
+          <div class="empty-icon">🌱</div>
+          <p>Nothing here yet. Be the first to share a kind word or ask for a hand.</p>
+        </div>
+      </div>
+
+      <aside class="aside-column">
+        <div class="motto-card glass-panel">
+          <svg class="ripple-mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="24" cy="24" r="5" fill="#6C5CE7"/>
+            <circle cx="24" cy="24" r="14" stroke="#8B7CF6" stroke-width="2" opacity="0.55"/>
+            <circle cx="24" cy="24" r="22" stroke="#2BD9C9" stroke-width="1.5" opacity="0.35"/>
+          </svg>
+          <h3>Our motto</h3>
+          <p>Helping people make Earth a good place — through mutual help, kindness, and shared philosophy. Every small act ripples outward.</p>
+        </div>
+        <div class="stat-strip glass-panel">
+          <div>
+            <div class="stat-num" id="statMembers">–</div>
+            <div class="stat-word">members</div>
+          </div>
+          <div>
+            <div class="stat-num" id="statPosts">–</div>
+            <div class="stat-word">posts</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- ============ MESSAGES ============ -->
+    <main class="messages-shell hidden" id="messagesSection">
+      <section class="conversations-panel glass-panel" id="conversationsPanel">
+        <h2 class="font-display">Messages</h2>
+        <div id="conversationsList"></div>
+        <div class="empty-state hidden" id="conversationsEmpty">
+          <div class="empty-icon">✉️</div>
+          <p>Your conversations will show up here. Start one from any post.</p>
+        </div>
+      </section>
+
+      <section class="chat-panel glass-panel" id="chatPanel">
+        <div class="no-conversation empty-state" id="noConversationSelected">
+          <div>
+            <div class="empty-icon">💬</div>
+            <p>Pick a conversation, or start one from someone's post in the Feed.</p>
+          </div>
+        </div>
+
+        <div class="hidden" id="activeChat" style="display:contents;">
+          <div class="chat-header">
+            <button type="button" class="btn-icon chat-back-btn" id="chatBackBtn" aria-label="Back to conversations">←</button>
+            <div class="avatar" id="chatAvatar" style="width:36px;height:36px;font-size:0.85rem;"></div>
+            <div class="conversation-name" id="chatHeaderName"></div>
+          </div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <form class="chat-input-row" id="chatForm">
+            <input type="text" id="chatInput" placeholder="Write a message…" maxlength="1000" autocomplete="off">
+            <button type="submit" class="btn-icon" aria-label="Send message" style="background:var(--violet-600); color:#fff;">➤</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
   </div>
 
-  <!-- Prompt shown to signed-out visitors -->
-  <div id="signedOutPrompt" class="glass composer" style="text-align:center; display:none;">
-    <p style="margin:6px 0 14px; color:var(--text-secondary);">Sign in to share ideas and join the conversation.</p>
-    <a href="login.html" class="btn btn-primary">Sign in to post</a>
-  </div>
+  <div class="toast" id="toast"></div>
 
-  <div class="pending-banner" id="pendingBanner">
-    <span>⏳</span>
-    <span>Your post is awaiting admin review.</span>
-  </div>
-
-  <div id="feedLoader" class="loader"></div>
-  <div id="feedList"></div>
-
-</div>
-
-<footer class="site-footer">
-  <p>WishWork · every post is reviewed before it goes live · <a href="login.html">Sign in</a></p>
-</footer>
-
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
-<script src="js/firebase-config.js"></script>
-<script src="js/app.js"></script>
-<script src="js/feed.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
