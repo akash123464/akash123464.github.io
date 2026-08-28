@@ -1,0 +1,144 @@
+rules_version = '2';
+
+// ============================================================================
+// WISHWORK — Firestore Security Rules
+//
+// This is where the REAL security lives. app.js hides the admin link and
+// redirects non-admins in the browser, but that's just UX — anyone could
+// edit their local JS and skip past it. What actually stops them is this
+// file: it checks the authenticated ID token on Firebase's servers for
+// every read and write, which the client can never fake or bypass.
+//
+// Deploy via Firebase Console → Firestore Database → Rules → paste & Publish,
+// or with the CLI: firebase deploy --only firestore:rules
+// ============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Change this if you ever change ADMIN_EMAIL in app.js — the two must match.
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'bhadouryaakash@gmail.com';
+    }
+
+    function isBanned() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.banned == true;
+    }
+
+    // New members are "pending" until an admin reviews their reflection-question
+    // answer (see /applications below). Reading is always open; contributing
+    // (posting, liking, commenting, messaging) requires approval.
+    function isApproved() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
+    }
+
+    // ---- users -------------------------------------------------------------
+    match /users/{userId} {
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn()
+                    && request.auth.uid == userId
+                    && request.resource.data.banned == false
+                    && request.resource.data.isAdmin == (request.auth.token.email == 'bhadouryaakash@gmail.com')
+                    && request.resource.data.status == (request.auth.token.email == 'bhadouryaakash@gmail.com' ? 'approved' : 'pending');
+
+      // A user can update their own profile, but can't grant themselves admin,
+      // lift their own ban, or approve their own application. Only an admin
+      // can change those three fields.
+      allow update: if isSignedIn() && (
+                      (request.auth.uid == userId
+                        && request.resource.data.banned == resource.data.banned
+                        && request.resource.data.isAdmin == resource.data.isAdmin
+                        && request.resource.data.status == resource.data.status)
+                      || isAdmin()
+                    );
+
+      allow delete: if false;
+    }
+
+    // ---- applications (reflection-question answers, admin-reviewed) ----------
+    match /applications/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+
+      allow create: if isSignedIn() && request.auth.uid == userId
+                    && request.resource.data.uid == userId
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.answer is string
+                    && request.resource.data.answer.size() > 0
+                    && request.resource.data.answer.size() <= 3000;
+
+      // Only admin decides outcomes — applicants can't edit their answer or
+      // approve themselves after submitting.
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ---- posts + comments ---------------------------------------------------
+    match /posts/{postId} {
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn() && !isBanned() && isApproved()
+                    && request.resource.data.authorId == request.auth.uid
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 2000;
+
+      // Approved, non-banned members may toggle like fields on someone else's
+      // post. Only the author or an admin may change anything else, or delete
+      // the post outright.
+      allow update: if isSignedIn() && !isBanned() && (
+                      (isApproved() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount', 'likedBy']))
+                      || resource.data.authorId == request.auth.uid
+                      || isAdmin()
+                    );
+
+      allow delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+
+      match /comments/{commentId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && !isBanned() && isApproved()
+                      && request.resource.data.authorId == request.auth.uid
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 1000;
+        allow update: if false;
+        allow delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+      }
+    }
+
+    // ---- conversations + messages (1-on-1 DMs) -------------------------------
+    match /conversations/{convId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.participants;
+
+      allow create: if isSignedIn() && !isBanned() && isApproved()
+                    && request.auth.uid in request.resource.data.participants
+                    && request.resource.data.participants.size() == 2;
+
+      allow update: if isSignedIn() && !isBanned() && request.auth.uid in resource.data.participants;
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn()
+                    && request.auth.uid in get(/databases/$(database)/documents/conversations/$(convId)).data.participants;
+
+        allow create: if isSignedIn() && !isBanned() && isApproved()
+                      && request.auth.uid in get(/databases/$(database)/documents/conversations/$(convId)).data.participants
+                      && request.resource.data.senderId == request.auth.uid
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 2000;
+
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+  }
+}
