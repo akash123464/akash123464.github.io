@@ -83,27 +83,33 @@ service cloud.firestore {
 
     // ---- posts + comments ---------------------------------------------------
     match /posts/{postId} {
-      allow read: if isSignedIn();
+      // Public can read approved posts — no login needed to browse the feed.
+      // A pending or rejected post is only visible to its author and admin.
+      allow read: if resource.data.status == 'approved'
+                  || (isSignedIn() && resource.data.authorId == request.auth.uid)
+                  || isAdmin();
 
       allow create: if isSignedIn() && !isBanned() && isApproved()
                     && request.resource.data.authorId == request.auth.uid
+                    && request.resource.data.status == 'pending'
                     && request.resource.data.text is string
                     && request.resource.data.text.size() > 0
                     && request.resource.data.text.size() <= 2000;
 
       // Approved, non-banned members may toggle like fields on someone else's
-      // post. Only the author or an admin may change anything else, or delete
-      // the post outright.
+      // post. The author may edit their own post but can't approve it
+      // themselves — only admin's branch can change `status`.
       allow update: if isSignedIn() && !isBanned() && (
                       (isApproved() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount', 'likedBy']))
-                      || resource.data.authorId == request.auth.uid
+                      || (resource.data.authorId == request.auth.uid && request.resource.data.status == resource.data.status)
                       || isAdmin()
                     );
 
       allow delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
 
       match /comments/{commentId} {
-        allow read: if isSignedIn();
+        // Comments are public too, matching the post they belong to.
+        allow read: if true;
         allow create: if isSignedIn() && !isBanned() && isApproved()
                       && request.resource.data.authorId == request.auth.uid
                       && request.resource.data.text is string

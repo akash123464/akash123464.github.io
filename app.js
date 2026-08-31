@@ -431,36 +431,48 @@ let activeConversationId = null;
 let currentUserStatus = "pending";
 let statusListenerFirstLoad = true;
 
+let feedPageInitialized = false;
+
 function initFeedPage() {
   const authGate = document.getElementById("authGate");
   const appShell = document.getElementById("appShell");
 
   onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = "login.html"; return; }
-    currentUser = user;
-    try {
-      await ensureUserDoc(user);
-    } catch (err) {
-      // Non-fatal — the app can still run read-only-ish if this hiccups.
+    if (feedPageInitialized) { window.location.reload(); return; }
+    feedPageInitialized = true;
+
+    if (user) {
+      currentUser = user;
+      try {
+        await ensureUserDoc(user);
+      } catch (err) {
+        // Non-fatal — the app can still run read-only-ish if this hiccups.
+      }
+    } else {
+      currentUser = null;
+      currentUserStatus = "guest";
     }
-    authGate.classList.add("hidden");
-    appShell.classList.remove("hidden");
 
     setupNavbar(user);
     setupComposer();
     setupFeedInteractions();
-    listenOwnUserDoc();
+    if (user) listenOwnUserDoc();
+    else updateGatingUI(); // sets guest-mode UI immediately since there's no status listener to wait on
     listenFeed();
     loadCommunityStats();
     setupMessagesShell(); // wires buttons; conversations load lazily on first Messages tab open
+
+    authGate.classList.add("hidden");
+    appShell.classList.remove("hidden");
   });
 }
 
 /* ---- Approval gating ------------------------------------------------------
-   New members start "pending" until an admin reviews their reflection-question
-   answer. Reading the feed always works; contributing (posting, liking,
-   commenting, messaging) requires status === "approved". This mirrors what
-   firestore.rules enforces server-side — this copy is just for a responsive UI. */
+   Three tiers: an anonymous visitor ("guest") can read everything but can't
+   contribute; a logged-in "pending" member is waiting on admin review of
+   their reflection-question answer; "approved" unlocks posting, liking,
+   commenting, and messaging. This copy mirrors what firestore.rules enforces
+   server-side — it's just here for a responsive UI, not the real security. */
 
 function listenOwnUserDoc() {
   onSnapshot(doc(db, "users", currentUser.uid), (snap) => {
@@ -481,15 +493,21 @@ function isApprovedUser() {
 }
 
 /** Call at the top of any contribution action. Shows an explanatory toast and returns false if locked. */
-function requireApproved(actionLabel) {
+function requireApproved(actionPhrase) {
   if (isApprovedUser()) return true;
-  showToast(`${actionLabel} once your application is approved.`, "error");
+  if (currentUserStatus === "guest") {
+    showToast(`Log in to ${actionPhrase}.`, "error");
+  } else {
+    showToast(`You'll be able to ${actionPhrase} once your application is approved.`, "error");
+  }
   return false;
 }
 
 function updateGatingUI() {
   document.body.classList.toggle("guest-mode", !isApprovedUser());
   renderComposerState();
+  const guestBanner = document.getElementById("guestBanner");
+  if (guestBanner) guestBanner.classList.toggle("hidden", currentUserStatus !== "guest");
   document.querySelectorAll(".comment-form input").forEach((input) => {
     input.placeholder = isApprovedUser() ? "Write a comment…" : "Comment once you're approved…";
   });
@@ -514,37 +532,51 @@ function renderComposerState() {
     notice.className = "empty-state";
     composerCard.appendChild(notice);
   }
-  notice.innerHTML = currentUserStatus === "rejected"
-    ? `<div class="empty-icon">🌥️</div><p>Your application wasn't approved this time. Feel free to reach out if you'd like it reconsidered.</p>`
-    : `<div class="empty-icon">🌱</div><p>Your application is under review. Once approved, you'll be able to post, like, and message — for now, feel free to look around.</p>`;
+  if (currentUserStatus === "guest") {
+    notice.innerHTML = `<div class="empty-icon">👋</div><p>Log in to share a thought, offer help, or ask for it.</p><a href="login.html" class="btn btn-primary btn-sm" style="margin-top:10px;">Log in / Sign up</a>`;
+  } else if (currentUserStatus === "rejected") {
+    notice.innerHTML = `<div class="empty-icon">🌥️</div><p>Your application wasn't approved this time. Feel free to reach out if you'd like it reconsidered.</p>`;
+  } else {
+    notice.innerHTML = `<div class="empty-icon">🌱</div><p>Your application is under review. Once approved, you'll be able to post, like, and message — for now, feel free to look around.</p>`;
+  }
   notice.classList.remove("hidden");
 }
 
 /* ---- Navbar / user menu -------------------------------------------------- */
 
 function setupNavbar(user) {
-  fillAvatarEl(document.getElementById("navAvatar"), user.displayName, user.photoURL);
-  document.getElementById("userMenuName").textContent = user.displayName || "Wishworker";
-  document.getElementById("userMenuEmail").textContent = user.email || "";
-
-  const adminLink = document.getElementById("adminLink");
-  if (user.email === ADMIN_EMAIL) adminLink.classList.remove("hidden");
-  adminLink.addEventListener("click", () => { window.location.href = "admin.html"; });
-
   const avatarBtn = document.getElementById("userAvatarBtn");
   const menu = document.getElementById("userMenu");
-  avatarBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isOpen = menu.classList.toggle("open");
-    avatarBtn.setAttribute("aria-expanded", String(isOpen));
-  });
-  menu.addEventListener("click", (e) => e.stopPropagation());
-  document.addEventListener("click", () => menu.classList.remove("open"));
+  const guestLoginBtn = document.getElementById("guestLoginBtn");
 
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "login.html";
-  });
+  if (user) {
+    guestLoginBtn.classList.add("hidden");
+    avatarBtn.classList.remove("hidden");
+
+    fillAvatarEl(document.getElementById("navAvatar"), user.displayName, user.photoURL);
+    document.getElementById("userMenuName").textContent = user.displayName || "Wishworker";
+    document.getElementById("userMenuEmail").textContent = user.email || "";
+
+    const adminLink = document.getElementById("adminLink");
+    if (user.email === ADMIN_EMAIL) adminLink.classList.remove("hidden");
+    adminLink.addEventListener("click", () => { window.location.href = "admin.html"; });
+
+    avatarBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = menu.classList.toggle("open");
+      avatarBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+    menu.addEventListener("click", (e) => e.stopPropagation());
+    document.addEventListener("click", () => menu.classList.remove("open"));
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
+  } else {
+    avatarBtn.classList.add("hidden");
+    guestLoginBtn.classList.remove("hidden");
+  }
 
   document.getElementById("navFeedTab").addEventListener("click", () => switchMainTab("feed"));
   document.getElementById("navMessagesTab").addEventListener("click", () => switchMainTab("messages"));
@@ -556,13 +588,26 @@ function switchMainTab(tab) {
   document.getElementById("messagesSection").classList.toggle("hidden", isFeed);
   document.getElementById("navFeedTab").classList.toggle("active", isFeed);
   document.getElementById("navMessagesTab").classList.toggle("active", !isFeed);
-  if (!isFeed && !conversationsUnsubscribe) listenConversations();
+  if (!isFeed) {
+    if (!currentUser) showMessagesLoginPrompt();
+    else if (!conversationsUnsubscribe) listenConversations();
+  }
+}
+
+function showMessagesLoginPrompt() {
+  document.getElementById("conversationsList").innerHTML = "";
+  const empty = document.getElementById("conversationsEmpty");
+  empty.innerHTML = `<div class="empty-icon">✉️</div><p>Log in to see your messages.</p><a href="login.html" class="btn btn-primary btn-sm" style="margin-top:10px;">Log in / Sign up</a>`;
+  empty.classList.remove("hidden");
+  document.getElementById("noConversationSelected").innerHTML = `<div><div class="empty-icon">💬</div><p>Log in to start a conversation.</p></div>`;
 }
 
 /* ---- Composer -------------------------------------------------------------- */
 
 function setupComposer() {
-  fillAvatarEl(document.getElementById("composerAvatar"), currentUser.displayName, currentUser.photoURL);
+  if (currentUser) {
+    fillAvatarEl(document.getElementById("composerAvatar"), currentUser.displayName, currentUser.photoURL);
+  }
 
   const pillsWrap = document.getElementById("categoryPills");
   pillsWrap.addEventListener("click", (e) => {
@@ -580,7 +625,7 @@ function setupComposer() {
   });
 
   submitBtn.addEventListener("click", async () => {
-    if (!requireApproved("You can post")) return;
+    if (!requireApproved("post")) return;
     const text = textarea.value.trim();
     if (!text) return;
     submitBtn.disabled = true;
@@ -591,6 +636,7 @@ function setupComposer() {
         authorPhoto: currentUser.photoURL || null,
         text: text.slice(0, 2000),
         category: selectedCategory,
+        status: "pending",
         createdAt: serverTimestamp(),
         likeCount: 0,
         likedBy: [],
@@ -599,6 +645,7 @@ function setupComposer() {
       textarea.value = "";
       selectedCategory = "thought";
       pillsWrap.querySelectorAll(".pill").forEach((p, i) => p.classList.toggle("active", i === 0));
+      showToast("Posted! It'll appear in the feed once approved.", "success");
     } catch (err) {
       showToast("Could not publish your post.", "error");
     } finally {
@@ -609,46 +656,85 @@ function setupComposer() {
 
 /* ---- Feed rendering ---------------------------------------------------- */
 
+let latestApprovedDocs = [];
+let latestOwnDocs = [];
+let unsubApprovedFeed = null;
+let unsubOwnFeed = null;
+
 function listenFeed() {
-  const postsList = document.getElementById("postsList");
   const feedLoading = document.getElementById("feedLoading");
-  const feedEmpty = document.getElementById("feedEmpty");
+  feedLoading.classList.remove("hidden");
 
-  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(50));
-  onSnapshot(q, (snap) => {
-    feedLoading.classList.add("hidden");
-
-    // Tear down comment listeners before replacing the DOM they point at.
-    Object.values(commentUnsubscribers).forEach((unsub) => unsub());
-    Object.keys(commentUnsubscribers).forEach((k) => delete commentUnsubscribers[k]);
-
-    if (snap.empty) {
-      postsList.innerHTML = "";
-      feedEmpty.classList.remove("hidden");
-      return;
-    }
-    feedEmpty.classList.add("hidden");
-    postsList.innerHTML = snap.docs.map((d) => renderPostCard(d.id, d.data())).join("");
-
-    openCommentPostIds.forEach((postId) => {
-      const section = postsList.querySelector(`.comments-section[data-post-id="${CSS.escape(postId)}"]`);
-      if (section) {
-        section.classList.add("open");
-        listenComments(postId, section);
-      } else {
-        openCommentPostIds.delete(postId);
-      }
-    });
+  // Public feed: approved posts only, readable even when signed out.
+  // Filtered by equality only (no orderBy) so this never needs a composite
+  // index — newest-first ordering happens client-side in renderMergedFeed.
+  const approvedQ = query(collection(db, "posts"), where("status", "==", "approved"), limit(50));
+  unsubApprovedFeed = onSnapshot(approvedQ, (snap) => {
+    latestApprovedDocs = snap.docs;
+    renderMergedFeed();
   }, () => {
     feedLoading.classList.add("hidden");
     showToast("Could not load the feed.", "error");
   });
+
+  // Signed-in viewers also see their own pending/rejected posts mixed in,
+  // so a post they just wrote doesn't seem to vanish while awaiting review.
+  if (currentUser) {
+    const ownQ = query(collection(db, "posts"), where("authorId", "==", currentUser.uid), limit(50));
+    unsubOwnFeed = onSnapshot(ownQ, (snap) => {
+      latestOwnDocs = snap.docs;
+      renderMergedFeed();
+    });
+  }
+}
+
+function renderMergedFeed() {
+  const postsList = document.getElementById("postsList");
+  const feedLoading = document.getElementById("feedLoading");
+  const feedEmpty = document.getElementById("feedEmpty");
+  feedLoading.classList.add("hidden");
+
+  const merged = new Map();
+  latestApprovedDocs.forEach((d) => merged.set(d.id, d));
+  latestOwnDocs.forEach((d) => merged.set(d.id, d));
+
+  // Tear down comment listeners before replacing the DOM they point at.
+  Object.values(commentUnsubscribers).forEach((unsub) => unsub());
+  Object.keys(commentUnsubscribers).forEach((k) => delete commentUnsubscribers[k]);
+
+  if (merged.size === 0) {
+    postsList.innerHTML = "";
+    feedEmpty.classList.remove("hidden");
+    return;
+  }
+  feedEmpty.classList.add("hidden");
+
+  const docsArr = [...merged.values()].sort((a, b) => {
+    const ta = a.data().createdAt ? a.data().createdAt.toMillis() : 0;
+    const tb = b.data().createdAt ? b.data().createdAt.toMillis() : 0;
+    return tb - ta;
+  });
+  postsList.innerHTML = docsArr.map((d) => renderPostCard(d.id, d.data())).join("");
+
+  openCommentPostIds.forEach((postId) => {
+    const section = postsList.querySelector(`.comments-section[data-post-id="${CSS.escape(postId)}"]`);
+    if (section) {
+      section.classList.add("open");
+      listenComments(postId, section);
+    } else {
+      openCommentPostIds.delete(postId);
+    }
+  });
 }
 
 function renderPostCard(id, data) {
-  const liked = (data.likedBy || []).includes(currentUser.uid);
+  const liked = currentUser ? (data.likedBy || []).includes(currentUser.uid) : false;
   const meta = CATEGORY_META[data.category] || CATEGORY_META.thought;
-  const canMessage = data.authorId && data.authorId !== currentUser.uid;
+  const isOwnPost = currentUser && data.authorId === currentUser.uid;
+  const canMessage = data.authorId && (!currentUser || data.authorId !== currentUser.uid);
+  const ownStatusBadge = isOwnPost && data.status && data.status !== "approved"
+    ? `<span class="status-badge ${data.status}">${data.status === "pending" ? "Pending review" : "Rejected"}</span>`
+    : "";
 
   return `
     <li class="post-card glass-panel" data-post-id="${id}">
@@ -658,6 +744,7 @@ function renderPostCard(id, data) {
           <div class="post-author-line">
             <span class="post-author-name">${escapeHTML(data.authorName)}</span>
             <span class="category-badge ${meta.cls}">${meta.label}</span>
+            ${ownStatusBadge}
           </div>
           <span class="post-timestamp">${formatRelativeTime(data.createdAt)}</span>
         </div>
@@ -715,7 +802,7 @@ function setupFeedInteractions() {
   postsList.addEventListener("click", (e) => {
     const likeBtn = e.target.closest(".like-btn");
     if (likeBtn) {
-      if (!requireApproved("You can like posts")) return;
+      if (!requireApproved("like posts")) return;
       likeBtn.classList.add("pulse");
       setTimeout(() => likeBtn.classList.remove("pulse"), 550);
       toggleLike(likeBtn.dataset.postId);
@@ -726,7 +813,7 @@ function setupFeedInteractions() {
 
     const msgBtn = e.target.closest(".message-author-btn");
     if (msgBtn) {
-      if (!requireApproved("You can message members")) return;
+      if (!requireApproved("message members")) return;
       startConversation(msgBtn.dataset.uid, msgBtn.dataset.name, msgBtn.dataset.photo);
     }
   });
@@ -735,7 +822,7 @@ function setupFeedInteractions() {
     const form = e.target.closest(".comment-form");
     if (!form) return;
     e.preventDefault();
-    if (!requireApproved("You can comment")) return;
+    if (!requireApproved("comment")) return;
     const input = form.querySelector("input");
     const text = input.value.trim();
     if (!text) return;
@@ -830,7 +917,7 @@ function setupMessagesShell() {
 
   document.getElementById("chatForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!requireApproved("You can send messages")) return;
+    if (!requireApproved("send messages")) return;
     const input = document.getElementById("chatInput");
     const text = input.value.trim();
     if (!text || !activeConversationId) return;
@@ -951,6 +1038,8 @@ function renderMessageBubble(data) {
 
 let adminUsersLoaded = false;
 let adminApplicationsUnsubscribe = null;
+let adminPostsUnsubscribe = null;
+let adminPageInitialized = false;
 
 function initAdminPage() {
   const authGate = document.getElementById("authGate");
@@ -959,13 +1048,16 @@ function initAdminPage() {
   onAuthStateChanged(auth, (user) => {
     if (!user) { window.location.href = "login.html"; return; }
     if (user.email !== ADMIN_EMAIL) { window.location.href = "index.html"; return; }
+    if (adminPageInitialized) { window.location.reload(); return; }
+    adminPageInitialized = true;
+
     currentUser = user;
     authGate.classList.add("hidden");
     shell.classList.remove("hidden");
 
     loadAdminStats();
     listenApplications("pending");
-    listenAdminPosts();
+    listenAdminPosts("pending");
 
     document.getElementById("adminTabApplications").addEventListener("click", () => switchAdminTab("applications"));
     document.getElementById("adminTabPosts").addEventListener("click", () => switchAdminTab("posts"));
@@ -975,15 +1067,22 @@ function initAdminPage() {
       window.location.href = "login.html";
     });
 
-    document.querySelectorAll(".application-filters .pill").forEach((pill) => {
+    document.querySelectorAll("#adminApplicationsPanel .application-filters .pill").forEach((pill) => {
       pill.addEventListener("click", () => {
-        document.querySelectorAll(".application-filters .pill").forEach((p) => p.classList.toggle("active", p === pill));
+        document.querySelectorAll("#adminApplicationsPanel .pill").forEach((p) => p.classList.toggle("active", p === pill));
         listenApplications(pill.dataset.status);
       });
     });
 
+    document.querySelectorAll("#adminPostsPanel .post-filters .pill").forEach((pill) => {
+      pill.addEventListener("click", () => {
+        document.querySelectorAll("#adminPostsPanel .pill").forEach((p) => p.classList.toggle("active", p === pill));
+        listenAdminPosts(pill.dataset.status);
+      });
+    });
+
     document.getElementById("adminApplicationsList").addEventListener("click", handleApplicationActionClick);
-    document.getElementById("adminPostsList").addEventListener("click", handleDeletePostClick);
+    document.getElementById("adminPostsList").addEventListener("click", handlePostActionClick);
     document.getElementById("adminUsersList").addEventListener("click", handleToggleBanClick);
   });
 }
@@ -1001,13 +1100,15 @@ function switchAdminTab(tab) {
 async function loadAdminStats() {
   try {
     const since = Timestamp.fromDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
-    const [pendingApps, users, posts, postsToday] = await Promise.all([
+    const [pendingApps, pendingPosts, users, posts, postsToday] = await Promise.all([
       getCountFromServer(query(collection(db, "applications"), where("status", "==", "pending"))),
+      getCountFromServer(query(collection(db, "posts"), where("status", "==", "pending"))),
       getCountFromServer(collection(db, "users")),
       getCountFromServer(collection(db, "posts")),
       getCountFromServer(query(collection(db, "posts"), where("createdAt", ">=", since)))
     ]);
     document.getElementById("statPendingApplications").textContent = pendingApps.data().count;
+    document.getElementById("statPendingPosts").textContent = pendingPosts.data().count;
     document.getElementById("statTotalUsers").textContent = users.data().count;
     document.getElementById("statTotalPosts").textContent = posts.data().count;
     document.getElementById("statPostsToday").textContent = postsToday.data().count;
@@ -1110,12 +1211,22 @@ async function handleApplicationActionClick(e) {
   }
 }
 
-function listenAdminPosts() {
+function listenAdminPosts(status) {
+  if (adminPostsUnsubscribe) adminPostsUnsubscribe();
+
   const list = document.getElementById("adminPostsList");
   const loading = document.getElementById("adminPostsLoading");
   const empty = document.getElementById("adminPostsEmpty");
-  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(100));
-  onSnapshot(q, (snap) => {
+  loading.classList.remove("hidden");
+
+  // "All" keeps the original orderBy-only query (needs no composite index
+  // since there's no equality filter alongside it). Any specific status
+  // filters by equality only and sorts client-side, for the same reason.
+  const q = status === "all"
+    ? query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(100))
+    : query(collection(db, "posts"), where("status", "==", status), limit(100));
+
+  adminPostsUnsubscribe = onSnapshot(q, (snap) => {
     loading.classList.add("hidden");
     if (snap.empty) {
       list.innerHTML = "";
@@ -1123,37 +1234,84 @@ function listenAdminPosts() {
       return;
     }
     empty.classList.add("hidden");
-    list.innerHTML = snap.docs.map((d) => renderAdminPostRow(d.id, d.data())).join("");
+    const docs = status === "all" ? snap.docs : [...snap.docs].sort((a, b) => {
+      const ta = a.data().createdAt ? a.data().createdAt.toMillis() : 0;
+      const tb = b.data().createdAt ? b.data().createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    list.innerHTML = docs.map((d) => renderAdminPostRow(d.id, d.data())).join("");
   }, () => { loading.classList.add("hidden"); showToast("Could not load posts.", "error"); });
 }
 
 function renderAdminPostRow(id, data) {
-  const snippet = (data.text || "").slice(0, 90) + ((data.text || "").length > 90 ? "…" : "");
+  const status = data.status || "pending";
+  const submitted = data.createdAt ? formatRelativeTime(data.createdAt) : "";
+  let statusControls;
+  if (status === "pending") {
+    statusControls = `<button type="button" class="btn btn-primary btn-sm post-action-btn" data-post-id="${id}" data-action="approved">Approve</button>
+                       <button type="button" class="btn btn-danger btn-sm post-action-btn" data-post-id="${id}" data-action="rejected">Reject</button>`;
+  } else if (status === "approved") {
+    statusControls = `<span class="status-badge approved">Approved</span>
+                       <button type="button" class="btn btn-outline btn-sm post-action-btn" data-post-id="${id}" data-action="pending">Move to pending</button>`;
+  } else {
+    statusControls = `<span class="status-badge rejected">Rejected</span>
+                       <button type="button" class="btn btn-outline btn-sm post-action-btn" data-post-id="${id}" data-action="pending">Reconsider</button>`;
+  }
+
   return `
-    <div class="admin-row" data-post-id="${id}">
-      ${avatarHTML(data.authorName, data.authorPhoto)}
-      <div class="admin-row-main">
-        <div class="admin-row-title">${escapeHTML(data.authorName || "Someone")}</div>
-        <div class="admin-row-sub">${escapeHTML(snippet)}</div>
+    <div class="application-card" data-post-id="${id}">
+      <div class="application-header">
+        ${avatarHTML(data.authorName, data.authorPhoto)}
+        <div class="application-header-meta">
+          <div class="application-name">${escapeHTML(data.authorName || "Someone")}</div>
+          <div class="application-email">${(CATEGORY_META[data.category] || CATEGORY_META.thought).label}</div>
+        </div>
+        <span class="application-time">${submitted}</span>
       </div>
-      <span style="font-size:0.75rem; color:var(--ink-300); white-space:nowrap;">${formatRelativeTime(data.createdAt)}</span>
-      <button type="button" class="btn btn-danger btn-sm delete-post-btn" data-post-id="${id}">Delete</button>
+      <div class="application-body">
+        <div class="application-answer">${escapeHTML(data.text || "")}</div>
+      </div>
+      <div class="application-actions">
+        ${statusControls}
+        <button type="button" class="btn btn-danger btn-sm delete-post-btn" data-post-id="${id}" style="margin-left:auto;">Delete</button>
+      </div>
     </div>
   `;
 }
 
-async function handleDeletePostClick(e) {
-  const btn = e.target.closest(".delete-post-btn");
-  if (!btn) return;
-  const postId = btn.dataset.postId;
-  if (!window.confirm("Delete this post? This can't be undone.")) return;
-  btn.disabled = true;
-  try {
-    await deleteDoc(doc(db, "posts", postId));
-    showToast("Post deleted.", "success");
-  } catch (err) {
-    showToast("Could not delete that post.", "error");
-    btn.disabled = false;
+async function handlePostActionClick(e) {
+  const actionBtn = e.target.closest(".post-action-btn");
+  if (actionBtn) {
+    const postId = actionBtn.dataset.postId;
+    const newStatus = actionBtn.dataset.action;
+    actionBtn.disabled = true;
+    try {
+      await updateDoc(doc(db, "posts", postId), { status: newStatus });
+      showToast(
+        newStatus === "approved" ? "Post approved — it's now visible to everyone." : newStatus === "rejected" ? "Post rejected." : "Moved back to pending.",
+        "success"
+      );
+      loadAdminStats();
+    } catch (err) {
+      showToast("Could not update that post.", "error");
+      actionBtn.disabled = false;
+    }
+    return;
+  }
+
+  const deleteBtn = e.target.closest(".delete-post-btn");
+  if (deleteBtn) {
+    const postId = deleteBtn.dataset.postId;
+    if (!window.confirm("Delete this post? This can't be undone.")) return;
+    deleteBtn.disabled = true;
+    try {
+      await deleteDoc(doc(db, "posts", postId));
+      showToast("Post deleted.", "success");
+      loadAdminStats();
+    } catch (err) {
+      showToast("Could not delete that post.", "error");
+      deleteBtn.disabled = false;
+    }
   }
 }
 

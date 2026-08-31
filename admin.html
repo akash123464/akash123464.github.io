@@ -45,6 +45,10 @@
           <div class="stat-label">Pending applications</div>
         </div>
         <div class="stat-card glass-panel">
+          <div class="stat-value" id="statPendingPosts">–</div>
+          <div class="stat-label">Pending posts</div>
+        </div>
+        <div class="stat-card glass-panel">
           <div class="stat-value" id="statTotalUsers">–</div>
           <div class="stat-label">Total members</div>
         </div>
@@ -79,11 +83,17 @@
       </section>
 
       <section class="admin-panel glass-panel hidden" id="adminPostsPanel">
+        <div class="application-filters post-filters">
+          <button type="button" class="pill active" id="postFilterPending" data-status="pending">Pending</button>
+          <button type="button" class="pill" id="postFilterApproved" data-status="approved">Approved</button>
+          <button type="button" class="pill" id="postFilterRejected" data-status="rejected">Rejected</button>
+          <button type="button" class="pill" id="postFilterAll" data-status="all">All</button>
+        </div>
         <div id="adminPostsLoading" class="spinner"></div>
         <div id="adminPostsList"></div>
         <div class="empty-state hidden" id="adminPostsEmpty">
           <div class="empty-icon">📭</div>
-          <p>No posts yet to moderate.</p>
+          <p>No posts here right now.</p>
         </div>
       </section>
 

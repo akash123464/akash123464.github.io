@@ -6,7 +6,7 @@
 
 | File | Purpose |
 |---|---|
-| `index.html` | Feed + Messages (the main app, after login) |
+| `index.html` | Feed + Messages — readable by anyone, even signed out |
 | `login.html` | Log in / sign up (email+password and Google) |
 | `admin.html` | Dashboard locked to `bhadouryaakash@gmail.com` |
 | `style.css` | The whole design system |
@@ -14,94 +14,98 @@
 | `firestore.rules` | Server-side security rules — **deploy this, it's not optional** |
 | `storage.rules` | Security rules for verification photos — **deploy this too** |
 
-Chat lives inside `index.html` as a "Messages" tab rather than its own file, since that's the 5-file structure you asked for. Easy to split out later if you'd rather have `messages.html`.
+Chat lives inside `index.html` as a "Messages" tab rather than its own file, since that's the file structure you first asked for. Easy to split out later if you'd rather have `messages.html`.
 
-## New: applications & approval
+## Step by step: getting it live
 
-Signing up now takes one more step: everyone answers a reflection question ("Why do you think we should work towards making Earth a better place? Do people driven only by greed deserve a better place too?") and can optionally attach a photo, used only for your review — it's never shown on the platform. This applies whether someone signs up with email/password or Google; a brand-new Google sign-in gets routed to a short "one more step" panel to answer before landing in the app.
+Follow these in order. If you already did some of this in an earlier round, skip ahead — nothing here will break what's already set up.
 
-- New accounts start `status: "pending"`. They can log in and browse the feed, but posting, liking, commenting, and messaging are locked (with an explanation shown in place of each) until you approve them.
-- Review answers and photos in **admin.html → Applications** (now the default tab) and click Approve or Reject. Someone actively using the app when you approve them sees it unlock live, with a toast — no refresh needed.
-- You (`bhadouryaakash@gmail.com`) are auto-approved and skip the question entirely.
-- A couple of judgment calls I made building this: "guest" access means a signed-in-but-not-yet-approved account (not a fully anonymous visitor), and the lock extends to commenting and messaging too, not just posting and liking — since those are the same kind of contribution. Say the word if you pictured either differently.
+**1. Create the Firebase project**
+- [console.firebase.google.com](https://console.firebase.google.com) → **Add project** → name it (e.g. "Wishwork").
 
-## 1. Create the Firebase project
+**2. Turn on Authentication**
+- **Build → Authentication → Get started** → enable **Email/Password** → enable **Google**.
 
-1. [console.firebase.google.com](https://console.firebase.google.com) → **Add project** → name it (e.g. "Wishwork").
-2. **Build → Authentication → Get started.** Enable **Email/Password**, and enable **Google**.
-3. **Build → Firestore Database → Create database.** Start in production mode (the rules file below replaces the defaults either way) → pick a region close to your users.
-4. **Build → Storage → Get started.** Same idea, for the optional verification photos. Default settings are fine.
-5. **Project settings (gear icon) → General → Your apps → Web (`</>`)**. Register an app (nickname anything), skip hosting setup, and copy the `firebaseConfig` object it shows you.
+**3. Turn on Firestore**
+- **Build → Firestore Database → Create database** → production mode → pick a region near your users.
 
-## 2. Plug in your config
+**4. Turn on Storage**
+- **Build → Storage → Get started** → default settings are fine. This is only used for the private verification photos people can optionally attach at signup.
 
-Open `app.js` and replace the placeholder near the top:
+**5. Register your web app and grab the config**
+- **Project settings (gear icon) → General → Your apps → Web (`</>`)** → register (nickname anything, skip hosting setup) → copy the `firebaseConfig` object it shows you.
 
-```js
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-```
+**6. Paste your config into `app.js`**
+- Near the top of the file:
+  ```js
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  ```
+- Replace with your real values from step 5. This isn't a secret — it's meant to be public in client code. It just tells the browser which Firebase project to talk to; actual access control happens in the rules files, not here.
 
-with the real values from step 1.5. This object isn't a secret — it's meant to be public in client code. It just tells the browser which Firebase project to talk to; actual access control happens in `firestore.rules`, not here.
+**7. Deploy both rules files — don't skip this**
+- **Firestore Database → Rules** → delete what's there → paste in everything from `firestore.rules` → **Publish**.
+- **Storage → Rules** → same thing with `storage.rules` → **Publish**.
+- Without this, anyone could grant themselves admin, approve their own application or post, un-ban themselves, or read someone else's verification photo directly through the Firebase APIs — the checks in `app.js` only hide buttons and show messages in the browser, they don't stop requests at the source. These two files are what actually enforce every rule described below.
 
-## 3. Deploy the security rules
+**8. Authorize your domain**
+- **Authentication → Settings → Authorized domains → Add domain** → add `wishwork.online`. Make sure `localhost` is also listed (it usually is by default) so Google sign-in works while testing locally.
+- This is the single most common gotcha with a custom domain — skip it and Google sign-in fails with `auth/unauthorized-domain`.
 
-**Firestore Database → Rules** tab in the console → delete what's there → paste in everything from `firestore.rules` → **Publish**. Then **Storage → Rules** → same thing with `storage.rules`.
+**9. Test it locally**
+- Firebase's auth popup and ES module imports both need a real server — opening `index.html` straight from disk (`file://`) won't work.
+  ```bash
+  npx serve .
+  # or: python3 -m http.server 8000
+  ```
+- Visit the printed `localhost` URL. Try it both signed out (guest) and signed in.
 
-Without this step, anyone could grant themselves admin, approve their own application, un-ban themselves, edit other people's posts, or read someone else's verification photo directly through the Firebase APIs — the checks in `app.js` only hide buttons and show messages in the browser, they don't stop requests at the source. The rules files are what actually enforce:
-- Only `bhadouryaakash@gmail.com` can delete others' posts, ban users, and approve/reject applications.
-- A banned or not-yet-approved user's writes are rejected everywhere, server-side — not just hidden in the UI.
-- Nobody can hand themselves `isAdmin: true`, `banned: false`, or `status: "approved"` by editing their own user doc.
-- A verification photo is only readable by the person who uploaded it and by you.
+**10. Push to GitHub Pages**
+- Your `CNAME` file with `wishwork.online` is already set up:
+  ```bash
+  git add .
+  git commit -m "Wishwork update"
+  git push
+  ```
+- In the repo: **Settings → Pages** → set the source branch → save. Once GitHub's SSL cert issues for the custom domain (minutes to a few hours), enable **Enforce HTTPS**. At your domain registrar, confirm DNS points at GitHub Pages — their custom-domain docs list the exact records if this isn't done yet.
 
-## 4. Authorize your domain
+## Using the admin panel
 
-**Authentication → Settings → Authorized domains → Add domain** → add `wishwork.online`. Also add `localhost` if it isn't already there (it usually is by default), so Google sign-in works while you're testing locally.
+Sign in with `bhadouryaakash@gmail.com` (auto-approved, no application needed) and open `admin.html`.
 
-This is the single most common gotcha with a custom domain — skip it and Google sign-in fails with `auth/unauthorized-domain`.
+**Applications tab** (default view) — everyone who signs up answers a reflection question and can optionally attach a photo for your eyes only. Each card shows their name, email, full answer, and photo. **Approve** unlocks their account (posting, liking, commenting, messaging); **Reject** leaves it locked. Filter pills switch between Pending / Approved / Rejected. Someone actively on the site when you approve them sees it unlock live, with a toast — no refresh needed on their end.
 
-## 5. Run it locally
+**Posts tab** — every new post also starts pending, separately from its author's own approval. Review the full text and **Approve** (goes live in the public feed) or **Reject** (stays hidden from everyone but the author). Delete is always available regardless of status. Filter pills: Pending / Approved / Rejected / All. Worth knowing: this means *every single post* needs a manual approval, which is real ongoing work as the community grows — say the word if you'd rather auto-approve posts from members who've been active a while, and I'll add that.
 
-Firebase's auth popup and ES module imports both need a real server — opening `index.html` straight from disk (`file://`) won't work. From this folder:
+**Users tab** — everyone who's signed up, with their approval status and a Ban / Unban toggle. A banned account can't post, like, comment, or message even if previously approved.
 
-```bash
-npx serve .
-# or: python3 -m http.server 8000
-```
+The four stat cards at the top (pending applications, pending posts, total members, total posts) update live so you can see at a glance what needs attention.
 
-then visit the printed `localhost` URL.
+## Guest browsing
 
-## 6. Deploy to GitHub Pages
-
-Your `CNAME` file with `wishwork.online` is already set up, so:
-
-```bash
-git add .
-git commit -m "Wishwork v1"
-git push
-```
-
-Then in the repo: **Settings → Pages** → set the source branch → save. Once GitHub's SSL cert issues for the custom domain (can take a few minutes to a few hours), enable **Enforce HTTPS**. At your domain registrar, make sure your DNS points at GitHub Pages (A records to GitHub's IPs, or a CNAME record if you're on a subdomain) — GitHub's own custom-domain docs walk through the exact records if you haven't set this part up yet.
+`index.html` no longer requires logging in. A signed-out visitor sees the full public feed (approved posts, comments, member count) and a "Log in" button in place of the usual avatar menu. Trying to post, like, comment, or message shows a short prompt to log in instead of failing silently. Messaging and the admin panel still require an account either way, obviously.
 
 ## How the pieces fit together
 
-- **Posts** live in a `posts` collection; each has an `authorId`, `text`, `category`, `likeCount`/`likedBy`, and `commentCount`. Comments are a subcollection per post.
+- **Posts** live in a `posts` collection: `authorId`, `text`, `category`, `status` (`pending`/`approved`/`rejected`), `likeCount`/`likedBy`, `commentCount`. Comments are a subcollection per post.
+- **Users** have their own `status` too — separate from any individual post's status — controlling whether they can contribute at all.
 - **Conversations** use a deterministic ID (both users' UIDs, sorted and joined) so two people never accidentally get two separate DM threads. Messages are a subcollection per conversation.
-- **Admin access** is checked against `request.auth.token.email` — the *verified* email on the signed-in user's Firebase ID token — never against anything the client sends. That's what makes it real security rather than a UI convention. Approval works the same way: `status` lives on the user doc but only an admin write can change it.
-- Avatars use each person's Google photo when available, otherwise a colored circle with their initials. The one place Storage is used is the private verification photo at signup — never the public avatar.
+- **Admin access** is checked against `request.auth.token.email` — the *verified* email on the signed-in user's Firebase ID token — never against anything the client sends. Approval works the same way: `status` fields live on the documents, but only an admin write can change them.
+- Avatars use each person's Google photo when available, otherwise a colored circle with their initials. The one place Storage is used is the private verification photo at signup — never a public avatar.
 
 ## Known v1 simplifications (good next steps)
 
-- The feed re-renders in full on every update rather than patching individual posts — fine at moderate scale, but a candidate to optimize later if the community grows large.
+- Every post needs individual admin approval — no auto-approval tier yet for trusted/veteran members.
+- The feed re-renders in full on every update rather than patching individual posts — fine at moderate scale.
 - No profile editing page beyond what sign-up collects.
-- No push notifications for new messages, likes, or application decisions.
-- No pagination on the feed (currently loads the most recent 50 posts).
-- No re-apply flow for a rejected applicant beyond you manually moving them back to pending.
+- No push notifications for new messages, likes, or moderation decisions.
+- No pagination (currently loads the most recent 50 posts).
+- No re-apply flow for a rejected application or post beyond you manually moving it back to pending.
 
 Happy to build out any of these next — just say which.
