@@ -521,6 +521,25 @@ textarea:focus-visible,
 
 .feed-column { min-width: 0; }
 
+.welcome-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  padding: var(--sp-6);
+  margin-bottom: var(--sp-5);
+}
+.welcome-text { flex: 1.15; min-width: 0; }
+.welcome-text h2 { font-size: 1.5rem; margin-bottom: var(--sp-3); }
+.welcome-text p { font-size: 0.95rem; line-height: 1.7; color: var(--ink-700); }
+.welcome-graphic { flex: 1; display: flex; justify-content: center; }
+.welcome-illustration { width: 100%; max-width: 280px; height: auto; }
+
+@media (max-width: 720px) {
+  .welcome-card { flex-direction: column; text-align: center; padding: var(--sp-5); }
+  .welcome-graphic { order: -1; max-width: 200px; margin-bottom: var(--sp-2); }
+  .welcome-illustration { max-width: 200px; }
+}
+
 .aside-column { position: sticky; top: 92px; display: flex; flex-direction: column; gap: var(--sp-5); }
 
 @media (max-width: 980px) {
